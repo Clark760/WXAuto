@@ -1,0 +1,41 @@
+[
+  {
+    "id": "level_1",
+    "level": 1,
+    "required_exp": 0,
+    "max_deploy": 5,
+    "shop_probabilities": {
+      "white": 0.75,
+      "green": 0.2,
+      "blue": 0.05,
+      "purple": 0.0,
+      "orange": 0.0
+    }
+  },
+  {
+    "id": "level_2",
+    "level": 2,
+    "required_exp": 2,
+    "max_deploy": 8,
+    "shop_probabilities": {
+      "white": 0.55,
+      "green": 0.3,
+      "blue": 0.12,
+      "purple": 0.03,
+      "orange": 0.0
+    }
+  },
+  {
+    "id": "level_3",
+    "level": 3,
+    "required_exp": 6,
+    "max_deploy": 12,
+    "shop_probabilities": {
+      "white": 0.4,
+      "green": 0.35,
+      "blue": 0.18,
+      "purple": 0.06,
+      "orange": 0.01
+    }
+  }
+]

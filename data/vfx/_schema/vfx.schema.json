@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "VfxSchema",
+  "description": "程序化特效参数结构定义",
+  "type": "object",
+  "required": [
+    "id",
+    "type",
+    "emitter",
+    "amount",
+    "lifetime",
+    "color_start",
+    "color_end",
+    "speed",
+    "spread_angle",
+    "scale_curve",
+    "gravity"
+  ],
+  "properties": {
+    "id": {"type": "string", "pattern": "^[a-z0-9_]+$"},
+    "type": {"type": "string", "enum": ["particles", "line", "ring", "label"]},
+    "emitter": {"type": "string"},
+    "amount": {"type": "integer", "minimum": 0},
+    "lifetime": {"type": "number", "minimum": 0},
+    "color_start": {"type": "string"},
+    "color_end": {"type": "string"},
+    "speed": {"type": "number", "minimum": 0},
+    "spread_angle": {"type": "number", "minimum": 0},
+    "scale_curve": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {"type": "number"}
+    },
+    "gravity": {
+      "type": "object",
+      "required": ["x", "y"],
+      "properties": {
+        "x": {"type": "number"},
+        "y": {"type": "number"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": true
+}
+

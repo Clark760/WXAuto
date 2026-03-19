@@ -1,0 +1,25 @@
+[
+  {
+    "id": "unit_shaolin_wuseng",
+    "name": "少林武僧·改",
+    "faction": "shaolin",
+    "quality": "white",
+    "cost": 1,
+    "role": "vanguard",
+    "base_stats": {
+      "hp": 860,
+      "mp": 60,
+      "atk": 62,
+      "iat": 15,
+      "def": 48,
+      "idr": 24,
+      "spd": 80,
+      "rng": 1,
+      "mov": 96,
+      "wis": 38
+    },
+    "initial_gongfa": ["gongfa_jingang_huti"],
+    "sprite_path": "assets/sprites/units/unit_shaolin_wuseng.png",
+    "portrait_path": "assets/sprites/portraits/unit_shaolin_wuseng.png"
+  }
+]

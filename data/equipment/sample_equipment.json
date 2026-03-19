@@ -1,0 +1,27 @@
+[
+  {
+    "id": "equip_qinggang_jian",
+    "name": "青钢剑",
+    "type": "weapon",
+    "rarity": "green",
+    "stats": {
+      "atk": 22,
+      "spd": 6
+    },
+    "recipe": [],
+    "passive": "普通攻击有 10% 概率附加 1 层流血"
+  },
+  {
+    "id": "equip_jinsi_beixin",
+    "name": "金丝背心",
+    "type": "armor",
+    "rarity": "blue",
+    "stats": {
+      "def": 18,
+      "idr": 12,
+      "hp": 180
+    },
+    "recipe": ["equip_qinggang_jian", "equip_qinggang_jian"],
+    "passive": "受击时有 15% 概率减免本次伤害 30%"
+  }
+]

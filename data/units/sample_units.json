@@ -1,0 +1,52 @@
+[
+  {
+    "id": "unit_shaolin_wuseng",
+    "name": "少林武僧",
+    "faction": "shaolin",
+    "quality": "white",
+    "cost": 1,
+    "role": "vanguard",
+    "base_stats": {
+      "hp": 720,
+      "mp": 50,
+      "atk": 58,
+      "iat": 12,
+      "def": 40,
+      "idr": 18,
+      "spd": 78,
+      "rng": 1,
+      "mov": 95,
+      "wis": 35
+    },
+    "initial_gongfa": ["gongfa_jingang_huti"],
+    "sprite_path": "assets/sprites/units/unit_shaolin_wuseng.png",
+    "portrait_path": "assets/sprites/portraits/unit_shaolin_wuseng.png",
+    "animation_overrides": {
+      "idle_float_amplitude": 2.5,
+      "attack_dash_distance": 6.0
+    }
+  },
+  {
+    "id": "unit_wudang_jianxiu",
+    "name": "武当剑修",
+    "faction": "wudang",
+    "quality": "green",
+    "cost": 2,
+    "role": "swordsman",
+    "base_stats": {
+      "hp": 620,
+      "mp": 80,
+      "atk": 70,
+      "iat": 35,
+      "def": 28,
+      "idr": 24,
+      "spd": 88,
+      "rng": 2,
+      "mov": 102,
+      "wis": 52
+    },
+    "initial_gongfa": ["gongfa_taiji_jian"],
+    "sprite_path": "assets/sprites/units/unit_wudang_jianxiu.png",
+    "portrait_path": "assets/sprites/portraits/unit_wudang_jianxiu.png"
+  }
+]

@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LevelSchema",
+  "description": "门派等级与上场上限数据结构定义",
+  "type": "object",
+  "required": ["id", "level", "required_exp", "max_deploy", "shop_probabilities"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^[a-z0-9_]+$"},
+    "level": {"type": "integer", "minimum": 1},
+    "required_exp": {"type": "integer", "minimum": 0},
+    "max_deploy": {"type": "integer", "minimum": 1},
+    "shop_probabilities": {
+      "type": "object",
+      "properties": {
+        "white": {"type": "number", "minimum": 0, "maximum": 1},
+        "green": {"type": "number", "minimum": 0, "maximum": 1},
+        "blue": {"type": "number", "minimum": 0, "maximum": 1},
+        "purple": {"type": "number", "minimum": 0, "maximum": 1},
+        "orange": {"type": "number", "minimum": 0, "maximum": 1}
+      },
+      "required": ["white", "green", "blue", "purple", "orange"],
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": true
+}
+

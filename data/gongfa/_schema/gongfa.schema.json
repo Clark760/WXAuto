@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GongfaSchema",
+  "description": "功法数据结构定义",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "type",
+    "element",
+    "effect_id",
+    "cooldown",
+    "mp_cost",
+    "skill_ratio",
+    "linkage_tags"
+  ],
+  "properties": {
+    "id": {"type": "string", "pattern": "^[a-z0-9_]+$"},
+    "name": {"type": "string", "minLength": 1},
+    "type": {
+      "type": "string",
+      "enum": ["inner", "outer", "movement", "formation", "mystic"]
+    },
+    "element": {
+      "type": "string",
+      "enum": ["metal", "wood", "water", "fire", "earth", "neutral"]
+    },
+    "effect_id": {"type": "string"},
+    "cooldown": {"type": "number", "minimum": 0},
+    "mp_cost": {"type": "number", "minimum": 0},
+    "skill_ratio": {"type": "number", "minimum": 0},
+    "linkage_tags": {
+      "type": "array",
+      "items": {"type": "string"}
+    }
+  },
+  "additionalProperties": true
+}
+

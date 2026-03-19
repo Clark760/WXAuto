@@ -1,0 +1,16 @@
+{
+  "id": "vfx_sword_qi",
+  "type": "particles",
+  "emitter": "cone",
+  "amount": 24,
+  "lifetime": 0.4,
+  "color_start": "#FFFFFF",
+  "color_end": "#88CCFF00",
+  "speed": 200,
+  "spread_angle": 30,
+  "scale_curve": [1.0, 0.3],
+  "gravity": {
+    "x": 0,
+    "y": 0
+  }
+}

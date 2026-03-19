@@ -1,0 +1,59 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/board/battlefield.gd" id="1_m1bf"]
+[ext_resource type="Script" path="res://scripts/board/hex_grid.gd" id="2_hexg"]
+[ext_resource type="Script" path="res://scripts/board/bench.gd" id="3_bench"]
+[ext_resource type="Script" path="res://scripts/unit/unit_factory.gd" id="4_factory"]
+[ext_resource type="Script" path="res://scripts/unit/unit_multimesh_renderer.gd" id="5_mm"]
+
+[node name="BattlefieldM1" type="Node2D"]
+script = ExtResource("1_m1bf")
+
+[node name="HexGrid" type="Node2D" parent="."]
+script = ExtResource("2_hexg")
+grid_width = 16
+grid_height = 8
+hex_size = 26.0
+origin_offset = Vector2(240, 96)
+draw_coordinates = true
+
+[node name="UnitLayer" type="Node2D" parent="."]
+
+[node name="UnitMultiMeshRenderer" type="Node2D" parent="."]
+script = ExtResource("5_mm")
+
+[node name="MultiMeshInstance2D" type="MultiMeshInstance2D" parent="UnitMultiMeshRenderer"]
+z_index = -1
+
+[node name="Bench" type="Node2D" parent="."]
+script = ExtResource("3_bench")
+max_slots = 50
+slots_per_row = 10
+slot_size = Vector2(48, 48)
+slot_gap = 8.0
+local_origin = Vector2(80, 620)
+auto_layout_to_viewport = true
+edge_margin = 20.0
+
+[node name="UnitFactory" type="Node" parent="."]
+script = ExtResource("4_factory")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="InfoLabel" type="Label" parent="CanvasLayer"]
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 780.0
+offset_bottom = 280.0
+theme_override_font_sizes/font_size = 18
+autowrap_mode = 2
+text = "M1 加载中..."
+
+[node name="TipLabel" type="Label" parent="CanvasLayer"]
+offset_left = 20.0
+offset_top = 300.0
+offset_right = 980.0
+offset_bottom = 360.0
+theme_override_font_sizes/font_size = 16
+autowrap_mode = 2
+text = "拖拽角色到网格部署"

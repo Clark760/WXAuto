@@ -1,0 +1,95 @@
+[
+  {
+    "id": "unit_wudang_swordsman_09",
+    "name": "武当剑客09·改",
+    "faction": "wudang",
+    "quality": "orange",
+    "cost": 5,
+    "role": "swordsman",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 860,
+      "mp": 95,
+      "atk": 128,
+      "iat": 76,
+      "def": 56,
+      "idr": 50,
+      "spd": 102,
+      "rng": 3,
+      "mov": 108,
+      "wis": 88
+    },
+    "initial_gongfa": ["gongfa_taiji_jian"],
+    "sprite_path": "assets/sprites/units/unit_wudang_swordsman_09.png",
+    "portrait_path": "assets/sprites/portraits/unit_wudang_swordsman_09.png",
+    "tags": ["wudang", "swordsman", "modded"],
+    "animation_overrides": {
+      "idle_amplitude": 3.2,
+      "attack_dash_distance": 7.0,
+      "bench_tilt_deg": 4.5
+    }
+  },
+  {
+    "id": "unit_kunlun_vanguard_01",
+    "name": "昆仑先锋01",
+    "faction": "kunlun",
+    "quality": "blue",
+    "cost": 3,
+    "role": "vanguard",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 900,
+      "mp": 60,
+      "atk": 86,
+      "iat": 36,
+      "def": 62,
+      "idr": 42,
+      "spd": 76,
+      "rng": 1,
+      "mov": 92,
+      "wis": 52
+    },
+    "initial_gongfa": ["gongfa_jingang_huti"],
+    "sprite_path": "assets/sprites/units/unit_kunlun_vanguard_01.png",
+    "portrait_path": "assets/sprites/portraits/unit_kunlun_vanguard_01.png",
+    "tags": ["kunlun", "vanguard", "mod_addition"],
+    "animation_overrides": {
+      "idle_amplitude": 2.5,
+      "attack_dash_distance": 5.5,
+      "bench_tilt_deg": 3.2
+    }
+  },
+  {
+    "id": "unit_kunlun_caster_02",
+    "name": "昆仑术师02",
+    "faction": "kunlun",
+    "quality": "purple",
+    "cost": 4,
+    "role": "caster",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 620,
+      "mp": 130,
+      "atk": 56,
+      "iat": 132,
+      "def": 24,
+      "idr": 54,
+      "spd": 88,
+      "rng": 5,
+      "mov": 94,
+      "wis": 96
+    },
+    "initial_gongfa": ["gongfa_taiji_jian"],
+    "sprite_path": "assets/sprites/units/unit_kunlun_caster_02.png",
+    "portrait_path": "assets/sprites/portraits/unit_kunlun_caster_02.png",
+    "tags": ["kunlun", "caster", "mod_addition"],
+    "animation_overrides": {
+      "idle_amplitude": 2.9,
+      "attack_dash_distance": 6.0,
+      "bench_tilt_deg": 3.8
+    }
+  }
+]

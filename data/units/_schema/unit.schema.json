@@ -1,0 +1,93 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "UnitSchema",
+  "description": "角色数据结构定义",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "faction",
+    "quality",
+    "cost",
+    "role",
+    "base_stats",
+    "initial_gongfa",
+    "sprite_path",
+    "portrait_path"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "faction": {
+      "type": "string"
+    },
+    "quality": {
+      "type": "string",
+      "enum": ["white", "green", "blue", "purple", "orange", "red"]
+    },
+    "cost": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "role": {
+      "type": "string",
+      "enum": ["vanguard", "swordsman", "assassin", "archer", "caster", "healer", "leader"]
+    },
+    "base_stats": {
+      "type": "object",
+      "required": ["hp", "mp", "atk", "iat", "def", "idr", "spd", "rng", "mov", "wis"],
+      "properties": {
+        "hp": {"type": "number", "minimum": 1},
+        "mp": {"type": "number", "minimum": 0},
+        "atk": {"type": "number", "minimum": 0},
+        "iat": {"type": "number", "minimum": 0},
+        "def": {"type": "number", "minimum": 0},
+        "idr": {"type": "number", "minimum": 0},
+        "spd": {"type": "number", "minimum": 0},
+        "rng": {"type": "number", "minimum": 1},
+        "mov": {"type": "number", "minimum": 0},
+        "wis": {"type": "number", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "initial_gongfa": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "sprite_path": {
+      "type": "string"
+    },
+    "portrait_path": {
+      "type": "string"
+    },
+    "animation_overrides": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "base_star": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3,
+      "default": 1
+    },
+    "max_star": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3,
+      "default": 3
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": true
+}

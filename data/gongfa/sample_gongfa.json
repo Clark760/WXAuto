@@ -1,0 +1,24 @@
+[
+  {
+    "id": "gongfa_jingang_huti",
+    "name": "金刚护体",
+    "type": "inner",
+    "element": "earth",
+    "effect_id": "effect_defense_boost",
+    "cooldown": 8.0,
+    "mp_cost": 35,
+    "skill_ratio": 1.0,
+    "linkage_tags": ["shaolin", "tank", "defense"]
+  },
+  {
+    "id": "gongfa_taiji_jian",
+    "name": "太极剑意",
+    "type": "outer",
+    "element": "wood",
+    "effect_id": "effect_sword_wave",
+    "cooldown": 6.0,
+    "mp_cost": 40,
+    "skill_ratio": 1.25,
+    "linkage_tags": ["wudang", "sword", "combo"]
+  }
+]

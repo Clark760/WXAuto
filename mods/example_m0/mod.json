@@ -1,0 +1,9 @@
+{
+  "id": "example_m0_mod",
+  "name": "M0覆盖示例",
+  "author": "AI",
+  "version": "1.0.0",
+  "description": "用于验证 DataManager 的同 ID 覆盖逻辑。",
+  "game_version_min": "1.0.0",
+  "load_order": 100
+}

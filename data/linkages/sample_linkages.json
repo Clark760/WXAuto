@@ -1,0 +1,31 @@
+[
+  {
+    "id": "linkage_wudang_three_sword",
+    "name": "三才剑阵",
+    "trigger_type": "same_faction",
+    "conditions": {
+      "faction": "wudang",
+      "required_unit_count": 3,
+      "position_rule": "adjacent"
+    },
+    "effects": [
+      {"target": "self_group", "attribute": "atk", "op": "mul", "value": 1.3},
+      {"target": "self_group", "attribute": "block_rate", "op": "add", "value": 0.15}
+    ],
+    "description": "三名武当剑修相邻站位时，触发剑阵共鸣。"
+  },
+  {
+    "id": "linkage_wood_feed_fire",
+    "name": "木生火共鸣",
+    "trigger_type": "element_resonance",
+    "conditions": {
+      "source_element": "wood",
+      "target_element": "fire",
+      "distance_max": 2
+    },
+    "effects": [
+      {"target": "target_unit", "attribute": "skill_damage", "op": "mul", "value": 1.25}
+    ],
+    "description": "木属性功法角色邻近火属性角色时，提升后者技能伤害。"
+  }
+]

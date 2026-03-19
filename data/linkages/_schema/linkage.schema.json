@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LinkageSchema",
+  "description": "联动关系数据结构定义",
+  "type": "object",
+  "required": ["id", "name", "trigger_type", "conditions", "effects", "description"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^[a-z0-9_]+$"},
+    "name": {"type": "string"},
+    "trigger_type": {
+      "type": "string",
+      "enum": ["same_faction", "element_resonance", "combo", "formation"]
+    },
+    "conditions": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "effects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["target", "attribute", "op", "value"],
+        "properties": {
+          "target": {"type": "string"},
+          "attribute": {"type": "string"},
+          "op": {"type": "string", "enum": ["add", "mul", "set"]},
+          "value": {"type": "number"}
+        },
+        "additionalProperties": true
+      }
+    },
+    "description": {"type": "string"}
+  },
+  "additionalProperties": true
+}
+

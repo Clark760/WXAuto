@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "EquipmentSchema",
+  "description": "装备数据结构定义",
+  "type": "object",
+  "required": ["id", "name", "type", "rarity", "stats", "recipe", "passive"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^[a-z0-9_]+$"},
+    "name": {"type": "string"},
+    "type": {
+      "type": "string",
+      "enum": ["weapon", "armor", "accessory", "consumable"]
+    },
+    "rarity": {
+      "type": "string",
+      "enum": ["white", "green", "blue", "purple", "orange", "red"]
+    },
+    "stats": {
+      "type": "object",
+      "additionalProperties": {"type": "number"}
+    },
+    "recipe": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "passive": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}
+

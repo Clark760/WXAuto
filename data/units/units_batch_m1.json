@@ -1,0 +1,2074 @@
+[
+  {
+    "id": "unit_shaolin_vanguard_01",
+    "name": "少林先锋01",
+    "faction": "shaolin",
+    "quality": "white",
+    "cost": 1,
+    "role": "vanguard",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 840,
+      "mp": 50,
+      "atk": 62,
+      "iat": 20,
+      "def": 56,
+      "idr": 32,
+      "spd": 74,
+      "rng": 1,
+      "mov": 88,
+      "wis": 36
+    },
+    "initial_gongfa": [
+      "gongfa_jingang_huti"
+    ],
+    "sprite_path": "assets/sprites/units/unit_shaolin_vanguard_01.png",
+    "portrait_path": "assets/sprites/portraits/unit_shaolin_vanguard_01.png",
+    "tags": [
+      "shaolin",
+      "vanguard",
+      "white"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.35,
+      "attack_dash_distance": 6.0,
+      "bench_tilt_deg": 3.0
+    }
+  },
+  {
+    "id": "unit_shaolin_swordsman_02",
+    "name": "少林剑客02",
+    "faction": "shaolin",
+    "quality": "green",
+    "cost": 2,
+    "role": "swordsman",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 740,
+      "mp": 70,
+      "atk": 78,
+      "iat": 40,
+      "def": 38,
+      "idr": 30,
+      "spd": 86,
+      "rng": 2,
+      "mov": 96,
+      "wis": 48
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_shaolin_swordsman_02.png",
+    "portrait_path": "assets/sprites/portraits/unit_shaolin_swordsman_02.png",
+    "tags": [
+      "shaolin",
+      "swordsman",
+      "green"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.7,
+      "attack_dash_distance": 5.0,
+      "bench_tilt_deg": 3.5
+    }
+  },
+  {
+    "id": "unit_shaolin_assassin_03",
+    "name": "少林刺客03",
+    "faction": "shaolin",
+    "quality": "blue",
+    "cost": 3,
+    "role": "assassin",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 620,
+      "mp": 80,
+      "atk": 92,
+      "iat": 38,
+      "def": 28,
+      "idr": 28,
+      "spd": 102,
+      "rng": 1,
+      "mov": 112,
+      "wis": 44
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_shaolin_assassin_03.png",
+    "portrait_path": "assets/sprites/portraits/unit_shaolin_assassin_03.png",
+    "tags": [
+      "shaolin",
+      "assassin",
+      "blue"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.0,
+      "attack_dash_distance": 6.0,
+      "bench_tilt_deg": 4.0
+    }
+  },
+  {
+    "id": "unit_shaolin_archer_04",
+    "name": "少林射手04",
+    "faction": "shaolin",
+    "quality": "purple",
+    "cost": 4,
+    "role": "archer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 650,
+      "mp": 65,
+      "atk": 84,
+      "iat": 30,
+      "def": 32,
+      "idr": 26,
+      "spd": 90,
+      "rng": 5,
+      "mov": 92,
+      "wis": 42
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_shaolin_archer_04.png",
+    "portrait_path": "assets/sprites/portraits/unit_shaolin_archer_04.png",
+    "tags": [
+      "shaolin",
+      "archer",
+      "purple"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.35,
+      "attack_dash_distance": 5.0,
+      "bench_tilt_deg": 2.5
+    }
+  },
+  {
+    "id": "unit_shaolin_caster_05",
+    "name": "少林术师05",
+    "faction": "shaolin",
+    "quality": "orange",
+    "cost": 5,
+    "role": "caster",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 600,
+      "mp": 105,
+      "atk": 42,
+      "iat": 96,
+      "def": 26,
+      "idr": 42,
+      "spd": 82,
+      "rng": 4,
+      "mov": 86,
+      "wis": 66
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_shaolin_caster_05.png",
+    "portrait_path": "assets/sprites/portraits/unit_shaolin_caster_05.png",
+    "tags": [
+      "shaolin",
+      "caster",
+      "orange"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.7,
+      "attack_dash_distance": 6.0,
+      "bench_tilt_deg": 3.0
+    }
+  },
+  {
+    "id": "unit_shaolin_healer_06",
+    "name": "少林医者06",
+    "faction": "shaolin",
+    "quality": "white",
+    "cost": 1,
+    "role": "healer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 670,
+      "mp": 110,
+      "atk": 40,
+      "iat": 88,
+      "def": 30,
+      "idr": 40,
+      "spd": 84,
+      "rng": 4,
+      "mov": 88,
+      "wis": 72
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_shaolin_healer_06.png",
+    "portrait_path": "assets/sprites/portraits/unit_shaolin_healer_06.png",
+    "tags": [
+      "shaolin",
+      "healer",
+      "white"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.0,
+      "attack_dash_distance": 5.0,
+      "bench_tilt_deg": 3.5
+    }
+  },
+  {
+    "id": "unit_shaolin_leader_07",
+    "name": "少林统领07",
+    "faction": "shaolin",
+    "quality": "green",
+    "cost": 2,
+    "role": "leader",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 820,
+      "mp": 95,
+      "atk": 72,
+      "iat": 58,
+      "def": 46,
+      "idr": 38,
+      "spd": 80,
+      "rng": 3,
+      "mov": 90,
+      "wis": 68
+    },
+    "initial_gongfa": [
+      "gongfa_jingang_huti"
+    ],
+    "sprite_path": "assets/sprites/units/unit_shaolin_leader_07.png",
+    "portrait_path": "assets/sprites/portraits/unit_shaolin_leader_07.png",
+    "tags": [
+      "shaolin",
+      "leader",
+      "green"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.35,
+      "attack_dash_distance": 6.0,
+      "bench_tilt_deg": 4.0
+    }
+  },
+  {
+    "id": "unit_wudang_vanguard_08",
+    "name": "武当先锋08",
+    "faction": "wudang",
+    "quality": "blue",
+    "cost": 3,
+    "role": "vanguard",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 780,
+      "mp": 50,
+      "atk": 62,
+      "iat": 30,
+      "def": 48,
+      "idr": 26,
+      "spd": 78,
+      "rng": 1,
+      "mov": 88,
+      "wis": 44
+    },
+    "initial_gongfa": [
+      "gongfa_jingang_huti"
+    ],
+    "sprite_path": "assets/sprites/units/unit_wudang_vanguard_08.png",
+    "portrait_path": "assets/sprites/portraits/unit_wudang_vanguard_08.png",
+    "tags": [
+      "wudang",
+      "vanguard",
+      "blue"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.7,
+      "attack_dash_distance": 5.0,
+      "bench_tilt_deg": 2.5
+    }
+  },
+  {
+    "id": "unit_wudang_swordsman_09",
+    "name": "武当剑客09",
+    "faction": "wudang",
+    "quality": "purple",
+    "cost": 4,
+    "role": "swordsman",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 680,
+      "mp": 70,
+      "atk": 78,
+      "iat": 50,
+      "def": 30,
+      "idr": 24,
+      "spd": 90,
+      "rng": 2,
+      "mov": 96,
+      "wis": 56
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_wudang_swordsman_09.png",
+    "portrait_path": "assets/sprites/portraits/unit_wudang_swordsman_09.png",
+    "tags": [
+      "wudang",
+      "swordsman",
+      "purple"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.0,
+      "attack_dash_distance": 6.0,
+      "bench_tilt_deg": 3.0
+    }
+  },
+  {
+    "id": "unit_wudang_assassin_10",
+    "name": "武当刺客10",
+    "faction": "wudang",
+    "quality": "orange",
+    "cost": 5,
+    "role": "assassin",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 560,
+      "mp": 80,
+      "atk": 92,
+      "iat": 48,
+      "def": 20,
+      "idr": 22,
+      "spd": 106,
+      "rng": 1,
+      "mov": 112,
+      "wis": 52
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_wudang_assassin_10.png",
+    "portrait_path": "assets/sprites/portraits/unit_wudang_assassin_10.png",
+    "tags": [
+      "wudang",
+      "assassin",
+      "orange"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.35,
+      "attack_dash_distance": 5.0,
+      "bench_tilt_deg": 3.5
+    }
+  },
+  {
+    "id": "unit_wudang_archer_11",
+    "name": "武当射手11",
+    "faction": "wudang",
+    "quality": "white",
+    "cost": 1,
+    "role": "archer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 590,
+      "mp": 65,
+      "atk": 84,
+      "iat": 40,
+      "def": 24,
+      "idr": 20,
+      "spd": 94,
+      "rng": 5,
+      "mov": 92,
+      "wis": 50
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_wudang_archer_11.png",
+    "portrait_path": "assets/sprites/portraits/unit_wudang_archer_11.png",
+    "tags": [
+      "wudang",
+      "archer",
+      "white"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.7,
+      "attack_dash_distance": 6.0,
+      "bench_tilt_deg": 4.0
+    }
+  },
+  {
+    "id": "unit_wudang_caster_12",
+    "name": "武当术师12",
+    "faction": "wudang",
+    "quality": "green",
+    "cost": 2,
+    "role": "caster",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 540,
+      "mp": 105,
+      "atk": 42,
+      "iat": 106,
+      "def": 18,
+      "idr": 36,
+      "spd": 86,
+      "rng": 4,
+      "mov": 86,
+      "wis": 74
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_wudang_caster_12.png",
+    "portrait_path": "assets/sprites/portraits/unit_wudang_caster_12.png",
+    "tags": [
+      "wudang",
+      "caster",
+      "green"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.0,
+      "attack_dash_distance": 5.0,
+      "bench_tilt_deg": 2.5
+    }
+  },
+  {
+    "id": "unit_wudang_healer_13",
+    "name": "武当医者13",
+    "faction": "wudang",
+    "quality": "blue",
+    "cost": 3,
+    "role": "healer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 610,
+      "mp": 110,
+      "atk": 40,
+      "iat": 98,
+      "def": 22,
+      "idr": 34,
+      "spd": 88,
+      "rng": 4,
+      "mov": 88,
+      "wis": 80
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_wudang_healer_13.png",
+    "portrait_path": "assets/sprites/portraits/unit_wudang_healer_13.png",
+    "tags": [
+      "wudang",
+      "healer",
+      "blue"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.35,
+      "attack_dash_distance": 6.0,
+      "bench_tilt_deg": 3.0
+    }
+  },
+  {
+    "id": "unit_wudang_leader_14",
+    "name": "武当统领14",
+    "faction": "wudang",
+    "quality": "purple",
+    "cost": 4,
+    "role": "leader",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 760,
+      "mp": 95,
+      "atk": 72,
+      "iat": 68,
+      "def": 38,
+      "idr": 32,
+      "spd": 84,
+      "rng": 3,
+      "mov": 90,
+      "wis": 76
+    },
+    "initial_gongfa": [
+      "gongfa_jingang_huti"
+    ],
+    "sprite_path": "assets/sprites/units/unit_wudang_leader_14.png",
+    "portrait_path": "assets/sprites/portraits/unit_wudang_leader_14.png",
+    "tags": [
+      "wudang",
+      "leader",
+      "purple"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.7,
+      "attack_dash_distance": 5.0,
+      "bench_tilt_deg": 3.5
+    }
+  },
+  {
+    "id": "unit_emei_vanguard_15",
+    "name": "峨眉先锋15",
+    "faction": "emei",
+    "quality": "orange",
+    "cost": 5,
+    "role": "vanguard",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 780,
+      "mp": 62,
+      "atk": 62,
+      "iat": 20,
+      "def": 48,
+      "idr": 30,
+      "spd": 74,
+      "rng": 1,
+      "mov": 88,
+      "wis": 46
+    },
+    "initial_gongfa": [
+      "gongfa_jingang_huti"
+    ],
+    "sprite_path": "assets/sprites/units/unit_emei_vanguard_15.png",
+    "portrait_path": "assets/sprites/portraits/unit_emei_vanguard_15.png",
+    "tags": [
+      "emei",
+      "vanguard",
+      "orange"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.0,
+      "attack_dash_distance": 6.0,
+      "bench_tilt_deg": 4.0
+    }
+  },
+  {
+    "id": "unit_emei_swordsman_16",
+    "name": "峨眉剑客16",
+    "faction": "emei",
+    "quality": "white",
+    "cost": 1,
+    "role": "swordsman",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 680,
+      "mp": 82,
+      "atk": 78,
+      "iat": 40,
+      "def": 30,
+      "idr": 28,
+      "spd": 86,
+      "rng": 2,
+      "mov": 96,
+      "wis": 58
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_emei_swordsman_16.png",
+    "portrait_path": "assets/sprites/portraits/unit_emei_swordsman_16.png",
+    "tags": [
+      "emei",
+      "swordsman",
+      "white"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.35,
+      "attack_dash_distance": 5.0,
+      "bench_tilt_deg": 2.5
+    }
+  },
+  {
+    "id": "unit_emei_assassin_17",
+    "name": "峨眉刺客17",
+    "faction": "emei",
+    "quality": "green",
+    "cost": 2,
+    "role": "assassin",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 560,
+      "mp": 92,
+      "atk": 92,
+      "iat": 38,
+      "def": 20,
+      "idr": 26,
+      "spd": 102,
+      "rng": 1,
+      "mov": 112,
+      "wis": 54
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_emei_assassin_17.png",
+    "portrait_path": "assets/sprites/portraits/unit_emei_assassin_17.png",
+    "tags": [
+      "emei",
+      "assassin",
+      "green"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.7,
+      "attack_dash_distance": 6.0,
+      "bench_tilt_deg": 3.0
+    }
+  },
+  {
+    "id": "unit_emei_archer_18",
+    "name": "峨眉射手18",
+    "faction": "emei",
+    "quality": "blue",
+    "cost": 3,
+    "role": "archer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 590,
+      "mp": 77,
+      "atk": 84,
+      "iat": 30,
+      "def": 24,
+      "idr": 24,
+      "spd": 90,
+      "rng": 5,
+      "mov": 92,
+      "wis": 52
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_emei_archer_18.png",
+    "portrait_path": "assets/sprites/portraits/unit_emei_archer_18.png",
+    "tags": [
+      "emei",
+      "archer",
+      "blue"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.0,
+      "attack_dash_distance": 5.0,
+      "bench_tilt_deg": 3.5
+    }
+  },
+  {
+    "id": "unit_emei_caster_19",
+    "name": "峨眉术师19",
+    "faction": "emei",
+    "quality": "purple",
+    "cost": 4,
+    "role": "caster",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 540,
+      "mp": 117,
+      "atk": 42,
+      "iat": 96,
+      "def": 18,
+      "idr": 40,
+      "spd": 82,
+      "rng": 4,
+      "mov": 86,
+      "wis": 76
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_emei_caster_19.png",
+    "portrait_path": "assets/sprites/portraits/unit_emei_caster_19.png",
+    "tags": [
+      "emei",
+      "caster",
+      "purple"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.35,
+      "attack_dash_distance": 6.0,
+      "bench_tilt_deg": 4.0
+    }
+  },
+  {
+    "id": "unit_emei_healer_20",
+    "name": "峨眉医者20",
+    "faction": "emei",
+    "quality": "orange",
+    "cost": 5,
+    "role": "healer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 610,
+      "mp": 122,
+      "atk": 40,
+      "iat": 88,
+      "def": 22,
+      "idr": 38,
+      "spd": 84,
+      "rng": 4,
+      "mov": 88,
+      "wis": 82
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_emei_healer_20.png",
+    "portrait_path": "assets/sprites/portraits/unit_emei_healer_20.png",
+    "tags": [
+      "emei",
+      "healer",
+      "orange"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.7,
+      "attack_dash_distance": 5.0,
+      "bench_tilt_deg": 2.5
+    }
+  },
+  {
+    "id": "unit_emei_leader_21",
+    "name": "峨眉统领21",
+    "faction": "emei",
+    "quality": "white",
+    "cost": 1,
+    "role": "leader",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 760,
+      "mp": 107,
+      "atk": 72,
+      "iat": 58,
+      "def": 38,
+      "idr": 36,
+      "spd": 80,
+      "rng": 3,
+      "mov": 90,
+      "wis": 78
+    },
+    "initial_gongfa": [
+      "gongfa_jingang_huti"
+    ],
+    "sprite_path": "assets/sprites/units/unit_emei_leader_21.png",
+    "portrait_path": "assets/sprites/portraits/unit_emei_leader_21.png",
+    "tags": [
+      "emei",
+      "leader",
+      "white"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.0,
+      "attack_dash_distance": 6.0,
+      "bench_tilt_deg": 3.0
+    }
+  },
+  {
+    "id": "unit_tangmen_vanguard_22",
+    "name": "唐门先锋22",
+    "faction": "tangmen",
+    "quality": "green",
+    "cost": 2,
+    "role": "vanguard",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 780,
+      "mp": 50,
+      "atk": 70,
+      "iat": 20,
+      "def": 48,
+      "idr": 26,
+      "spd": 82,
+      "rng": 2,
+      "mov": 88,
+      "wis": 36
+    },
+    "initial_gongfa": [
+      "gongfa_jingang_huti"
+    ],
+    "sprite_path": "assets/sprites/units/unit_tangmen_vanguard_22.png",
+    "portrait_path": "assets/sprites/portraits/unit_tangmen_vanguard_22.png",
+    "tags": [
+      "tangmen",
+      "vanguard",
+      "green"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.35,
+      "attack_dash_distance": 5.0,
+      "bench_tilt_deg": 3.5
+    }
+  },
+  {
+    "id": "unit_tangmen_swordsman_23",
+    "name": "唐门剑客23",
+    "faction": "tangmen",
+    "quality": "blue",
+    "cost": 3,
+    "role": "swordsman",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 680,
+      "mp": 70,
+      "atk": 86,
+      "iat": 40,
+      "def": 30,
+      "idr": 24,
+      "spd": 94,
+      "rng": 3,
+      "mov": 96,
+      "wis": 48
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_tangmen_swordsman_23.png",
+    "portrait_path": "assets/sprites/portraits/unit_tangmen_swordsman_23.png",
+    "tags": [
+      "tangmen",
+      "swordsman",
+      "blue"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.7,
+      "attack_dash_distance": 6.0,
+      "bench_tilt_deg": 4.0
+    }
+  },
+  {
+    "id": "unit_tangmen_assassin_24",
+    "name": "唐门刺客24",
+    "faction": "tangmen",
+    "quality": "purple",
+    "cost": 4,
+    "role": "assassin",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 560,
+      "mp": 80,
+      "atk": 100,
+      "iat": 38,
+      "def": 20,
+      "idr": 22,
+      "spd": 110,
+      "rng": 2,
+      "mov": 112,
+      "wis": 44
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_tangmen_assassin_24.png",
+    "portrait_path": "assets/sprites/portraits/unit_tangmen_assassin_24.png",
+    "tags": [
+      "tangmen",
+      "assassin",
+      "purple"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.0,
+      "attack_dash_distance": 5.0,
+      "bench_tilt_deg": 2.5
+    }
+  },
+  {
+    "id": "unit_tangmen_archer_25",
+    "name": "唐门射手25",
+    "faction": "tangmen",
+    "quality": "orange",
+    "cost": 5,
+    "role": "archer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 590,
+      "mp": 65,
+      "atk": 92,
+      "iat": 30,
+      "def": 24,
+      "idr": 20,
+      "spd": 98,
+      "rng": 6,
+      "mov": 92,
+      "wis": 42
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_tangmen_archer_25.png",
+    "portrait_path": "assets/sprites/portraits/unit_tangmen_archer_25.png",
+    "tags": [
+      "tangmen",
+      "archer",
+      "orange"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.35,
+      "attack_dash_distance": 6.0,
+      "bench_tilt_deg": 3.0
+    }
+  },
+  {
+    "id": "unit_tangmen_caster_26",
+    "name": "唐门术师26",
+    "faction": "tangmen",
+    "quality": "white",
+    "cost": 1,
+    "role": "caster",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 540,
+      "mp": 105,
+      "atk": 50,
+      "iat": 96,
+      "def": 18,
+      "idr": 36,
+      "spd": 90,
+      "rng": 5,
+      "mov": 86,
+      "wis": 66
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_tangmen_caster_26.png",
+    "portrait_path": "assets/sprites/portraits/unit_tangmen_caster_26.png",
+    "tags": [
+      "tangmen",
+      "caster",
+      "white"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.7,
+      "attack_dash_distance": 5.0,
+      "bench_tilt_deg": 3.5
+    }
+  },
+  {
+    "id": "unit_tangmen_healer_27",
+    "name": "唐门医者27",
+    "faction": "tangmen",
+    "quality": "green",
+    "cost": 2,
+    "role": "healer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 610,
+      "mp": 110,
+      "atk": 48,
+      "iat": 88,
+      "def": 22,
+      "idr": 34,
+      "spd": 92,
+      "rng": 5,
+      "mov": 88,
+      "wis": 72
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_tangmen_healer_27.png",
+    "portrait_path": "assets/sprites/portraits/unit_tangmen_healer_27.png",
+    "tags": [
+      "tangmen",
+      "healer",
+      "green"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.0,
+      "attack_dash_distance": 6.0,
+      "bench_tilt_deg": 4.0
+    }
+  },
+  {
+    "id": "unit_tangmen_leader_28",
+    "name": "唐门统领28",
+    "faction": "tangmen",
+    "quality": "blue",
+    "cost": 3,
+    "role": "leader",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 760,
+      "mp": 95,
+      "atk": 80,
+      "iat": 58,
+      "def": 38,
+      "idr": 32,
+      "spd": 88,
+      "rng": 4,
+      "mov": 90,
+      "wis": 68
+    },
+    "initial_gongfa": [
+      "gongfa_jingang_huti"
+    ],
+    "sprite_path": "assets/sprites/units/unit_tangmen_leader_28.png",
+    "portrait_path": "assets/sprites/portraits/unit_tangmen_leader_28.png",
+    "tags": [
+      "tangmen",
+      "leader",
+      "blue"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.35,
+      "attack_dash_distance": 5.0,
+      "bench_tilt_deg": 2.5
+    }
+  },
+  {
+    "id": "unit_mojiao_vanguard_29",
+    "name": "魔教先锋29",
+    "faction": "mojiao",
+    "quality": "purple",
+    "cost": 4,
+    "role": "vanguard",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 780,
+      "mp": 50,
+      "atk": 74,
+      "iat": 30,
+      "def": 44,
+      "idr": 26,
+      "spd": 74,
+      "rng": 1,
+      "mov": 88,
+      "wis": 36
+    },
+    "initial_gongfa": [
+      "gongfa_jingang_huti"
+    ],
+    "sprite_path": "assets/sprites/units/unit_mojiao_vanguard_29.png",
+    "portrait_path": "assets/sprites/portraits/unit_mojiao_vanguard_29.png",
+    "tags": [
+      "mojiao",
+      "vanguard",
+      "purple"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.7,
+      "attack_dash_distance": 6.0,
+      "bench_tilt_deg": 3.0
+    }
+  },
+  {
+    "id": "unit_mojiao_swordsman_30",
+    "name": "魔教剑客30",
+    "faction": "mojiao",
+    "quality": "orange",
+    "cost": 5,
+    "role": "swordsman",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 680,
+      "mp": 70,
+      "atk": 90,
+      "iat": 50,
+      "def": 26,
+      "idr": 24,
+      "spd": 86,
+      "rng": 2,
+      "mov": 96,
+      "wis": 48
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_mojiao_swordsman_30.png",
+    "portrait_path": "assets/sprites/portraits/unit_mojiao_swordsman_30.png",
+    "tags": [
+      "mojiao",
+      "swordsman",
+      "orange"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.0,
+      "attack_dash_distance": 5.0,
+      "bench_tilt_deg": 3.5
+    }
+  },
+  {
+    "id": "unit_mojiao_assassin_31",
+    "name": "魔教刺客31",
+    "faction": "mojiao",
+    "quality": "white",
+    "cost": 1,
+    "role": "assassin",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 560,
+      "mp": 80,
+      "atk": 104,
+      "iat": 48,
+      "def": 16,
+      "idr": 22,
+      "spd": 102,
+      "rng": 1,
+      "mov": 112,
+      "wis": 44
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_mojiao_assassin_31.png",
+    "portrait_path": "assets/sprites/portraits/unit_mojiao_assassin_31.png",
+    "tags": [
+      "mojiao",
+      "assassin",
+      "white"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.35,
+      "attack_dash_distance": 6.0,
+      "bench_tilt_deg": 4.0
+    }
+  },
+  {
+    "id": "unit_mojiao_archer_32",
+    "name": "魔教射手32",
+    "faction": "mojiao",
+    "quality": "green",
+    "cost": 2,
+    "role": "archer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 590,
+      "mp": 65,
+      "atk": 96,
+      "iat": 40,
+      "def": 20,
+      "idr": 20,
+      "spd": 90,
+      "rng": 5,
+      "mov": 92,
+      "wis": 42
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_mojiao_archer_32.png",
+    "portrait_path": "assets/sprites/portraits/unit_mojiao_archer_32.png",
+    "tags": [
+      "mojiao",
+      "archer",
+      "green"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.7,
+      "attack_dash_distance": 5.0,
+      "bench_tilt_deg": 2.5
+    }
+  },
+  {
+    "id": "unit_mojiao_caster_33",
+    "name": "魔教术师33",
+    "faction": "mojiao",
+    "quality": "blue",
+    "cost": 3,
+    "role": "caster",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 540,
+      "mp": 105,
+      "atk": 54,
+      "iat": 106,
+      "def": 14,
+      "idr": 36,
+      "spd": 82,
+      "rng": 4,
+      "mov": 86,
+      "wis": 66
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_mojiao_caster_33.png",
+    "portrait_path": "assets/sprites/portraits/unit_mojiao_caster_33.png",
+    "tags": [
+      "mojiao",
+      "caster",
+      "blue"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.0,
+      "attack_dash_distance": 6.0,
+      "bench_tilt_deg": 3.0
+    }
+  },
+  {
+    "id": "unit_mojiao_healer_34",
+    "name": "魔教医者34",
+    "faction": "mojiao",
+    "quality": "purple",
+    "cost": 4,
+    "role": "healer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 610,
+      "mp": 110,
+      "atk": 52,
+      "iat": 98,
+      "def": 18,
+      "idr": 34,
+      "spd": 84,
+      "rng": 4,
+      "mov": 88,
+      "wis": 72
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_mojiao_healer_34.png",
+    "portrait_path": "assets/sprites/portraits/unit_mojiao_healer_34.png",
+    "tags": [
+      "mojiao",
+      "healer",
+      "purple"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.35,
+      "attack_dash_distance": 5.0,
+      "bench_tilt_deg": 3.5
+    }
+  },
+  {
+    "id": "unit_mojiao_leader_35",
+    "name": "魔教统领35",
+    "faction": "mojiao",
+    "quality": "orange",
+    "cost": 5,
+    "role": "leader",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 760,
+      "mp": 95,
+      "atk": 84,
+      "iat": 68,
+      "def": 34,
+      "idr": 32,
+      "spd": 80,
+      "rng": 3,
+      "mov": 90,
+      "wis": 68
+    },
+    "initial_gongfa": [
+      "gongfa_jingang_huti"
+    ],
+    "sprite_path": "assets/sprites/units/unit_mojiao_leader_35.png",
+    "portrait_path": "assets/sprites/portraits/unit_mojiao_leader_35.png",
+    "tags": [
+      "mojiao",
+      "leader",
+      "orange"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.7,
+      "attack_dash_distance": 6.0,
+      "bench_tilt_deg": 4.0
+    }
+  },
+  {
+    "id": "unit_gaibang_vanguard_36",
+    "name": "丐帮先锋36",
+    "faction": "gaibang",
+    "quality": "white",
+    "cost": 1,
+    "role": "vanguard",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 820,
+      "mp": 50,
+      "atk": 68,
+      "iat": 20,
+      "def": 48,
+      "idr": 26,
+      "spd": 74,
+      "rng": 1,
+      "mov": 94,
+      "wis": 36
+    },
+    "initial_gongfa": [
+      "gongfa_jingang_huti"
+    ],
+    "sprite_path": "assets/sprites/units/unit_gaibang_vanguard_36.png",
+    "portrait_path": "assets/sprites/portraits/unit_gaibang_vanguard_36.png",
+    "tags": [
+      "gaibang",
+      "vanguard",
+      "white"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.0,
+      "attack_dash_distance": 5.0,
+      "bench_tilt_deg": 2.5
+    }
+  },
+  {
+    "id": "unit_gaibang_swordsman_37",
+    "name": "丐帮剑客37",
+    "faction": "gaibang",
+    "quality": "green",
+    "cost": 2,
+    "role": "swordsman",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 720,
+      "mp": 70,
+      "atk": 84,
+      "iat": 40,
+      "def": 30,
+      "idr": 24,
+      "spd": 86,
+      "rng": 2,
+      "mov": 102,
+      "wis": 48
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_gaibang_swordsman_37.png",
+    "portrait_path": "assets/sprites/portraits/unit_gaibang_swordsman_37.png",
+    "tags": [
+      "gaibang",
+      "swordsman",
+      "green"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.35,
+      "attack_dash_distance": 6.0,
+      "bench_tilt_deg": 3.0
+    }
+  },
+  {
+    "id": "unit_gaibang_assassin_38",
+    "name": "丐帮刺客38",
+    "faction": "gaibang",
+    "quality": "blue",
+    "cost": 3,
+    "role": "assassin",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 600,
+      "mp": 80,
+      "atk": 98,
+      "iat": 38,
+      "def": 20,
+      "idr": 22,
+      "spd": 102,
+      "rng": 1,
+      "mov": 118,
+      "wis": 44
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_gaibang_assassin_38.png",
+    "portrait_path": "assets/sprites/portraits/unit_gaibang_assassin_38.png",
+    "tags": [
+      "gaibang",
+      "assassin",
+      "blue"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.7,
+      "attack_dash_distance": 5.0,
+      "bench_tilt_deg": 3.5
+    }
+  },
+  {
+    "id": "unit_gaibang_archer_39",
+    "name": "丐帮射手39",
+    "faction": "gaibang",
+    "quality": "purple",
+    "cost": 4,
+    "role": "archer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 630,
+      "mp": 65,
+      "atk": 90,
+      "iat": 30,
+      "def": 24,
+      "idr": 20,
+      "spd": 90,
+      "rng": 5,
+      "mov": 98,
+      "wis": 42
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_gaibang_archer_39.png",
+    "portrait_path": "assets/sprites/portraits/unit_gaibang_archer_39.png",
+    "tags": [
+      "gaibang",
+      "archer",
+      "purple"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.0,
+      "attack_dash_distance": 6.0,
+      "bench_tilt_deg": 4.0
+    }
+  },
+  {
+    "id": "unit_gaibang_caster_40",
+    "name": "丐帮术师40",
+    "faction": "gaibang",
+    "quality": "orange",
+    "cost": 5,
+    "role": "caster",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 580,
+      "mp": 105,
+      "atk": 48,
+      "iat": 96,
+      "def": 18,
+      "idr": 36,
+      "spd": 82,
+      "rng": 4,
+      "mov": 92,
+      "wis": 66
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_gaibang_caster_40.png",
+    "portrait_path": "assets/sprites/portraits/unit_gaibang_caster_40.png",
+    "tags": [
+      "gaibang",
+      "caster",
+      "orange"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.35,
+      "attack_dash_distance": 5.0,
+      "bench_tilt_deg": 2.5
+    }
+  },
+  {
+    "id": "unit_gaibang_healer_41",
+    "name": "丐帮医者41",
+    "faction": "gaibang",
+    "quality": "white",
+    "cost": 1,
+    "role": "healer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 650,
+      "mp": 110,
+      "atk": 46,
+      "iat": 88,
+      "def": 22,
+      "idr": 34,
+      "spd": 84,
+      "rng": 4,
+      "mov": 94,
+      "wis": 72
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_gaibang_healer_41.png",
+    "portrait_path": "assets/sprites/portraits/unit_gaibang_healer_41.png",
+    "tags": [
+      "gaibang",
+      "healer",
+      "white"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.7,
+      "attack_dash_distance": 6.0,
+      "bench_tilt_deg": 3.0
+    }
+  },
+  {
+    "id": "unit_gaibang_leader_42",
+    "name": "丐帮统领42",
+    "faction": "gaibang",
+    "quality": "green",
+    "cost": 2,
+    "role": "leader",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 800,
+      "mp": 95,
+      "atk": 78,
+      "iat": 58,
+      "def": 38,
+      "idr": 32,
+      "spd": 80,
+      "rng": 3,
+      "mov": 96,
+      "wis": 68
+    },
+    "initial_gongfa": [
+      "gongfa_jingang_huti"
+    ],
+    "sprite_path": "assets/sprites/units/unit_gaibang_leader_42.png",
+    "portrait_path": "assets/sprites/portraits/unit_gaibang_leader_42.png",
+    "tags": [
+      "gaibang",
+      "leader",
+      "green"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.0,
+      "attack_dash_distance": 5.0,
+      "bench_tilt_deg": 3.5
+    }
+  },
+  {
+    "id": "unit_xiaoyao_vanguard_43",
+    "name": "逍遥先锋43",
+    "faction": "xiaoyao",
+    "quality": "blue",
+    "cost": 3,
+    "role": "vanguard",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 780,
+      "mp": 50,
+      "atk": 62,
+      "iat": 20,
+      "def": 48,
+      "idr": 26,
+      "spd": 84,
+      "rng": 1,
+      "mov": 96,
+      "wis": 46
+    },
+    "initial_gongfa": [
+      "gongfa_jingang_huti"
+    ],
+    "sprite_path": "assets/sprites/units/unit_xiaoyao_vanguard_43.png",
+    "portrait_path": "assets/sprites/portraits/unit_xiaoyao_vanguard_43.png",
+    "tags": [
+      "xiaoyao",
+      "vanguard",
+      "blue"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.35,
+      "attack_dash_distance": 6.0,
+      "bench_tilt_deg": 4.0
+    }
+  },
+  {
+    "id": "unit_xiaoyao_swordsman_44",
+    "name": "逍遥剑客44",
+    "faction": "xiaoyao",
+    "quality": "purple",
+    "cost": 4,
+    "role": "swordsman",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 680,
+      "mp": 70,
+      "atk": 78,
+      "iat": 40,
+      "def": 30,
+      "idr": 24,
+      "spd": 96,
+      "rng": 2,
+      "mov": 104,
+      "wis": 58
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_xiaoyao_swordsman_44.png",
+    "portrait_path": "assets/sprites/portraits/unit_xiaoyao_swordsman_44.png",
+    "tags": [
+      "xiaoyao",
+      "swordsman",
+      "purple"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.7,
+      "attack_dash_distance": 5.0,
+      "bench_tilt_deg": 2.5
+    }
+  },
+  {
+    "id": "unit_xiaoyao_assassin_45",
+    "name": "逍遥刺客45",
+    "faction": "xiaoyao",
+    "quality": "orange",
+    "cost": 5,
+    "role": "assassin",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 560,
+      "mp": 80,
+      "atk": 92,
+      "iat": 38,
+      "def": 20,
+      "idr": 22,
+      "spd": 112,
+      "rng": 1,
+      "mov": 120,
+      "wis": 54
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_xiaoyao_assassin_45.png",
+    "portrait_path": "assets/sprites/portraits/unit_xiaoyao_assassin_45.png",
+    "tags": [
+      "xiaoyao",
+      "assassin",
+      "orange"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.0,
+      "attack_dash_distance": 6.0,
+      "bench_tilt_deg": 3.0
+    }
+  },
+  {
+    "id": "unit_xiaoyao_archer_46",
+    "name": "逍遥射手46",
+    "faction": "xiaoyao",
+    "quality": "white",
+    "cost": 1,
+    "role": "archer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 590,
+      "mp": 65,
+      "atk": 84,
+      "iat": 30,
+      "def": 24,
+      "idr": 20,
+      "spd": 100,
+      "rng": 5,
+      "mov": 100,
+      "wis": 52
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_xiaoyao_archer_46.png",
+    "portrait_path": "assets/sprites/portraits/unit_xiaoyao_archer_46.png",
+    "tags": [
+      "xiaoyao",
+      "archer",
+      "white"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.35,
+      "attack_dash_distance": 5.0,
+      "bench_tilt_deg": 3.5
+    }
+  },
+  {
+    "id": "unit_xiaoyao_caster_47",
+    "name": "逍遥术师47",
+    "faction": "xiaoyao",
+    "quality": "green",
+    "cost": 2,
+    "role": "caster",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 540,
+      "mp": 105,
+      "atk": 42,
+      "iat": 96,
+      "def": 18,
+      "idr": 36,
+      "spd": 92,
+      "rng": 4,
+      "mov": 94,
+      "wis": 76
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_xiaoyao_caster_47.png",
+    "portrait_path": "assets/sprites/portraits/unit_xiaoyao_caster_47.png",
+    "tags": [
+      "xiaoyao",
+      "caster",
+      "green"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.7,
+      "attack_dash_distance": 6.0,
+      "bench_tilt_deg": 4.0
+    }
+  },
+  {
+    "id": "unit_xiaoyao_healer_48",
+    "name": "逍遥医者48",
+    "faction": "xiaoyao",
+    "quality": "blue",
+    "cost": 3,
+    "role": "healer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 610,
+      "mp": 110,
+      "atk": 40,
+      "iat": 88,
+      "def": 22,
+      "idr": 34,
+      "spd": 94,
+      "rng": 4,
+      "mov": 96,
+      "wis": 82
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_xiaoyao_healer_48.png",
+    "portrait_path": "assets/sprites/portraits/unit_xiaoyao_healer_48.png",
+    "tags": [
+      "xiaoyao",
+      "healer",
+      "blue"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.0,
+      "attack_dash_distance": 5.0,
+      "bench_tilt_deg": 2.5
+    }
+  },
+  {
+    "id": "unit_xiaoyao_leader_49",
+    "name": "逍遥统领49",
+    "faction": "xiaoyao",
+    "quality": "purple",
+    "cost": 4,
+    "role": "leader",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 760,
+      "mp": 95,
+      "atk": 72,
+      "iat": 58,
+      "def": 38,
+      "idr": 32,
+      "spd": 90,
+      "rng": 3,
+      "mov": 98,
+      "wis": 78
+    },
+    "initial_gongfa": [
+      "gongfa_jingang_huti"
+    ],
+    "sprite_path": "assets/sprites/units/unit_xiaoyao_leader_49.png",
+    "portrait_path": "assets/sprites/portraits/unit_xiaoyao_leader_49.png",
+    "tags": [
+      "xiaoyao",
+      "leader",
+      "purple"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.35,
+      "attack_dash_distance": 6.0,
+      "bench_tilt_deg": 3.0
+    }
+  },
+  {
+    "id": "unit_jianghu_vanguard_50",
+    "name": "散人先锋50",
+    "faction": "jianghu",
+    "quality": "orange",
+    "cost": 5,
+    "role": "vanguard",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 780,
+      "mp": 50,
+      "atk": 66,
+      "iat": 24,
+      "def": 48,
+      "idr": 26,
+      "spd": 76,
+      "rng": 1,
+      "mov": 88,
+      "wis": 36
+    },
+    "initial_gongfa": [
+      "gongfa_jingang_huti"
+    ],
+    "sprite_path": "assets/sprites/units/unit_jianghu_vanguard_50.png",
+    "portrait_path": "assets/sprites/portraits/unit_jianghu_vanguard_50.png",
+    "tags": [
+      "jianghu",
+      "vanguard",
+      "orange"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.7,
+      "attack_dash_distance": 5.0,
+      "bench_tilt_deg": 3.5
+    }
+  },
+  {
+    "id": "unit_jianghu_swordsman_51",
+    "name": "散人剑客51",
+    "faction": "jianghu",
+    "quality": "white",
+    "cost": 1,
+    "role": "swordsman",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 680,
+      "mp": 70,
+      "atk": 82,
+      "iat": 44,
+      "def": 30,
+      "idr": 24,
+      "spd": 88,
+      "rng": 2,
+      "mov": 96,
+      "wis": 48
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_jianghu_swordsman_51.png",
+    "portrait_path": "assets/sprites/portraits/unit_jianghu_swordsman_51.png",
+    "tags": [
+      "jianghu",
+      "swordsman",
+      "white"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.0,
+      "attack_dash_distance": 6.0,
+      "bench_tilt_deg": 4.0
+    }
+  },
+  {
+    "id": "unit_jianghu_assassin_52",
+    "name": "散人刺客52",
+    "faction": "jianghu",
+    "quality": "green",
+    "cost": 2,
+    "role": "assassin",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 560,
+      "mp": 80,
+      "atk": 96,
+      "iat": 42,
+      "def": 20,
+      "idr": 22,
+      "spd": 104,
+      "rng": 1,
+      "mov": 112,
+      "wis": 44
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_jianghu_assassin_52.png",
+    "portrait_path": "assets/sprites/portraits/unit_jianghu_assassin_52.png",
+    "tags": [
+      "jianghu",
+      "assassin",
+      "green"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.35,
+      "attack_dash_distance": 5.0,
+      "bench_tilt_deg": 2.5
+    }
+  },
+  {
+    "id": "unit_jianghu_archer_53",
+    "name": "散人射手53",
+    "faction": "jianghu",
+    "quality": "blue",
+    "cost": 3,
+    "role": "archer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 590,
+      "mp": 65,
+      "atk": 88,
+      "iat": 34,
+      "def": 24,
+      "idr": 20,
+      "spd": 92,
+      "rng": 5,
+      "mov": 92,
+      "wis": 42
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_jianghu_archer_53.png",
+    "portrait_path": "assets/sprites/portraits/unit_jianghu_archer_53.png",
+    "tags": [
+      "jianghu",
+      "archer",
+      "blue"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.7,
+      "attack_dash_distance": 6.0,
+      "bench_tilt_deg": 3.0
+    }
+  },
+  {
+    "id": "unit_jianghu_caster_54",
+    "name": "散人术师54",
+    "faction": "jianghu",
+    "quality": "purple",
+    "cost": 4,
+    "role": "caster",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 540,
+      "mp": 105,
+      "atk": 46,
+      "iat": 100,
+      "def": 18,
+      "idr": 36,
+      "spd": 84,
+      "rng": 4,
+      "mov": 86,
+      "wis": 66
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_jianghu_caster_54.png",
+    "portrait_path": "assets/sprites/portraits/unit_jianghu_caster_54.png",
+    "tags": [
+      "jianghu",
+      "caster",
+      "purple"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.0,
+      "attack_dash_distance": 5.0,
+      "bench_tilt_deg": 3.5
+    }
+  },
+  {
+    "id": "unit_jianghu_healer_55",
+    "name": "散人医者55",
+    "faction": "jianghu",
+    "quality": "orange",
+    "cost": 5,
+    "role": "healer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 610,
+      "mp": 110,
+      "atk": 44,
+      "iat": 92,
+      "def": 22,
+      "idr": 34,
+      "spd": 86,
+      "rng": 4,
+      "mov": 88,
+      "wis": 72
+    },
+    "initial_gongfa": [
+      "gongfa_taiji_jian"
+    ],
+    "sprite_path": "assets/sprites/units/unit_jianghu_healer_55.png",
+    "portrait_path": "assets/sprites/portraits/unit_jianghu_healer_55.png",
+    "tags": [
+      "jianghu",
+      "healer",
+      "orange"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.35,
+      "attack_dash_distance": 6.0,
+      "bench_tilt_deg": 4.0
+    }
+  },
+  {
+    "id": "unit_jianghu_leader_56",
+    "name": "散人统领56",
+    "faction": "jianghu",
+    "quality": "white",
+    "cost": 1,
+    "role": "leader",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 760,
+      "mp": 95,
+      "atk": 76,
+      "iat": 62,
+      "def": 38,
+      "idr": 32,
+      "spd": 82,
+      "rng": 3,
+      "mov": 90,
+      "wis": 68
+    },
+    "initial_gongfa": [
+      "gongfa_jingang_huti"
+    ],
+    "sprite_path": "assets/sprites/units/unit_jianghu_leader_56.png",
+    "portrait_path": "assets/sprites/portraits/unit_jianghu_leader_56.png",
+    "tags": [
+      "jianghu",
+      "leader",
+      "white"
+    ],
+    "animation_overrides": {
+      "idle_amplitude": 2.7,
+      "attack_dash_distance": 5.0,
+      "bench_tilt_deg": 2.5
+    }
+  }
+]
