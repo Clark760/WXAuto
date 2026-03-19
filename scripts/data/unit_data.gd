@@ -56,6 +56,8 @@ static func normalize_unit_record(raw_record: Dictionary) -> Dictionary:
 		for gongfa_id in raw_record["initial_gongfa"]:
 			initial_gongfa.append(str(gongfa_id))
 	result["initial_gongfa"] = initial_gongfa
+	result["gongfa_slots"] = _normalize_gongfa_slots(raw_record.get("gongfa_slots", {}), initial_gongfa)
+	result["max_gongfa_count"] = clampi(int(raw_record.get("max_gongfa_count", 3)), 1, 5)
 
 	result["sprite_path"] = str(raw_record.get(
 		"sprite_path",
@@ -126,3 +128,25 @@ static func _normalize_quality(quality: String) -> String:
 	if QUALITY_TO_COST.has(normalized):
 		return normalized
 	return "white"
+
+
+static func _normalize_gongfa_slots(value: Variant, initial_gongfa: Array[String]) -> Dictionary:
+	var slots: Dictionary = {
+		"neigong": "",
+		"waigong": "",
+		"qinggong": "",
+		"zhenfa": "",
+		"qishu": ""
+	}
+	if value is Dictionary:
+		for key in slots.keys():
+			slots[key] = str((value as Dictionary).get(key, "")).strip_edges()
+
+	# 兼容旧版 initial_gongfa：按固定槽位顺序回填，减少历史数据改造成本。
+	if initial_gongfa.size() > 0 and slots["neigong"] == "":
+		slots["neigong"] = initial_gongfa[0]
+	if initial_gongfa.size() > 1 and slots["waigong"] == "":
+		slots["waigong"] = initial_gongfa[1]
+	if initial_gongfa.size() > 2 and slots["qinggong"] == "":
+		slots["qinggong"] = initial_gongfa[2]
+	return slots

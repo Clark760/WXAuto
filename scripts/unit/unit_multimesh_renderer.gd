@@ -1,19 +1,22 @@
 extends Node2D
 
 # ===========================
-# MultiMesh 批量渲染器（M1）
+# MultiMesh 批量渲染器（M2 FPS 优化版）
 # ===========================
-# 说明：
-# 1. M1 阶段用于验证“同屏大量单位合批渲染”的基础能力。
-# 2. 当前实现以单位位置生成实例矩阵，颜色按品质/星级编码。
-# 3. 渲染器不会接管单位逻辑，仅做可视化层；单位本体仍保留以支持拖拽交互。
+# 优化要点：
+# 1. 将实例更新频率降到固定间隔（默认 10fps），避免每渲染帧全量遍历。
+# 2. 颜色在重建实例时缓存，热路径仅更新 transform。
+# 3. 保留“无 mesh 时自动填充 QuadMesh”防御逻辑，避免渲染报错。
 
 @export var marker_size: float = 10.0
 @export var marker_alpha: float = 0.5
+@export var update_interval: float = 0.1
 
 @onready var _multimesh_node: MultiMeshInstance2D = $MultiMeshInstance2D
 
 var _tracked_units: Array[Node] = []
+var _cached_colors: PackedColorArray = PackedColorArray()
+var _update_accum: float = 0.0
 
 
 func _ready() -> void:
@@ -28,8 +31,13 @@ func set_units(units: Array[Node]) -> void:
 	_rebuild_instances()
 
 
-func _process(_delta: float) -> void:
-	# 每帧只更新 transform/color，不重建实例数量，降低频繁分配开销。
+func _process(delta: float) -> void:
+	if _tracked_units.is_empty():
+		return
+	_update_accum += delta
+	if _update_accum < maxf(update_interval, 0.01):
+		return
+	_update_accum = 0.0
 	_update_instances()
 
 
@@ -38,8 +46,6 @@ func _init_multimesh() -> void:
 		_multimesh_node.multimesh = MultiMesh.new()
 
 	var mm: MultiMesh = _multimesh_node.multimesh
-	# 关键：MultiMesh 渲染前必须有 mesh，否则会在渲染阶段报
-	# `_render_batch: Condition "mesh.is_null()" is true.`
 	if mm.mesh == null:
 		var quad := QuadMesh.new()
 		quad.size = Vector2(1.0, 1.0)
@@ -59,7 +65,19 @@ func _rebuild_instances() -> void:
 	var mm: MultiMesh = _multimesh_node.multimesh
 	if mm == null:
 		return
-	mm.instance_count = _tracked_units.size()
+
+	var count: int = _tracked_units.size()
+	mm.instance_count = count
+	_cached_colors.resize(count)
+
+	for i in range(count):
+		var unit: Node = _tracked_units[i]
+		if unit == null or not is_instance_valid(unit):
+			_cached_colors[i] = Color(0, 0, 0, 0)
+		else:
+			_cached_colors[i] = _build_color_for_unit(unit)
+
+	_update_accum = 0.0
 	_update_instances()
 
 
@@ -68,7 +86,8 @@ func _update_instances() -> void:
 	if mm == null:
 		return
 	if mm.instance_count != _tracked_units.size():
-		mm.instance_count = _tracked_units.size()
+		_rebuild_instances()
+		return
 
 	for i in range(_tracked_units.size()):
 		var unit: Node = _tracked_units[i]
@@ -78,14 +97,18 @@ func _update_instances() -> void:
 			continue
 
 		var unit_node: Node2D = unit as Node2D
-		# 避免局部变量名与 Node2D.transform 属性重名，减少调试器告警噪音。
+		if unit_node == null:
+			mm.set_instance_transform_2d(i, Transform2D.IDENTITY)
+			mm.set_instance_color(i, Color(0, 0, 0, 0))
+			continue
+
 		var instance_transform := Transform2D(
 			Vector2(marker_size, 0),
 			Vector2(0, marker_size),
-			unit_node.global_position
+			unit_node.position
 		)
 		mm.set_instance_transform_2d(i, instance_transform)
-		mm.set_instance_color(i, _build_color_for_unit(unit))
+		mm.set_instance_color(i, _cached_colors[i] if i < _cached_colors.size() else _build_color_for_unit(unit))
 
 
 func _build_color_for_unit(unit: Node) -> Color:
@@ -109,7 +132,7 @@ func _build_color_for_unit(unit: Node) -> Color:
 		_:
 			base_color = Color(1, 1, 1, marker_alpha)
 
-	# 星级越高，亮度越高，用于快速观测升星结果。
+	# 星级越高亮度越高，便于观察升星链路。
 	var boost: float = 1.0 + float(star_level - 1) * 0.15
 	return Color(
 		clampf(base_color.r * boost, 0.0, 1.0),

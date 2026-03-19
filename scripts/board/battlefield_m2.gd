@@ -1,0 +1,916 @@
+extends Node2D
+
+enum Stage { PREPARATION, COMBAT, RESULT }
+
+@export var initial_bench_count: int = 30
+@export var enemy_wave_size: int = 200
+@export var ally_deploy_columns: int = 16
+@export var max_auto_deploy: int = 50
+@export var top_reserved_height: float = 64.0
+@export var bottom_reserved_preparation: float = 250.0
+@export var bottom_reserved_collapsed: float = 54.0
+@export var board_margin: float = 20.0
+@export var min_hex_size: float = 10.0
+@export var max_hex_size: float = 24.0
+@export var world_zoom_min: float = 0.4
+@export var world_zoom_max: float = 2.5
+@export var world_zoom_step: float = 0.1
+@export var world_pan_speed: float = 540.0
+
+@onready var world_container: Node2D = $WorldContainer
+@onready var hex_grid: HexGrid = $WorldContainer/HexGrid
+@onready var deploy_overlay: Node2D = $WorldContainer/HexGrid/DeployZoneOverlay
+@onready var unit_layer: Node2D = $WorldContainer/UnitLayer
+@onready var multimesh_renderer: Node2D = $WorldContainer/UnitLayer/UnitMultiMeshRenderer
+@onready var vfx_factory: Node2D = $WorldContainer/VfxLayer/VfxFactory
+@onready var unit_factory: Node = $UnitFactory
+@onready var combat_manager: Node = $CombatManager
+@onready var gongfa_manager: Node = _get_root_node("GongfaManager")
+
+@onready var phase_label: Label = $HUDLayer/TopBar/TopBarContent/PhaseLabel
+@onready var round_label: Label = $HUDLayer/TopBar/TopBarContent/RoundLabel
+@onready var power_bar: ProgressBar = $HUDLayer/TopBar/TopBarContent/PowerBar
+@onready var timer_label: Label = $HUDLayer/TopBar/TopBarContent/TimerLabel
+@onready var linkage_info: Label = $HUDLayer/LinkagePanel/LinkageVBox/LinkageInfo
+@onready var minimap_info: Label = $HUDLayer/MiniMap/MiniMapInfo
+@onready var unit_tooltip: PanelContainer = $HUDLayer/UnitTooltip
+@onready var tooltip_name: Label = $HUDLayer/UnitTooltip/TooltipVBox/NameLabel
+@onready var tooltip_hp: ProgressBar = $HUDLayer/UnitTooltip/TooltipVBox/HPBar
+@onready var tooltip_mp: ProgressBar = $HUDLayer/UnitTooltip/TooltipVBox/MPBar
+@onready var tooltip_gongfa: Label = $HUDLayer/UnitTooltip/TooltipVBox/GongfaLabel
+@onready var phase_transition: Control = $HUDLayer/PhaseTransition
+@onready var phase_transition_text: Label = $HUDLayer/PhaseTransition/PhaseText
+
+@onready var bottom_panel: PanelContainer = $BottomLayer/BottomPanel
+@onready var bench_ui: Node = $BottomLayer/BottomPanel/RootVBox/BenchArea
+@onready var refresh_button: Button = $BottomLayer/BottomPanel/RootVBox/ShopBar/RefreshButton
+@onready var lock_button: Button = $BottomLayer/BottomPanel/RootVBox/ShopBar/LockButton
+@onready var upgrade_button: Button = $BottomLayer/BottomPanel/RootVBox/ActionBar/UpgradeButton
+@onready var gongfa_button: Button = $BottomLayer/BottomPanel/RootVBox/ActionBar/GongfaButton
+@onready var equip_button: Button = $BottomLayer/BottomPanel/RootVBox/ActionBar/EquipButton
+@onready var resource_label: Label = $BottomLayer/BottomPanel/RootVBox/ResourceBar/ResourceLabel
+@onready var toggle_button: Button = $BottomLayer/ToggleButton
+@onready var drag_preview: PanelContainer = $BottomLayer/DragPreview
+@onready var drag_preview_icon: ColorRect = $BottomLayer/DragPreview/PreviewVBox/Icon
+@onready var drag_preview_name: Label = $BottomLayer/DragPreview/PreviewVBox/Name
+@onready var drag_preview_star: Label = $BottomLayer/DragPreview/PreviewVBox/Star
+@onready var debug_label: Label = $DebugLayer/DebugLabel
+
+var _stage: int = Stage.PREPARATION
+var _round_index: int = 1
+var _combat_elapsed: float = 0.0
+var _ally_deployed: Dictionary = {}
+var _enemy_deployed: Dictionary = {}
+var _unit_scale_factor: float = 1.0
+var _world_zoom: float = 1.0
+var _world_offset: Vector2 = Vector2.ZERO
+var _is_panning: bool = false
+var _bottom_expanded: bool = true
+var _bottom_tween: Tween = null
+var _dragging_unit: Node = null
+var _drag_origin_kind: String = ""
+var _drag_origin_slot: int = -1
+var _drag_origin_cell: Vector2i = Vector2i(-999, -999)
+var _drag_target_cell: Vector2i = Vector2i(-999, -999)
+var _drag_target_valid: bool = false
+var _hover_candidate_unit: Node = null
+var _hover_hold_time: float = 0.0
+var _tooltip_hide_delay: float = 0.0
+
+func _ready() -> void:
+	_connect_signals()
+	combat_manager.call("configure_dependencies", hex_grid, vfx_factory)
+	if gongfa_manager != null:
+		gongfa_manager.call("bind_combat_context", combat_manager, hex_grid, vfx_factory)
+	_bind_viewport_resize()
+	bench_ui.initialize_slots(50, 10)
+	bench_ui.set_interactable(true)
+	drag_preview.visible = false
+	unit_tooltip.visible = false
+	_spawn_random_units_to_bench(initial_bench_count)
+	_set_stage(Stage.PREPARATION)
+	_on_viewport_size_changed()
+	_refresh_multimesh()
+	_refresh_all_ui()
+
+func _input(event: InputEvent) -> void:
+	# 鼠标交互使用 _input，避免被 ScrollContainer 等控件先消费导致拖拽失效。
+	if event is InputEventMouseButton:
+		var mouse_button: InputEventMouseButton = event as InputEventMouseButton
+
+		# 视角控制支持全阶段，右键/滚轮处理后直接标记为已消费。
+		if _handle_world_view_input(event):
+			get_viewport().set_input_as_handled()
+			return
+
+		if _stage != Stage.PREPARATION:
+			return
+
+		if mouse_button.button_index == MOUSE_BUTTON_LEFT:
+			var dragging_before: bool = _dragging_unit != null
+			if mouse_button.pressed:
+				_try_begin_drag(mouse_button.position)
+			else:
+				_try_end_drag(mouse_button.position)
+			if dragging_before or _dragging_unit != null:
+				get_viewport().set_input_as_handled()
+			return
+
+	if event is InputEventMouseMotion:
+		if _handle_world_view_input(event):
+			get_viewport().set_input_as_handled()
+			return
+
+		if _stage != Stage.PREPARATION:
+			return
+
+		if _dragging_unit != null:
+			var mouse_motion: InputEventMouseMotion = event as InputEventMouseMotion
+			_update_drag_preview(mouse_motion.position)
+			_update_drag_target(mouse_motion.position)
+			get_viewport().set_input_as_handled()
+
+func _process(delta: float) -> void:
+	_update_world_pan_by_keyboard(delta)
+	_update_tooltip(delta)
+	if _stage == Stage.COMBAT:
+		_combat_elapsed += delta
+	_refresh_dynamic_ui()
+
+func _draw() -> void:
+	if _dragging_unit == null or _drag_target_cell.x < 0:
+		return
+	var fill: Color = Color(0.3, 0.85, 0.45, 0.24) if _drag_target_valid else Color(0.9, 0.26, 0.26, 0.24)
+	var border_color: Color = Color(0.6, 1.0, 0.7, 0.9) if _drag_target_valid else Color(1.0, 0.48, 0.48, 0.9)
+	var local_points: PackedVector2Array = hex_grid.get_hex_points_local(_drag_target_cell)
+	if local_points.size() < 3:
+		return
+	var screen_points := PackedVector2Array()
+	for p in local_points:
+		var world_local: Vector2 = hex_grid.transform * p
+		screen_points.append(world_container.to_global(world_local))
+	draw_colored_polygon(screen_points, fill)
+	var border: PackedVector2Array = screen_points.duplicate()
+	border.append(screen_points[0])
+	draw_polyline(border, border_color, 2.0, true)
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey:
+		_handle_key_input(event as InputEventKey)
+	return
+
+func _handle_key_input(event: InputEventKey) -> void:
+	if not event.pressed or event.echo:
+		return
+	if event.keycode == KEY_F8:
+		debug_label.text = "F8 被 Godot 调试器占用。"
+		return
+	if event.keycode == KEY_F3:
+		var event_bus: Node = _get_root_node("EventBus")
+		if event_bus != null:
+			event_bus.call("emit_scene_change_requested", "res://scenes/main/main.tscn")
+		return
+	if event.keycode == KEY_F4 and _stage == Stage.PREPARATION:
+		_spawn_random_units_to_bench(8)
+		_refresh_all_ui()
+		return
+	if event.keycode == KEY_F6 and _stage == Stage.PREPARATION:
+		_start_combat()
+		return
+	if event.keycode == KEY_F7:
+		var event_bus_reload: Node = _get_root_node("EventBus")
+		if event_bus_reload != null:
+			event_bus_reload.call("emit_scene_change_requested", "res://scenes/battle/battlefield_m2.tscn")
+		return
+	if event.keycode == KEY_SPACE:
+		_reset_view()
+
+func _handle_world_view_input(event: InputEvent) -> bool:
+	if event is InputEventMouseButton:
+		var mouse_button: InputEventMouseButton = event as InputEventMouseButton
+		if mouse_button.button_index == MOUSE_BUTTON_WHEEL_UP and mouse_button.pressed:
+			_zoom_at(mouse_button.position, 1.0 + world_zoom_step)
+			return true
+		if mouse_button.button_index == MOUSE_BUTTON_WHEEL_DOWN and mouse_button.pressed:
+			_zoom_at(mouse_button.position, 1.0 - world_zoom_step)
+			return true
+		if mouse_button.button_index == MOUSE_BUTTON_RIGHT:
+			_is_panning = mouse_button.pressed
+			return true
+	if event is InputEventMouseMotion and _is_panning:
+		var motion: InputEventMouseMotion = event as InputEventMouseMotion
+		_pan(motion.relative)
+		return true
+	return false
+
+func _update_world_pan_by_keyboard(delta: float) -> void:
+	var direction: Vector2 = Vector2.ZERO
+	if Input.is_key_pressed(KEY_A):
+		direction.x += 1.0
+	if Input.is_key_pressed(KEY_D):
+		direction.x -= 1.0
+	if Input.is_key_pressed(KEY_W):
+		direction.y += 1.0
+	if Input.is_key_pressed(KEY_S):
+		direction.y -= 1.0
+	if direction.is_zero_approx():
+		return
+	_pan(direction.normalized() * world_pan_speed * delta)
+
+func _apply_world_transform() -> void:
+	# 视角统一入口：只修改 WorldContainer，禁止对子节点分别做缩放/平移。
+	world_container.position = _world_offset
+	world_container.scale = Vector2.ONE * _world_zoom
+	queue_redraw()
+
+func _zoom_at(screen_pos: Vector2, factor: float) -> void:
+	# 以鼠标位置为锚点缩放，避免“缩放后画面跳动”。
+	var old_zoom: float = _world_zoom
+	var next_zoom: float = clampf(old_zoom * factor, world_zoom_min, world_zoom_max)
+	if is_equal_approx(next_zoom, old_zoom):
+		return
+	var world_point: Vector2 = (screen_pos - _world_offset) / maxf(old_zoom, 0.0001)
+	_world_zoom = next_zoom
+	_world_offset = screen_pos - world_point * _world_zoom
+	_apply_world_transform()
+
+func _pan(relative: Vector2) -> void:
+	_world_offset += relative
+	_apply_world_transform()
+
+func _reset_view() -> void:
+	_world_zoom = 1.0
+	_world_offset = Vector2.ZERO
+	_is_panning = false
+	_apply_world_transform()
+
+func _try_begin_drag(screen_pos: Vector2) -> void:
+	# 拖拽优先级：先尝试备战席，再尝试战场单位。
+	if _dragging_unit != null:
+		return
+	var bench_slot: int = bench_ui.get_slot_index_at_screen_pos(screen_pos)
+	if bench_slot >= 0:
+		var bench_unit: Node = bench_ui.remove_unit_at(bench_slot)
+		if bench_unit != null:
+			_begin_drag(bench_unit, "bench", bench_slot, Vector2i(-999, -999), screen_pos)
+		return
+	var world_pos: Vector2 = _screen_to_world(screen_pos)
+	var deployed_unit: Node = _pick_deployed_ally_unit_at(world_pos)
+	if deployed_unit == null:
+		return
+	var origin_cell: Vector2i = deployed_unit.get("deployed_cell")
+	_remove_ally_mapping(deployed_unit)
+	_begin_drag(deployed_unit, "battlefield", -1, origin_cell, screen_pos)
+
+func _begin_drag(unit: Node, origin_kind: String, origin_slot: int, origin_cell: Vector2i, screen_pos: Vector2) -> void:
+	_dragging_unit = unit
+	_drag_origin_kind = origin_kind
+	_drag_origin_slot = origin_slot
+	_drag_origin_cell = origin_cell
+	if _dragging_unit is CanvasItem:
+		(_dragging_unit as CanvasItem).visible = false
+	_update_drag_preview_data(_dragging_unit)
+	drag_preview.visible = true
+	_update_drag_preview(screen_pos)
+	_update_drag_target(screen_pos)
+	_refresh_multimesh()
+
+func _try_end_drag(screen_pos: Vector2) -> void:
+	if _dragging_unit == null:
+		return
+	var dropped: bool = false
+	var target: Dictionary = _get_drop_target(screen_pos)
+	var target_type: String = str(target.get("type", "invalid"))
+	if target_type == "battlefield":
+		var cell: Vector2i = target.get("cell", Vector2i(-999, -999))
+		if _can_deploy_ally_to_cell(_dragging_unit, cell):
+			_deploy_ally_unit_to_cell(_dragging_unit, cell)
+			dropped = true
+	elif target_type == "bench":
+		var slot_index: int = int(target.get("slot", -1))
+		dropped = _drop_to_bench_slot(_dragging_unit, slot_index)
+	if not dropped:
+		_restore_drag_origin()
+	_finish_drag()
+
+func _finish_drag() -> void:
+	_dragging_unit = null
+	_drag_origin_kind = ""
+	_drag_origin_slot = -1
+	_drag_origin_cell = Vector2i(-999, -999)
+	_drag_target_cell = Vector2i(-999, -999)
+	_drag_target_valid = false
+	drag_preview.visible = false
+	queue_redraw()
+	_refresh_multimesh()
+	_refresh_all_ui()
+
+func _update_drag_preview(screen_pos: Vector2) -> void:
+	drag_preview.position = screen_pos + Vector2(14.0, 14.0)
+
+func _update_drag_target(screen_pos: Vector2) -> void:
+	var target: Dictionary = _get_drop_target(screen_pos)
+	var target_type: String = str(target.get("type", "invalid"))
+	if target_type == "battlefield":
+		_drag_target_cell = target.get("cell", Vector2i(-999, -999))
+		_drag_target_valid = _can_deploy_ally_to_cell(_dragging_unit, _drag_target_cell)
+	else:
+		_drag_target_cell = Vector2i(-999, -999)
+		_drag_target_valid = false
+	queue_redraw()
+
+func _update_drag_preview_data(unit: Node) -> void:
+	drag_preview_name.text = str(unit.get("unit_name"))
+	var star: int = int(unit.get("star_level"))
+	drag_preview_star.text = "★".repeat(clampi(star, 1, 3))
+	drag_preview_star.modulate = _star_color(star)
+	drag_preview_icon.color = _quality_color(str(unit.get("quality")))
+
+func _get_drop_target(screen_mouse: Vector2) -> Dictionary:
+	# 坐标转换链路：屏幕坐标 -> WorldContainer 本地坐标 -> 六角格坐标。
+	if bench_ui.is_screen_point_inside(screen_mouse):
+		return {"type": "bench", "slot": bench_ui.get_slot_index_at_screen_pos(screen_mouse)}
+	var world_pos: Vector2 = _screen_to_world(screen_mouse)
+	var cell: Vector2i = hex_grid.world_to_axial(world_pos)
+	if bool(hex_grid.is_inside_grid(cell)) and _is_ally_deploy_zone(cell):
+		return {"type": "battlefield", "cell": cell}
+	return {"type": "invalid"}
+
+func _drop_to_bench_slot(unit: Node, slot_index: int) -> bool:
+	if slot_index < 0:
+		return bench_ui.add_unit(unit)
+	var target_unit: Node = bench_ui.get_unit_at_slot(slot_index)
+	if target_unit == null:
+		return bench_ui.add_unit_to_slot(unit, slot_index, false)
+	if _drag_origin_kind == "bench" and _drag_origin_slot >= 0:
+		var extracted: Node = bench_ui.remove_unit_at(slot_index)
+		if extracted == null:
+			return false
+		if not bench_ui.add_unit_to_slot(unit, slot_index, false):
+			bench_ui.add_unit_to_slot(extracted, slot_index, false)
+			return false
+		if bench_ui.add_unit_to_slot(extracted, _drag_origin_slot, false):
+			return true
+		# 兜底：原槽不可用时，优先保住互换出的单位不丢失。
+		return bench_ui.add_unit(extracted)
+	return false
+
+func _restore_drag_origin() -> void:
+	if _dragging_unit == null:
+		return
+	if _drag_origin_kind == "battlefield" and _drag_origin_cell.x > -900:
+		_deploy_ally_unit_to_cell(_dragging_unit, _drag_origin_cell)
+		return
+	if _drag_origin_kind == "bench" and _drag_origin_slot >= 0:
+		if bench_ui.get_unit_at_slot(_drag_origin_slot) == null:
+			if bench_ui.add_unit_to_slot(_dragging_unit, _drag_origin_slot, false):
+				return
+	bench_ui.add_unit(_dragging_unit)
+
+func _pick_deployed_ally_unit_at(world_pos: Vector2) -> Node:
+	for unit in _ally_deployed.values():
+		if _is_valid_unit(unit) and _is_point_on_unit(unit, world_pos):
+			return unit
+	return null
+
+func _is_point_on_unit(unit: Node, world_pos: Vector2) -> bool:
+	var node2d: Node2D = unit as Node2D
+	if node2d == null:
+		return false
+	var radius: float = maxf(float(hex_grid.hex_size) * 0.62 * _unit_scale_factor, 10.0)
+	return node2d.position.distance_squared_to(world_pos) <= radius * radius
+
+func _can_deploy_ally_to_cell(unit: Node, cell: Vector2i) -> bool:
+	if not bool(hex_grid.is_inside_grid(cell)):
+		return false
+	if not _is_ally_deploy_zone(cell):
+		return false
+	var key: String = _cell_key(cell)
+	if not _ally_deployed.has(key):
+		return true
+	return _ally_deployed[key] == unit
+
+func _is_ally_deploy_zone(cell: Vector2i) -> bool:
+	return cell.x >= 0 and cell.x < ally_deploy_columns
+
+func _deploy_ally_unit_to_cell(unit: Node, cell: Vector2i) -> void:
+	# 战场单位定位使用 position（世界本地坐标），不写 global_position。
+	_ally_deployed[_cell_key(cell)] = unit
+	unit.set("deployed_cell", cell)
+	unit.call("set_team", 1)
+	unit.call("set_on_bench_state", false, -1)
+	unit.set("is_in_combat", false)
+	(unit as Node2D).position = hex_grid.axial_to_world(cell)
+	(unit as CanvasItem).visible = true
+	_apply_unit_visual_presentation(unit)
+	unit.call("play_anim_state", 0, {})
+
+func _deploy_enemy_unit_to_cell(unit: Node, cell: Vector2i) -> void:
+	_enemy_deployed[_cell_key(cell)] = unit
+	unit.set("deployed_cell", cell)
+	unit.call("set_team", 2)
+	unit.call("set_on_bench_state", false, -1)
+	unit.set("is_in_combat", false)
+	(unit as Node2D).position = hex_grid.axial_to_world(cell)
+	(unit as CanvasItem).visible = true
+	_apply_unit_visual_presentation(unit)
+	unit.call("play_anim_state", 0, {})
+
+func _remove_ally_mapping(unit: Node) -> void:
+	var remove_key: String = ""
+	for key in _ally_deployed.keys():
+		if _ally_deployed[key] == unit:
+			remove_key = str(key)
+			break
+	if not remove_key.is_empty():
+		_ally_deployed.erase(remove_key)
+
+func _spawn_random_units_to_bench(count: int) -> void:
+	var unit_ids: Array[String] = unit_factory.call("get_unit_ids")
+	if unit_ids.is_empty():
+		return
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+	for i in range(count):
+		var unit_id: String = unit_ids[rng.randi_range(0, unit_ids.size() - 1)]
+		var unit_node: Node = unit_factory.call("acquire_unit", unit_id, -1, unit_layer)
+		if unit_node == null:
+			continue
+		unit_node.call("set_team", 1)
+		unit_node.call("set_on_bench_state", true, -1)
+		unit_node.set("is_in_combat", false)
+		if not bench_ui.add_unit(unit_node):
+			unit_factory.call("release_unit", unit_node)
+			break
+	_apply_visual_to_all_units()
+
+func _start_combat() -> void:
+	if bool(combat_manager.call("is_battle_running")):
+		return
+	if _ally_deployed.is_empty():
+		_auto_deploy_from_bench(max_auto_deploy)
+	_spawn_enemy_wave(enemy_wave_size)
+
+	var ally_units: Array[Node] = _collect_units_from_map(_ally_deployed)
+	var enemy_units: Array[Node] = _collect_units_from_map(_enemy_deployed)
+	if ally_units.is_empty() or enemy_units.is_empty():
+		debug_label.text = "无法开始战斗：己方与敌方都必须至少有 1 名角色。"
+		return
+
+	_combat_elapsed = 0.0
+	if gongfa_manager != null:
+		# M3 接入点：必须先 prepare，再 start_battle，
+		# 否则 CombatManager 的 battle_started 信号会先于触发器注册发出。
+		gongfa_manager.call("prepare_battle", ally_units, enemy_units, hex_grid, vfx_factory, combat_manager)
+
+	var started: bool = bool(combat_manager.call("start_battle", ally_units, enemy_units))
+	if not started:
+		debug_label.text = "CombatManager 启动失败。"
+		return
+	for unit in ally_units:
+		unit.call("enter_combat")
+	for unit in enemy_units:
+		unit.call("enter_combat")
+
+	_set_stage(Stage.COMBAT)
+	_refresh_multimesh()
+	_refresh_all_ui()
+
+func _spawn_enemy_wave(count: int) -> void:
+	_clear_enemy_wave()
+	var unit_ids: Array[String] = unit_factory.call("get_unit_ids")
+	var cells: Array[Vector2i] = _collect_enemy_spawn_cells()
+	if unit_ids.is_empty() or cells.is_empty():
+		return
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+	_shuffle_cells(cells, rng)
+	var spawn_total: int = mini(count, cells.size())
+	for i in range(spawn_total):
+		var unit_id: String = unit_ids[rng.randi_range(0, unit_ids.size() - 1)]
+		var unit_node: Node = unit_factory.call("acquire_unit", unit_id, -1, unit_layer)
+		if unit_node != null:
+			_deploy_enemy_unit_to_cell(unit_node, cells[i])
+
+func _clear_enemy_wave() -> void:
+	for enemy in _enemy_deployed.values():
+		if _is_valid_unit(enemy):
+			unit_factory.call("release_unit", enemy)
+	_enemy_deployed.clear()
+
+func _auto_deploy_from_bench(limit: int) -> void:
+	var deploy_cells: Array[Vector2i] = _collect_ally_spawn_cells()
+	var deployed_count: int = 0
+	for cell in deploy_cells:
+		if deployed_count >= limit:
+			break
+		var bench_units: Array[Node] = bench_ui.get_all_units()
+		if bench_units.is_empty():
+			break
+		if _ally_deployed.has(_cell_key(cell)):
+			continue
+		var unit: Node = bench_units[bench_units.size() - 1]
+		bench_ui.remove_unit(unit)
+		_deploy_ally_unit_to_cell(unit, cell)
+		deployed_count += 1
+
+func _collect_ally_spawn_cells() -> Array[Vector2i]:
+	var cells: Array[Vector2i] = []
+	for r in range(int(hex_grid.grid_height)):
+		for q in range(0, ally_deploy_columns):
+			cells.append(Vector2i(q, r))
+	return cells
+
+func _collect_enemy_spawn_cells() -> Array[Vector2i]:
+	var cells: Array[Vector2i] = []
+	var width: int = int(hex_grid.grid_width)
+	var height: int = int(hex_grid.grid_height)
+	for r in range(height):
+		for q in range(ally_deploy_columns, width):
+			cells.append(Vector2i(q, r))
+	return cells
+
+func _collect_units_from_map(map_value: Dictionary) -> Array[Node]:
+	var units: Array[Node] = []
+	for unit in map_value.values():
+		if _is_valid_unit(unit):
+			units.append(unit)
+	return units
+
+func _apply_unit_visual_presentation(unit: Node) -> void:
+	if not _is_valid_unit(unit):
+		return
+	var on_bench: bool = bool(unit.get("is_on_bench"))
+	if on_bench:
+		(unit as CanvasItem).visible = false
+		(unit as Node2D).scale = Vector2.ONE
+		unit.call("set_compact_visual_mode", false)
+		return
+	(unit as CanvasItem).visible = true
+	(unit as Node2D).scale = Vector2.ONE * _unit_scale_factor
+	unit.call("set_compact_visual_mode", _stage != Stage.PREPARATION)
+
+func _apply_visual_to_all_units() -> void:
+	for unit in bench_ui.get_all_units():
+		_apply_unit_visual_presentation(unit)
+	for unit in _ally_deployed.values():
+		_apply_unit_visual_presentation(unit)
+	for unit in _enemy_deployed.values():
+		_apply_unit_visual_presentation(unit)
+
+func _refresh_deployed_positions() -> void:
+	for unit in _ally_deployed.values():
+		if _is_valid_unit(unit):
+			(unit as Node2D).position = hex_grid.axial_to_world(unit.get("deployed_cell"))
+	for unit in _enemy_deployed.values():
+		if _is_valid_unit(unit):
+			(unit as Node2D).position = hex_grid.axial_to_world(unit.get("deployed_cell"))
+
+func _refresh_multimesh() -> void:
+	var units: Array[Node] = []
+	for unit in _ally_deployed.values():
+		if _is_valid_unit(unit):
+			units.append(unit)
+	for unit in _enemy_deployed.values():
+		if _is_valid_unit(unit):
+			units.append(unit)
+	multimesh_renderer.call("set_units", units)
+
+func _update_tooltip(delta: float) -> void:
+	# Tooltip 采用“悬停 0.3s 显示 + 离开 0.15s 隐藏”的节奏，减少抖动。
+	if _dragging_unit != null:
+		unit_tooltip.visible = false
+		_hover_candidate_unit = null
+		_hover_hold_time = 0.0
+		_tooltip_hide_delay = 0.0
+		return
+	var mouse_screen: Vector2 = get_viewport().get_mouse_position()
+	var world_pos: Vector2 = _screen_to_world(mouse_screen)
+	var hovered: Node = _pick_visible_unit_at_world(world_pos)
+	if hovered == _hover_candidate_unit:
+		_hover_hold_time += delta
+	else:
+		_hover_candidate_unit = hovered
+		_hover_hold_time = 0.0
+	if hovered == null:
+		if unit_tooltip.visible:
+			_tooltip_hide_delay += delta
+			if _tooltip_hide_delay >= 0.15:
+				unit_tooltip.visible = false
+		return
+	_tooltip_hide_delay = 0.0
+	if _hover_hold_time >= 0.3:
+		_show_tooltip_for_unit(hovered, mouse_screen)
+
+func _pick_visible_unit_at_world(world_pos: Vector2) -> Node:
+	var candidate: Node = null
+	for unit in _ally_deployed.values():
+		if _is_valid_unit(unit) and (unit as CanvasItem).visible and _is_point_on_unit(unit, world_pos):
+			candidate = unit
+	for unit in _enemy_deployed.values():
+		if _is_valid_unit(unit) and (unit as CanvasItem).visible and _is_point_on_unit(unit, world_pos):
+			candidate = unit
+	return candidate
+
+func _show_tooltip_for_unit(unit: Node, screen_pos: Vector2) -> void:
+	tooltip_name.text = "%s %s" % [str(unit.get("unit_name")), "★".repeat(int(unit.get("star_level")))]
+	var combat: Node = unit.get_node_or_null("Components/UnitCombat")
+	if combat != null:
+		var max_hp: float = maxf(float(combat.get("max_hp")), 1.0)
+		var max_mp: float = maxf(float(combat.get("max_mp")), 1.0)
+		tooltip_hp.value = clampf(float(combat.get("current_hp")) / max_hp * 100.0, 0.0, 100.0)
+		tooltip_mp.value = clampf(float(combat.get("current_mp")) / max_mp * 100.0, 0.0, 100.0)
+	else:
+		tooltip_hp.value = 100.0
+		tooltip_mp.value = 0.0
+	var gongfa: Array = unit.get("initial_gongfa")
+	var runtime_ids: Array = unit.get("runtime_equipped_gongfa_ids")
+	if runtime_ids.is_empty():
+		runtime_ids = gongfa
+	tooltip_gongfa.text = "功法: 无" if runtime_ids.is_empty() else "功法: %s" % str(runtime_ids[0])
+	var viewport_size: Vector2 = get_viewport().get_visible_rect().size
+	var desired: Vector2 = screen_pos + Vector2(16.0, 16.0)
+	var tooltip_size: Vector2 = unit_tooltip.size
+	if desired.x + tooltip_size.x > viewport_size.x - 8.0:
+		desired.x = screen_pos.x - tooltip_size.x - 16.0
+	if desired.y + tooltip_size.y > viewport_size.y - 8.0:
+		desired.y = screen_pos.y - tooltip_size.y - 16.0
+	desired.x = clampf(desired.x, 8.0, viewport_size.x - tooltip_size.x - 8.0)
+	desired.y = clampf(desired.y, 8.0, viewport_size.y - tooltip_size.y - 8.0)
+	unit_tooltip.position = desired
+	unit_tooltip.visible = true
+
+func _set_stage(next_stage: int) -> void:
+	# 阶段驱动 UI：布阵可操作，交锋/结算自动切只读或收起。
+	_stage = next_stage
+	match _stage:
+		Stage.PREPARATION:
+			phase_label.text = "布阵期"
+			phase_label.modulate = Color(0.67, 0.84, 1.0, 1.0)
+			bench_ui.set_interactable(true)
+			deploy_overlay.visible = true
+			_set_bottom_expanded(true, false)
+			_set_shop_action_enabled(true)
+			_play_phase_transition("布阵开始")
+		Stage.COMBAT:
+			phase_label.text = "交锋期"
+			phase_label.modulate = Color(1.0, 0.6, 0.55, 1.0)
+			bench_ui.set_interactable(false)
+			deploy_overlay.visible = false
+			_set_bottom_expanded(false, true)
+			_set_shop_action_enabled(false)
+			_play_phase_transition("交锋开始")
+		Stage.RESULT:
+			phase_label.text = "结算期"
+			phase_label.modulate = Color(1.0, 0.86, 0.5, 1.0)
+			bench_ui.set_interactable(false)
+			deploy_overlay.visible = false
+			_set_bottom_expanded(true, true)
+			_set_shop_action_enabled(false)
+			_play_phase_transition("战斗结束")
+	_apply_visual_to_all_units()
+	_refit_hex_grid()
+	# 阶段切换会触发布局变化（尤其底栏收起/展开），必须同步刷新单位格子坐标。
+	_refresh_deployed_positions()
+	_refresh_all_ui()
+
+func _set_shop_action_enabled(enabled: bool) -> void:
+	refresh_button.disabled = not enabled
+	lock_button.disabled = not enabled
+	upgrade_button.disabled = not enabled
+	gongfa_button.disabled = not enabled
+	equip_button.disabled = not enabled
+
+func _set_bottom_expanded(expanded: bool, animate: bool) -> void:
+	_bottom_expanded = expanded
+	var viewport_size: Vector2 = get_viewport().get_visible_rect().size
+	var width: float = maxf(viewport_size.x - 24.0, 320.0)
+	var height: float = bottom_reserved_preparation if expanded else 42.0
+	var y: float = viewport_size.y - height - 8.0
+	bottom_panel.size = Vector2(width, height)
+	if _bottom_tween != null:
+		_bottom_tween.kill()
+		_bottom_tween = null
+	if animate:
+		_bottom_tween = create_tween()
+		_bottom_tween.tween_property(bottom_panel, "position", Vector2(12.0, y), 0.28).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
+		_bottom_tween.parallel().tween_property(bottom_panel, "size", Vector2(width, height), 0.28).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
+	else:
+		bottom_panel.position = Vector2(12.0, y)
+	toggle_button.text = "▼" if expanded else "▲"
+	toggle_button.position = Vector2(viewport_size.x * 0.5 - 24.0, viewport_size.y - 34.0)
+
+func _play_phase_transition(text: String) -> void:
+	phase_transition_text.text = text
+	phase_transition.visible = true
+	phase_transition.modulate = Color(1, 1, 1, 0)
+	var tween: Tween = create_tween()
+	tween.tween_property(phase_transition, "modulate:a", 1.0, 0.16)
+	tween.tween_interval(0.18)
+	tween.tween_property(phase_transition, "modulate:a", 0.0, 0.24)
+	tween.finished.connect(func() -> void: phase_transition.visible = false)
+
+func _refresh_dynamic_ui() -> void:
+	var ally_alive: int = int(combat_manager.call("get_alive_count", 1)) if _stage != Stage.PREPARATION else _ally_deployed.size()
+	var enemy_alive: int = int(combat_manager.call("get_alive_count", 2)) if _stage != Stage.PREPARATION else _enemy_deployed.size()
+	var bench_count: int = bench_ui.get_unit_count()
+	round_label.text = "第 %d 回合" % _round_index
+	var render_fps: int = int(Engine.get_frames_per_second())
+	timer_label.text = "%.1fs | %d fps" % [_combat_elapsed, render_fps] if _stage == Stage.COMBAT else "-- | %d fps" % render_fps
+	var total_power: int = maxi(ally_alive + enemy_alive, 1)
+	power_bar.value = float(ally_alive) / float(total_power) * 100.0
+	power_bar.tooltip_text = "己方 %d / 敌方 %d" % [ally_alive, enemy_alive]
+	resource_label.text = "门派LV7  |  银两328  |  备战席 %d / %d" % [bench_count, bench_ui.get_slot_count()]
+	if gongfa_manager != null:
+		var linkage_names: Array = gongfa_manager.call("get_active_linkage_names")
+		linkage_info.text = "当前联动：无" if linkage_names.is_empty() else "当前联动：%s" % "、".join(linkage_names)
+	else:
+		linkage_info.text = "当前联动：未连接 GongfaManager"
+	minimap_info.text = "小地图：己 %d / 敌 %d" % [ally_alive, enemy_alive]
+	var stage_name: String = "PREPARATION"
+	if _stage == Stage.COMBAT:
+		stage_name = "COMBAT"
+	elif _stage == Stage.RESULT:
+		stage_name = "RESULT"
+	debug_label.text = "阶段:%s  备战:%d  己方:%d  敌方:%d  渲染fps:%d  逻辑fps:%.1f" % [
+		stage_name,
+		bench_count,
+		_ally_deployed.size(),
+		_enemy_deployed.size(),
+		render_fps,
+		float(combat_manager.get("logic_fps"))
+	]
+
+func _refresh_all_ui() -> void:
+	_refresh_dynamic_ui()
+
+func _bind_viewport_resize() -> void:
+	var viewport: Viewport = get_viewport()
+	if viewport == null:
+		return
+	var cb: Callable = Callable(self, "_on_viewport_size_changed")
+	if not viewport.is_connected("size_changed", cb):
+		viewport.connect("size_changed", cb)
+
+func _on_viewport_size_changed() -> void:
+	_set_bottom_expanded(_bottom_expanded, false)
+	_refit_hex_grid()
+	_refresh_deployed_positions()
+	queue_redraw()
+
+func _refit_hex_grid() -> void:
+	# 响应式重排：依据顶部/底部预留空间反算 hex_size 并重新居中。
+	var viewport_size: Vector2 = get_viewport().get_visible_rect().size
+	if viewport_size.x <= 1.0 or viewport_size.y <= 1.0:
+		return
+	var bottom_reserved: float = bottom_reserved_preparation if _bottom_expanded else bottom_reserved_collapsed
+	var available_w: float = maxf(viewport_size.x - board_margin * 2.0, 220.0)
+	var available_h: float = maxf(viewport_size.y - top_reserved_height - bottom_reserved - board_margin, 160.0)
+	var fit_hex: float = _calculate_fit_hex_size(available_w, available_h)
+	hex_grid.hex_size = fit_hex
+	var board_size: Vector2 = _calculate_board_pixel_size(fit_hex)
+	hex_grid.origin_offset = Vector2(
+		board_margin + (available_w - board_size.x) * 0.5 + fit_hex * 0.8660254,
+		top_reserved_height + (available_h - board_size.y) * 0.5 + fit_hex
+	)
+	hex_grid.queue_redraw()
+	deploy_overlay.queue_redraw()
+	_unit_scale_factor = clampf((fit_hex * 1.52) / 32.0, 0.42, 1.10)
+	_apply_visual_to_all_units()
+
+func _calculate_fit_hex_size(available_w: float, available_h: float) -> float:
+	var grid_w: int = maxi(int(hex_grid.grid_width), 1)
+	var grid_h: int = maxi(int(hex_grid.grid_height), 1)
+	var width_coeff: float = HexGrid.SQRT3 * (float(grid_w - 1) + float(grid_h - 1) * 0.5) + 1.7320508
+	var height_coeff: float = 1.5 * float(grid_h - 1) + 2.0
+	return clampf(minf(available_w / maxf(width_coeff, 1.0), available_h / maxf(height_coeff, 1.0)), min_hex_size, max_hex_size)
+
+func _calculate_board_pixel_size(hex_size: float) -> Vector2:
+	var grid_w: int = maxi(int(hex_grid.grid_width), 1)
+	var grid_h: int = maxi(int(hex_grid.grid_height), 1)
+	var x_radius: float = hex_size * 0.8660254
+	var board_w: float = hex_size * HexGrid.SQRT3 * (float(grid_w - 1) + float(grid_h - 1) * 0.5) + x_radius * 2.0
+	var board_h: float = hex_size * 1.5 * float(grid_h - 1) + hex_size * 2.0
+	return Vector2(board_w, board_h)
+
+func _on_bench_changed() -> void:
+	if _stage != Stage.PREPARATION:
+		debug_label.text = "交锋/结算阶段备战席仅可查看，拖拽已禁用。"
+	_refresh_all_ui()
+
+func _on_unit_star_upgraded(result_unit: Node, consumed_units: Array[Node], _new_star: int) -> void:
+	for consumed in consumed_units:
+		if _is_valid_unit(consumed):
+			unit_factory.call("release_unit", consumed)
+	if _is_valid_unit(result_unit):
+		result_unit.call("play_anim_state", 3, {})
+	_refresh_all_ui()
+
+func _on_damage_resolved(_event: Dictionary) -> void:
+	pass
+
+func _on_unit_died(dead_unit: Node, _killer: Node, team_id: int) -> void:
+	if team_id == 1:
+		_remove_unit_from_map(_ally_deployed, dead_unit)
+	else:
+		_remove_unit_from_map(_enemy_deployed, dead_unit)
+	if _is_valid_unit(dead_unit) and dead_unit is CanvasItem:
+		(dead_unit as CanvasItem).visible = false
+	_refresh_multimesh()
+	_refresh_all_ui()
+
+func _on_battle_ended(winner_team: int, _summary: Dictionary) -> void:
+	_set_stage(Stage.RESULT)
+	if winner_team == 1:
+		debug_label.text = "战斗结束：己方胜利。F7 重开"
+	elif winner_team == 2:
+		debug_label.text = "战斗结束：敌方胜利。F7 重开"
+	else:
+		debug_label.text = "战斗结束：平局。F7 重开"
+
+func _remove_unit_from_map(target_map: Dictionary, unit: Node) -> void:
+	var remove_key: String = ""
+	for key in target_map.keys():
+		if target_map[key] == unit:
+			remove_key = str(key)
+			break
+	if not remove_key.is_empty():
+		target_map.erase(remove_key)
+
+func _connect_signals() -> void:
+	var cb_bench: Callable = Callable(self, "_on_bench_changed")
+	if not bench_ui.is_connected("bench_changed", cb_bench):
+		bench_ui.connect("bench_changed", cb_bench)
+	var cb_star: Callable = Callable(self, "_on_unit_star_upgraded")
+	if not bench_ui.is_connected("unit_star_upgraded", cb_star):
+		bench_ui.connect("unit_star_upgraded", cb_star)
+	var cb_damage: Callable = Callable(self, "_on_damage_resolved")
+	if not combat_manager.is_connected("damage_resolved", cb_damage):
+		combat_manager.connect("damage_resolved", cb_damage)
+	var cb_dead: Callable = Callable(self, "_on_unit_died")
+	if not combat_manager.is_connected("unit_died", cb_dead):
+		combat_manager.connect("unit_died", cb_dead)
+	var cb_end: Callable = Callable(self, "_on_battle_ended")
+	if not combat_manager.is_connected("battle_ended", cb_end):
+		combat_manager.connect("battle_ended", cb_end)
+	var cb_toggle: Callable = Callable(self, "_on_toggle_bottom_pressed")
+	if not toggle_button.is_connected("pressed", cb_toggle):
+		toggle_button.connect("pressed", cb_toggle)
+
+func _on_toggle_bottom_pressed() -> void:
+	_set_bottom_expanded(not _bottom_expanded, true)
+	_refit_hex_grid()
+	_refresh_deployed_positions()
+
+func _screen_to_world(screen_pos: Vector2) -> Vector2:
+	return world_container.get_global_transform().affine_inverse() * screen_pos
+
+func _shuffle_cells(cells: Array[Vector2i], rng: RandomNumberGenerator) -> void:
+	for i in range(cells.size() - 1, 0, -1):
+		var j: int = rng.randi_range(0, i)
+		var temp: Vector2i = cells[i]
+		cells[i] = cells[j]
+		cells[j] = temp
+
+func _cell_key(cell: Vector2i) -> String:
+	return "%d,%d" % [cell.x, cell.y]
+
+func _is_valid_unit(unit: Variant) -> bool:
+	if not is_instance_valid(unit):
+		return false
+	return (unit as Node) != null
+
+func _get_root_node(node_name: String) -> Node:
+	var main_loop: MainLoop = Engine.get_main_loop()
+	if not (main_loop is SceneTree):
+		return null
+	var tree: SceneTree = main_loop as SceneTree
+	return tree.root.get_node_or_null(node_name) if tree.root != null else null
+
+func _quality_color(quality: String) -> Color:
+	match quality:
+		"white":
+			return Color(0.78, 0.8, 0.82, 0.95)
+		"green":
+			return Color(0.42, 0.68, 0.42, 0.95)
+		"blue":
+			return Color(0.32, 0.52, 0.8, 0.95)
+		"purple":
+			return Color(0.54, 0.38, 0.72, 0.95)
+		"orange":
+			return Color(0.76, 0.48, 0.2, 0.95)
+		"red":
+			return Color(0.78, 0.24, 0.24, 0.95)
+		_:
+			return Color(0.5, 0.5, 0.5, 0.95)
+
+func _star_color(star: int) -> Color:
+	match star:
+		1:
+			return Color(0.94, 0.94, 0.94, 1.0)
+		2:
+			return Color(1.0, 0.86, 0.35, 1.0)
+		3:
+			return Color(1.0, 0.42, 0.2, 1.0)
+		_:
+			return Color(1, 1, 1, 1)

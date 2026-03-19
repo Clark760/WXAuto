@@ -60,6 +60,23 @@
       "type": "array",
       "items": {"type": "string"}
     },
+    "gongfa_slots": {
+      "type": "object",
+      "properties": {
+        "neigong": {"type": ["string", "null"]},
+        "waigong": {"type": ["string", "null"]},
+        "qinggong": {"type": ["string", "null"]},
+        "zhenfa": {"type": ["string", "null"]},
+        "qishu": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "max_gongfa_count": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "default": 3
+    },
     "sprite_path": {
       "type": "string"
     },

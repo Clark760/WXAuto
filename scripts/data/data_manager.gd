@@ -12,6 +12,7 @@ extends Node
 const CATEGORY_ORDER: Array[String] = [
 	"units",
 	"gongfa",
+	"buffs",
 	"equipment",
 	"linkages",
 	"levels",
@@ -21,6 +22,7 @@ const CATEGORY_ORDER: Array[String] = [
 const CATEGORY_PATHS: Dictionary = {
 	"units": "res://data/units",
 	"gongfa": "res://data/gongfa",
+	"buffs": "res://data/buffs",
 	"equipment": "res://data/equipment",
 	"linkages": "res://data/linkages",
 	"levels": "res://data/levels",

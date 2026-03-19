@@ -32,7 +32,7 @@ func _draw() -> void:
 	for r in range(grid_height):
 		for q in range(grid_width):
 			var axial: Vector2i = Vector2i(q, r)
-			var center: Vector2 = axial_to_world(axial)
+			var center: Vector2 = axial_to_local(axial)
 			var points: PackedVector2Array = _build_hex_points(center)
 
 			# 先填充再描边，确保格子轮廓清晰可见。
@@ -48,6 +48,12 @@ func _draw() -> void:
 
 
 func axial_to_world(axial: Vector2i) -> Vector2:
+	# M2 中“世界坐标”定义为 WorldContainer 内本地坐标。
+	# 因此这里返回 HexGrid 变换后的父空间坐标，而不是全局屏幕坐标。
+	return transform * axial_to_local(axial)
+
+
+func axial_to_local(axial: Vector2i) -> Vector2:
 	# Pointy-Top 轴坐标换算公式：
 	# x = size * sqrt(3) * (q + r/2)
 	# y = size * 3/2 * r
@@ -58,10 +64,17 @@ func axial_to_world(axial: Vector2i) -> Vector2:
 
 func world_to_axial(world_pos: Vector2) -> Vector2i:
 	# 将世界坐标逆变换为分数轴坐标，再做 cube-round 得到最近格子。
-	var local: Vector2 = world_pos - origin_offset
+	# 注意：world_pos 来自 WorldContainer 本地坐标，需要先用当前局部变换逆变换。
+	var local_world: Vector2 = transform.affine_inverse() * world_pos
+	var local: Vector2 = local_world - origin_offset
 	var q: float = ((SQRT3 / 3.0) * local.x - (1.0 / 3.0) * local.y) / hex_size
 	var r: float = ((2.0 / 3.0) * local.y) / hex_size
 	return _axial_round(Vector2(q, r))
+
+
+func get_hex_points_local(axial: Vector2i) -> PackedVector2Array:
+	# 对外暴露本地六边形顶点，供部署区高亮等叠加绘制层复用。
+	return _build_hex_points(axial_to_local(axial))
 
 
 func is_inside_grid(axial: Vector2i) -> bool:
@@ -110,4 +123,3 @@ func _axial_round(frac_axial: Vector2) -> Vector2i:
 		rz = -rx - ry
 
 	return Vector2i(int(rx), int(rz))
-

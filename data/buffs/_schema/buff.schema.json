@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BuffSchema",
+  "description": "M3 Buff / Debuff 数据结构定义",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "type",
+    "stackable",
+    "max_stacks",
+    "effects",
+    "tick_effects",
+    "tick_interval"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "name": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "buff",
+        "debuff"
+      ]
+    },
+    "icon": {
+      "type": "string"
+    },
+    "stackable": {
+      "type": "boolean"
+    },
+    "max_stacks": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "default_duration": {
+      "type": "number"
+    },
+    "effects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "op"
+        ]
+      }
+    },
+    "tick_effects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "op"
+        ]
+      }
+    },
+    "tick_interval": {
+      "type": "number",
+      "minimum": 0
+    }
+  },
+  "additionalProperties": true
+}

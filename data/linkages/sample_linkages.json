@@ -1,31 +1,33 @@
 [
   {
     "id": "linkage_wudang_three_sword",
-    "name": "三才剑阵",
-    "trigger_type": "same_faction",
+    "name": "武当三才",
+    "type": "faction_combo",
+    "description": "三名武当剑修相邻站位时，触发基础剑阵。",
     "conditions": {
-      "faction": "wudang",
-      "required_unit_count": 3,
-      "position_rule": "adjacent"
+      "require_faction": "wudang",
+      "min_count": 3,
+      "require_any_tag": ["quanzhen_sword", "sword_art"],
+      "require_adjacent": true
     },
     "effects": [
-      {"target": "self_group", "attribute": "atk", "op": "mul", "value": 1.3},
-      {"target": "self_group", "attribute": "block_rate", "op": "add", "value": 0.15}
+      {"op": "stat_percent", "stat": "atk", "value": 0.18, "target": "participants"},
+      {"op": "dodge_bonus", "value": 0.08, "target": "participants"}
     ],
-    "description": "三名武当剑修相邻站位时，触发剑阵共鸣。"
+    "vfx_id": "vfx_sword_formation"
   },
   {
     "id": "linkage_wood_feed_fire",
     "name": "木生火共鸣",
-    "trigger_type": "element_resonance",
+    "type": "element_resonance",
+    "description": "木属性与火属性功法并存时提升内功输出。",
     "conditions": {
-      "source_element": "wood",
-      "target_element": "fire",
-      "distance_max": 2
+      "require_elements": [["wood", "fire"]],
+      "min_count": 2
     },
     "effects": [
-      {"target": "target_unit", "attribute": "skill_damage", "op": "mul", "value": 1.25}
+      {"op": "stat_percent", "stat": "iat", "value": 0.15, "target": "participants"}
     ],
-    "description": "木属性功法角色邻近火属性角色时，提升后者技能伤害。"
+    "vfx_id": "vfx_fire_bloom"
   }
 ]

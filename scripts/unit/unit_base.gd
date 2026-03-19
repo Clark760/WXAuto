@@ -1,7 +1,7 @@
 extends Node2D
 
 # ===========================
-# 角色基类（M1）
+# 角色基类（M1/M2）
 # ===========================
 # 目标：
 # 1. 承载角色基础属性与运行态属性。
@@ -32,10 +32,21 @@ var role: String = "vanguard"
 var cost: int = 1
 
 var initial_gongfa: Array[String] = []
+var gongfa_slots: Dictionary = {
+	"neigong": "",
+	"waigong": "",
+	"qinggong": "",
+	"zhenfa": "",
+	"qishu": ""
+}
+var max_gongfa_count: int = 3
 var animation_overrides: Dictionary = {}
 
 var base_stats: Dictionary = {}
 var runtime_stats: Dictionary = {}
+var runtime_linkage_tags: Array[String] = []
+var runtime_gongfa_elements: Array[String] = []
+var runtime_equipped_gongfa_ids: Array[String] = []
 
 var star_level: int = 1
 var max_star: int = 3
@@ -43,6 +54,10 @@ var tags: Array[String] = []
 
 var sprite_path: String = ""
 var portrait_path: String = ""
+
+var team_id: int = 1
+var battle_uid: int = -1
+var is_in_combat: bool = false
 
 var is_on_bench: bool = true
 var bench_slot_index: int = -1
@@ -81,6 +96,19 @@ func setup_from_unit_record(unit_record: Dictionary, forced_star: int = -1) -> v
 		for gongfa_id in unit_record["initial_gongfa"]:
 			initial_gongfa.append(str(gongfa_id))
 
+	gongfa_slots = {
+		"neigong": "",
+		"waigong": "",
+		"qinggong": "",
+		"zhenfa": "",
+		"qishu": ""
+	}
+	if unit_record.get("gongfa_slots", {}) is Dictionary:
+		var slots_raw: Dictionary = unit_record["gongfa_slots"]
+		for slot in gongfa_slots.keys():
+			gongfa_slots[slot] = str(slots_raw.get(slot, ""))
+	max_gongfa_count = clampi(int(unit_record.get("max_gongfa_count", 3)), 1, 5)
+
 	animation_overrides = {}
 	if unit_record.get("animation_overrides", {}) is Dictionary:
 		animation_overrides = (unit_record["animation_overrides"] as Dictionary).duplicate(true)
@@ -104,6 +132,12 @@ func setup_from_unit_record(unit_record: Dictionary, forced_star: int = -1) -> v
 	is_on_bench = true
 	deployed_cell = Vector2i(-999, -999)
 	is_dragging = false
+	team_id = 1
+	battle_uid = -1
+	is_in_combat = false
+	runtime_linkage_tags.clear()
+	runtime_gongfa_elements.clear()
+	runtime_equipped_gongfa_ids = get_equipped_gongfa_ids()
 
 
 func base_star_set(unit_record: Dictionary, forced_star: int) -> void:
@@ -153,6 +187,23 @@ func set_on_bench_state(value: bool, slot_index: int = -1) -> void:
 		sprite_animator.call("play_state", 0, {}) # IDLE
 
 
+func set_team(value: int) -> void:
+	team_id = value
+	_refresh_visual()
+
+
+func enter_combat() -> void:
+	is_in_combat = true
+	is_on_bench = false
+	bench_slot_index = -1
+	play_anim_state(0, {})
+
+
+func leave_combat() -> void:
+	is_in_combat = false
+	play_anim_state(0, {})
+
+
 func play_anim_state(state: int, context: Dictionary = {}) -> void:
 	if sprite_animator == null:
 		return
@@ -165,13 +216,26 @@ func contains_point(world_position: Vector2) -> bool:
 	# - 若无贴图，使用默认 16 像素半径圆形区域。
 	if sprite_2d != null and sprite_2d.texture != null:
 		var tex_size: Vector2 = sprite_2d.texture.get_size()
-		var rect: Rect2 = Rect2(global_position - tex_size * 0.5, tex_size)
+		# 需要计入全局缩放（单位缩放 + 视觉节点缩放），否则缩放后拾取范围会失真。
+		var scale_abs: Vector2 = sprite_2d.global_scale.abs()
+		var scaled_size: Vector2 = Vector2(tex_size.x * scale_abs.x, tex_size.y * scale_abs.y)
+		var rect: Rect2 = Rect2(sprite_2d.global_position - scaled_size * 0.5, scaled_size)
 		return rect.has_point(world_position)
 
 	return global_position.distance_to(world_position) <= 16.0
 
 
+func set_compact_visual_mode(is_compact: bool) -> void:
+	# M2 大规模战斗时隐藏名称/星级文本，降低画面噪音并减少 UI 重叠。
+	if name_label != null:
+		name_label.visible = not is_compact
+	if star_label != null:
+		star_label.visible = not is_compact
+
+
 func begin_drag() -> void:
+	if is_in_combat:
+		return
 	is_dragging = true
 	z_index = 200
 	# 从备战席拖拽时，先清空摇摆残留角度，确保拖拽姿态端正。
@@ -206,11 +270,28 @@ func _apply_runtime_stats() -> void:
 	# 角色运行时属性由 UnitData 统一按星级倍率计算，便于后续做统一平衡。
 	var unit_data_script: Script = load("res://scripts/data/unit_data.gd")
 	runtime_stats = unit_data_script.call("build_runtime_stats", base_stats, star_level)
+	runtime_equipped_gongfa_ids = get_equipped_gongfa_ids()
 
 	if combat_component != null:
 		combat_component.call("reset_from_stats", runtime_stats)
 	if movement_component != null:
 		movement_component.call("reset_from_stats", runtime_stats)
+
+
+func get_equipped_gongfa_ids() -> Array[String]:
+	# 槽位顺序固定，保证 UI 展示和触发优先级稳定可预期。
+	var ids: Array[String] = []
+	var ordered_slots: Array[String] = ["neigong", "waigong", "qinggong", "zhenfa", "qishu"]
+	for slot in ordered_slots:
+		var gid: String = str(gongfa_slots.get(slot, "")).strip_edges()
+		if gid.is_empty():
+			continue
+		if ids.has(gid):
+			continue
+		ids.append(gid)
+		if ids.size() >= max_gongfa_count:
+			return ids
+	return ids
 
 
 func _apply_animation_overrides() -> void:
@@ -231,7 +312,7 @@ func _refresh_visual() -> void:
 	name_label.text = "%s" % unit_name
 	star_label.text = "★".repeat(star_level)
 	star_label.modulate = _get_star_color(star_level)
-	modulate = _get_quality_tint(quality)
+	modulate = _get_quality_tint(quality) * _get_team_tint(team_id)
 
 
 func _apply_pending_texture_if_needed() -> void:
@@ -268,5 +349,14 @@ func _get_quality_tint(q: String) -> Color:
 			return Color(1.0, 0.86, 0.62, 1)
 		"red":
 			return Color(1.0, 0.62, 0.62, 1)
+		_:
+			return Color(1, 1, 1, 1)
+
+
+func _get_team_tint(team: int) -> Color:
+	match team:
+		2:
+			# 敌方轻微偏红，保证大规模混战时阵营可辨识，但不压过品质色。
+			return Color(1.08, 0.9, 0.9, 1.0)
 		_:
 			return Color(1, 1, 1, 1)

@@ -33,6 +33,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		var event_bus_m1: Node = _get_event_bus()
 		if event_bus_m1 != null:
 			event_bus_m1.call("emit_scene_change_requested", "res://scenes/battle/battlefield_m1.tscn")
+	elif key_event.keycode == KEY_F6:
+		var event_bus_m2: Node = _get_event_bus()
+		if event_bus_m2 != null:
+			event_bus_m2.call("emit_scene_change_requested", "res://scenes/battle/battlefield_m2.tscn")
 	elif key_event.keycode == KEY_F5:
 		var game_manager: Node = _get_game_manager()
 		if game_manager != null:
@@ -91,7 +95,7 @@ func _refresh_ui() -> void:
 	lines.append(summary_text)
 
 	info_label.text = "\n".join(lines)
-	tip_label.text = "快捷键：F1 调试场景 | F2 M1战场场景 | F5 重载 JSON + Mod 数据"
+	tip_label.text = "快捷键：F1 调试场景 | F2 M1场景 | F6 M2战斗场景 | F5 重载 JSON + Mod 数据"
 
 
 func _get_event_bus() -> Node:

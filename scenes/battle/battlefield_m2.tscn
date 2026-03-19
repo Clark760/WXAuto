@@ -1,0 +1,289 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://scripts/board/battlefield_m2.gd" id="1_m2bf"]
+[ext_resource type="Script" path="res://scripts/board/hex_grid.gd" id="2_hexg"]
+[ext_resource type="Script" path="res://scripts/board/deploy_zone_overlay.gd" id="3_overlay"]
+[ext_resource type="Script" path="res://scripts/unit/unit_multimesh_renderer.gd" id="4_mm"]
+[ext_resource type="Script" path="res://scripts/vfx/vfx_factory.gd" id="5_vfx"]
+[ext_resource type="Script" path="res://scripts/unit/unit_factory.gd" id="6_factory"]
+[ext_resource type="Script" path="res://scripts/combat/combat_manager.gd" id="7_combat"]
+[ext_resource type="Script" path="res://scripts/board/m2_bench_ui.gd" id="8_bench_ui"]
+
+[node name="BattlefieldM2" type="Node2D"]
+script = ExtResource("1_m2bf")
+
+[node name="Background" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.23, 0.23, 0.24, 1)
+
+[node name="WorldContainer" type="Node2D" parent="."]
+
+[node name="HexGrid" type="Node2D" parent="WorldContainer"]
+script = ExtResource("2_hexg")
+grid_width = 32
+grid_height = 16
+hex_size = 16.0
+origin_offset = Vector2(140, 90)
+draw_coordinates = false
+fill_color = Color(0.17, 0.2, 0.26, 0.28)
+line_color = Color(0.73, 0.82, 0.88, 0.9)
+
+[node name="DeployZoneOverlay" type="Node2D" parent="WorldContainer/HexGrid"]
+script = ExtResource("3_overlay")
+ally_columns = 16
+
+[node name="UnitLayer" type="Node2D" parent="WorldContainer"]
+
+[node name="UnitMultiMeshRenderer" type="Node2D" parent="WorldContainer/UnitLayer"]
+script = ExtResource("4_mm")
+marker_size = 8.0
+marker_alpha = 0.35
+
+[node name="MultiMeshInstance2D" type="MultiMeshInstance2D" parent="WorldContainer/UnitLayer/UnitMultiMeshRenderer"]
+z_index = -1
+
+[node name="VfxLayer" type="Node2D" parent="WorldContainer"]
+
+[node name="VfxFactory" type="Node2D" parent="WorldContainer/VfxLayer"]
+script = ExtResource("5_vfx")
+
+[node name="UnitFactory" type="Node" parent="."]
+script = ExtResource("6_factory")
+
+[node name="CombatManager" type="Node" parent="."]
+script = ExtResource("7_combat")
+logic_fps = 10.0
+target_query_radius = 360.0
+flow_refresh_interval_frames = 5
+flow_step_distance = 22.0
+
+[node name="HUDLayer" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="TopBar" type="PanelContainer" parent="HUDLayer"]
+offset_left = 16.0
+offset_top = 10.0
+offset_right = 1136.0
+offset_bottom = 56.0
+
+[node name="TopBarContent" type="HBoxContainer" parent="HUDLayer/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 1
+
+[node name="PhaseLabel" type="Label" parent="HUDLayer/TopBar/TopBarContent"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "布阵期"
+
+[node name="RoundLabel" type="Label" parent="HUDLayer/TopBar/TopBarContent"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "第 1 回合"
+
+[node name="PowerBar" type="ProgressBar" parent="HUDLayer/TopBar/TopBarContent"]
+custom_minimum_size = Vector2(240, 20)
+layout_mode = 2
+value = 50.0
+show_percentage = false
+
+[node name="TimerLabel" type="Label" parent="HUDLayer/TopBar/TopBarContent"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "--"
+
+[node name="LinkagePanel" type="PanelContainer" parent="HUDLayer"]
+offset_left = 16.0
+offset_top = 470.0
+offset_right = 306.0
+offset_bottom = 620.0
+
+[node name="LinkageVBox" type="VBoxContainer" parent="HUDLayer/LinkagePanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="LinkageTitle" type="Label" parent="HUDLayer/LinkagePanel/LinkageVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "联动面板"
+
+[node name="LinkageInfo" type="Label" parent="HUDLayer/LinkagePanel/LinkageVBox"]
+layout_mode = 2
+autowrap_mode = 2
+text = "当前联动：无"
+
+[node name="MiniMap" type="PanelContainer" parent="HUDLayer"]
+offset_left = 964.0
+offset_top = 66.0
+offset_right = 1136.0
+offset_bottom = 196.0
+
+[node name="MiniMapInfo" type="Label" parent="HUDLayer/MiniMap"]
+layout_mode = 2
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 160.0
+offset_bottom = 110.0
+text = "小地图（占位）"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="UnitTooltip" type="PanelContainer" parent="HUDLayer"]
+visible = false
+custom_minimum_size = Vector2(230, 130)
+offset_left = 420.0
+offset_top = 220.0
+offset_right = 650.0
+offset_bottom = 350.0
+
+[node name="TooltipVBox" type="VBoxContainer" parent="HUDLayer/UnitTooltip"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="NameLabel" type="Label" parent="HUDLayer/UnitTooltip/TooltipVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "角色"
+
+[node name="HPBar" type="ProgressBar" parent="HUDLayer/UnitTooltip/TooltipVBox"]
+layout_mode = 2
+max_value = 100.0
+value = 100.0
+show_percentage = true
+
+[node name="MPBar" type="ProgressBar" parent="HUDLayer/UnitTooltip/TooltipVBox"]
+layout_mode = 2
+max_value = 100.0
+value = 40.0
+show_percentage = true
+
+[node name="GongfaLabel" type="Label" parent="HUDLayer/UnitTooltip/TooltipVBox"]
+layout_mode = 2
+text = "功法: 无"
+
+[node name="PhaseTransition" type="CenterContainer" parent="HUDLayer"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PhaseText" type="Label" parent="HUDLayer/PhaseTransition"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 42
+text = "交锋开始"
+
+[node name="BottomLayer" type="CanvasLayer" parent="."]
+layer = 20
+
+[node name="BottomPanel" type="PanelContainer" parent="BottomLayer"]
+offset_left = 12.0
+offset_top = 388.0
+offset_right = 1140.0
+offset_bottom = 640.0
+
+[node name="RootVBox" type="VBoxContainer" parent="BottomLayer/BottomPanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="ShopBar" type="HBoxContainer" parent="BottomLayer/BottomPanel/RootVBox"]
+layout_mode = 2
+
+[node name="ShopLabel" type="Label" parent="BottomLayer/BottomPanel/RootVBox/ShopBar"]
+layout_mode = 2
+text = "侠馆（占位）"
+
+[node name="RefreshButton" type="Button" parent="BottomLayer/BottomPanel/RootVBox/ShopBar"]
+layout_mode = 2
+text = "刷新"
+
+[node name="LockButton" type="Button" parent="BottomLayer/BottomPanel/RootVBox/ShopBar"]
+layout_mode = 2
+text = "锁定"
+
+[node name="BenchArea" type="ScrollContainer" parent="BottomLayer/BottomPanel/RootVBox"]
+custom_minimum_size = Vector2(1000, 170)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+script = ExtResource("8_bench_ui")
+
+[node name="BenchGrid" type="GridContainer" parent="BottomLayer/BottomPanel/RootVBox/BenchArea"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+columns = 10
+
+[node name="ResourceBar" type="HBoxContainer" parent="BottomLayer/BottomPanel/RootVBox"]
+layout_mode = 2
+
+[node name="ResourceLabel" type="Label" parent="BottomLayer/BottomPanel/RootVBox/ResourceBar"]
+layout_mode = 2
+text = "门派LV7 | 银两328"
+
+[node name="ActionBar" type="HBoxContainer" parent="BottomLayer/BottomPanel/RootVBox"]
+layout_mode = 2
+
+[node name="UpgradeButton" type="Button" parent="BottomLayer/BottomPanel/RootVBox/ActionBar"]
+layout_mode = 2
+text = "升级"
+
+[node name="GongfaButton" type="Button" parent="BottomLayer/BottomPanel/RootVBox/ActionBar"]
+layout_mode = 2
+text = "功法"
+
+[node name="EquipButton" type="Button" parent="BottomLayer/BottomPanel/RootVBox/ActionBar"]
+layout_mode = 2
+text = "装备"
+
+[node name="ToggleButton" type="Button" parent="BottomLayer"]
+offset_left = 560.0
+offset_top = 612.0
+offset_right = 608.0
+offset_bottom = 640.0
+text = "▼"
+
+[node name="DragPreview" type="PanelContainer" parent="BottomLayer"]
+visible = false
+custom_minimum_size = Vector2(120, 90)
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 140.0
+offset_bottom = 110.0
+
+[node name="PreviewVBox" type="VBoxContainer" parent="BottomLayer/DragPreview"]
+layout_mode = 2
+
+[node name="Icon" type="ColorRect" parent="BottomLayer/DragPreview/PreviewVBox"]
+custom_minimum_size = Vector2(60, 36)
+layout_mode = 2
+
+[node name="Name" type="Label" parent="BottomLayer/DragPreview/PreviewVBox"]
+layout_mode = 2
+text = "角色"
+
+[node name="Star" type="Label" parent="BottomLayer/DragPreview/PreviewVBox"]
+layout_mode = 2
+text = "★"
+
+[node name="DebugLayer" type="CanvasLayer" parent="."]
+layer = 100
+
+[node name="DebugLabel" type="Label" parent="DebugLayer"]
+offset_left = 16.0
+offset_top = 64.0
+offset_right = 760.0
+offset_bottom = 110.0
+autowrap_mode = 2
+text = "M2 调试信息"
+

@@ -1,12 +1,12 @@
 extends Node
 
 # ===========================
-# 程序化精灵动画器（Tween 驱动）
+# 程序化精灵动画器（M2 FPS 优化版）
 # ===========================
-# 设计约束（严格按总纲）：
-# - 不使用序列帧动画。
-# - 通过 Tween 与属性变化模拟动作状态。
-# - 支持角色 JSON 中 animation_overrides 覆盖默认参数。
+# 优化要点：
+# 1. 循环动画（IDLE/MOVE/BENCH/VICTORY）在 _process 里计算，不创建 Tween。
+# 2. 一次性动画（ATTACK/SKILL/HIT/DEATH）保留 Tween，保障打击感与可读性。
+# 3. 高频逻辑帧重复下发同一循环状态时直接忽略，避免动画相位不断重置。
 
 enum AnimState {
 	IDLE,
@@ -24,15 +24,20 @@ enum AnimState {
 var _target: Node2D = null
 var _tween: Tween = null
 var _state: int = AnimState.IDLE
+
 var _base_position: Vector2 = Vector2.ZERO
 var _base_scale: Vector2 = Vector2.ONE
 var _base_rotation: float = 0.0
 var _base_modulate: Color = Color(1, 1, 1, 1)
+
 var _rest_position: Vector2 = Vector2.ZERO
 var _rest_scale: Vector2 = Vector2.ONE
 var _rest_rotation: float = 0.0
 var _rest_modulate: Color = Color(1, 1, 1, 1)
 var _has_rest_transform: bool = false
+
+var _loop_anim_time: float = 0.0
+var _loop_state_active: bool = false
 
 var _params: Dictionary = {
 	"idle_amplitude": 2.0,
@@ -49,6 +54,7 @@ var _params: Dictionary = {
 	"death_duration": 0.5,
 	"victory_jump_height": 8.0,
 	"victory_pulse_scale": 1.1,
+	"victory_period": 0.44,
 	"bench_tilt_deg": 3.0,
 	"bench_period": 2.0
 }
@@ -57,11 +63,26 @@ var _params: Dictionary = {
 func _ready() -> void:
 	_resolve_target()
 	_cache_base_transform()
+	set_process(false)
 	play_state(AnimState.IDLE)
 
 
+func _exit_tree() -> void:
+	_stop_tween()
+
+
+func _process(delta: float) -> void:
+	if not _loop_state_active:
+		return
+	if _target == null or not is_instance_valid(_target):
+		return
+
+	_loop_anim_time += delta
+	_apply_loop_pose(_loop_anim_time)
+
+
 func set_overrides(overrides: Dictionary) -> void:
-	# 允许 JSON 只覆盖部分字段，未给出的参数继续沿用默认值。
+	# 允许 JSON 只覆盖部分字段，未提供键值继续使用默认参数。
 	for key in overrides.keys():
 		if _params.has(key):
 			_params[key] = overrides[key]
@@ -72,16 +93,27 @@ func play_state(state: int, context: Dictionary = {}) -> void:
 	if _target == null:
 		return
 
-	_state = state
+	# 高频逻辑帧下，循环状态重复设置会造成抖动；直接忽略即可。
+	if _state == state and _is_loop_state(state):
+		return
+
 	_stop_tween()
-	_normalize_base_before_state(_state)
+	_normalize_base_before_state(state)
 	_cache_base_transform()
 
+	_state = state
+	_loop_anim_time = 0.0
+
+	if _is_loop_state(_state):
+		_loop_state_active = true
+		set_process(true)
+		_apply_loop_pose(0.0)
+		return
+
+	_loop_state_active = false
+	set_process(false)
+
 	match _state:
-		AnimState.IDLE:
-			_play_idle()
-		AnimState.MOVE:
-			_play_move()
 		AnimState.ATTACK:
 			_play_attack(context.get("direction", Vector2.RIGHT))
 		AnimState.SKILL:
@@ -90,20 +122,66 @@ func play_state(state: int, context: Dictionary = {}) -> void:
 			_play_hit(context.get("direction", Vector2.LEFT))
 		AnimState.DEATH:
 			_play_death()
-		AnimState.VICTORY:
-			_play_victory()
-		AnimState.BENCH:
-			_play_bench()
 		_:
-			_play_idle()
+			# 未知状态统一回退到 IDLE，避免角色卡死在无效姿态。
+			play_state(AnimState.IDLE)
+
+
+func _is_loop_state(state: int) -> bool:
+	return state == AnimState.IDLE or state == AnimState.MOVE or state == AnimState.BENCH or state == AnimState.VICTORY
+
+
+func _apply_loop_pose(anim_time: float) -> void:
+	if _target == null:
+		return
+
+	match _state:
+		AnimState.IDLE:
+			var period_idle: float = maxf(float(_params["idle_period"]), 0.01)
+			var amp: float = float(_params["idle_amplitude"])
+			var phase_idle: float = anim_time / period_idle * TAU
+			_target.position = Vector2(_base_position.x, _base_position.y + sin(phase_idle) * amp)
+			_target.rotation = _base_rotation
+			_target.scale = _base_scale
+
+		AnimState.MOVE:
+			var period_move: float = maxf(float(_params["move_period"]), 0.01)
+			var tilt_rad: float = deg_to_rad(float(_params["move_tilt_deg"]))
+			var stride: float = float(_params["move_stride_px"])
+			var phase_move: float = anim_time / period_move * TAU
+			_target.position = Vector2(_base_position.x + sin(phase_move) * stride, _base_position.y)
+			_target.rotation = _base_rotation + sin(phase_move) * tilt_rad
+			_target.scale = _base_scale
+
+		AnimState.BENCH:
+			var period_bench: float = maxf(float(_params["bench_period"]), 0.01)
+			var tilt_bench: float = deg_to_rad(float(_params["bench_tilt_deg"]))
+			var phase_bench: float = anim_time / period_bench * TAU
+			_target.position = _base_position
+			_target.scale = _base_scale
+			_target.rotation = _base_rotation + sin(phase_bench) * tilt_bench
+
+		AnimState.VICTORY:
+			var period_victory: float = maxf(float(_params["victory_period"]), 0.05)
+			var jump_height: float = float(_params["victory_jump_height"])
+			var pulse_scale: float = maxf(float(_params["victory_pulse_scale"]), 1.0)
+			var phase_victory: float = anim_time / period_victory * TAU
+			var jump_ratio: float = maxf(sin(phase_victory), 0.0)
+			_target.position = Vector2(_base_position.x, _base_position.y - jump_ratio * jump_height)
+			var pulse_ratio: float = sin(phase_victory) * 0.5 + 0.5
+			var current_scale: float = 1.0 + (pulse_scale - 1.0) * pulse_ratio
+			_target.scale = _base_scale * current_scale
+			_target.rotation = _base_rotation
+
+		_:
+			pass
 
 
 func _normalize_base_before_state(state: int) -> void:
 	if _target == null:
 		return
 
-	# 修复拖放累积偏移：
-	# 状态切换前统一回到静止基准，避免 MOVE/IDLE 切换时把中间帧偏移当成新基准。
+	# 状态切换前先回到静止基准，避免循环动画偏移累积导致“漂移”。
 	if _has_rest_transform:
 		_target.position = _rest_position
 		_target.scale = _rest_scale
@@ -111,10 +189,12 @@ func _normalize_base_before_state(state: int) -> void:
 		if _target is CanvasItem:
 			(_target as CanvasItem).modulate = _rest_modulate
 
-	# 避免 DEATH 等状态残留透明度影响后续可见性。
+	# 防止 DEATH 动画残留 alpha 影响后续状态。
 	if _target is CanvasItem and state != AnimState.DEATH:
 		var canvas: CanvasItem = _target as CanvasItem
-		canvas.modulate.a = maxf(canvas.modulate.a, 1.0)
+		var c: Color = canvas.modulate
+		c.a = 1.0
+		canvas.modulate = c
 
 
 func _resolve_target() -> void:
@@ -123,9 +203,8 @@ func _resolve_target() -> void:
 
 	if target_path != NodePath():
 		_target = get_node_or_null(target_path) as Node2D
-
-	# 未指定 target_path 时默认取父节点，便于快速挂载。
 	if _target == null:
+		# 未指定 target_path 时默认作用于父节点，便于快速复用。
 		_target = get_parent() as Node2D
 
 
@@ -162,32 +241,9 @@ func _stop_tween() -> void:
 	_tween = null
 
 
-func _play_idle() -> void:
-	_reset_to_base()
-	_tween = create_tween()
-	_tween.set_loops()
-
-	var amp: float = float(_params["idle_amplitude"])
-	var half_period: float = float(_params["idle_period"]) * 0.5
-	_tween.tween_property(_target, "position:y", _base_position.y - amp, half_period).set_trans(Tween.TRANS_SINE)
-	_tween.tween_property(_target, "position:y", _base_position.y + amp, half_period).set_trans(Tween.TRANS_SINE)
-
-
-func _play_move() -> void:
-	_reset_to_base()
-	_tween = create_tween()
-	_tween.set_loops()
-
-	var tilt_rad: float = deg_to_rad(float(_params["move_tilt_deg"]))
-	var period: float = float(_params["move_period"])
-	var stride: float = float(_params["move_stride_px"])
-
-	_tween.parallel().tween_property(_target, "rotation", tilt_rad, period).set_trans(Tween.TRANS_SINE)
-	_tween.parallel().tween_property(_target, "position:x", _base_position.x + stride, period).set_trans(Tween.TRANS_SINE)
-	_tween.tween_interval(period)
-	_tween.parallel().tween_property(_target, "rotation", -tilt_rad, period).set_trans(Tween.TRANS_SINE)
-	_tween.parallel().tween_property(_target, "position:x", _base_position.x - stride, period).set_trans(Tween.TRANS_SINE)
-	_tween.tween_interval(period)
+func _switch_to_idle_if_current(expected_state: int) -> void:
+	if _state == expected_state:
+		play_state(AnimState.IDLE)
 
 
 func _play_attack(direction: Vector2) -> void:
@@ -195,7 +251,7 @@ func _play_attack(direction: Vector2) -> void:
 	_tween = create_tween()
 
 	var dash_distance: float = float(_params["attack_dash_distance"])
-	var duration: float = float(_params["attack_duration"])
+	var duration: float = maxf(float(_params["attack_duration"]), 0.01)
 	var dash_dir: Vector2 = direction.normalized()
 	if dash_dir.is_zero_approx():
 		dash_dir = Vector2.RIGHT
@@ -204,8 +260,7 @@ func _play_attack(direction: Vector2) -> void:
 	_tween.tween_property(_target, "position", forward, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	_tween.tween_property(_target, "position", _base_position, duration).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
 	_tween.finished.connect(func() -> void:
-		if _state == AnimState.ATTACK:
-			play_state(AnimState.IDLE)
+		_switch_to_idle_if_current(AnimState.ATTACK)
 	)
 
 
@@ -226,8 +281,7 @@ func _play_skill() -> void:
 			_tween.tween_property(canvas, "modulate", _base_modulate, 0.05)
 
 	_tween.finished.connect(func() -> void:
-		if _state == AnimState.SKILL:
-			play_state(AnimState.IDLE)
+		_switch_to_idle_if_current(AnimState.SKILL)
 	)
 
 
@@ -236,7 +290,7 @@ func _play_hit(direction: Vector2) -> void:
 	_tween = create_tween()
 
 	var knockback: float = float(_params["hit_knockback"])
-	var flash_duration: float = float(_params["hit_flash_duration"])
+	var flash_duration: float = maxf(float(_params["hit_flash_duration"]), 0.01)
 	var back_dir: Vector2 = -direction.normalized()
 	if back_dir.is_zero_approx():
 		back_dir = Vector2.LEFT
@@ -251,8 +305,7 @@ func _play_hit(direction: Vector2) -> void:
 		_tween.parallel().tween_property(canvas, "modulate", _base_modulate, flash_duration * 0.7)
 
 	_tween.finished.connect(func() -> void:
-		if _state == AnimState.HIT:
-			play_state(AnimState.IDLE)
+		_switch_to_idle_if_current(AnimState.HIT)
 	)
 
 
@@ -260,32 +313,13 @@ func _play_death() -> void:
 	_reset_to_base()
 	_tween = create_tween()
 
-	var duration: float = float(_params["death_duration"])
+	var duration: float = maxf(float(_params["death_duration"]), 0.01)
 	_tween.parallel().tween_property(_target, "scale", _base_scale * 0.2, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 	_tween.parallel().tween_property(_target, "position:y", _base_position.y + 12.0, duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	if _target is CanvasItem:
 		_tween.parallel().tween_property(_target, "modulate:a", 0.0, duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 
-
-func _play_victory() -> void:
-	_reset_to_base()
-	_tween = create_tween()
-	_tween.set_loops()
-
-	var jump_height: float = float(_params["victory_jump_height"])
-	var pulse_scale: float = float(_params["victory_pulse_scale"])
-	_tween.parallel().tween_property(_target, "position:y", _base_position.y - jump_height, 0.22).set_trans(Tween.TRANS_SINE)
-	_tween.parallel().tween_property(_target, "scale", _base_scale * pulse_scale, 0.22).set_trans(Tween.TRANS_SINE)
-	_tween.parallel().tween_property(_target, "position:y", _base_position.y, 0.22).set_trans(Tween.TRANS_BOUNCE)
-	_tween.parallel().tween_property(_target, "scale", _base_scale, 0.22).set_trans(Tween.TRANS_SINE)
-
-
-func _play_bench() -> void:
-	_reset_to_base()
-	_tween = create_tween()
-	_tween.set_loops()
-
-	var tilt: float = deg_to_rad(float(_params["bench_tilt_deg"]))
-	var half_period: float = float(_params["bench_period"]) * 0.5
-	_tween.tween_property(_target, "rotation", tilt, half_period).set_trans(Tween.TRANS_SINE)
-	_tween.tween_property(_target, "rotation", -tilt, half_period).set_trans(Tween.TRANS_SINE)
+	_tween.finished.connect(func() -> void:
+		# 死亡状态通常由外部管理，不自动切回 IDLE。
+		_stop_tween()
+	)

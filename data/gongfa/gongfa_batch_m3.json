@@ -1,0 +1,453 @@
+[
+  {
+    "id": "gongfa_jiuyang",
+    "name": "九阳神功",
+    "type": "neigong",
+    "description": "至阳内功，提升生存与内力恢复。",
+    "faction": "shaolin",
+    "element": "fire",
+    "quality": "orange",
+    "tags": [
+      "yang",
+      "recovery",
+      "shaolin_core"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "hp",
+        "value": 0.2
+      },
+      {
+        "op": "stat_add",
+        "stat": "mp",
+        "value": 80
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 5.0
+      }
+    ],
+    "skill": {
+      "trigger": "auto_mp_full",
+      "mp_cost": 60,
+      "cooldown": 6.0,
+      "effects": [
+        {
+          "op": "heal_self_percent",
+          "value": 0.25
+        },
+        {
+          "op": "buff_self",
+          "buff_id": "jiuyang_shield",
+          "duration": 5.0
+        }
+      ],
+      "vfx_id": "vfx_golden_aura"
+    },
+    "linkage_tags": [
+      "jiuyang",
+      "yang_gong",
+      "shaolin_neigong"
+    ]
+  },
+  {
+    "id": "gongfa_zixia",
+    "name": "紫霞神功",
+    "type": "neigong",
+    "description": "高爆发内功，提升内功攻击与暴击。",
+    "faction": "emei",
+    "element": "fire",
+    "quality": "purple",
+    "tags": [
+      "yang",
+      "offensive"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "iat",
+        "value": 0.25
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.1
+      }
+    ],
+    "skill": {
+      "trigger": "auto_mp_full",
+      "mp_cost": 50,
+      "cooldown": 7.0,
+      "effects": [
+        {
+          "op": "damage_aoe",
+          "radius": 3,
+          "value": 120,
+          "damage_type": "internal"
+        },
+        {
+          "op": "spawn_vfx",
+          "vfx_id": "vfx_purple_wave",
+          "at": "self"
+        }
+      ],
+      "vfx_id": "vfx_purple_glow"
+    },
+    "linkage_tags": [
+      "zixia",
+      "yang_gong",
+      "emei_neigong"
+    ]
+  },
+  {
+    "id": "gongfa_xianglong",
+    "name": "降龙十八掌",
+    "type": "waigong",
+    "description": "高额外功爆发并附带范围震荡。",
+    "faction": "gaibang",
+    "element": "metal",
+    "quality": "orange",
+    "tags": [
+      "palm",
+      "aoe"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 60
+      }
+    ],
+    "skill": {
+      "trigger": "auto_mp_full",
+      "mp_cost": 70,
+      "cooldown": 8.0,
+      "effects": [
+        {
+          "op": "damage_aoe",
+          "radius": 2,
+          "value": 200,
+          "damage_type": "external"
+        },
+        {
+          "op": "spawn_vfx",
+          "vfx_id": "vfx_dragon_palm",
+          "at": "target"
+        }
+      ],
+      "vfx_id": "vfx_golden_dragon"
+    },
+    "linkage_tags": [
+      "xianglong",
+      "palm_art",
+      "gaibang_waigong"
+    ]
+  },
+  {
+    "id": "gongfa_dugu",
+    "name": "独孤九剑",
+    "type": "waigong",
+    "description": "被攻击时有概率反制一击。",
+    "faction": "xiaoyao",
+    "element": "metal",
+    "quality": "orange",
+    "tags": [
+      "sword",
+      "counter"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.2
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.15
+      }
+    ],
+    "skill": {
+      "trigger": "on_attacked",
+      "chance": 0.3,
+      "mp_cost": 0,
+      "cooldown": 4.0,
+      "effects": [
+        {
+          "op": "damage_target",
+          "value": 180,
+          "damage_type": "external",
+          "multiplier": 1.5
+        },
+        {
+          "op": "spawn_vfx",
+          "vfx_id": "vfx_sword_flash",
+          "at": "target"
+        }
+      ],
+      "vfx_id": "vfx_counter_stance"
+    },
+    "linkage_tags": [
+      "dugu",
+      "sword_art"
+    ]
+  },
+  {
+    "id": "gongfa_lingbo",
+    "name": "凌波微步",
+    "type": "qinggong",
+    "description": "提升身法并在受击时获得短暂闪避强化。",
+    "faction": "xiaoyao",
+    "element": "water",
+    "quality": "orange",
+    "tags": [
+      "dodge",
+      "movement"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "spd",
+        "value": 0.3
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.2
+      }
+    ],
+    "skill": {
+      "trigger": "on_attacked",
+      "chance": 0.25,
+      "mp_cost": 20,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "lingbo_evasion",
+          "duration": 2.0
+        },
+        {
+          "op": "spawn_vfx",
+          "vfx_id": "vfx_water_ripple",
+          "at": "self"
+        }
+      ],
+      "vfx_id": "vfx_water_ripple"
+    },
+    "linkage_tags": [
+      "lingbo",
+      "xiaoyao_qinggong"
+    ]
+  },
+  {
+    "id": "gongfa_tiangang",
+    "name": "天罡北斗阵",
+    "type": "zhenfa",
+    "description": "战斗中持续为周围友军提供护体增益。",
+    "faction": "wudang",
+    "element": "earth",
+    "quality": "purple",
+    "tags": [
+      "formation",
+      "defense"
+    ],
+    "passive_effects": [],
+    "skill": {
+      "trigger": "passive_aura",
+      "mp_cost": 0,
+      "cooldown": 1.5,
+      "effects": [
+        {
+          "op": "buff_allies_aoe",
+          "buff_id": "tiangang_ward",
+          "radius": 4,
+          "duration": 1.8
+        }
+      ],
+      "vfx_id": "vfx_star_circle"
+    },
+    "linkage_tags": [
+      "tiangang",
+      "wudang_zhenfa",
+      "star_formation"
+    ]
+  },
+  {
+    "id": "gongfa_qiankun",
+    "name": "乾坤大挪移",
+    "type": "qishu",
+    "description": "偏防守型奇术，被击时强化减伤。",
+    "faction": "mingjiao",
+    "element": "none",
+    "quality": "orange",
+    "tags": [
+      "redirect",
+      "special"
+    ],
+    "passive_effects": [
+      {
+        "op": "damage_reduce_percent",
+        "value": 0.15
+      }
+    ],
+    "skill": {
+      "trigger": "on_attacked",
+      "chance": 0.2,
+      "mp_cost": 40,
+      "cooldown": 6.0,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "qiankun_redirect",
+          "duration": 2.5
+        },
+        {
+          "op": "spawn_vfx",
+          "vfx_id": "vfx_redirect_swirl",
+          "at": "self"
+        }
+      ],
+      "vfx_id": "vfx_yin_yang_sphere"
+    },
+    "linkage_tags": [
+      "qiankun",
+      "mingjiao_qishu"
+    ]
+  },
+  {
+    "id": "gongfa_huagong",
+    "name": "化功大法",
+    "type": "qishu",
+    "description": "攻击命中附带吸蚀 debuff 并回复自身。",
+    "faction": "xingxiu",
+    "element": "water",
+    "quality": "purple",
+    "tags": [
+      "drain",
+      "debuff"
+    ],
+    "passive_effects": [],
+    "skill": {
+      "trigger": "on_attack_hit",
+      "chance": 0.3,
+      "mp_cost": 30,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "debuff_target",
+          "buff_id": "huagong_drain",
+          "duration": 4.0
+        },
+        {
+          "op": "heal_self",
+          "value": 50
+        }
+      ],
+      "vfx_id": "vfx_dark_mist"
+    },
+    "linkage_tags": [
+      "huagong",
+      "drain_art",
+      "xingxiu_qishu"
+    ]
+  },
+  {
+    "id": "gongfa_taiji_neigong",
+    "name": "太极内功",
+    "type": "neigong",
+    "description": "均衡型内功，提升攻防并增加招架续航。",
+    "faction": "wudang",
+    "element": "water",
+    "quality": "blue",
+    "tags": [
+      "wudang",
+      "balance"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "def",
+        "value": 0.15
+      },
+      {
+        "op": "stat_percent",
+        "stat": "idr",
+        "value": 0.15
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 2.0
+      }
+    ],
+    "skill": {
+      "trigger": "auto_hp_below",
+      "threshold": 0.35,
+      "mp_cost": 40,
+      "cooldown": 8.0,
+      "effects": [
+        {
+          "op": "heal_self_percent",
+          "value": 0.18
+        },
+        {
+          "op": "buff_self",
+          "buff_id": "taiji_guard",
+          "duration": 4.0
+        }
+      ],
+      "vfx_id": "vfx_taiji_ring"
+    },
+    "linkage_tags": [
+      "taiji",
+      "wudang_neigong",
+      "quanzhen_sword"
+    ]
+  },
+  {
+    "id": "gongfa_quanzhen_sword",
+    "name": "全真剑法",
+    "type": "waigong",
+    "description": "标准剑修输出功法，强调攻速与连击。",
+    "faction": "wudang",
+    "element": "wood",
+    "quality": "green",
+    "tags": [
+      "sword",
+      "combo"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 30
+      },
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.12
+      }
+    ],
+    "skill": {
+      "trigger": "on_attack_hit",
+      "chance": 0.25,
+      "mp_cost": 20,
+      "cooldown": 3.5,
+      "effects": [
+        {
+          "op": "damage_target",
+          "value": 95,
+          "damage_type": "external",
+          "multiplier": 1.2
+        },
+        {
+          "op": "spawn_vfx",
+          "vfx_id": "vfx_sword_qi",
+          "at": "target"
+        }
+      ],
+      "vfx_id": "vfx_sword_qi"
+    },
+    "linkage_tags": [
+      "quanzhen_sword",
+      "sword_art",
+      "wudang_waigong"
+    ]
+  }
+]
