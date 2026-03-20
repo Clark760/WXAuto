@@ -10,10 +10,12 @@ extends Node2D
 
 @onready var info_label: Label = $CanvasLayer/InfoLabel
 @onready var tip_label: Label = $CanvasLayer/TipLabel
+@onready var enter_m4_button: Button = $CanvasLayer/EnterM4Button
 
 
 func _ready() -> void:
 	_connect_event_bus()
+	_bind_ui_signals()
 	_refresh_ui()
 
 
@@ -95,7 +97,21 @@ func _refresh_ui() -> void:
 	lines.append(summary_text)
 
 	info_label.text = "\n".join(lines)
-	tip_label.text = "快捷键：F1 调试场景 | F2 M1场景 | F6 M2战斗场景 | F5 重载 JSON + Mod 数据"
+	tip_label.text = "快捷键：F1 调试场景 | F2 M1场景 | F6 M2战斗场景 | F5 重载 JSON + Mod 数据（也可点击下方按钮进入 M4）"
+
+
+func _bind_ui_signals() -> void:
+	if enter_m4_button == null:
+		return
+	var cb: Callable = Callable(self, "_on_enter_m4_button_pressed")
+	if not enter_m4_button.is_connected("pressed", cb):
+		enter_m4_button.connect("pressed", cb)
+
+
+func _on_enter_m4_button_pressed() -> void:
+	var event_bus: Node = _get_event_bus()
+	if event_bus != null:
+		event_bus.call("emit_scene_change_requested", "res://scenes/battle/battlefield_m4.tscn")
 
 
 func _get_event_bus() -> Node:

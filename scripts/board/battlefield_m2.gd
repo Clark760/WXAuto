@@ -97,6 +97,10 @@ func _input(event: InputEvent) -> void:
 	# 鼠标交互使用 _input，避免被 ScrollContainer 等控件先消费导致拖拽失效。
 	if event is InputEventMouseButton:
 		var mouse_button: InputEventMouseButton = event as InputEventMouseButton
+		# 备战区滚轮优先：在备战区内滚动时，劫持事件给列表滚动，禁止透传到地图缩放。
+		if _consume_bench_wheel_input(mouse_button):
+			get_viewport().set_input_as_handled()
+			return
 
 		# 视角控制支持全阶段，右键/滚轮处理后直接标记为已消费。
 		if _handle_world_view_input(event):
@@ -202,6 +206,28 @@ func _handle_world_view_input(event: InputEvent) -> bool:
 		_pan(motion.relative)
 		return true
 	return false
+
+
+func _consume_bench_wheel_input(mouse_button: InputEventMouseButton) -> bool:
+	if mouse_button == null:
+		return false
+	if not mouse_button.pressed:
+		return false
+	if mouse_button.button_index != MOUSE_BUTTON_WHEEL_UP and mouse_button.button_index != MOUSE_BUTTON_WHEEL_DOWN:
+		return false
+	if not _bottom_expanded:
+		return false
+	if bench_ui == null or not is_instance_valid(bench_ui):
+		return false
+	if not bench_ui.has_method("is_screen_point_inside"):
+		return false
+	if not bool(bench_ui.call("is_screen_point_inside", mouse_button.position)):
+		return false
+	# 优先调用备战区脚本提供的滚轮消费接口。
+	if bench_ui.has_method("consume_wheel_input"):
+		return bool(bench_ui.call("consume_wheel_input", mouse_button.button_index))
+	# 兜底：即使未实现滚动接口，也消费事件以阻止地图响应。
+	return true
 
 func _update_world_pan_by_keyboard(delta: float) -> void:
 	var direction: Vector2 = Vector2.ZERO
@@ -699,6 +725,9 @@ func _set_bottom_expanded(expanded: bool, animate: bool) -> void:
 		bottom_panel.position = Vector2(12.0, y)
 	toggle_button.text = "▼" if expanded else "▲"
 	toggle_button.position = Vector2(viewport_size.x * 0.5 - 24.0, viewport_size.y - 34.0)
+	# 通知备战席刷新自适应列数，确保底栏尺寸变化后行列立即重排。
+	if bench_ui != null and is_instance_valid(bench_ui) and bench_ui.has_method("refresh_adaptive_layout"):
+		bench_ui.call_deferred("refresh_adaptive_layout")
 
 func _play_phase_transition(text: String) -> void:
 	phase_transition_text.text = text
@@ -754,6 +783,8 @@ func _bind_viewport_resize() -> void:
 
 func _on_viewport_size_changed() -> void:
 	_set_bottom_expanded(_bottom_expanded, false)
+	if bench_ui != null and is_instance_valid(bench_ui) and bench_ui.has_method("refresh_adaptive_layout"):
+		bench_ui.call_deferred("refresh_adaptive_layout")
 	_refit_hex_grid()
 	_refresh_deployed_positions()
 	queue_redraw()

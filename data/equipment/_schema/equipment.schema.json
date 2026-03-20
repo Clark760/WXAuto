@@ -1,32 +1,86 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "EquipmentSchema",
-  "description": "装备数据结构定义",
+  "description": "装备数据结构定义（M3 统一效果系统格式）",
   "type": "object",
-  "required": ["id", "name", "type", "rarity", "stats", "recipe", "passive"],
+  "required": ["id", "name", "type", "rarity", "passive_effects"],
   "properties": {
-    "id": {"type": "string", "pattern": "^[a-z0-9_]+$"},
-    "name": {"type": "string"},
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
     "type": {
       "type": "string",
-      "enum": ["weapon", "armor", "accessory", "consumable"]
+      "enum": ["weapon", "armor", "accessory"]
+    },
+    "element": {
+      "type": "string",
+      "enum": ["metal", "wood", "water", "fire", "earth", "none"]
     },
     "rarity": {
       "type": "string",
       "enum": ["white", "green", "blue", "purple", "orange", "red"]
     },
-    "stats": {
+    "passive_effects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["op"],
+        "properties": {
+          "op": {
+            "type": "string"
+          },
+          "stat": {
+            "type": "string"
+          },
+          "value": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "trigger": {
       "type": "object",
-      "additionalProperties": {"type": "number"}
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "chance": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "cooldown": {
+          "type": "number",
+          "minimum": 0
+        },
+        "mp_cost": {
+          "type": "number",
+          "minimum": 0
+        },
+        "effects": {
+          "type": "array"
+        }
+      }
     },
     "recipe": {
       "type": "array",
-      "items": {"type": "string"}
+      "items": {
+        "type": "string"
+      }
     },
-    "passive": {
-      "type": "string"
+    "linkage_tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     }
   },
   "additionalProperties": true
 }
-

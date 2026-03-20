@@ -211,10 +211,11 @@ layout_mode = 2
 text = "锁定"
 
 [node name="BenchArea" type="ScrollContainer" parent="BottomLayer/BottomPanel/RootVBox"]
-custom_minimum_size = Vector2(1000, 170)
+custom_minimum_size = Vector2(0, 170)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+vertical_scroll_mode = 1
 horizontal_scroll_mode = 0
 script = ExtResource("8_bench_ui")
 

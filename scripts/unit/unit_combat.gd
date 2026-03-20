@@ -30,11 +30,14 @@ var skill_mp_cost: float = 60.0
 var mp_gain_on_attack: float = 15.0
 var mp_gain_on_hit: float = 10.0
 var passive_mp_regen: float = 2.0
+# 生命自然回复（基础值）。M3 旧被动兼容值走 external_modifiers["hp_regen_add"]。
+var passive_hp_regen: float = 0.0
 
 # 外部修正层（功法/联动/Buff 汇总）：
 # 由 GongfaManager 注入，避免把 M3 逻辑耦合进基础战斗流程。
 const DEFAULT_EXTERNAL_MODIFIERS: Dictionary = {
 	"mp_regen_add": 0.0,
+	"hp_regen_add": 0.0,
 	"damage_reduce_flat": 0.0,
 	"damage_reduce_percent": 0.0,
 	"dodge_bonus": 0.0,
@@ -69,6 +72,10 @@ func tick_logic(delta: float) -> void:
 	if not is_alive:
 		return
 	_attack_cd = maxf(_attack_cd - delta, 0.0)
+	# 生命回复在逻辑帧按秒结算；只处理正值，避免负回复绕过伤害流程。
+	var hp_regen_per_sec: float = passive_hp_regen + float(_external_modifiers.get("hp_regen_add", 0.0))
+	if hp_regen_per_sec > 0.0:
+		restore_hp(hp_regen_per_sec * delta)
 	add_mp((passive_mp_regen + float(_external_modifiers.get("mp_regen_add", 0.0))) * delta)
 
 

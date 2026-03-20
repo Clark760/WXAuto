@@ -40,6 +40,12 @@ var gongfa_slots: Dictionary = {
 	"qishu": ""
 }
 var max_gongfa_count: int = 3
+var equip_slots: Dictionary = {
+	"weapon": "",
+	"armor": "",
+	"accessory": ""
+}
+var max_equip_count: int = 3
 var animation_overrides: Dictionary = {}
 
 var base_stats: Dictionary = {}
@@ -47,6 +53,7 @@ var runtime_stats: Dictionary = {}
 var runtime_linkage_tags: Array[String] = []
 var runtime_gongfa_elements: Array[String] = []
 var runtime_equipped_gongfa_ids: Array[String] = []
+var runtime_equipped_equip_ids: Array[String] = []
 
 var star_level: int = 1
 var max_star: int = 3
@@ -109,6 +116,35 @@ func setup_from_unit_record(unit_record: Dictionary, forced_star: int = -1) -> v
 			gongfa_slots[slot] = str(slots_raw.get(slot, ""))
 	max_gongfa_count = clampi(int(unit_record.get("max_gongfa_count", 3)), 1, 5)
 
+	# M3 装备槽位：与功法槽位同样在角色实例上常驻，便于管理器直接读写。
+	equip_slots = {
+		"weapon": "",
+		"armor": "",
+		"accessory": ""
+	}
+	if unit_record.get("equip_slots", {}) is Dictionary:
+		var equip_slots_raw: Dictionary = unit_record["equip_slots"]
+		for slot in equip_slots.keys():
+			equip_slots[slot] = str(equip_slots_raw.get(slot, "")).strip_edges()
+	max_equip_count = clampi(int(unit_record.get("max_equip_count", 3)), 0, 3)
+	# 不能在“未进入场景树”的节点上直接 get_node("/root/...")，
+	# 这里改为通过 SceneTree 根节点安全查询 AutoLoad，避免初始化期报错。
+	var gm: Node = _get_autoload_node("GongfaManager")
+	if gm != null and not initial_gongfa.is_empty():
+		var reg = gm.get("_registry")
+		if reg != null:
+			for item_id in initial_gongfa:
+				if reg.has_equipment(item_id):
+					var e_data: Dictionary = reg.get_equipment(item_id)
+					var slot: String = str(e_data.get("type", "")).strip_edges()
+					if slot != "" and equip_slots.get(slot, "") == "":
+						equip_slots[slot] = item_id
+				elif reg.has_gongfa(item_id):
+					var g_data: Dictionary = reg.get_gongfa(item_id)
+					var slot: String = str(g_data.get("type", "")).strip_edges()
+					if slot != "" and gongfa_slots.get(slot, "") == "":
+						gongfa_slots[slot] = item_id
+
 	animation_overrides = {}
 	if unit_record.get("animation_overrides", {}) is Dictionary:
 		animation_overrides = (unit_record["animation_overrides"] as Dictionary).duplicate(true)
@@ -138,6 +174,17 @@ func setup_from_unit_record(unit_record: Dictionary, forced_star: int = -1) -> v
 	runtime_linkage_tags.clear()
 	runtime_gongfa_elements.clear()
 	runtime_equipped_gongfa_ids = get_equipped_gongfa_ids()
+	runtime_equipped_equip_ids = get_equipped_equip_ids()
+
+
+func _get_autoload_node(node_name: String) -> Node:
+	var main_loop: MainLoop = Engine.get_main_loop()
+	if not (main_loop is SceneTree):
+		return null
+	var tree: SceneTree = main_loop as SceneTree
+	if tree.root == null:
+		return null
+	return tree.root.get_node_or_null(node_name)
 
 
 func base_star_set(unit_record: Dictionary, forced_star: int) -> void:
@@ -271,6 +318,7 @@ func _apply_runtime_stats() -> void:
 	var unit_data_script: Script = load("res://scripts/data/unit_data.gd")
 	runtime_stats = unit_data_script.call("build_runtime_stats", base_stats, star_level)
 	runtime_equipped_gongfa_ids = get_equipped_gongfa_ids()
+	runtime_equipped_equip_ids = get_equipped_equip_ids()
 
 	if combat_component != null:
 		combat_component.call("reset_from_stats", runtime_stats)
@@ -290,6 +338,22 @@ func get_equipped_gongfa_ids() -> Array[String]:
 			continue
 		ids.append(gid)
 		if ids.size() >= max_gongfa_count:
+			return ids
+	return ids
+
+
+func get_equipped_equip_ids() -> Array[String]:
+	# 装备槽位顺序固定，保证详情展示与属性重算顺序稳定。
+	var ids: Array[String] = []
+	var ordered_slots: Array[String] = ["weapon", "armor", "accessory"]
+	for slot in ordered_slots:
+		var equip_id: String = str(equip_slots.get(slot, "")).strip_edges()
+		if equip_id.is_empty():
+			continue
+		if ids.has(equip_id):
+			continue
+		ids.append(equip_id)
+		if ids.size() >= max_equip_count:
 			return ids
 	return ids
 

@@ -16,12 +16,12 @@
         "green": {"type": "number", "minimum": 0, "maximum": 1},
         "blue": {"type": "number", "minimum": 0, "maximum": 1},
         "purple": {"type": "number", "minimum": 0, "maximum": 1},
-        "orange": {"type": "number", "minimum": 0, "maximum": 1}
+        "orange": {"type": "number", "minimum": 0, "maximum": 1},
+        "red": {"type": "number", "minimum": 0, "maximum": 1}
       },
-      "required": ["white", "green", "blue", "purple", "orange"],
+      "required": ["white", "green", "blue", "purple", "orange", "red"],
       "additionalProperties": false
     }
   },
   "additionalProperties": true
 }
-

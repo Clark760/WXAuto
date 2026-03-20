@@ -14,15 +14,18 @@ signal unit_star_upgraded(result_unit: Node, consumed_units: Array[Node], new_st
 
 @export var max_slots: int = 50
 @export var slots_per_row: int = 10
-@export var slot_size: Vector2 = Vector2(56, 68)
+@export var slot_size: Vector2 = Vector2(112, 136)
 @export var slot_gap: float = 6.0
 @export var grid_path: NodePath = NodePath("BenchGrid")
+@export var auto_fit_columns: bool = true
+@export var wheel_scroll_rows_per_notch: int = 1
 
 var _slots: Array[Node] = []
 var _slot_panels: Array[PanelContainer] = []
 var _slot_icons: Array[ColorRect] = []
 var _slot_name_labels: Array[Label] = []
 var _slot_star_labels: Array[Label] = []
+var _last_layout_size: Vector2 = Vector2(-1.0, -1.0)
 
 @onready var _grid: GridContainer = get_node_or_null(grid_path)
 
@@ -32,6 +35,20 @@ func _ready() -> void:
 		push_error("M2BenchUI: 未找到 BenchGrid 节点，备战席初始化失败。")
 		return
 	initialize_slots(max_slots, slots_per_row)
+	# 监听尺寸变化，保证备战区列数随面板宽度实时自适应。
+	var resize_cb: Callable = Callable(self, "_on_bench_resized")
+	if not is_connected("resized", resize_cb):
+		connect("resized", resize_cb)
+	call_deferred("refresh_adaptive_layout")
+
+
+func _process(_delta: float) -> void:
+	# 实时自适应兜底：
+	# 某些布局链路下 Control.resized 可能触发时机滞后，
+	# 因此每帧检测尺寸变化并按需重算列数，保证拖动窗口时立即生效。
+	if size.is_equal_approx(_last_layout_size):
+		return
+	refresh_adaptive_layout()
 
 
 func initialize_slots(total_slots: int, columns: int) -> void:
@@ -42,6 +59,7 @@ func initialize_slots(total_slots: int, columns: int) -> void:
 		_slots[i] = null
 
 	_build_slot_controls()
+	refresh_adaptive_layout()
 	_refresh_all_slot_ui()
 	emit_signal("bench_changed")
 
@@ -189,6 +207,24 @@ func set_interactable(value: bool) -> void:
 		panel.mouse_filter = Control.MOUSE_FILTER_PASS if value else Control.MOUSE_FILTER_IGNORE
 
 
+func consume_wheel_input(button_index: int) -> bool:
+	# 备战区滚轮滚动入口：
+	# 1. 由上层战场脚本优先调用，阻止滚轮继续传递给地图缩放。
+	# 2. 即使当前无需滚动（内容不足一屏），也返回 true，确保“地图不响应”。
+	if button_index != MOUSE_BUTTON_WHEEL_UP and button_index != MOUSE_BUTTON_WHEEL_DOWN:
+		return false
+	var v_scroll: VScrollBar = get_v_scroll_bar()
+	if v_scroll == null:
+		return true
+	var row_step: int = maxi(int(round(slot_size.y + slot_gap)), 24)
+	var scroll_delta: int = row_step * maxi(wheel_scroll_rows_per_notch, 1)
+	if button_index == MOUSE_BUTTON_WHEEL_UP:
+		scroll_delta = -scroll_delta
+	var max_scroll: int = maxi(int(ceil(v_scroll.max_value - v_scroll.page)), 0)
+	scroll_vertical = clampi(scroll_vertical + scroll_delta, 0, max_scroll)
+	return true
+
+
 func _build_slot_controls() -> void:
 	for child in _grid.get_children():
 		child.queue_free()
@@ -214,17 +250,19 @@ func _build_slot_controls() -> void:
 		content.add_theme_constant_override("separation", 1)
 
 		var icon := ColorRect.new()
-		icon.custom_minimum_size = Vector2(slot_size.x - 10.0, slot_size.x - 10.0)
+		# 槽位放大后，图标高度不再按宽度硬撑满，避免压缩名称与星级文本区域。
+		var icon_height: float = clampf(slot_size.y * 0.55, 28.0, slot_size.x - 10.0)
+		icon.custom_minimum_size = Vector2(slot_size.x - 10.0, icon_height)
 		icon.color = Color(0.16, 0.19, 0.23, 0.65)
 
 		var name_label := Label.new()
 		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		name_label.add_theme_font_size_override("font_size", 11)
+		name_label.add_theme_font_size_override("font_size", 22)
 		name_label.text = "空"
 
 		var star_label := Label.new()
 		star_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		star_label.add_theme_font_size_override("font_size", 12)
+		star_label.add_theme_font_size_override("font_size", 24)
 		star_label.text = ""
 
 		content.add_child(icon)
@@ -237,6 +275,46 @@ func _build_slot_controls() -> void:
 		_slot_icons.append(icon)
 		_slot_name_labels.append(name_label)
 		_slot_star_labels.append(star_label)
+
+
+func _on_bench_resized() -> void:
+	refresh_adaptive_layout()
+
+
+func refresh_adaptive_layout() -> void:
+	_fit_columns_to_width()
+	_last_layout_size = size
+
+
+func _fit_columns_to_width() -> void:
+	if not auto_fit_columns:
+		return
+	if _grid == null or not is_instance_valid(_grid):
+		return
+	# 列数自适应策略（宽高双约束）：
+	# 1. 保持单格尺寸稳定，避免角色卡在不同分辨率下忽大忽小。
+	# 2. 宽度上限：列数不能超过当前可用宽度可容纳的数量。
+	# 3. 行数下限：默认至少按 2 行目标排布，避免“无论分辨率都退化为单行”。
+	var available_width: float = maxf(size.x - 8.0, slot_size.x)
+	var cell_plus_gap: float = maxf(slot_size.x + slot_gap, 1.0)
+	var max_columns_by_width: int = int(floor((available_width + slot_gap) / cell_plus_gap))
+	max_columns_by_width = clampi(max_columns_by_width, 1, max_slots)
+
+	var available_height: float = maxf(size.y - 4.0, slot_size.y)
+	var row_plus_gap: float = maxf(slot_size.y + slot_gap, 1.0)
+	var visible_rows: int = int(floor((available_height + slot_gap) / row_plus_gap))
+	visible_rows = maxi(visible_rows, 1)
+	var target_rows: int = maxi(visible_rows, 2)
+	var max_columns_by_target_rows: int = int(ceil(float(max_slots) / float(target_rows)))
+	max_columns_by_target_rows = clampi(max_columns_by_target_rows, 1, max_slots)
+
+	var fit_columns: int = mini(max_columns_by_width, max_columns_by_target_rows)
+	if fit_columns == slots_per_row and _grid.columns == fit_columns:
+		return
+	slots_per_row = fit_columns
+	_grid.columns = fit_columns
+	_grid.queue_sort()
+	update_minimum_size()
 
 
 func _refresh_all_slot_ui() -> void:

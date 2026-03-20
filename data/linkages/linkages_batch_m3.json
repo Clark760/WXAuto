@@ -132,5 +132,699 @@
       }
     ],
     "vfx_id": "vfx_golden_bell"
+  },
+  {
+    "id": "lk_shaolin_3",
+    "name": "少林三绝",
+    "type": "faction_combo",
+    "description": "少林三绝 增益联动。",
+    "conditions": {
+      "min_count": 3,
+      "require_faction": "shaolin"
+    },
+    "effects": [
+      {
+        "op": "stat_percent",
+        "target": "participants",
+        "stat": "def",
+        "value": 0.3
+      }
+    ],
+    "vfx_id": "vfx_linkage"
+  },
+  {
+    "id": "lk_shaolin_5",
+    "name": "少林五老",
+    "type": "faction_combo",
+    "description": "少林五老 增益联动。",
+    "conditions": {
+      "min_count": 5,
+      "require_faction": "shaolin"
+    },
+    "effects": [
+      {
+        "op": "damage_reduce_percent",
+        "target": "participants",
+        "value": 0.2
+      }
+    ],
+    "vfx_id": "vfx_linkage"
+  },
+  {
+    "id": "lk_wudang_3",
+    "name": "武当三清",
+    "type": "faction_combo",
+    "description": "武当三清 增益联动。",
+    "conditions": {
+      "min_count": 3,
+      "require_faction": "wudang"
+    },
+    "effects": [
+      {
+        "op": "stat_percent",
+        "target": "participants",
+        "stat": "idr",
+        "value": 0.3
+      }
+    ],
+    "vfx_id": "vfx_linkage"
+  },
+  {
+    "id": "lk_wudang_5",
+    "name": "武当五子",
+    "type": "faction_combo",
+    "description": "武当五子 增益联动。",
+    "conditions": {
+      "min_count": 5,
+      "require_faction": "wudang"
+    },
+    "effects": [
+      {
+        "op": "dodge_bonus",
+        "target": "participants",
+        "value": 0.2
+      }
+    ],
+    "vfx_id": "vfx_linkage"
+  },
+  {
+    "id": "lk_emei_3",
+    "name": "峨眉三绝",
+    "type": "faction_combo",
+    "description": "峨眉三绝 增益联动。",
+    "conditions": {
+      "min_count": 3,
+      "require_faction": "emei"
+    },
+    "effects": [
+      {
+        "op": "crit_bonus",
+        "target": "participants",
+        "value": 0.15
+      }
+    ],
+    "vfx_id": "vfx_linkage"
+  },
+  {
+    "id": "lk_gaibang_3",
+    "name": "丐帮三义",
+    "type": "faction_combo",
+    "description": "丐帮三义 增益联动。",
+    "conditions": {
+      "min_count": 3,
+      "require_faction": "gaibang"
+    },
+    "effects": [
+      {
+        "op": "stat_percent",
+        "target": "participants",
+        "stat": "atk",
+        "value": 0.2
+      }
+    ],
+    "vfx_id": "vfx_linkage"
+  },
+  {
+    "id": "lk_gaibang_5",
+    "name": "丐帮五袋",
+    "type": "faction_combo",
+    "description": "丐帮五袋 增益联动。",
+    "conditions": {
+      "min_count": 5,
+      "require_faction": "gaibang"
+    },
+    "effects": [
+      {
+        "op": "stat_percent",
+        "target": "participants",
+        "stat": "hp",
+        "value": 0.3
+      }
+    ],
+    "vfx_id": "vfx_linkage"
+  },
+  {
+    "id": "lk_xiaoyao_3",
+    "name": "逍遥三老",
+    "type": "faction_combo",
+    "description": "逍遥三老 增益联动。",
+    "conditions": {
+      "min_count": 3,
+      "require_faction": "xiaoyao"
+    },
+    "effects": [
+      {
+        "op": "stat_percent",
+        "target": "participants",
+        "stat": "mp",
+        "value": 0.5
+      }
+    ],
+    "vfx_id": "vfx_linkage"
+  },
+  {
+    "id": "lk_xiaoyao_5",
+    "name": "逍遥五仙",
+    "type": "faction_combo",
+    "description": "逍遥五仙 增益联动。",
+    "conditions": {
+      "min_count": 5,
+      "require_faction": "xiaoyao"
+    },
+    "effects": [
+      {
+        "op": "stat_percent",
+        "target": "participants",
+        "stat": "iat",
+        "value": 0.3
+      }
+    ],
+    "vfx_id": "vfx_linkage"
+  },
+  {
+    "id": "lk_mingjiao_3",
+    "name": "明教三使",
+    "type": "faction_combo",
+    "description": "明教三使 增益联动。",
+    "conditions": {
+      "min_count": 3,
+      "require_faction": "mingjiao"
+    },
+    "effects": [
+      {
+        "op": "attack_speed_bonus",
+        "target": "participants",
+        "value": 0.2
+      }
+    ],
+    "vfx_id": "vfx_linkage"
+  },
+  {
+    "id": "lk_mingjiao_5",
+    "name": "明教五散人",
+    "type": "faction_combo",
+    "description": "明教五散人 增益联动。",
+    "conditions": {
+      "min_count": 5,
+      "require_faction": "mingjiao"
+    },
+    "effects": [
+      {
+        "op": "stat_percent",
+        "target": "participants",
+        "stat": "iat",
+        "value": 0.25
+      }
+    ],
+    "vfx_id": "vfx_linkage"
+  },
+  {
+    "id": "lk_huashan_3",
+    "name": "华山三剑",
+    "type": "faction_combo",
+    "description": "华山三剑 增益联动。",
+    "conditions": {
+      "min_count": 3,
+      "require_faction": "huashan"
+    },
+    "effects": [
+      {
+        "op": "crit_damage_bonus",
+        "target": "participants",
+        "value": 0.3
+      }
+    ],
+    "vfx_id": "vfx_linkage"
+  },
+  {
+    "id": "lk_gumu_3",
+    "name": "古墓三姝",
+    "type": "faction_combo",
+    "description": "古墓三姝 增益联动。",
+    "conditions": {
+      "min_count": 3,
+      "require_faction": "gumu"
+    },
+    "effects": [
+      {
+        "op": "stat_percent",
+        "target": "participants",
+        "stat": "spd",
+        "value": 0.2
+      }
+    ],
+    "vfx_id": "vfx_linkage"
+  },
+  {
+    "id": "lk_xingxiu_3",
+    "name": "星宿三邪",
+    "type": "faction_combo",
+    "description": "星宿三邪 增益联动。",
+    "conditions": {
+      "min_count": 3,
+      "require_faction": "xingxiu"
+    },
+    "effects": [
+      {
+        "op": "stat_percent",
+        "target": "participants",
+        "stat": "idr",
+        "value": 0.25
+      }
+    ],
+    "vfx_id": "vfx_linkage"
+  },
+  {
+    "id": "lk_dalun_3",
+    "name": "大伦三僧",
+    "type": "faction_combo",
+    "description": "大伦三僧 增益联动。",
+    "conditions": {
+      "min_count": 3,
+      "require_faction": "dalun"
+    },
+    "effects": [
+      {
+        "op": "stat_percent",
+        "target": "participants",
+        "stat": "def",
+        "value": 0.25
+      }
+    ],
+    "vfx_id": "vfx_linkage"
+  },
+  {
+    "id": "lk_sword_3",
+    "name": "剑气纵横",
+    "type": "skill_chain",
+    "description": "剑气纵横 增益联动。",
+    "conditions": {
+      "min_count": 3,
+      "require_any_tag": [
+        "sword"
+      ]
+    },
+    "effects": [
+      {
+        "op": "stat_percent",
+        "target": "participants",
+        "stat": "atk",
+        "value": 0.2
+      }
+    ],
+    "vfx_id": "vfx_linkage"
+  },
+  {
+    "id": "lk_sword_5",
+    "name": "万剑归宗",
+    "type": "skill_chain",
+    "description": "万剑归宗 增益联动。",
+    "conditions": {
+      "min_count": 5,
+      "require_any_tag": [
+        "sword"
+      ]
+    },
+    "effects": [
+      {
+        "op": "crit_damage_bonus",
+        "target": "participants",
+        "value": 0.4
+      }
+    ],
+    "vfx_id": "vfx_linkage"
+  },
+  {
+    "id": "lk_palm_3",
+    "name": "掌风如雷",
+    "type": "skill_chain",
+    "description": "掌风如雷 增益联动。",
+    "conditions": {
+      "min_count": 3,
+      "require_any_tag": [
+        "palm"
+      ]
+    },
+    "effects": [
+      {
+        "op": "stat_percent",
+        "target": "participants",
+        "stat": "hp",
+        "value": 0.2
+      }
+    ],
+    "vfx_id": "vfx_linkage"
+  },
+  {
+    "id": "lk_palm_5",
+    "name": "降龙伏虎",
+    "type": "skill_chain",
+    "description": "降龙伏虎 增益联动。",
+    "conditions": {
+      "min_count": 5,
+      "require_any_tag": [
+        "palm"
+      ]
+    },
+    "effects": [
+      {
+        "op": "damage_reduce_percent",
+        "target": "participants",
+        "value": 0.15
+      }
+    ],
+    "vfx_id": "vfx_linkage"
+  },
+  {
+    "id": "lk_qi_3",
+    "name": "真气护体",
+    "type": "skill_chain",
+    "description": "真气护体 增益联动。",
+    "conditions": {
+      "min_count": 3,
+      "require_any_tag": [
+        "qi"
+      ]
+    },
+    "effects": [
+      {
+        "op": "stat_percent",
+        "target": "participants",
+        "stat": "iat",
+        "value": 0.2
+      }
+    ],
+    "vfx_id": "vfx_linkage"
+  },
+  {
+    "id": "lk_heal_3",
+    "name": "妙手回春",
+    "type": "skill_chain",
+    "description": "妙手回春 增益联动。",
+    "conditions": {
+      "min_count": 3,
+      "require_any_tag": [
+        "heal"
+      ]
+    },
+    "effects": [
+      {
+        "op": "hp_regen_add",
+        "target": "participants",
+        "value": 20
+      }
+    ],
+    "vfx_id": "vfx_linkage"
+  },
+  {
+    "id": "lk_poison_3",
+    "name": "万毒噬心",
+    "type": "skill_chain",
+    "description": "万毒噬心 增益联动。",
+    "conditions": {
+      "min_count": 3,
+      "require_any_tag": [
+        "poison"
+      ]
+    },
+    "effects": [
+      {
+        "op": "stat_percent",
+        "target": "participants",
+        "stat": "idr",
+        "value": 0.2
+      }
+    ],
+    "vfx_id": "vfx_linkage"
+  },
+  {
+    "id": "lk_metal_water",
+    "name": "金水相生",
+    "type": "element_resonance",
+    "description": "金水相生 增益联动。",
+    "conditions": {
+      "min_count": 2,
+      "require_elements": [
+        [
+          "metal",
+          "water"
+        ]
+      ]
+    },
+    "effects": [
+      {
+        "op": "stat_percent",
+        "target": "participants",
+        "stat": "idr",
+        "value": 0.15
+      }
+    ],
+    "vfx_id": "vfx_linkage"
+  },
+  {
+    "id": "lk_water_wood",
+    "name": "水木相生",
+    "type": "element_resonance",
+    "description": "水木相生 增益联动。",
+    "conditions": {
+      "min_count": 2,
+      "require_elements": [
+        [
+          "water",
+          "wood"
+        ]
+      ]
+    },
+    "effects": [
+      {
+        "op": "stat_percent",
+        "target": "participants",
+        "stat": "hp",
+        "value": 0.15
+      }
+    ],
+    "vfx_id": "vfx_linkage"
+  },
+  {
+    "id": "lk_wood_fire",
+    "name": "木火相生",
+    "type": "element_resonance",
+    "description": "木火相生 增益联动。",
+    "conditions": {
+      "min_count": 2,
+      "require_elements": [
+        [
+          "wood",
+          "fire"
+        ]
+      ]
+    },
+    "effects": [
+      {
+        "op": "stat_percent",
+        "target": "participants",
+        "stat": "iat",
+        "value": 0.15
+      }
+    ],
+    "vfx_id": "vfx_linkage"
+  },
+  {
+    "id": "lk_fire_earth",
+    "name": "火土相生",
+    "type": "element_resonance",
+    "description": "火土相生 增益联动。",
+    "conditions": {
+      "min_count": 2,
+      "require_elements": [
+        [
+          "fire",
+          "earth"
+        ]
+      ]
+    },
+    "effects": [
+      {
+        "op": "stat_percent",
+        "target": "participants",
+        "stat": "def",
+        "value": 0.15
+      }
+    ],
+    "vfx_id": "vfx_linkage"
+  },
+  {
+    "id": "lk_earth_metal",
+    "name": "土金相生",
+    "type": "element_resonance",
+    "description": "土金相生 增益联动。",
+    "conditions": {
+      "min_count": 2,
+      "require_elements": [
+        [
+          "earth",
+          "metal"
+        ]
+      ]
+    },
+    "effects": [
+      {
+        "op": "stat_percent",
+        "target": "participants",
+        "stat": "atk",
+        "value": 0.15
+      }
+    ],
+    "vfx_id": "vfx_linkage"
+  },
+  {
+    "id": "lk_form_wudang",
+    "name": "真武剑阵",
+    "type": "formation_boost",
+    "description": "真武剑阵 增益联动。",
+    "conditions": {
+      "min_count": 1,
+      "require_faction": "wudang",
+      "require_zhenfa_tag": "formation"
+    },
+    "effects": [
+      {
+        "op": "damage_reduce_percent",
+        "target": "zhenfa_area",
+        "value": 0.15
+      }
+    ],
+    "vfx_id": "vfx_linkage"
+  },
+  {
+    "id": "lk_form_shaolin",
+    "name": "罗汉大阵",
+    "type": "formation_boost",
+    "description": "罗汉大阵 增益联动。",
+    "conditions": {
+      "min_count": 1,
+      "require_faction": "shaolin",
+      "require_zhenfa_tag": "formation"
+    },
+    "effects": [
+      {
+        "op": "stat_percent",
+        "target": "zhenfa_area",
+        "stat": "def",
+        "value": 0.25
+      }
+    ],
+    "vfx_id": "vfx_linkage"
+  },
+  {
+    "id": "lk_form_quanzhen",
+    "name": "天罡大阵",
+    "type": "formation_boost",
+    "description": "天罡大阵 增益联动。",
+    "conditions": {
+      "min_count": 1,
+      "require_faction": "quanzhen",
+      "require_zhenfa_tag": "formation"
+    },
+    "effects": [
+      {
+        "op": "stat_percent",
+        "target": "zhenfa_area",
+        "stat": "idr",
+        "value": 0.25
+      }
+    ],
+    "vfx_id": "vfx_linkage"
+  },
+  {
+    "id": "lk_form_gaibang",
+    "name": "打狗大阵",
+    "type": "formation_boost",
+    "description": "打狗大阵 增益联动。",
+    "conditions": {
+      "min_count": 1,
+      "require_faction": "gaibang",
+      "require_zhenfa_tag": "formation"
+    },
+    "effects": [
+      {
+        "op": "dodge_bonus",
+        "target": "zhenfa_area",
+        "value": 0.2
+      }
+    ],
+    "vfx_id": "vfx_linkage"
+  },
+  {
+    "id": "lk_heal_2",
+    "name": "双医济世",
+    "type": "skill_chain",
+    "description": "2名角色装备了治疗类功法时，全队获得持续回复。",
+    "conditions": {
+      "require_any_tag": [
+        "heal_art"
+      ],
+      "min_count": 2
+    },
+    "effects": [
+      {
+        "op": "hp_regen_add",
+        "value": 15,
+        "target": "all_allies"
+      }
+    ],
+    "vfx_id": "vfx_heal_aura"
+  },
+  {
+    "id": "lk_heal_4",
+    "name": "杏林春暖",
+    "type": "skill_chain",
+    "description": "4名角色装备了治疗类功法时，全队生命大幅提升。",
+    "conditions": {
+      "require_any_tag": [
+        "heal_art"
+      ],
+      "min_count": 4
+    },
+    "effects": [
+      {
+        "op": "stat_percent",
+        "stat": "hp",
+        "value": 0.25,
+        "target": "all_allies"
+      },
+      {
+        "op": "hp_regen_add",
+        "value": 30,
+        "target": "all_allies"
+      }
+    ],
+    "vfx_id": "vfx_heal_burst"
+  },
+  {
+    "id": "lk_divine_doctor",
+    "name": "医仙传承",
+    "type": "skill_chain",
+    "description": "2名角色拥有神医标签时，治疗效果提升。",
+    "conditions": {
+      "require_any_tag": [
+        "divine_doctor"
+      ],
+      "min_count": 2
+    },
+    "effects": [
+      {
+        "op": "stat_percent",
+        "stat": "hp",
+        "value": 0.2,
+        "target": "participants"
+      },
+      {
+        "op": "hp_regen_add",
+        "value": 25,
+        "target": "participants"
+      }
+    ],
+    "vfx_id": "vfx_divine_heal"
   }
 ]

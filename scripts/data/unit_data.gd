@@ -59,6 +59,11 @@ static func normalize_unit_record(raw_record: Dictionary) -> Dictionary:
 	result["gongfa_slots"] = _normalize_gongfa_slots(raw_record.get("gongfa_slots", {}), initial_gongfa)
 	result["max_gongfa_count"] = clampi(int(raw_record.get("max_gongfa_count", 3)), 1, 5)
 
+	# 装备槽位（M3）：与功法槽位相同，统一在数据层补齐默认值，
+	# 这样战斗层/详情面板可以直接读取，避免每个调用点各自兜底。
+	result["equip_slots"] = _normalize_equip_slots(raw_record.get("equip_slots", {}))
+	result["max_equip_count"] = clampi(int(raw_record.get("max_equip_count", 3)), 0, 3)
+
 	result["sprite_path"] = str(raw_record.get(
 		"sprite_path",
 		"assets/sprites/units/%s.png" % unit_id
@@ -130,7 +135,7 @@ static func _normalize_quality(quality: String) -> String:
 	return "white"
 
 
-static func _normalize_gongfa_slots(value: Variant, initial_gongfa: Array[String]) -> Dictionary:
+static func _normalize_gongfa_slots(value: Variant, _initial_gongfa: Array[String]) -> Dictionary:
 	var slots: Dictionary = {
 		"neigong": "",
 		"waigong": "",
@@ -142,11 +147,18 @@ static func _normalize_gongfa_slots(value: Variant, initial_gongfa: Array[String
 		for key in slots.keys():
 			slots[key] = str((value as Dictionary).get(key, "")).strip_edges()
 
-	# 兼容旧版 initial_gongfa：按固定槽位顺序回填，减少历史数据改造成本。
-	if initial_gongfa.size() > 0 and slots["neigong"] == "":
-		slots["neigong"] = initial_gongfa[0]
-	if initial_gongfa.size() > 1 and slots["waigong"] == "":
-		slots["waigong"] = initial_gongfa[1]
-	if initial_gongfa.size() > 2 and slots["qinggong"] == "":
-		slots["qinggong"] = initial_gongfa[2]
+	return slots
+
+
+static func _normalize_equip_slots(value: Variant) -> Dictionary:
+	# 固定三类装备槽位：兵器、护甲、饰品。
+	# 后续如果扩展额外槽位，应优先在此处统一定义再向上游暴露。
+	var slots: Dictionary = {
+		"weapon": "",
+		"armor": "",
+		"accessory": ""
+	}
+	if value is Dictionary:
+		for key in slots.keys():
+			slots[key] = str((value as Dictionary).get(key, "")).strip_edges()
 	return slots

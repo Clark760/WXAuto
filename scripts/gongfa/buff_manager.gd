@@ -152,6 +152,7 @@ func tick(delta: float) -> Dictionary:
 					tick_requests.append({
 						"source_id": int(entry.get("source_id", -1)),
 						"target_id": iid,
+						"buff_id": str(entry.get("buff_id", "")).strip_edges(),
 						"effects": (tick_effects as Array).duplicate(true)
 					})
 				entry["tick_accum"] = tick_accum

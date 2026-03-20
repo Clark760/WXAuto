@@ -1,6 +1,6 @@
 [gd_scene load_steps=12 format=3]
 
-[ext_resource type="Script" path="res://scripts/board/battlefield_m3.gd" id="1_m2bf"]
+[ext_resource type="Script" path="res://scripts/board/battlefield_m4.gd" id="1_m2bf"]
 [ext_resource type="Script" path="res://scripts/board/hex_grid.gd" id="2_hexg"]
 [ext_resource type="Script" path="res://scripts/board/deploy_zone_overlay.gd" id="3_overlay"]
 [ext_resource type="Script" path="res://scripts/unit/unit_multimesh_renderer.gd" id="4_mm"]
@@ -9,7 +9,7 @@
 [ext_resource type="Script" path="res://scripts/combat/combat_manager.gd" id="7_combat"]
 [ext_resource type="Script" path="res://scripts/board/m2_bench_ui.gd" id="8_bench_ui"]
 
-[node name="BattlefieldM3" type="Node2D"]
+[node name="BattlefieldM4" type="Node2D"]
 script = ExtResource("1_m2bf")
 
 [node name="Background" type="ColorRect" parent="."]
@@ -602,5 +602,6 @@ offset_right = 760.0
 offset_bottom = 110.0
 autowrap_mode = 2
 text = "M2 调试信息"
+
 
 

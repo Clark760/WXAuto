@@ -80,7 +80,19 @@
       "required": [
         "trigger",
         "effects"
-      ]
+      ],
+      "properties": {
+        "trigger": {
+          "type": "string"
+        },
+        "effects": {
+          "type": "array"
+        },
+        "range": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
     },
     "linkage_tags": {
       "type": "array",

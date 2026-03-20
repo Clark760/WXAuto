@@ -11,11 +11,16 @@ extends Node
 signal linkage_changed(active_linkages: Array)
 signal gongfa_data_reloaded(summary: Dictionary)
 signal skill_triggered(unit: Node, gongfa_id: String, trigger: String)
+signal skill_effect_damage(event: Dictionary)
+signal skill_effect_heal(event: Dictionary)
+signal buff_event(event: Dictionary)
 
 @export var trigger_poll_interval: float = 0.12
 @export var linkage_refresh_interval: float = 1.0
 
 const ALLOWED_SLOTS: Array[String] = ["neigong", "waigong", "qinggong", "zhenfa", "qishu"]
+const ALLOWED_EQUIP_SLOTS: Array[String] = ["weapon", "armor", "accessory"]
+const DEFAULT_SKILL_CAST_RANGE_CELLS: float = 2.0
 
 var _registry = preload("res://scripts/gongfa/gongfa_registry.gd").new()
 var _effect_engine = preload("res://scripts/gongfa/effect_engine.gd").new()
@@ -122,6 +127,7 @@ func apply_gongfa(unit: Node) -> void:
 	var iid: int = unit.get_instance_id()
 	var baseline_stats: Dictionary = _build_unit_baseline_stats(unit)
 
+	# ===== 第 1 层：功法来源 =====
 	var equipped_ids: Array[String] = _resolve_equipped_gongfa_ids(unit)
 	var passive_effects: Array[Dictionary] = []
 	var triggers: Array[Dictionary] = []
@@ -160,11 +166,53 @@ func apply_gongfa(unit: Node) -> void:
 				"skill_data": skill.duplicate(true)
 			})
 
+	# ===== 第 2 层：装备来源（M3 新增）=====
+	var equipped_equip_ids: Array[String] = _resolve_equipped_equip_ids(unit)
+	var equipment_effects: Array[Dictionary] = []
+	var equip_triggers: Array[Dictionary] = []
+
+	for equip_id in equipped_equip_ids:
+		var equip_data: Dictionary = _registry.get_equipment(equip_id)
+		if equip_data.is_empty():
+			continue
+
+		# 1) 装备被动效果与功法被动格式一致，直接复用 EffectEngine。
+		var passive_value: Variant = equip_data.get("passive_effects", [])
+		if passive_value is Array:
+			for effect_value in passive_value:
+				if effect_value is Dictionary:
+					equipment_effects.append((effect_value as Dictionary).duplicate(true))
+
+		# 2) 装备联动标签直接并入角色 runtime_linkage_tags，参与联动检测。
+		for tag in _to_string_array(equip_data.get("linkage_tags", [])):
+			linkage_tags[tag] = true
+
+		# 3) 装备触发器使用 trigger 字段，转换为与功法触发器同结构统一执行。
+		var trigger_value: Variant = equip_data.get("trigger", {})
+		if trigger_value is Dictionary and not (trigger_value as Dictionary).is_empty():
+			var trigger_data: Dictionary = trigger_value
+			equip_triggers.append({
+				"gongfa_id": equip_id, # 复用字段名，便于统一 signal 与日志结构。
+				"trigger": str(trigger_data.get("type", "")),
+				"chance": clampf(float(trigger_data.get("chance", 1.0)), 0.0, 1.0),
+				"mp_cost": maxf(float(trigger_data.get("mp_cost", 0.0)), 0.0),
+				"cooldown": maxf(float(trigger_data.get("cooldown", 0.0)), 0.0),
+				"next_ready_time": 0.0,
+				"trigger_count": 0,
+				"max_trigger_count": maxi(int(trigger_data.get("max_trigger_count", 0)), 0),
+				"skill_data": trigger_data.duplicate(true)
+			})
+
+	# 装备触发器与功法触发器共享同一轮询与事件触发链路。
+	triggers.append_array(equip_triggers)
+
 	_unit_states[iid] = {
 		"unit": unit,
 		"baseline_stats": baseline_stats,
 		"equipped_gongfa_ids": equipped_ids,
+		"equipped_equip_ids": equipped_equip_ids,
 		"passive_effects": passive_effects,
+		"equipment_effects": equipment_effects,
 		"linkage_effects": [],
 		"triggers": triggers,
 		"runtime_linkage_tags": _dict_keys_to_string_array(linkage_tags),
@@ -231,6 +279,53 @@ func get_all_gongfa() -> Array[Dictionary]:
 	return _registry.get_all_gongfa()
 
 
+func get_equipment_data(equip_id: String) -> Dictionary:
+	return _registry.get_equipment(equip_id)
+
+
+func get_all_equipment() -> Array[Dictionary]:
+	return _registry.get_all_equipment()
+
+
+func equip_equipment(unit: Node, slot: String, equip_id: String) -> bool:
+	if unit == null or not is_instance_valid(unit):
+		return false
+	if not ALLOWED_EQUIP_SLOTS.has(slot):
+		return false
+	if equip_id.strip_edges().is_empty():
+		return false
+	if not _registry.has_equipment(equip_id):
+		return false
+
+	# 装备类型必须与槽位一一对应，防止“护甲穿到兵器槽”。
+	var equip_data: Dictionary = _registry.get_equipment(equip_id)
+	var equip_type: String = str(equip_data.get("type", "")).strip_edges()
+	if equip_type != slot:
+		return false
+
+	var equip_slots: Dictionary = _normalize_equip_slots_dict(_node_prop(unit, "equip_slots", {}))
+	equip_slots[slot] = equip_id
+	if _count_filled_equip_slots(equip_slots) > int(_node_prop(unit, "max_equip_count", 3)):
+		return false
+
+	unit.set("equip_slots", equip_slots)
+	apply_gongfa(unit)
+	_refresh_linkages(true)
+	return true
+
+
+func unequip_equipment(unit: Node, slot: String) -> void:
+	if unit == null or not is_instance_valid(unit):
+		return
+	if not ALLOWED_EQUIP_SLOTS.has(slot):
+		return
+	var equip_slots: Dictionary = _normalize_equip_slots_dict(_node_prop(unit, "equip_slots", {}))
+	equip_slots[slot] = ""
+	unit.set("equip_slots", equip_slots)
+	apply_gongfa(unit)
+	_refresh_linkages(true)
+
+
 func get_active_linkages() -> Array[Dictionary]:
 	var output: Array[Dictionary] = []
 	for item in _active_linkages:
@@ -242,9 +337,9 @@ func get_active_linkage_names() -> Array[String]:
 	var names: Array[String] = []
 	for result in _active_linkages:
 		var linkage: Dictionary = result.get("linkage_data", {})
-		var name: String = str(linkage.get("name", ""))
-		if not name.is_empty():
-			names.append(name)
+		var linkage_name: String = str(linkage.get("name", ""))
+		if not linkage_name.is_empty():
+			names.append(linkage_name)
 	return names
 
 
@@ -283,16 +378,24 @@ func _resolve_equipped_gongfa_ids(unit: Node) -> Array[String]:
 		if ids.size() >= max_count:
 			return ids
 
-	# 兼容旧数据：未配置 gongfa_slots 时回落到 initial_gongfa。
-	if ids.is_empty():
-		for gid_raw in _to_string_array(_node_prop(unit, "initial_gongfa", [])):
-			if gid_raw.is_empty():
-				continue
-			if ids.has(gid_raw):
-				continue
-			ids.append(gid_raw)
-			if ids.size() >= max_count:
-				break
+	return ids
+
+
+func _resolve_equipped_equip_ids(unit: Node) -> Array[String]:
+	var ids: Array[String] = []
+	var max_count: int = clampi(int(_node_prop(unit, "max_equip_count", 3)), 0, 3)
+	if max_count <= 0:
+		return ids
+	var slots: Dictionary = _normalize_equip_slots_dict(_node_prop(unit, "equip_slots", {}))
+	for slot in ALLOWED_EQUIP_SLOTS:
+		var equip_id: String = str(slots.get(slot, "")).strip_edges()
+		if equip_id.is_empty():
+			continue
+		if ids.has(equip_id):
+			continue
+		ids.append(equip_id)
+		if ids.size() >= max_count:
+			break
 	return ids
 
 
@@ -306,7 +409,12 @@ func _apply_state_to_unit(unit_id: int, preserve_health_ratio: bool) -> void:
 
 	var runtime_stats: Dictionary = (state.get("baseline_stats", {}) as Dictionary).duplicate(true)
 	var modifiers: Dictionary = _effect_engine.create_empty_modifier_bundle()
+
+	# 属性叠加顺序（M3）：
+	# 1. 功法被动 -> 2. 装备被动 -> 3. 联动效果 -> 4. Buff 效果。
+	# 该顺序会影响 stat_percent 的乘算基准，必须保持稳定。
 	_effect_engine.apply_passive_effects(runtime_stats, modifiers, state.get("passive_effects", []))
+	_effect_engine.apply_passive_effects(runtime_stats, modifiers, state.get("equipment_effects", []))
 	_effect_engine.apply_passive_effects(runtime_stats, modifiers, state.get("linkage_effects", []))
 	_effect_engine.apply_passive_effects(
 		runtime_stats,
@@ -319,6 +427,7 @@ func _apply_state_to_unit(unit_id: int, preserve_health_ratio: bool) -> void:
 	unit.set("runtime_linkage_tags", state.get("runtime_linkage_tags", []))
 	unit.set("runtime_gongfa_elements", state.get("runtime_elements", []))
 	unit.set("runtime_equipped_gongfa_ids", state.get("equipped_gongfa_ids", []))
+	unit.set("runtime_equipped_equip_ids", state.get("equipped_equip_ids", []))
 
 	var combat: Node = unit.get_node_or_null("Components/UnitCombat")
 	if combat != null:
@@ -406,6 +515,30 @@ func _try_fire_skill(source: Node, entry: Dictionary, event_context: Dictionary)
 	if not (effects is Array):
 		return false
 
+	# 技能目标与射程校验：
+	# 1) 只有“指向敌方目标”的技能才要求锁定敌人并做距离判定。
+	# 2) 无目标技能（如 buff_self / heal_self / aura）不会因为没有敌人而失败。
+	var effect_list: Array = effects as Array
+	var requires_enemy_target: bool = _skill_requires_enemy_target(effect_list)
+	var skill_range_cells: float = _resolve_skill_cast_range_cells(source, skill_data)
+
+	var target: Node = event_context.get("target", null)
+	if requires_enemy_target:
+		if not _is_valid_enemy_target(source, target):
+			target = null
+		if target != null and is_instance_valid(target):
+			if not _is_target_in_skill_range(source, target, skill_range_cells):
+				target = null
+		if target == null:
+			target = _pick_nearest_enemy_in_range(source, skill_range_cells)
+		# 范围内找不到目标时，本次触发直接失败，不消耗内力、不进入冷却。
+		if target == null:
+			return false
+	else:
+		# 让无目标技能也有稳定 target（默认自身），便于事件日志和特效位置统一处理。
+		if target == null or not is_instance_valid(target):
+			target = source
+
 	var mp_cost: float = float(entry.get("mp_cost", 0.0))
 	if mp_cost > 0.0:
 		var combat: Node = source.get_node_or_null("Components/UnitCombat")
@@ -415,12 +548,17 @@ func _try_fire_skill(source: Node, entry: Dictionary, event_context: Dictionary)
 			return false
 		combat.call("add_mp", -mp_cost)
 
-	var target: Node = event_context.get("target", null)
-	if target == null or not is_instance_valid(target):
-		target = _pick_nearest_enemy(source)
-
 	var execution_context: Dictionary = _build_effect_context(source, target, event_context)
-	_effect_engine.execute_active_effects(source, target, effects as Array, execution_context)
+	var execution_summary: Dictionary = _effect_engine.execute_active_effects(source, target, effect_list, execution_context)
+	_emit_effect_log_events(
+		execution_summary,
+		source,
+		target,
+		"skill",
+		str(entry.get("gongfa_id", "")),
+		str(entry.get("trigger", "")),
+		{"event_type": "apply"}
+	)
 
 	var skill_vfx: String = str(skill_data.get("vfx_id", "")).strip_edges()
 	if not skill_vfx.is_empty() and _bound_vfx_factory != null:
@@ -457,11 +595,123 @@ func _execute_buff_tick_requests(tick_requests_variant: Variant) -> void:
 		var req: Dictionary = req_value
 		var source: Node = _unit_lookup.get(int(req.get("source_id", -1)), null)
 		var target: Node = _unit_lookup.get(int(req.get("target_id", -1)), null)
+		var buff_id: String = str(req.get("buff_id", "")).strip_edges()
 		var effects: Variant = req.get("effects", [])
 		if not (effects is Array):
 			continue
-		var context: Dictionary = _build_effect_context(source, target, {"trigger": "buff_tick"})
-		_effect_engine.execute_active_effects(source, target, effects as Array, context)
+		var context: Dictionary = _build_effect_context(source, target, {"trigger": "buff_tick", "buff_id": buff_id})
+		var tick_summary: Dictionary = _effect_engine.execute_active_effects(source, target, effects as Array, context)
+		_emit_effect_log_events(
+			tick_summary,
+			source,
+			target,
+			"buff_tick",
+			"",
+			"buff_tick",
+			{"buff_id": buff_id, "event_type": "tick"}
+		)
+		# 即使该次 tick 不造成直接伤害，也要记录“Buff 已触发”这件事。
+		if not buff_id.is_empty():
+			var source_team: int = int(source.get("team_id")) if source != null and is_instance_valid(source) else 0
+			var target_team: int = int(target.get("team_id")) if target != null and is_instance_valid(target) else 0
+			buff_event.emit({
+				"origin": "buff_tick",
+				"event_type": "tick",
+				"source": source,
+				"target": target,
+				"source_team": source_team,
+				"target_team": target_team,
+				"buff_id": buff_id,
+				"duration": 0.0,
+				"op": "buff_tick",
+				"gongfa_id": "",
+				"trigger": "buff_tick"
+			})
+
+
+func _emit_effect_log_events(
+	summary: Dictionary,
+	default_source: Node,
+	default_target: Node,
+	origin: String,
+	gongfa_id: String,
+	trigger: String,
+	extra_fields: Dictionary = {}
+) -> void:
+	if summary.is_empty():
+		return
+
+	var damage_events: Variant = summary.get("damage_events", [])
+	if damage_events is Array:
+		for event_value in damage_events:
+			if not (event_value is Dictionary):
+				continue
+			var event_data: Dictionary = event_value
+			var source_node: Node = event_data.get("source", default_source)
+			var target_node: Node = event_data.get("target", default_target)
+			var payload: Dictionary = {
+				"origin": origin,
+				"source": source_node,
+				"target": target_node,
+				"source_team": int(source_node.get("team_id")) if source_node != null and is_instance_valid(source_node) else 0,
+				"target_team": int(target_node.get("team_id")) if target_node != null and is_instance_valid(target_node) else 0,
+				"damage": float(event_data.get("damage", 0.0)),
+				"damage_type": str(event_data.get("damage_type", "internal")),
+				"op": str(event_data.get("op", "")),
+				"gongfa_id": gongfa_id,
+				"trigger": trigger
+			}
+			for k in extra_fields.keys():
+				payload[k] = extra_fields[k]
+			skill_effect_damage.emit(payload)
+
+	var heal_events: Variant = summary.get("heal_events", [])
+	if heal_events is Array:
+		for heal_value in heal_events:
+			if not (heal_value is Dictionary):
+				continue
+			var heal_data: Dictionary = heal_value
+			var source_node_heal: Node = heal_data.get("source", default_source)
+			var target_node_heal: Node = heal_data.get("target", default_target)
+			var heal_payload: Dictionary = {
+				"origin": origin,
+				"source": source_node_heal,
+				"target": target_node_heal,
+				"source_team": int(source_node_heal.get("team_id")) if source_node_heal != null and is_instance_valid(source_node_heal) else 0,
+				"target_team": int(target_node_heal.get("team_id")) if target_node_heal != null and is_instance_valid(target_node_heal) else 0,
+				"heal": float(heal_data.get("heal", 0.0)),
+				"op": str(heal_data.get("op", "")),
+				"gongfa_id": gongfa_id,
+				"trigger": trigger
+			}
+			for k2 in extra_fields.keys():
+				heal_payload[k2] = extra_fields[k2]
+			skill_effect_heal.emit(heal_payload)
+
+	var buff_events: Variant = summary.get("buff_events", [])
+	if buff_events is Array:
+		for buff_value in buff_events:
+			if not (buff_value is Dictionary):
+				continue
+			var buff_data: Dictionary = buff_value
+			var source_node2: Node = buff_data.get("source", default_source)
+			var target_node2: Node = buff_data.get("target", default_target)
+			var payload2: Dictionary = {
+				"origin": origin,
+				"source": source_node2,
+				"target": target_node2,
+				"source_team": int(source_node2.get("team_id")) if source_node2 != null and is_instance_valid(source_node2) else 0,
+				"target_team": int(target_node2.get("team_id")) if target_node2 != null and is_instance_valid(target_node2) else 0,
+				"buff_id": str(buff_data.get("buff_id", "")),
+				"duration": float(buff_data.get("duration", 0.0)),
+				"op": str(buff_data.get("op", "")),
+				"gongfa_id": gongfa_id,
+				"trigger": trigger,
+				"event_type": "apply"
+			}
+			for key in extra_fields.keys():
+				payload2[key] = extra_fields[key]
+			buff_event.emit(payload2)
 
 
 func _refresh_linkages(preserve_health_ratio: bool) -> void:
@@ -576,6 +826,89 @@ func _pick_nearest_enemy(source: Node) -> Node:
 	return best
 
 
+func _pick_nearest_enemy_in_range(source: Node, range_cells: float) -> Node:
+	if source == null or not is_instance_valid(source):
+		return null
+	var source_pos: Vector2 = (source as Node2D).position
+	var source_team: int = int(source.get("team_id"))
+	var max_world: float = _cells_to_world_distance(range_cells)
+	var max_d2: float = max_world * max_world
+	var best: Node = null
+	var best_d2: float = INF
+	for unit in _battle_units:
+		if unit == null or not is_instance_valid(unit):
+			continue
+		if unit == source:
+			continue
+		if int(unit.get("team_id")) == source_team:
+			continue
+		if not _is_unit_alive(unit):
+			continue
+		var d2: float = source_pos.distance_squared_to((unit as Node2D).position)
+		if d2 > max_d2:
+			continue
+		if d2 < best_d2:
+			best_d2 = d2
+			best = unit
+	return best
+
+
+func _skill_requires_enemy_target(effects: Array) -> bool:
+	for effect_value in effects:
+		if not (effect_value is Dictionary):
+			continue
+		var effect: Dictionary = effect_value as Dictionary
+		var op: String = str(effect.get("op", "")).strip_edges()
+		match op:
+			"damage_target", "debuff_target", "teleport_behind", "dash_forward", "knockback_target":
+				return true
+			_:
+				continue
+	return false
+
+
+func _resolve_skill_cast_range_cells(source: Node, skill_data: Dictionary) -> float:
+	# 优先读 skill.range；未配置时退化为单位基础射程，避免旧数据突然“无限技能”。
+	if skill_data.has("range"):
+		return clampf(float(skill_data.get("range", DEFAULT_SKILL_CAST_RANGE_CELLS)), 0.0, 12.0)
+	if source == null or not is_instance_valid(source):
+		return DEFAULT_SKILL_CAST_RANGE_CELLS
+	var runtime_stats: Variant = source.get("runtime_stats")
+	if runtime_stats is Dictionary:
+		return clampf(float((runtime_stats as Dictionary).get("rng", DEFAULT_SKILL_CAST_RANGE_CELLS)), 1.0, 12.0)
+	return DEFAULT_SKILL_CAST_RANGE_CELLS
+
+
+func _is_valid_enemy_target(source: Node, target: Node) -> bool:
+	if source == null or not is_instance_valid(source):
+		return false
+	if target == null or not is_instance_valid(target):
+		return false
+	if target == source:
+		return false
+	if int(target.get("team_id")) == int(source.get("team_id")):
+		return false
+	return _is_unit_alive(target)
+
+
+func _is_target_in_skill_range(source: Node, target: Node, range_cells: float) -> bool:
+	if source == null or not is_instance_valid(source):
+		return false
+	if target == null or not is_instance_valid(target):
+		return false
+	if range_cells <= 0.0:
+		return true
+	var max_world: float = _cells_to_world_distance(range_cells)
+	return (source as Node2D).position.distance_squared_to((target as Node2D).position) <= max_world * max_world
+
+
+func _cells_to_world_distance(cells: float) -> float:
+	var hex_size: float = 26.0
+	if _bound_hex_grid != null:
+		hex_size = float(_bound_hex_grid.get("hex_size"))
+	return maxf(cells, 0.0) * maxf(hex_size, 1.0) * 1.2
+
+
 func _on_battle_started(_ally_count: int, _enemy_count: int) -> void:
 	_battle_running = true
 	_battle_elapsed = 0.0
@@ -669,9 +1002,29 @@ func _normalize_slots_dict(raw: Variant) -> Dictionary:
 	return slots
 
 
+func _normalize_equip_slots_dict(raw: Variant) -> Dictionary:
+	var slots: Dictionary = {
+		"weapon": "",
+		"armor": "",
+		"accessory": ""
+	}
+	if raw is Dictionary:
+		for slot in ALLOWED_EQUIP_SLOTS:
+			slots[slot] = str((raw as Dictionary).get(slot, "")).strip_edges()
+	return slots
+
+
 func _count_filled_slots(slots: Dictionary) -> int:
 	var count: int = 0
 	for slot in ALLOWED_SLOTS:
+		if str(slots.get(slot, "")).strip_edges() != "":
+			count += 1
+	return count
+
+
+func _count_filled_equip_slots(slots: Dictionary) -> int:
+	var count: int = 0
+	for slot in ALLOWED_EQUIP_SLOTS:
 		if str(slots.get(slot, "")).strip_edges() != "":
 			count += 1
 	return count

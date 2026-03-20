@@ -43,7 +43,8 @@
           "duration": 5.0
         }
       ],
-      "vfx_id": "vfx_golden_aura"
+      "vfx_id": "vfx_golden_aura",
+      "range": 0.0
     },
     "linkage_tags": [
       "jiuyang",
@@ -91,7 +92,8 @@
           "at": "self"
         }
       ],
-      "vfx_id": "vfx_purple_glow"
+      "vfx_id": "vfx_purple_glow",
+      "range": 0.0
     },
     "linkage_tags": [
       "zixia",
@@ -135,7 +137,8 @@
           "at": "target"
         }
       ],
-      "vfx_id": "vfx_golden_dragon"
+      "vfx_id": "vfx_golden_dragon",
+      "range": 0.0
     },
     "linkage_tags": [
       "xianglong",
@@ -183,7 +186,8 @@
           "at": "target"
         }
       ],
-      "vfx_id": "vfx_counter_stance"
+      "vfx_id": "vfx_counter_stance",
+      "range": 2.0
     },
     "linkage_tags": [
       "dugu",
@@ -230,7 +234,8 @@
           "at": "self"
         }
       ],
-      "vfx_id": "vfx_water_ripple"
+      "vfx_id": "vfx_water_ripple",
+      "range": 0.0
     },
     "linkage_tags": [
       "lingbo",
@@ -262,7 +267,8 @@
           "duration": 1.8
         }
       ],
-      "vfx_id": "vfx_star_circle"
+      "vfx_id": "vfx_star_circle",
+      "range": 0.0
     },
     "linkage_tags": [
       "tiangang",
@@ -305,7 +311,8 @@
           "at": "self"
         }
       ],
-      "vfx_id": "vfx_yin_yang_sphere"
+      "vfx_id": "vfx_yin_yang_sphere",
+      "range": 0.0
     },
     "linkage_tags": [
       "qiankun",
@@ -341,7 +348,8 @@
           "value": 50
         }
       ],
-      "vfx_id": "vfx_dark_mist"
+      "vfx_id": "vfx_dark_mist",
+      "range": 4.5
     },
     "linkage_tags": [
       "huagong",
@@ -393,7 +401,8 @@
           "duration": 4.0
         }
       ],
-      "vfx_id": "vfx_taiji_ring"
+      "vfx_id": "vfx_taiji_ring",
+      "range": 0.0
     },
     "linkage_tags": [
       "taiji",
@@ -442,12 +451,2145 @@
           "at": "target"
         }
       ],
-      "vfx_id": "vfx_sword_qi"
+      "vfx_id": "vfx_sword_qi",
+      "range": 2.0
     },
     "linkage_tags": [
       "quanzhen_sword",
       "sword_art",
       "wudang_waigong"
+    ]
+  },
+  {
+    "id": "gf_yijin",
+    "name": "易筋经",
+    "type": "neigong",
+    "faction": "shaolin",
+    "element": "metal",
+    "quality": "red",
+    "description": "武林旷世绝学 易筋经。",
+    "tags": [
+      "heal",
+      "defense"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "hp",
+        "value": 0.3
+      },
+      {
+        "op": "stat_add",
+        "stat": "idr",
+        "value": 50
+      }
+    ],
+    "skill": {
+      "trigger": "auto_hp_below",
+      "mp_cost": 0,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "heal_self_percent",
+          "value": 0.3
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "threshold": 0.3,
+      "range": 0.0
+    },
+    "linkage_tags": [
+      "易筋经",
+      "shaolin_neigong"
+    ]
+  },
+  {
+    "id": "gf_72jueji",
+    "name": "少林七十二绝技",
+    "type": "waigong",
+    "faction": "shaolin",
+    "element": "metal",
+    "quality": "orange",
+    "description": "武林旷世绝学 少林七十二绝技。",
+    "tags": [
+      "combo"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 80
+      },
+      {
+        "op": "attack_speed_bonus",
+        "stat": "attack_speed_bonus",
+        "value": 0.15
+      }
+    ],
+    "skill": {
+      "trigger": "on_attack_hit",
+      "mp_cost": 0,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "damage_target",
+          "value": 150,
+          "damage_type": "external",
+          "multiplier": 1.5
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "chance": 0.25,
+      "range": 1.5
+    },
+    "linkage_tags": [
+      "少林七十二绝技",
+      "shaolin_waigong"
+    ]
+  },
+  {
+    "id": "gf_chunyang",
+    "name": "纯阳无极功",
+    "type": "neigong",
+    "faction": "wudang",
+    "element": "fire",
+    "quality": "orange",
+    "description": "武林旷世绝学 纯阳无极功。",
+    "tags": [
+      "yang",
+      "defense"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "def",
+        "value": 0.2
+      },
+      {
+        "op": "stat_percent",
+        "stat": "iat",
+        "value": 0.1
+      }
+    ],
+    "skill": {
+      "trigger": "auto_mp_full",
+      "mp_cost": 50,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_wudang",
+          "duration": 5.0
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "range": 0.0
+    },
+    "linkage_tags": [
+      "纯阳无极功",
+      "wudang_neigong"
+    ]
+  },
+  {
+    "id": "gf_zhenwu",
+    "name": "真武七截阵",
+    "type": "zhenfa",
+    "faction": "wudang",
+    "element": "water",
+    "quality": "orange",
+    "description": "武林旷世绝学 真武七截阵。",
+    "tags": [
+      "formation"
+    ],
+    "passive_effects": [
+      {
+        "op": "dodge_bonus",
+        "stat": "dodge_bonus",
+        "value": 0.1
+      }
+    ],
+    "skill": {
+      "trigger": "passive_aura",
+      "mp_cost": 0,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "buff_allies_aoe",
+          "buff_id": "buff_wudang",
+          "radius": 4,
+          "duration": 2.0
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "range": 0.0
+    },
+    "linkage_tags": [
+      "真武七截阵",
+      "wudang_zhenfa"
+    ]
+  },
+  {
+    "id": "gf_jiuyin",
+    "name": "九阴真经",
+    "type": "neigong",
+    "faction": "none",
+    "element": "water",
+    "quality": "red",
+    "description": "武林旷世绝学 九阴真经。",
+    "tags": [
+      "yin",
+      "offensive"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "iat",
+        "value": 0.3
+      },
+      {
+        "op": "crit_bonus",
+        "stat": "crit_bonus",
+        "value": 0.15
+      }
+    ],
+    "skill": {
+      "trigger": "auto_mp_full",
+      "mp_cost": 60,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_jiuyin",
+          "duration": 5.0
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "range": 0.0
+    },
+    "linkage_tags": [
+      "九阴真经",
+      "none_neigong"
+    ]
+  },
+  {
+    "id": "gf_hama",
+    "name": "蛤蟆功",
+    "type": "qishu",
+    "faction": "none",
+    "element": "earth",
+    "quality": "orange",
+    "description": "武林旷世绝学 蛤蟆功。",
+    "tags": [
+      "poison",
+      "counter"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "def",
+        "value": 0.25
+      }
+    ],
+    "skill": {
+      "trigger": "on_attacked",
+      "mp_cost": 0,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "debuff_target",
+          "buff_id": "debuff_yufeng",
+          "duration": 4.0
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "chance": 0.25,
+      "range": 2.0
+    },
+    "linkage_tags": [
+      "蛤蟆功",
+      "none_qishu"
+    ]
+  },
+  {
+    "id": "gf_anran",
+    "name": "黯然销魂掌",
+    "type": "waigong",
+    "faction": "gumu",
+    "element": "water",
+    "quality": "red",
+    "description": "武林旷世绝学 黯然销魂掌。",
+    "tags": [
+      "palm",
+      "burst"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 150
+      },
+      {
+        "op": "stat_percent",
+        "stat": "hp",
+        "value": 0.1
+      }
+    ],
+    "skill": {
+      "trigger": "auto_hp_below",
+      "mp_cost": 0,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "damage_aoe",
+          "radius": 3,
+          "value": 200,
+          "damage_type": "internal"
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "threshold": 0.3,
+      "range": 0.0
+    },
+    "linkage_tags": [
+      "黯然销魂掌",
+      "gumu_waigong"
+    ]
+  },
+  {
+    "id": "gf_yunv",
+    "name": "玉女心经",
+    "type": "neigong",
+    "faction": "gumu",
+    "element": "wood",
+    "quality": "purple",
+    "description": "武林旷世绝学 玉女心经。",
+    "tags": [
+      "yin",
+      "spd"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "spd",
+        "value": 0.2
+      },
+      {
+        "op": "dodge_bonus",
+        "stat": "dodge_bonus",
+        "value": 0.1
+      }
+    ],
+    "skill": {
+      "trigger": "auto_mp_full",
+      "mp_cost": 40,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_gudumu",
+          "duration": 5.0
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "range": 0.0
+    },
+    "linkage_tags": [
+      "玉女心经",
+      "gumu_neigong"
+    ]
+  },
+  {
+    "id": "gf_yunv_sword",
+    "name": "玉女素心剑法",
+    "type": "waigong",
+    "faction": "gumu",
+    "element": "wood",
+    "quality": "orange",
+    "description": "武林旷世绝学 玉女素心剑法。",
+    "tags": [
+      "sword",
+      "combo"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "stat": "attack_speed_bonus",
+        "value": 0.2
+      }
+    ],
+    "skill": {
+      "trigger": "on_attack_hit",
+      "mp_cost": 0,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "damage_target",
+          "value": 120,
+          "damage_type": "external",
+          "multiplier": 1.2
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "chance": 0.25,
+      "range": 2.0
+    },
+    "linkage_tags": [
+      "玉女素心剑法",
+      "gumu_waigong"
+    ]
+  },
+  {
+    "id": "gf_dugu",
+    "name": "独孤九剑",
+    "type": "waigong",
+    "faction": "huashan",
+    "element": "metal",
+    "quality": "red",
+    "description": "武林旷世绝学 独孤九剑。",
+    "tags": [
+      "sword",
+      "counter"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "atk",
+        "value": 0.3
+      },
+      {
+        "op": "crit_damage_bonus",
+        "stat": "crit_damage_bonus",
+        "value": 0.3
+      }
+    ],
+    "skill": {
+      "trigger": "on_attacked",
+      "mp_cost": 0,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_dugu",
+          "duration": 5.0
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "chance": 0.25,
+      "range": 0.0
+    },
+    "linkage_tags": [
+      "独孤九剑",
+      "huashan_waigong"
+    ]
+  },
+  {
+    "id": "gf_zixia",
+    "name": "紫霞神功",
+    "type": "neigong",
+    "faction": "huashan",
+    "element": "fire",
+    "quality": "purple",
+    "description": "武林旷世绝学 紫霞神功。",
+    "tags": [
+      "yang",
+      "qi"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "iat",
+        "value": 0.25
+      }
+    ],
+    "skill": {
+      "trigger": "auto_mp_full",
+      "mp_cost": 50,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_huashan",
+          "duration": 5.0
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "range": 0.0
+    },
+    "linkage_tags": [
+      "紫霞神功",
+      "huashan_neigong"
+    ]
+  },
+  {
+    "id": "gf_huashan_sword",
+    "name": "华山剑法",
+    "type": "waigong",
+    "faction": "huashan",
+    "element": "wood",
+    "quality": "blue",
+    "description": "武林旷世绝学 华山剑法。",
+    "tags": [
+      "sword"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 40
+      }
+    ],
+    "skill": {
+      "trigger": "on_attack_hit",
+      "mp_cost": 0,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "damage_target",
+          "value": 110,
+          "damage_type": "external",
+          "multiplier": 1.1
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "chance": 0.25,
+      "range": 2.0
+    },
+    "linkage_tags": [
+      "华山剑法",
+      "huashan_waigong"
+    ]
+  },
+  {
+    "id": "gf_bixie",
+    "name": "辟邪剑法",
+    "type": "waigong",
+    "faction": "none",
+    "element": "metal",
+    "quality": "red",
+    "description": "武林旷世绝学 辟邪剑法。",
+    "tags": [
+      "sword",
+      "spd"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "spd",
+        "value": 0.5
+      },
+      {
+        "op": "attack_speed_bonus",
+        "stat": "attack_speed_bonus",
+        "value": 0.4
+      }
+    ],
+    "skill": {
+      "trigger": "auto_mp_full",
+      "mp_cost": 30,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_bixie",
+          "duration": 5.0
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "range": 0.0
+    },
+    "linkage_tags": [
+      "辟邪剑法",
+      "none_waigong"
+    ]
+  },
+  {
+    "id": "gf_kuihua",
+    "name": "葵花宝典",
+    "type": "neigong",
+    "faction": "none",
+    "element": "fire",
+    "quality": "red",
+    "description": "武林旷世绝学 葵花宝典。",
+    "tags": [
+      "yin",
+      "spd"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "iat",
+        "value": 0.4
+      },
+      {
+        "op": "stat_percent",
+        "stat": "spd",
+        "value": 0.4
+      }
+    ],
+    "skill": {
+      "trigger": "auto_mp_full",
+      "mp_cost": 40,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "damage_aoe",
+          "radius": 3,
+          "value": 150,
+          "damage_type": "internal"
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "range": 0.0
+    },
+    "linkage_tags": [
+      "葵花宝典",
+      "none_neigong"
+    ]
+  },
+  {
+    "id": "gf_xixing",
+    "name": "吸星大法",
+    "type": "qishu",
+    "faction": "none",
+    "element": "water",
+    "quality": "orange",
+    "description": "武林旷世绝学 吸星大法。",
+    "tags": [
+      "drain"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "hp",
+        "value": 0.2
+      }
+    ],
+    "skill": {
+      "trigger": "on_attack_hit",
+      "mp_cost": 0,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "heal_self_percent",
+          "value": 0.1
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "chance": 0.25,
+      "range": 0.0
+    },
+    "linkage_tags": [
+      "吸星大法",
+      "none_qishu"
+    ]
+  },
+  {
+    "id": "gf_beiming",
+    "name": "北冥神功",
+    "type": "neigong",
+    "faction": "xiaoyao",
+    "element": "water",
+    "quality": "red",
+    "description": "武林旷世绝学 北冥神功。",
+    "tags": [
+      "drain",
+      "yin"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "mp",
+        "value": 200
+      }
+    ],
+    "skill": {
+      "trigger": "auto_mp_full",
+      "mp_cost": 80,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_beiming",
+          "duration": 5.0
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "range": 0.0
+    },
+    "linkage_tags": [
+      "北冥神功",
+      "xiaoyao_neigong"
+    ]
+  },
+  {
+    "id": "gf_bahuang",
+    "name": "八荒六合",
+    "type": "neigong",
+    "faction": "xiaoyao",
+    "element": "wood",
+    "quality": "red",
+    "description": "武林旷世绝学 八荒六合。",
+    "tags": [
+      "revive",
+      "yang"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "hp",
+        "value": 0.4
+      }
+    ],
+    "skill": {
+      "trigger": "auto_hp_below",
+      "mp_cost": 0,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_shenzhao",
+          "duration": 5.0
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "threshold": 0.3,
+      "range": 0.0
+    },
+    "linkage_tags": [
+      "八荒六合",
+      "xiaoyao_neigong"
+    ]
+  },
+  {
+    "id": "gf_zhemei",
+    "name": "天山折梅手",
+    "type": "waigong",
+    "faction": "xiaoyao",
+    "element": "wood",
+    "quality": "orange",
+    "description": "武林旷世绝学 天山折梅手。",
+    "tags": [
+      "palm",
+      "counter"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 100
+      },
+      {
+        "op": "dodge_bonus",
+        "stat": "dodge_bonus",
+        "value": 0.15
+      }
+    ],
+    "skill": {
+      "trigger": "on_attacked",
+      "mp_cost": 0,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "damage_target",
+          "value": 130,
+          "damage_type": "external",
+          "multiplier": 1.3
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "chance": 0.25,
+      "range": 2.0
+    },
+    "linkage_tags": [
+      "天山折梅手",
+      "xiaoyao_waigong"
+    ]
+  },
+  {
+    "id": "gf_liuyang",
+    "name": "天山六阳掌",
+    "type": "waigong",
+    "faction": "xiaoyao",
+    "element": "fire",
+    "quality": "orange",
+    "description": "武林旷世绝学 天山六阳掌。",
+    "tags": [
+      "palm",
+      "yang"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 120
+      },
+      {
+        "op": "crit_bonus",
+        "stat": "crit_bonus",
+        "value": 0.1
+      }
+    ],
+    "skill": {
+      "trigger": "auto_mp_full",
+      "mp_cost": 50,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "damage_aoe",
+          "radius": 3,
+          "value": 150,
+          "damage_type": "internal"
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "range": 0.0
+    },
+    "linkage_tags": [
+      "天山六阳掌",
+      "xiaoyao_waigong"
+    ]
+  },
+  {
+    "id": "gf_shengsi",
+    "name": "生死符",
+    "type": "qishu",
+    "faction": "xiaoyao",
+    "element": "water",
+    "quality": "orange",
+    "description": "武林旷世绝学 生死符。",
+    "tags": [
+      "hidden",
+      "poison"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "iat",
+        "value": 0.2
+      }
+    ],
+    "skill": {
+      "trigger": "on_attack_hit",
+      "mp_cost": 0,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "debuff_target",
+          "buff_id": "debuff_bingcan",
+          "duration": 4.0
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "chance": 0.25,
+      "range": 5.0
+    },
+    "linkage_tags": [
+      "生死符",
+      "xiaoyao_qishu"
+    ]
+  },
+  {
+    "id": "gf_liumai",
+    "name": "六脉神剑",
+    "type": "waigong",
+    "faction": "none",
+    "element": "metal",
+    "quality": "red",
+    "description": "武林旷世绝学 六脉神剑。",
+    "tags": [
+      "sword",
+      "qi"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "atk",
+        "value": 0.3
+      },
+      {
+        "op": "stat_percent",
+        "stat": "iat",
+        "value": 0.3
+      }
+    ],
+    "skill": {
+      "trigger": "auto_mp_full",
+      "mp_cost": 60,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "debuff_target",
+          "buff_id": "debuff_liumai",
+          "duration": 4.0
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "range": 5.0
+    },
+    "linkage_tags": [
+      "六脉神剑",
+      "none_waigong"
+    ]
+  },
+  {
+    "id": "gf_yiyang",
+    "name": "一阳指",
+    "type": "qishu",
+    "faction": "none",
+    "element": "fire",
+    "quality": "orange",
+    "description": "武林旷世绝学 一阳指。",
+    "tags": [
+      "finger",
+      "heal"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 120
+      }
+    ],
+    "skill": {
+      "trigger": "auto_mp_full",
+      "mp_cost": 40,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "debuff_target",
+          "buff_id": "debuff_yiyang",
+          "duration": 4.0
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "range": 5.0
+    },
+    "linkage_tags": [
+      "一阳指",
+      "none_qishu"
+    ]
+  },
+  {
+    "id": "gf_douzhuan",
+    "name": "斗转星移",
+    "type": "qishu",
+    "faction": "none",
+    "element": "water",
+    "quality": "red",
+    "description": "武林旷世绝学 斗转星移。",
+    "tags": [
+      "redirect"
+    ],
+    "passive_effects": [
+      {
+        "op": "damage_reduce_percent",
+        "stat": "damage_reduce_percent",
+        "value": 0.2
+      }
+    ],
+    "skill": {
+      "trigger": "on_attacked",
+      "mp_cost": 0,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "damage_target",
+          "value": 100,
+          "damage_type": "external",
+          "multiplier": 1.0
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "chance": 0.25,
+      "range": 2.0
+    },
+    "linkage_tags": [
+      "斗转星移",
+      "none_qishu"
+    ]
+  },
+  {
+    "id": "gf_qiankun",
+    "name": "乾坤大挪移",
+    "type": "qishu",
+    "faction": "mingjiao",
+    "element": "earth",
+    "quality": "red",
+    "description": "武林旷世绝学 乾坤大挪移。",
+    "tags": [
+      "redirect",
+      "defense"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "def",
+        "value": 0.3
+      }
+    ],
+    "skill": {
+      "trigger": "on_attacked",
+      "mp_cost": 0,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_qiankun",
+          "duration": 5.0
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "chance": 0.25,
+      "range": 0.0
+    },
+    "linkage_tags": [
+      "乾坤大挪移",
+      "mingjiao_qishu"
+    ]
+  },
+  {
+    "id": "gf_shenghuo",
+    "name": "圣火令神功",
+    "type": "waigong",
+    "faction": "mingjiao",
+    "element": "fire",
+    "quality": "orange",
+    "description": "武林旷世绝学 圣火令神功。",
+    "tags": [
+      "exotic",
+      "offensive"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 130
+      },
+      {
+        "op": "crit_damage_bonus",
+        "stat": "crit_damage_bonus",
+        "value": 0.2
+      }
+    ],
+    "skill": {
+      "trigger": "auto_mp_full",
+      "mp_cost": 50,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_mingjiao",
+          "duration": 5.0
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "range": 0.0
+    },
+    "linkage_tags": [
+      "圣火令神功",
+      "mingjiao_waigong"
+    ]
+  },
+  {
+    "id": "gf_dagou",
+    "name": "打狗棒法",
+    "type": "waigong",
+    "faction": "gaibang",
+    "element": "wood",
+    "quality": "red",
+    "description": "武林旷世绝学 打狗棒法。",
+    "tags": [
+      "stick",
+      "combo"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 140
+      },
+      {
+        "op": "dodge_bonus",
+        "stat": "dodge_bonus",
+        "value": 0.2
+      }
+    ],
+    "skill": {
+      "trigger": "on_attack_hit",
+      "mp_cost": 0,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_dagou",
+          "duration": 5.0
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "chance": 0.25,
+      "range": 0.0
+    },
+    "linkage_tags": [
+      "打狗棒法",
+      "gaibang_waigong"
+    ]
+  },
+  {
+    "id": "gf_xiaoyaoyou",
+    "name": "逍遥游",
+    "type": "qinggong",
+    "faction": "gaibang",
+    "element": "water",
+    "quality": "purple",
+    "description": "武林旷世绝学 逍遥游。",
+    "tags": [
+      "movement"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "spd",
+        "value": 0.2
+      },
+      {
+        "op": "dodge_bonus",
+        "stat": "dodge_bonus",
+        "value": 0.1
+      }
+    ],
+    "skill": {
+      "trigger": "on_attacked",
+      "mp_cost": 0,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_lingbo",
+          "duration": 5.0
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "chance": 0.25,
+      "range": 0.0
+    },
+    "linkage_tags": [
+      "逍遥游",
+      "gaibang_qinggong"
+    ]
+  },
+  {
+    "id": "gf_shenxing",
+    "name": "神行百变",
+    "type": "qinggong",
+    "faction": "none",
+    "element": "wood",
+    "quality": "purple",
+    "description": "武林旷世绝学 神行百变。",
+    "tags": [
+      "movement"
+    ],
+    "passive_effects": [
+      {
+        "op": "dodge_bonus",
+        "stat": "dodge_bonus",
+        "value": 0.25
+      }
+    ],
+    "skill": {
+      "trigger": "auto_hp_below",
+      "mp_cost": 0,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_lingbo",
+          "duration": 5.0
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "threshold": 0.3,
+      "range": 0.0
+    },
+    "linkage_tags": [
+      "神行百变",
+      "none_qinggong"
+    ]
+  },
+  {
+    "id": "gf_tiyun",
+    "name": "梯云纵",
+    "type": "qinggong",
+    "faction": "wudang",
+    "element": "earth",
+    "quality": "purple",
+    "description": "武林旷世绝学 梯云纵。",
+    "tags": [
+      "movement"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "spd",
+        "value": 0.15
+      },
+      {
+        "op": "stat_percent",
+        "stat": "def",
+        "value": 0.1
+      }
+    ],
+    "skill": {
+      "trigger": "on_attacked",
+      "mp_cost": 0,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_taiji",
+          "duration": 5.0
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "chance": 0.25,
+      "range": 0.0
+    },
+    "linkage_tags": [
+      "梯云纵",
+      "wudang_qinggong"
+    ]
+  },
+  {
+    "id": "gf_yiwei",
+    "name": "一苇渡江",
+    "type": "qinggong",
+    "faction": "shaolin",
+    "element": "water",
+    "quality": "orange",
+    "description": "武林旷世绝学 一苇渡江。",
+    "tags": [
+      "movement"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "spd",
+        "value": 0.2
+      },
+      {
+        "op": "damage_reduce_percent",
+        "stat": "damage_reduce_percent",
+        "value": 0.1
+      }
+    ],
+    "skill": {
+      "trigger": "auto_hp_below",
+      "mp_cost": 0,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_shaolin",
+          "duration": 5.0
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "threshold": 0.3,
+      "range": 0.0
+    },
+    "linkage_tags": [
+      "一苇渡江",
+      "shaolin_qinggong"
+    ]
+  },
+  {
+    "id": "gf_18luohan",
+    "name": "十八罗汉阵",
+    "type": "zhenfa",
+    "faction": "shaolin",
+    "element": "metal",
+    "quality": "red",
+    "description": "武林旷世绝学 十八罗汉阵。",
+    "tags": [
+      "formation",
+      "defense"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "def",
+        "value": 0.1
+      }
+    ],
+    "skill": {
+      "trigger": "passive_aura",
+      "mp_cost": 0,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "buff_allies_aoe",
+          "buff_id": "buff_shaolin",
+          "radius": 4,
+          "duration": 2.0
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "range": 0.0
+    },
+    "linkage_tags": [
+      "十八罗汉阵",
+      "shaolin_zhenfa"
+    ]
+  },
+  {
+    "id": "gf_wuxingbagua",
+    "name": "五行八卦阵",
+    "type": "zhenfa",
+    "faction": "none",
+    "element": "earth",
+    "quality": "purple",
+    "description": "武林旷世绝学 五行八卦阵。",
+    "tags": [
+      "formation"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "idr",
+        "value": 0.15
+      }
+    ],
+    "skill": {
+      "trigger": "passive_aura",
+      "mp_cost": 0,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "buff_allies_aoe",
+          "buff_id": "buff_taiji",
+          "radius": 4,
+          "duration": 2.0
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "range": 0.0
+    },
+    "linkage_tags": [
+      "五行八卦阵",
+      "none_zhenfa"
+    ]
+  },
+  {
+    "id": "gf_xuedaojing",
+    "name": "血刀经",
+    "type": "waigong",
+    "faction": "none",
+    "element": "fire",
+    "quality": "purple",
+    "description": "武林旷世绝学 血刀经。",
+    "tags": [
+      "blade",
+      "bleed"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 90
+      }
+    ],
+    "skill": {
+      "trigger": "on_attack_hit",
+      "mp_cost": 0,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "debuff_target",
+          "buff_id": "debuff_xuedao",
+          "duration": 4.0
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "chance": 0.25,
+      "range": 2.0
+    },
+    "linkage_tags": [
+      "血刀经",
+      "none_waigong"
+    ]
+  },
+  {
+    "id": "gf_shenzhao",
+    "name": "神照经",
+    "type": "neigong",
+    "faction": "none",
+    "element": "wood",
+    "quality": "orange",
+    "description": "武林旷世绝学 神照经。",
+    "tags": [
+      "revive"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "hp",
+        "value": 0.25
+      },
+      {
+        "op": "hp_regen_add",
+        "stat": "hp_regen",
+        "value": 20
+      }
+    ],
+    "skill": {
+      "trigger": "auto_hp_below",
+      "mp_cost": 0,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_shenzhao",
+          "duration": 5.0
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "threshold": 0.3,
+      "range": 0.0
+    },
+    "linkage_tags": [
+      "神照经",
+      "none_neigong"
+    ]
+  },
+  {
+    "id": "gf_longxiang",
+    "name": "龙象般若功",
+    "type": "neigong",
+    "faction": "dalun",
+    "element": "earth",
+    "quality": "red",
+    "description": "武林旷世绝学 龙象般若功。",
+    "tags": [
+      "str",
+      "yang"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "atk",
+        "value": 0.4
+      },
+      {
+        "op": "stat_percent",
+        "stat": "def",
+        "value": 0.2
+      }
+    ],
+    "skill": {
+      "trigger": "auto_mp_full",
+      "mp_cost": 70,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_dalun",
+          "duration": 5.0
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "range": 0.0
+    },
+    "linkage_tags": [
+      "龙象般若功",
+      "dalun_neigong"
+    ]
+  },
+  {
+    "id": "gf_huoyandao",
+    "name": "火焰刀",
+    "type": "qishu",
+    "faction": "dalun",
+    "element": "fire",
+    "quality": "orange",
+    "description": "武林旷世绝学 火焰刀。",
+    "tags": [
+      "qi",
+      "fire"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 180
+      }
+    ],
+    "skill": {
+      "trigger": "auto_mp_full",
+      "mp_cost": 50,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "damage_aoe",
+          "radius": 3,
+          "value": 180,
+          "damage_type": "internal"
+        }
+      ],
+      "vfx_id": "vfx_generic",
+      "range": 0.0
+    },
+    "linkage_tags": [
+      "火焰刀",
+      "dalun_qishu"
+    ]
+  },
+  {
+    "id": "gf_xisui",
+    "name": "洗髓经",
+    "type": "neigong",
+    "faction": "shaolin",
+    "element": "water",
+    "quality": "red",
+    "tags": [
+      "heal",
+      "defense"
+    ],
+    "passive_effects": [
+      {
+        "op": "hp_regen_add",
+        "stat": "hp",
+        "value": 50
+      }
+    ],
+    "skill": {
+      "trigger": "auto_hp_below",
+      "mp_cost": 0,
+      "cooldown": 5,
+      "effects": [],
+      "vfx_id": "",
+      "range": 0.0
+    },
+    "linkage_tags": []
+  },
+  {
+    "id": "gf_taijiquan",
+    "name": "太极拳",
+    "type": "waigong",
+    "faction": "wudang",
+    "element": "wood",
+    "quality": "red",
+    "tags": [
+      "palm",
+      "counter"
+    ],
+    "passive_effects": [
+      {
+        "op": "damage_reduce_percent",
+        "stat": "damage_reduce_percent",
+        "value": 0.3
+      }
+    ],
+    "skill": {
+      "trigger": "on_attacked",
+      "mp_cost": 0,
+      "cooldown": 3,
+      "effects": [],
+      "vfx_id": "",
+      "range": 0.0
+    },
+    "linkage_tags": []
+  },
+  {
+    "id": "gf_xiuhua",
+    "name": "绣花针法",
+    "type": "qishu",
+    "faction": "none",
+    "element": "metal",
+    "quality": "red",
+    "tags": [
+      "hidden",
+      "spd"
+    ],
+    "passive_effects": [
+      {
+        "op": "spd",
+        "stat": "spd",
+        "value": 0.5
+      }
+    ],
+    "skill": {
+      "trigger": "on_attack_hit",
+      "mp_cost": 0,
+      "cooldown": 2,
+      "effects": [],
+      "vfx_id": "",
+      "range": 0.0
+    },
+    "linkage_tags": []
+  },
+  {
+    "id": "gf_xuantiejian",
+    "name": "玄铁剑法",
+    "type": "waigong",
+    "faction": "none",
+    "element": "earth",
+    "quality": "red",
+    "tags": [
+      "sword",
+      "str"
+    ],
+    "passive_effects": [
+      {
+        "op": "atk",
+        "stat": "atk",
+        "value": 200
+      }
+    ],
+    "skill": {
+      "trigger": "on_attack_hit",
+      "mp_cost": 0,
+      "cooldown": 5,
+      "effects": [],
+      "vfx_id": "",
+      "range": 0.0
+    },
+    "linkage_tags": []
+  },
+  {
+    "id": "gf_pojian",
+    "name": "破剑式",
+    "type": "qishu",
+    "faction": "huashan",
+    "element": "metal",
+    "quality": "orange",
+    "tags": [
+      "sword",
+      "counter"
+    ],
+    "passive_effects": [],
+    "skill": {
+      "trigger": "on_attacked",
+      "mp_cost": 0,
+      "cooldown": 3,
+      "effects": [],
+      "vfx_id": "",
+      "range": 0.0
+    },
+    "linkage_tags": []
+  },
+  {
+    "id": "gf_xiantian",
+    "name": "先天功",
+    "type": "neigong",
+    "faction": "quanzhen",
+    "element": "fire",
+    "quality": "red",
+    "tags": [
+      "yang",
+      "qi"
+    ],
+    "passive_effects": [
+      {
+        "op": "hp",
+        "stat": "hp",
+        "value": 0.4
+      }
+    ],
+    "skill": {
+      "trigger": "auto_mp_full",
+      "mp_cost": 100,
+      "cooldown": 8,
+      "effects": [],
+      "vfx_id": "",
+      "range": 0.0
+    },
+    "linkage_tags": []
+  },
+  {
+    "id": "gf_yiti",
+    "name": "一体同心阵",
+    "type": "zhenfa",
+    "faction": "quanzhen",
+    "element": "wood",
+    "quality": "orange",
+    "tags": [
+      "formation"
+    ],
+    "passive_effects": [],
+    "skill": {
+      "trigger": "passive_aura",
+      "mp_cost": 0,
+      "cooldown": 1,
+      "effects": [],
+      "vfx_id": "",
+      "range": 0.0
+    },
+    "linkage_tags": []
+  },
+  {
+    "id": "gf_lingshe",
+    "name": "灵蛇杖法",
+    "type": "waigong",
+    "faction": "dalun",
+    "element": "water",
+    "quality": "orange",
+    "tags": [
+      "stick",
+      "poison"
+    ],
+    "passive_effects": [],
+    "skill": {
+      "trigger": "on_attack_hit",
+      "mp_cost": 0,
+      "cooldown": 4,
+      "effects": [],
+      "vfx_id": "",
+      "range": 0.0
+    },
+    "linkage_tags": []
+  },
+  {
+    "id": "gf_tanzhi",
+    "name": "弹指神通",
+    "type": "qishu",
+    "faction": "none",
+    "element": "wood",
+    "quality": "orange",
+    "tags": [
+      "finger",
+      "ranged"
+    ],
+    "passive_effects": [],
+    "skill": {
+      "trigger": "auto_mp_full",
+      "mp_cost": 50,
+      "cooldown": 5,
+      "effects": [],
+      "vfx_id": "",
+      "range": 0.0
+    },
+    "linkage_tags": []
+  },
+  {
+    "id": "gf_zuoyou",
+    "name": "左右互搏",
+    "type": "qishu",
+    "faction": "quanzhen",
+    "element": "none",
+    "quality": "red",
+    "tags": [
+      "combo",
+      "special"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "stat": "attack_speed_bonus",
+        "value": 1.0
+      }
+    ],
+    "skill": {
+      "trigger": "none",
+      "mp_cost": 0,
+      "cooldown": 0,
+      "effects": [],
+      "vfx_id": "",
+      "range": 0.0
+    },
+    "linkage_tags": []
+  },
+  {
+    "id": "gf_kongming",
+    "name": "空明拳",
+    "type": "waigong",
+    "faction": "quanzhen",
+    "element": "water",
+    "quality": "orange",
+    "tags": [
+      "palm"
+    ],
+    "passive_effects": [
+      {
+        "op": "dodge_bonus",
+        "stat": "dodge_bonus",
+        "value": 0.2
+      }
+    ],
+    "skill": {
+      "trigger": "on_attack_hit",
+      "mp_cost": 0,
+      "cooldown": 4,
+      "effects": [],
+      "vfx_id": "",
+      "range": 0.0
+    },
+    "linkage_tags": []
+  },
+  {
+    "id": "gf_xiaowuxiang",
+    "name": "小无相功",
+    "type": "neigong",
+    "faction": "xiaoyao",
+    "element": "none",
+    "quality": "red",
+    "tags": [
+      "copy"
+    ],
+    "passive_effects": [
+      {
+        "op": "iat",
+        "stat": "iat",
+        "value": 0.3
+      }
+    ],
+    "skill": {
+      "trigger": "on_attacked",
+      "mp_cost": 0,
+      "cooldown": 6,
+      "effects": [],
+      "vfx_id": "",
+      "range": 0.0
+    },
+    "linkage_tags": []
+  },
+  {
+    "id": "gf_baihongzhang",
+    "name": "白虹掌力",
+    "type": "waigong",
+    "faction": "xiaoyao",
+    "element": "metal",
+    "quality": "orange",
+    "tags": [
+      "palm",
+      "ranged"
+    ],
+    "passive_effects": [],
+    "skill": {
+      "trigger": "on_attack_hit",
+      "mp_cost": 0,
+      "cooldown": 4,
+      "effects": [],
+      "vfx_id": "",
+      "range": 0.0
+    },
+    "linkage_tags": []
+  },
+  {
+    "id": "gf_jiuyang_heal",
+    "name": "九阳疗伤篇",
+    "type": "qishu",
+    "faction": "shaolin",
+    "element": "fire",
+    "quality": "orange",
+    "description": "九阳神功衍生疗伤心法，可为自身持续恢复生命。",
+    "tags": [
+      "heal",
+      "yang",
+      "recovery"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "hp",
+        "value": 0.1
+      }
+    ],
+    "skill": {
+      "trigger": "auto_hp_below",
+      "threshold": 0.5,
+      "mp_cost": 40,
+      "cooldown": 8.0,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_jiuyang_heal",
+          "duration": 6.0
+        }
+      ],
+      "vfx_id": "vfx_golden_heal",
+      "range": 0.0
+    },
+    "linkage_tags": [
+      "heal_art",
+      "shaolin_heal"
+    ]
+  },
+  {
+    "id": "gf_emei_heal",
+    "name": "峨眉回元功",
+    "type": "neigong",
+    "faction": "emei",
+    "element": "wood",
+    "quality": "purple",
+    "description": "峨眉派独门疗伤内功，可治愈周围友军。",
+    "tags": [
+      "heal",
+      "support"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "mp",
+        "value": 50
+      }
+    ],
+    "skill": {
+      "trigger": "auto_hp_below",
+      "threshold": 0.4,
+      "mp_cost": 50,
+      "cooldown": 10.0,
+      "effects": [
+        {
+          "op": "heal_allies_aoe",
+          "radius": 3,
+          "value": 120
+        }
+      ],
+      "vfx_id": "vfx_green_heal",
+      "range": 0.0
+    },
+    "linkage_tags": [
+      "heal_art",
+      "emei_heal"
+    ]
+  },
+  {
+    "id": "gf_huqingniu",
+    "name": "蝶谷医术",
+    "type": "qishu",
+    "faction": "none",
+    "element": "wood",
+    "quality": "orange",
+    "description": "蝶谷医仙胡青牛独门医术，可为全场友军施加持续回复。",
+    "tags": [
+      "heal",
+      "aoe"
+    ],
+    "passive_effects": [],
+    "skill": {
+      "trigger": "auto_mp_full",
+      "mp_cost": 60,
+      "cooldown": 12.0,
+      "effects": [
+        {
+          "op": "buff_allies_aoe",
+          "buff_id": "buff_huqingniu_heal",
+          "radius": 5,
+          "duration": 8.0
+        }
+      ],
+      "vfx_id": "vfx_butterfly_heal",
+      "range": 0.0
+    },
+    "linkage_tags": [
+      "heal_art",
+      "divine_doctor"
+    ]
+  },
+  {
+    "id": "gf_yideng_heal",
+    "name": "一灯大师指疗",
+    "type": "qishu",
+    "faction": "none",
+    "element": "fire",
+    "quality": "orange",
+    "description": "南帝一灯大师以一阳指疗伤，可治愈单体致命伤。",
+    "tags": [
+      "heal",
+      "finger",
+      "single"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "iat",
+        "value": 0.1
+      }
+    ],
+    "skill": {
+      "trigger": "auto_hp_below",
+      "threshold": 0.3,
+      "mp_cost": 70,
+      "cooldown": 15.0,
+      "effects": [
+        {
+          "op": "heal_self_percent",
+          "value": 0.4
+        }
+      ],
+      "vfx_id": "vfx_golden_finger",
+      "range": 0.0
+    },
+    "linkage_tags": [
+      "heal_art",
+      "yiyang_heal"
+    ]
+  },
+  {
+    "id": "gf_wudang_heal",
+    "name": "武当纯阳疗伤功",
+    "type": "neigong",
+    "faction": "wudang",
+    "element": "fire",
+    "quality": "purple",
+    "description": "武当正宗纯阳疗伤内功，以内力化解伤势。",
+    "tags": [
+      "heal",
+      "yang",
+      "defense"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "def",
+        "value": 0.1
+      },
+      {
+        "op": "stat_percent",
+        "stat": "idr",
+        "value": 0.1
+      }
+    ],
+    "skill": {
+      "trigger": "auto_hp_below",
+      "threshold": 0.45,
+      "mp_cost": 45,
+      "cooldown": 9.0,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_tianshan_heal",
+          "duration": 5.0
+        },
+        {
+          "op": "heal_self_percent",
+          "value": 0.15
+        }
+      ],
+      "vfx_id": "vfx_yang_heal",
+      "range": 0.0
+    },
+    "linkage_tags": [
+      "heal_art",
+      "wudang_heal"
+    ]
+  },
+  {
+    "id": "gf_shennong",
+    "name": "神农百草经",
+    "type": "qishu",
+    "faction": "none",
+    "element": "wood",
+    "quality": "red",
+    "description": "传说中的神农氏遗篇，可使百草化毒为药，群体大量回复。",
+    "tags": [
+      "heal",
+      "aoe",
+      "cleanse"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "hp",
+        "value": 0.15
+      }
+    ],
+    "skill": {
+      "trigger": "auto_mp_full",
+      "mp_cost": 80,
+      "cooldown": 18.0,
+      "effects": [
+        {
+          "op": "heal_allies_aoe",
+          "radius": 6,
+          "value": 250
+        }
+      ],
+      "vfx_id": "vfx_herbal_bloom",
+      "range": 0.0
+    },
+    "linkage_tags": [
+      "heal_art",
+      "divine_doctor",
+      "herbal"
+    ]
+  },
+  {
+    "id": "gf_baicao_jiushi",
+    "name": "百草济世诀",
+    "type": "neigong",
+    "faction": "none",
+    "element": "wood",
+    "quality": "white",
+    "description": "游医常用的入门疗伤心法，内力虽浅但可稳住伤势。",
+    "tags": [
+      "heal",
+      "recovery",
+      "entry"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "mp",
+        "value": 20
+      }
+    ],
+    "skill": {
+      "trigger": "auto_hp_below",
+      "threshold": 0.35,
+      "mp_cost": 20,
+      "cooldown": 12.0,
+      "effects": [
+        {
+          "op": "heal_self_percent",
+          "value": 0.12
+        }
+      ],
+      "vfx_id": "vfx_green_heal",
+      "range": 0.0
+    },
+    "linkage_tags": [
+      "heal_art",
+      "herbal_entry"
+    ]
+  },
+  {
+    "id": "gf_yangchun_huixin",
+    "name": "养春回心功",
+    "type": "neigong",
+    "faction": "none",
+    "element": "wood",
+    "quality": "green",
+    "description": "取草木回春之意，能在危急时为近身同伴回气疗伤。",
+    "tags": [
+      "heal",
+      "support",
+      "recovery"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "mp",
+        "value": 0.08
+      }
+    ],
+    "skill": {
+      "trigger": "auto_hp_below",
+      "threshold": 0.45,
+      "mp_cost": 30,
+      "cooldown": 10.0,
+      "effects": [
+        {
+          "op": "heal_allies_aoe",
+          "radius": 2,
+          "value": 70
+        }
+      ],
+      "vfx_id": "vfx_green_heal",
+      "range": 0.0
+    },
+    "linkage_tags": [
+      "heal_art",
+      "herbal"
     ]
   }
 ]
