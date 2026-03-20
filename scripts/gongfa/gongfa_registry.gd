@@ -2,7 +2,7 @@ extends RefCounted
 class_name GongfaRegistry
 
 # ===========================
-# 功法数据池（M3）
+# 功法数据池
 # ===========================
 # 职责：
 # 1. 从 DataManager 读取 gongfa/linkages/buffs 三类记录。

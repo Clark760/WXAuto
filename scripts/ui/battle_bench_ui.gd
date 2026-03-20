@@ -1,8 +1,8 @@
 extends ScrollContainer
-class_name M2BenchUI
+class_name BattleBenchUI
 
 # ===========================
-# M2 备战席 UI（CanvasLayer）
+# 备战席 UI（CanvasLayer）
 # ===========================
 # 设计目标：
 # 1. 备战席完全处于 UI 坐标空间，不参与战场缩放与平移。
@@ -26,13 +26,14 @@ var _slot_icons: Array[ColorRect] = []
 var _slot_name_labels: Array[Label] = []
 var _slot_star_labels: Array[Label] = []
 var _last_layout_size: Vector2 = Vector2(-1.0, -1.0)
+var _forced_layout_width: float = -1.0
 
 @onready var _grid: GridContainer = get_node_or_null(grid_path)
 
 
 func _ready() -> void:
 	if _grid == null:
-		push_error("M2BenchUI: 未找到 BenchGrid 节点，备战席初始化失败。")
+		push_error("BattleBenchUI: 未找到 BenchGrid 节点，备战席初始化失败。")
 		return
 	initialize_slots(max_slots, slots_per_row)
 	# 监听尺寸变化，保证备战区列数随面板宽度实时自适应。
@@ -62,6 +63,11 @@ func initialize_slots(total_slots: int, columns: int) -> void:
 	refresh_adaptive_layout()
 	_refresh_all_slot_ui()
 	emit_signal("bench_changed")
+
+
+func set_layout_width(width: float) -> void:
+	_forced_layout_width = maxf(width, 0.0)
+	refresh_adaptive_layout()
 
 
 func add_unit(unit: Node) -> bool:
@@ -241,12 +247,15 @@ func _build_slot_controls() -> void:
 	for i in range(max_slots):
 		var slot_panel := PanelContainer.new()
 		slot_panel.custom_minimum_size = slot_size
+		slot_panel.size_flags_horizontal = 0
+		slot_panel.size_flags_vertical = 0
 		slot_panel.mouse_filter = Control.MOUSE_FILTER_PASS
 		slot_panel.tooltip_text = "槽位 %d" % (i + 1)
 
 		var content := VBoxContainer.new()
 		content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		content.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		content.custom_minimum_size = slot_size
 		content.add_theme_constant_override("separation", 1)
 
 		var icon := ColorRect.new()
@@ -256,12 +265,20 @@ func _build_slot_controls() -> void:
 		icon.color = Color(0.16, 0.19, 0.23, 0.65)
 
 		var name_label := Label.new()
+		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		name_label.clip_text = true
+		name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		name_label.autowrap_mode = TextServer.AUTOWRAP_OFF
 		name_label.add_theme_font_size_override("font_size", 22)
 		name_label.text = "空"
 
 		var star_label := Label.new()
+		star_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		star_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		star_label.clip_text = true
+		star_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		star_label.autowrap_mode = TextServer.AUTOWRAP_OFF
 		star_label.add_theme_font_size_override("font_size", 24)
 		star_label.text = ""
 
@@ -291,11 +308,18 @@ func _fit_columns_to_width() -> void:
 		return
 	if _grid == null or not is_instance_valid(_grid):
 		return
+	if size.x <= 1.0:
+		return
 	# 列数自适应策略（宽高双约束）：
 	# 1. 保持单格尺寸稳定，避免角色卡在不同分辨率下忽大忽小。
 	# 2. 宽度上限：列数不能超过当前可用宽度可容纳的数量。
 	# 3. 行数下限：默认至少按 2 行目标排布，避免“无论分辨率都退化为单行”。
-	var available_width: float = maxf(size.x - 8.0, slot_size.x)
+	var visible_width: float = _forced_layout_width if _forced_layout_width > 0.0 else size.x
+	var vertical_bar: VScrollBar = get_v_scroll_bar()
+	if vertical_bar != null and vertical_bar.visible:
+		visible_width -= vertical_bar.size.x
+	# 预留少量安全边距，优先让卡片完整换行，避免行尾只显示半张。
+	var available_width: float = maxf(visible_width - slot_gap * 2.0 - 20.0, slot_size.x)
 	var cell_plus_gap: float = maxf(slot_size.x + slot_gap, 1.0)
 	var max_columns_by_width: int = int(floor((available_width + slot_gap) / cell_plus_gap))
 	max_columns_by_width = clampi(max_columns_by_width, 1, max_slots)
@@ -313,6 +337,7 @@ func _fit_columns_to_width() -> void:
 		return
 	slots_per_row = fit_columns
 	_grid.columns = fit_columns
+	_grid.custom_minimum_size.x = fit_columns * slot_size.x + maxi(fit_columns - 1, 0) * slot_gap
 	_grid.queue_sort()
 	update_minimum_size()
 

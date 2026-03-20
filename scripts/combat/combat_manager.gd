@@ -2,13 +2,13 @@ extends Node
 class_name CombatManager
 
 # ===========================
-# 战斗管理器（M2 FPS 优化版）
+# 战斗管理器
 # ===========================
 # 核心职责：
 # 1. 固定逻辑帧驱动战斗决策，与渲染帧解耦。
 # 2. 使用 SpatialHash 做近邻寻敌，避免 O(n^2) 全量遍历。
 # 3. 以“队伍焦点 + 流场方向”实现分组 AI。
-# 4. 本版重点优化：预扫描合并、组件缓存、减少重复遍历。
+# 4. 当前实现重点优化：预扫描合并、组件缓存、减少重复遍历。
 
 signal battle_started(ally_count: int, enemy_count: int)
 signal battle_ended(winner_team: int, summary: Dictionary)
@@ -43,6 +43,7 @@ var _logic_time: float = 0.0
 var _all_units: Array[Node] = []
 var _unit_by_instance_id: Dictionary = {}  # instance_id -> Node
 var _dead_registry: Dictionary = {}         # instance_id -> true
+var _unit_position_cache: Dictionary = {}   # instance_id -> Vector2
 
 var _alive_by_team: Dictionary = {
 	TEAM_ALLY: 0,
@@ -98,40 +99,15 @@ func is_battle_running() -> bool:
 
 func start_battle(ally_units: Array[Node], enemy_units: Array[Node], battle_seed: int = 0) -> bool:
 	stop_battle("restart", 0)
-
-	_all_units.clear()
-	_unit_by_instance_id.clear()
-	_dead_registry.clear()
-	_combat_cache.clear()
-	_movement_cache.clear()
-	_alive_by_team[TEAM_ALLY] = 0
-	_alive_by_team[TEAM_ENEMY] = 0
-	_group_focus_target_id.clear()
-	_group_center.clear()
-	_team_alive_cache[TEAM_ALLY] = []
-	_team_alive_cache[TEAM_ENEMY] = []
-	_team_cells_cache[TEAM_ALLY] = []
-	_team_cells_cache[TEAM_ENEMY] = []
-	_spatial_hash.clear()
-
+	_reset_battle_runtime_state()
 	_register_units(ally_units, TEAM_ALLY)
 	_register_units(enemy_units, TEAM_ENEMY)
 	if _all_units.is_empty():
 		return false
 
-	var actual_seed: int = battle_seed
-	if actual_seed <= 0:
-		actual_seed = int(Time.get_ticks_usec() % 2147483647)
-	_rng.seed = actual_seed
-
-	_logic_step = 1.0 / maxf(logic_fps, 1.0)
-	_logic_accumulator = 0.0
-	_logic_frame = 0
-	_logic_time = 0.0
-	_battle_running = true
-
+	_setup_battle_seed(battle_seed)
+	_begin_battle_loop()
 	_pre_tick_scan()
-
 	battle_started.emit(
 		int(_alive_by_team.get(TEAM_ALLY, 0)),
 		int(_alive_by_team.get(TEAM_ENEMY, 0))
@@ -144,32 +120,12 @@ func stop_battle(reason: String = "manual", winner_team: int = 0) -> void:
 		return
 
 	_battle_running = false
-	var summary: Dictionary = {
-		"winner_team": winner_team,
-		"reason": reason,
-		"logic_frames": _logic_frame,
-		"logic_time": _logic_time,
-		"ally_alive": int(_alive_by_team.get(TEAM_ALLY, 0)),
-		"enemy_alive": int(_alive_by_team.get(TEAM_ENEMY, 0))
-	}
+	var summary: Dictionary = _build_battle_summary(reason, winner_team)
 
 	for unit in _all_units:
 		if not _is_live_unit(unit):
 			continue
-
-		# 结算时强制清空移动目标，避免胜负已出仍有残留位移。
-		var movement: Node = _get_movement(unit)
-		if movement != null:
-			movement.call("clear_target")
-
-		if _is_unit_alive(unit):
-			var team_id: int = int(unit.get("team_id"))
-			if winner_team != 0 and team_id == winner_team:
-				unit.call("play_anim_state", 6, {}) # VICTORY
-			else:
-				unit.call("play_anim_state", 0, {}) # IDLE
-		unit.set("is_in_combat", false)
-		unit.call("leave_combat")
+		_cleanup_unit_after_battle(unit, winner_team)
 
 	battle_ended.emit(winner_team, summary)
 
@@ -188,7 +144,8 @@ func _logic_tick(delta: float) -> void:
 		return
 
 	_update_group_ai_focus()
-	if flow_refresh_interval_frames <= 1 or (_logic_frame % flow_refresh_interval_frames == 0):
+	var effective_flow_refresh_interval: int = _get_effective_flow_refresh_interval()
+	if effective_flow_refresh_interval <= 1 or (_logic_frame % effective_flow_refresh_interval == 0):
 		_rebuild_flow_fields()
 
 	for unit in _all_units:
@@ -200,62 +157,7 @@ func _logic_tick(delta: float) -> void:
 
 
 func _pre_tick_scan() -> void:
-	# 单次遍历完成：存活统计 + 空间哈希 + 队伍缓存 + 流场目标格缓存。
-	_alive_by_team[TEAM_ALLY] = 0
-	_alive_by_team[TEAM_ENEMY] = 0
-	_unit_by_instance_id.clear()
-	_spatial_hash.clear()
-	_team_alive_cache[TEAM_ALLY] = []
-	_team_alive_cache[TEAM_ENEMY] = []
-	_team_cells_cache[TEAM_ALLY] = []
-	_team_cells_cache[TEAM_ENEMY] = []
-
-	var valid_units: Array[Node] = []
-	var valid_ids: Dictionary = {}
-	var ally_seen_cells: Dictionary = {}
-	var enemy_seen_cells: Dictionary = {}
-
-	for unit in _all_units:
-		if not _is_live_unit(unit):
-			continue
-
-		var iid: int = unit.get_instance_id()
-		valid_units.append(unit)
-		valid_ids[iid] = true
-
-		var combat: Node = _get_combat(unit)
-		if combat == null:
-			continue
-		if not bool(combat.get("is_alive")):
-			continue
-
-		var team_id: int = int(unit.get("team_id"))
-		_alive_by_team[team_id] = int(_alive_by_team.get(team_id, 0)) + 1
-		_unit_by_instance_id[iid] = unit
-		_spatial_hash.insert(iid, unit.position)
-
-		var alive_list: Array = _team_alive_cache.get(team_id, [])
-		alive_list.append(unit)
-		_team_alive_cache[team_id] = alive_list
-
-		if _hex_grid != null:
-			var cell: Vector2i = _hex_grid.call("world_to_axial", unit.position)
-			var cell_key: int = _cell_key_int(cell)
-			if team_id == TEAM_ALLY:
-				if not ally_seen_cells.has(cell_key):
-					ally_seen_cells[cell_key] = true
-					var ally_cells: Array = _team_cells_cache.get(TEAM_ALLY, [])
-					ally_cells.append(cell)
-					_team_cells_cache[TEAM_ALLY] = ally_cells
-			elif team_id == TEAM_ENEMY:
-				if not enemy_seen_cells.has(cell_key):
-					enemy_seen_cells[cell_key] = true
-					var enemy_cells: Array = _team_cells_cache.get(TEAM_ENEMY, [])
-					enemy_cells.append(cell)
-					_team_cells_cache[TEAM_ENEMY] = enemy_cells
-
-	_all_units = valid_units
-	_trim_component_caches(valid_ids)
+	_pre_tick_scan_incremental()
 
 
 func _trim_component_caches(valid_ids: Dictionary) -> void:
@@ -270,22 +172,128 @@ func _trim_component_caches(valid_ids: Dictionary) -> void:
 			_movement_cache.erase(iid)
 
 
+func pick_unit_at_world(world_pos: Vector2, radius: float = 20.0) -> Node:
+	var best_target: Node = null
+	var best_dist_sq: float = INF
+	for candidate_id in _spatial_hash.query_radius(world_pos, maxf(radius, 1.0)):
+		if not _unit_by_instance_id.has(candidate_id):
+			continue
+		var candidate: Node = _unit_by_instance_id[candidate_id]
+		if not _is_live_unit(candidate):
+			continue
+		if not _is_unit_alive(candidate):
+			continue
+		if candidate is CanvasItem and not (candidate as CanvasItem).visible:
+			continue
+		var d2: float = world_pos.distance_squared_to((candidate as Node2D).position)
+		if d2 < best_dist_sq:
+			best_dist_sq = d2
+			best_target = candidate
+	return best_target
+
+
+func _pre_tick_scan_incremental() -> void:
+	_alive_by_team[TEAM_ALLY] = 0
+	_alive_by_team[TEAM_ENEMY] = 0
+	_team_alive_cache[TEAM_ALLY] = []
+	_team_alive_cache[TEAM_ENEMY] = []
+	_team_cells_cache[TEAM_ALLY] = []
+	_team_cells_cache[TEAM_ENEMY] = []
+
+	var valid_ids: Dictionary = {}
+	var ally_seen_cells: Dictionary = {}
+	var enemy_seen_cells: Dictionary = {}
+	var index: int = 0
+	while index < _all_units.size():
+		var unit: Node = _all_units[index]
+		if not _is_live_unit(unit):
+			_all_units.remove_at(index)
+			continue
+		_cache_components_for_unit(unit)
+		var combat: Node = _get_combat(unit)
+		if combat == null or not bool(combat.get("is_alive")):
+			_remove_unit_runtime_entry(unit)
+			_all_units.remove_at(index)
+			continue
+
+		var iid: int = unit.get_instance_id()
+		valid_ids[iid] = true
+		_cache_alive_unit_incremental(unit, ally_seen_cells, enemy_seen_cells)
+		index += 1
+
+	_trim_component_caches(valid_ids)
+	_trim_runtime_caches(valid_ids)
+
+
+func _cache_alive_unit_incremental(unit: Node, ally_seen_cells: Dictionary, enemy_seen_cells: Dictionary) -> void:
+	var iid: int = unit.get_instance_id()
+	var team_id: int = int(unit.get("team_id"))
+	_alive_by_team[team_id] = int(_alive_by_team.get(team_id, 0)) + 1
+	_unit_by_instance_id[iid] = unit
+	_spatial_hash.update(iid, unit.position)
+	_unit_position_cache[iid] = unit.position
+
+	var alive_list: Array = _team_alive_cache.get(team_id, [])
+	alive_list.append(unit)
+	_team_alive_cache[team_id] = alive_list
+
+	if _hex_grid == null:
+		return
+	var cell: Vector2i = _hex_grid.call("world_to_axial", unit.position)
+	var seen_cells: Dictionary = ally_seen_cells if team_id == TEAM_ALLY else enemy_seen_cells
+	var cell_key: int = _cell_key_int(cell)
+	if seen_cells.has(cell_key):
+		return
+	seen_cells[cell_key] = true
+	var team_cells: Array = _team_cells_cache.get(team_id, [])
+	team_cells.append(cell)
+	_team_cells_cache[team_id] = team_cells
+
+
+func _trim_runtime_caches(valid_ids: Dictionary) -> void:
+	for key in _unit_by_instance_id.keys():
+		var iid: int = int(key)
+		if valid_ids.has(iid):
+			continue
+		_remove_runtime_entry_by_id(iid)
+
+
+func _remove_unit_runtime_entry(unit: Node) -> void:
+	if not _is_live_unit(unit):
+		return
+	_remove_runtime_entry_by_id(unit.get_instance_id())
+
+
+func _remove_runtime_entry_by_id(iid: int) -> void:
+	_unit_by_instance_id.erase(iid)
+	_spatial_hash.remove(iid)
+	_unit_position_cache.erase(iid)
+	_combat_cache.erase(iid)
+	_movement_cache.erase(iid)
+
+
+func _get_effective_flow_refresh_interval() -> int:
+	var interval: int = maxi(flow_refresh_interval_frames, 1)
+	var alive_total: int = int(_alive_by_team.get(TEAM_ALLY, 0)) + int(_alive_by_team.get(TEAM_ENEMY, 0))
+	if alive_total >= 320:
+		return interval * 4
+	if alive_total >= 220:
+		return interval * 3
+	if alive_total >= 120:
+		return interval * 2
+	return interval
+
+
 func _register_units(units: Array[Node], team_id: int) -> void:
 	for unit in units:
 		if not _is_live_unit(unit):
 			continue
 
-		unit.call("set_team", team_id)
-		unit.call("enter_combat")
-		unit.call("set_on_bench_state", false, -1)
-		unit.call("play_anim_state", 0, {}) # IDLE
-
+		_prepare_unit_for_battle(unit, team_id)
 		_cache_components_for_unit(unit)
-
 		var combat: Node = _get_combat(unit)
 		if combat != null:
 			combat.call("prepare_for_battle")
-
 		var movement: Node = _get_movement(unit)
 		if movement != null:
 			movement.call("clear_target")
@@ -358,16 +366,8 @@ func _run_unit_logic(unit: Node, delta: float) -> void:
 	combat.call("tick_logic", delta)
 	var target: Node = _pick_target_for_unit(unit)
 
-	if target != null and _is_target_in_attack_range(unit, target):
-		var attack_event: Variant = combat.call("try_attack_target", target, _rng)
-		if attack_event is Dictionary:
-			var event_dict: Dictionary = attack_event
-			if bool(event_dict.get("performed", false)):
-				_on_attack_resolved(unit, target, event_dict)
-				var movement_stop: Node = _get_movement(unit)
-				if movement_stop != null:
-					movement_stop.call("clear_target")
-				return
+	if _try_execute_attack(unit, combat, target):
+		return
 
 	var movement: Node = _get_movement(unit)
 	if movement == null:
@@ -481,21 +481,7 @@ func _on_attack_resolved(source: Node, target: Node, event_dict: Dictionary) -> 
 				false
 			)
 
-	var combat_event: Dictionary = {
-		"source_id": source.get_instance_id(),
-		"target_id": target.get_instance_id(),
-		"source_team": int(source.get("team_id")),
-		"target_team": int(target.get("team_id")),
-		"is_skill": bool(event_dict.get("is_skill", false)),
-		"is_dodged": bool(event_dict.get("is_dodged", false)),
-		"is_crit": bool(event_dict.get("is_crit", false)),
-		"damage_type": str(event_dict.get("damage_type", "external")),
-		"damage": float(event_dict.get("damage", 0.0)),
-		"target_hp_after": float(event_dict.get("target_hp_after", 0.0)),
-		"target_mp_after": float(event_dict.get("target_mp_after", 0.0)),
-		"logic_frame": _logic_frame
-	}
-	damage_resolved.emit(combat_event)
+	damage_resolved.emit(_build_damage_event(source, target, event_dict))
 
 	if bool(event_dict.get("target_died", false)):
 		_handle_unit_death(target, source)
@@ -514,11 +500,16 @@ func _handle_unit_death(dead_unit: Node, killer: Node) -> void:
 	var movement: Node = _get_movement(dead_unit)
 	if movement != null:
 		movement.call("clear_target")
+	var dead_team: int = int(dead_unit.get("team_id"))
+	_alive_by_team[dead_team] = maxi(int(_alive_by_team.get(dead_team, 0)) - 1, 0)
+	var alive_list: Array = _team_alive_cache.get(dead_team, [])
+	alive_list.erase(dead_unit)
+	_team_alive_cache[dead_team] = alive_list
+	_remove_unit_runtime_entry(dead_unit)
 
-	unit_died.emit(dead_unit, killer, int(dead_unit.get("team_id")))
+	unit_died.emit(dead_unit, killer, dead_team)
 
 	# 关键修复：任一方归零后立刻结算，阻断同帧残余行动。
-	_pre_tick_scan()
 	_finalize_if_needed()
 
 
@@ -583,3 +574,151 @@ func _is_live_unit(unit: Variant) -> bool:
 
 func _cell_key_int(cell: Vector2i) -> int:
 	return ((cell.x & 0xFFFF) << 16) | (cell.y & 0xFFFF)
+
+
+func _reset_battle_runtime_state() -> void:
+	# 只在“整场战斗开始前”清空的运行态数据集中放在这里，
+	# 避免 start_battle 中散落大量 reset 代码。
+	_all_units.clear()
+	_unit_by_instance_id.clear()
+	_dead_registry.clear()
+	_unit_position_cache.clear()
+	_combat_cache.clear()
+	_movement_cache.clear()
+	_group_focus_target_id.clear()
+	_group_center.clear()
+	_spatial_hash.clear()
+	_alive_by_team[TEAM_ALLY] = 0
+	_alive_by_team[TEAM_ENEMY] = 0
+	_team_alive_cache[TEAM_ALLY] = []
+	_team_alive_cache[TEAM_ENEMY] = []
+	_team_cells_cache[TEAM_ALLY] = []
+	_team_cells_cache[TEAM_ENEMY] = []
+
+
+func _setup_battle_seed(battle_seed: int) -> void:
+	var actual_seed: int = battle_seed
+	if actual_seed <= 0:
+		actual_seed = int(Time.get_ticks_usec() % 2147483647)
+	_rng.seed = actual_seed
+
+
+func _begin_battle_loop() -> void:
+	_logic_step = 1.0 / maxf(logic_fps, 1.0)
+	_logic_accumulator = 0.0
+	_logic_frame = 0
+	_logic_time = 0.0
+	_battle_running = true
+
+
+func _build_battle_summary(reason: String, winner_team: int) -> Dictionary:
+	return {
+		"winner_team": winner_team,
+		"reason": reason,
+		"logic_frames": _logic_frame,
+		"logic_time": _logic_time,
+		"ally_alive": int(_alive_by_team.get(TEAM_ALLY, 0)),
+		"enemy_alive": int(_alive_by_team.get(TEAM_ENEMY, 0))
+	}
+
+
+func _cleanup_unit_after_battle(unit: Node, winner_team: int) -> void:
+	# 结算时强制清空移动目标，避免胜负已出仍有残留位移。
+	var movement: Node = _get_movement(unit)
+	if movement != null:
+		movement.call("clear_target")
+
+	if _is_unit_alive(unit):
+		var team_id: int = int(unit.get("team_id"))
+		if winner_team != 0 and team_id == winner_team:
+			unit.call("play_anim_state", 6, {}) # VICTORY
+		else:
+			unit.call("play_anim_state", 0, {}) # IDLE
+	unit.set("is_in_combat", false)
+	unit.call("leave_combat")
+
+
+func _reset_tick_caches() -> void:
+	_alive_by_team[TEAM_ALLY] = 0
+	_alive_by_team[TEAM_ENEMY] = 0
+	_unit_by_instance_id.clear()
+	_spatial_hash.clear()
+	_team_alive_cache[TEAM_ALLY] = []
+	_team_alive_cache[TEAM_ENEMY] = []
+	_team_cells_cache[TEAM_ALLY] = []
+	_team_cells_cache[TEAM_ENEMY] = []
+
+
+func _cache_alive_unit(unit: Node, ally_seen_cells: Dictionary, enemy_seen_cells: Dictionary) -> void:
+	var combat: Node = _get_combat(unit)
+	if combat == null:
+		return
+	if not bool(combat.get("is_alive")):
+		return
+
+	var iid: int = unit.get_instance_id()
+	var team_id: int = int(unit.get("team_id"))
+	_alive_by_team[team_id] = int(_alive_by_team.get(team_id, 0)) + 1
+	_unit_by_instance_id[iid] = unit
+	_spatial_hash.insert(iid, unit.position)
+
+	var alive_list: Array = _team_alive_cache.get(team_id, [])
+	alive_list.append(unit)
+	_team_alive_cache[team_id] = alive_list
+
+	if _hex_grid == null:
+		return
+	var cell: Vector2i = _hex_grid.call("world_to_axial", unit.position)
+	var seen_cells: Dictionary = ally_seen_cells if team_id == TEAM_ALLY else enemy_seen_cells
+	var cache_key: int = TEAM_ALLY if team_id == TEAM_ALLY else TEAM_ENEMY
+	var cell_key: int = _cell_key_int(cell)
+	if seen_cells.has(cell_key):
+		return
+	seen_cells[cell_key] = true
+	var team_cells: Array = _team_cells_cache.get(cache_key, [])
+	team_cells.append(cell)
+	_team_cells_cache[cache_key] = team_cells
+
+
+func _prepare_unit_for_battle(unit: Node, team_id: int) -> void:
+	unit.call("set_team", team_id)
+	unit.call("enter_combat")
+	unit.call("set_on_bench_state", false, -1)
+	unit.call("play_anim_state", 0, {}) # IDLE
+
+
+func _try_execute_attack(unit: Node, combat: Node, target: Node) -> bool:
+	if target == null:
+		return false
+	if not _is_target_in_attack_range(unit, target):
+		return false
+
+	var attack_event: Variant = combat.call("try_attack_target", target, _rng)
+	if not (attack_event is Dictionary):
+		return false
+	var event_dict: Dictionary = attack_event
+	if not bool(event_dict.get("performed", false)):
+		return false
+
+	_on_attack_resolved(unit, target, event_dict)
+	var movement_stop: Node = _get_movement(unit)
+	if movement_stop != null:
+		movement_stop.call("clear_target")
+	return true
+
+
+func _build_damage_event(source: Node, target: Node, event_dict: Dictionary) -> Dictionary:
+	return {
+		"source_id": source.get_instance_id(),
+		"target_id": target.get_instance_id(),
+		"source_team": int(source.get("team_id")),
+		"target_team": int(target.get("team_id")),
+		"is_skill": bool(event_dict.get("is_skill", false)),
+		"is_dodged": bool(event_dict.get("is_dodged", false)),
+		"is_crit": bool(event_dict.get("is_crit", false)),
+		"damage_type": str(event_dict.get("damage_type", "external")),
+		"damage": float(event_dict.get("damage", 0.0)),
+		"target_hp_after": float(event_dict.get("target_hp_after", 0.0)),
+		"target_mp_after": float(event_dict.get("target_mp_after", 0.0)),
+		"logic_frame": _logic_frame
+	}

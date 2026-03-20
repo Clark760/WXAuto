@@ -2,7 +2,7 @@ extends RefCounted
 class_name GongfaBuffManager
 
 # ===========================
-# Buff / Debuff 管理器（M3）
+# Buff / Debuff 管理器
 # ===========================
 # 目标：
 # 1. 维护单位身上的 Buff 生命周期（叠加、刷新、过期）。

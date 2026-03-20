@@ -1,15 +1,15 @@
 [gd_scene load_steps=12 format=3]
 
-[ext_resource type="Script" path="res://scripts/board/battlefield_m4.gd" id="1_m2bf"]
+[ext_resource type="Script" path="res://scripts/board/battlefield.gd" id="1_m2bf"]
 [ext_resource type="Script" path="res://scripts/board/hex_grid.gd" id="2_hexg"]
 [ext_resource type="Script" path="res://scripts/board/deploy_zone_overlay.gd" id="3_overlay"]
 [ext_resource type="Script" path="res://scripts/unit/unit_multimesh_renderer.gd" id="4_mm"]
 [ext_resource type="Script" path="res://scripts/vfx/vfx_factory.gd" id="5_vfx"]
 [ext_resource type="Script" path="res://scripts/unit/unit_factory.gd" id="6_factory"]
 [ext_resource type="Script" path="res://scripts/combat/combat_manager.gd" id="7_combat"]
-[ext_resource type="Script" path="res://scripts/board/m2_bench_ui.gd" id="8_bench_ui"]
+[ext_resource type="Script" path="res://scripts/ui/battle_bench_ui.gd" id="8_bench_ui"]
 
-[node name="BattlefieldM4" type="Node2D"]
+[node name="Battlefield" type="Node2D"]
 script = ExtResource("1_m2bf")
 
 [node name="Background" type="ColorRect" parent="."]
@@ -509,6 +509,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="ShopBar" type="HBoxContainer" parent="BottomLayer/BottomPanel/RootVBox"]
+visible = false
 layout_mode = 2
 
 [node name="ShopLabel" type="Label" parent="BottomLayer/BottomPanel/RootVBox/ShopBar"]
@@ -539,6 +540,7 @@ size_flags_vertical = 3
 columns = 10
 
 [node name="ResourceBar" type="HBoxContainer" parent="BottomLayer/BottomPanel/RootVBox"]
+visible = false
 layout_mode = 2
 
 [node name="ResourceLabel" type="Label" parent="BottomLayer/BottomPanel/RootVBox/ResourceBar"]
@@ -546,6 +548,7 @@ layout_mode = 2
 text = "门派LV7 | 银两328"
 
 [node name="ActionBar" type="HBoxContainer" parent="BottomLayer/BottomPanel/RootVBox"]
+visible = false
 layout_mode = 2
 
 [node name="UpgradeButton" type="Button" parent="BottomLayer/BottomPanel/RootVBox/ActionBar"]
@@ -601,7 +604,6 @@ offset_top = 64.0
 offset_right = 760.0
 offset_bottom = 110.0
 autowrap_mode = 2
-text = "M2 调试信息"
-
+text = "战斗调试信息"
 
 

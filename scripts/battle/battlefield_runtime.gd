@@ -2,6 +2,10 @@ extends Node2D
 
 enum Stage { PREPARATION, COMBAT, RESULT }
 
+const HUD_REFRESH_INTERVAL: float = 0.1
+const TEAM_ALLY: int = 1
+const TEAM_ENEMY: int = 2
+
 @export var initial_bench_count: int = 30
 @export var enemy_wave_size: int = 200
 @export var ally_deploy_columns: int = 16
@@ -76,6 +80,12 @@ var _drag_target_valid: bool = false
 var _hover_candidate_unit: Node = null
 var _hover_hold_time: float = 0.0
 var _tooltip_hide_delay: float = 0.0
+var _hud_refresh_accum: float = HUD_REFRESH_INTERVAL
+var _multimesh_dirty: bool = false
+var _ui_dirty: bool = false
+var _pending_multimesh_refresh: bool = false
+var _pending_ui_refresh: bool = false
+var _cached_ui_values: Dictionary = {}
 
 func _ready() -> void:
 	_connect_signals()
@@ -139,7 +149,16 @@ func _process(delta: float) -> void:
 	_update_tooltip(delta)
 	if _stage == Stage.COMBAT:
 		_combat_elapsed += delta
-	_refresh_dynamic_ui()
+	if _multimesh_dirty:
+		_multimesh_dirty = false
+		_refresh_multimesh()
+	if _ui_dirty:
+		_ui_dirty = false
+		_refresh_dynamic_ui()
+	_hud_refresh_accum += delta
+	if _hud_refresh_accum >= HUD_REFRESH_INTERVAL:
+		_hud_refresh_accum = 0.0
+		_refresh_dynamic_ui()
 
 func _draw() -> void:
 	if _dragging_unit == null or _drag_target_cell.x < 0:
@@ -184,7 +203,7 @@ func _handle_key_input(event: InputEventKey) -> void:
 	if event.keycode == KEY_F7:
 		var event_bus_reload: Node = _get_root_node("EventBus")
 		if event_bus_reload != null:
-			event_bus_reload.call("emit_scene_change_requested", "res://scenes/battle/battlefield_m2.tscn")
+			event_bus_reload.call("emit_scene_change_requested", "res://scenes/battle/battlefield.tscn")
 		return
 	if event.keycode == KEY_SPACE:
 		_reset_view()
@@ -247,7 +266,8 @@ func _apply_world_transform() -> void:
 	# 视角统一入口：只修改 WorldContainer，禁止对子节点分别做缩放/平移。
 	world_container.position = _world_offset
 	world_container.scale = Vector2.ONE * _world_zoom
-	queue_redraw()
+	if _dragging_unit != null:
+		queue_redraw()
 
 func _zoom_at(screen_pos: Vector2, factor: float) -> void:
 	# 以鼠标位置为锚点缩放，避免“缩放后画面跳动”。
@@ -320,6 +340,7 @@ func _try_end_drag(screen_pos: Vector2) -> void:
 	_finish_drag()
 
 func _finish_drag() -> void:
+	var had_drag_overlay: bool = _dragging_unit != null or _drag_target_cell.x >= 0
 	_dragging_unit = null
 	_drag_origin_kind = ""
 	_drag_origin_slot = -1
@@ -327,7 +348,8 @@ func _finish_drag() -> void:
 	_drag_target_cell = Vector2i(-999, -999)
 	_drag_target_valid = false
 	drag_preview.visible = false
-	queue_redraw()
+	if had_drag_overlay:
+		_request_drag_overlay_redraw(true)
 	_refresh_multimesh()
 	_refresh_all_ui()
 
@@ -335,6 +357,8 @@ func _update_drag_preview(screen_pos: Vector2) -> void:
 	drag_preview.position = screen_pos + Vector2(14.0, 14.0)
 
 func _update_drag_target(screen_pos: Vector2) -> void:
+	var previous_cell: Vector2i = _drag_target_cell
+	var previous_valid: bool = _drag_target_valid
 	var target: Dictionary = _get_drop_target(screen_pos)
 	var target_type: String = str(target.get("type", "invalid"))
 	if target_type == "battlefield":
@@ -343,7 +367,8 @@ func _update_drag_target(screen_pos: Vector2) -> void:
 	else:
 		_drag_target_cell = Vector2i(-999, -999)
 		_drag_target_valid = false
-	queue_redraw()
+	if previous_cell != _drag_target_cell or previous_valid != _drag_target_valid:
+		_request_drag_overlay_redraw(true)
 
 func _update_drag_preview_data(unit: Node) -> void:
 	drag_preview_name.text = str(unit.get("unit_name"))
@@ -422,8 +447,11 @@ func _is_ally_deploy_zone(cell: Vector2i) -> bool:
 func _deploy_ally_unit_to_cell(unit: Node, cell: Vector2i) -> void:
 	# 战场单位定位使用 position（世界本地坐标），不写 global_position。
 	_ally_deployed[_cell_key(cell)] = unit
+	var map_key: String = _cell_key(cell)
+	_ally_deployed[map_key] = unit
+	_set_unit_map_cache(unit, map_key, TEAM_ALLY)
 	unit.set("deployed_cell", cell)
-	unit.call("set_team", 1)
+	unit.call("set_team", TEAM_ALLY)
 	unit.call("set_on_bench_state", false, -1)
 	unit.set("is_in_combat", false)
 	(unit as Node2D).position = hex_grid.axial_to_world(cell)
@@ -432,9 +460,11 @@ func _deploy_ally_unit_to_cell(unit: Node, cell: Vector2i) -> void:
 	unit.call("play_anim_state", 0, {})
 
 func _deploy_enemy_unit_to_cell(unit: Node, cell: Vector2i) -> void:
-	_enemy_deployed[_cell_key(cell)] = unit
+	var map_key: String = _cell_key(cell)
+	_enemy_deployed[map_key] = unit
+	_set_unit_map_cache(unit, map_key, TEAM_ENEMY)
 	unit.set("deployed_cell", cell)
-	unit.call("set_team", 2)
+	unit.call("set_team", TEAM_ENEMY)
 	unit.call("set_on_bench_state", false, -1)
 	unit.set("is_in_combat", false)
 	(unit as Node2D).position = hex_grid.axial_to_world(cell)
@@ -443,13 +473,7 @@ func _deploy_enemy_unit_to_cell(unit: Node, cell: Vector2i) -> void:
 	unit.call("play_anim_state", 0, {})
 
 func _remove_ally_mapping(unit: Node) -> void:
-	var remove_key: String = ""
-	for key in _ally_deployed.keys():
-		if _ally_deployed[key] == unit:
-			remove_key = str(key)
-			break
-	if not remove_key.is_empty():
-		_ally_deployed.erase(remove_key)
+	_remove_unit_from_map(_ally_deployed, unit)
 
 func _spawn_random_units_to_bench(count: int) -> void:
 	var unit_ids: Array[String] = unit_factory.call("get_unit_ids")
@@ -462,6 +486,7 @@ func _spawn_random_units_to_bench(count: int) -> void:
 		var unit_node: Node = unit_factory.call("acquire_unit", unit_id, -1, unit_layer)
 		if unit_node == null:
 			continue
+		_clear_unit_map_cache(unit_node)
 		unit_node.call("set_team", 1)
 		unit_node.call("set_on_bench_state", true, -1)
 		unit_node.set("is_in_combat", false)
@@ -485,7 +510,7 @@ func _start_combat() -> void:
 
 	_combat_elapsed = 0.0
 	if gongfa_manager != null:
-		# M3 接入点：必须先 prepare，再 start_battle，
+		# 功法系统接入点：必须先 prepare，再 start_battle，
 		# 否则 CombatManager 的 battle_started 信号会先于触发器注册发出。
 		gongfa_manager.call("prepare_battle", ally_units, enemy_units, hex_grid, vfx_factory, combat_manager)
 
@@ -499,8 +524,8 @@ func _start_combat() -> void:
 		unit.call("enter_combat")
 
 	_set_stage(Stage.COMBAT)
-	_refresh_multimesh()
-	_refresh_all_ui()
+	# 注意：_set_stage 内部已调用 _refresh_all_ui() 和 _apply_visual_to_all_units()，
+	# 不再重复调用 _refresh_multimesh() / _refresh_all_ui()。
 
 func _spawn_enemy_wave(count: int) -> void:
 	_clear_enemy_wave()
@@ -521,6 +546,7 @@ func _spawn_enemy_wave(count: int) -> void:
 func _clear_enemy_wave() -> void:
 	for enemy in _enemy_deployed.values():
 		if _is_valid_unit(enemy):
+			_clear_unit_map_cache(enemy)
 			unit_factory.call("release_unit", enemy)
 	_enemy_deployed.clear()
 
@@ -629,6 +655,13 @@ func _update_tooltip(delta: float) -> void:
 		_show_tooltip_for_unit(hovered, mouse_screen)
 
 func _pick_visible_unit_at_world(world_pos: Vector2) -> Node:
+	var pick_radius: float = maxf(float(hex_grid.hex_size) * 0.72 * _unit_scale_factor, 12.0)
+	if _stage == Stage.COMBAT and combat_manager != null and combat_manager.has_method("pick_unit_at_world"):
+		var indexed_candidate: Variant = combat_manager.call("pick_unit_at_world", world_pos, pick_radius)
+		if indexed_candidate is Node and _is_valid_unit(indexed_candidate):
+			var indexed_unit: Node = indexed_candidate as Node
+			if indexed_unit is CanvasItem and (indexed_unit as CanvasItem).visible and _is_point_on_unit(indexed_unit, world_pos):
+				return indexed_unit
 	var candidate: Node = null
 	for unit in _ally_deployed.values():
 		if _is_valid_unit(unit) and (unit as CanvasItem).visible and _is_point_on_unit(unit, world_pos):
@@ -740,37 +773,10 @@ func _play_phase_transition(text: String) -> void:
 	tween.finished.connect(func() -> void: phase_transition.visible = false)
 
 func _refresh_dynamic_ui() -> void:
-	var ally_alive: int = int(combat_manager.call("get_alive_count", 1)) if _stage != Stage.PREPARATION else _ally_deployed.size()
-	var enemy_alive: int = int(combat_manager.call("get_alive_count", 2)) if _stage != Stage.PREPARATION else _enemy_deployed.size()
-	var bench_count: int = bench_ui.get_unit_count()
-	round_label.text = "第 %d 回合" % _round_index
-	var render_fps: int = int(Engine.get_frames_per_second())
-	timer_label.text = "%.1fs | %d fps" % [_combat_elapsed, render_fps] if _stage == Stage.COMBAT else "-- | %d fps" % render_fps
-	var total_power: int = maxi(ally_alive + enemy_alive, 1)
-	power_bar.value = float(ally_alive) / float(total_power) * 100.0
-	power_bar.tooltip_text = "己方 %d / 敌方 %d" % [ally_alive, enemy_alive]
-	resource_label.text = "门派LV7  |  银两328  |  备战席 %d / %d" % [bench_count, bench_ui.get_slot_count()]
-	if gongfa_manager != null:
-		var linkage_names: Array = gongfa_manager.call("get_active_linkage_names")
-		linkage_info.text = "当前联动：无" if linkage_names.is_empty() else "当前联动：%s" % "、".join(linkage_names)
-	else:
-		linkage_info.text = "当前联动：未连接 GongfaManager"
-	minimap_info.text = "小地图：己 %d / 敌 %d" % [ally_alive, enemy_alive]
-	var stage_name: String = "PREPARATION"
-	if _stage == Stage.COMBAT:
-		stage_name = "COMBAT"
-	elif _stage == Stage.RESULT:
-		stage_name = "RESULT"
-	debug_label.text = "阶段:%s  备战:%d  己方:%d  敌方:%d  渲染fps:%d  逻辑fps:%.1f" % [
-		stage_name,
-		bench_count,
-		_ally_deployed.size(),
-		_enemy_deployed.size(),
-		render_fps,
-		float(combat_manager.get("logic_fps"))
-	]
+	_refresh_dynamic_ui_incremental()
 
 func _refresh_all_ui() -> void:
+	_hud_refresh_accum = 0.0
 	_refresh_dynamic_ui()
 
 func _bind_viewport_resize() -> void:
@@ -787,7 +793,7 @@ func _on_viewport_size_changed() -> void:
 		bench_ui.call_deferred("refresh_adaptive_layout")
 	_refit_hex_grid()
 	_refresh_deployed_positions()
-	queue_redraw()
+	_request_drag_overlay_redraw()
 
 func _refit_hex_grid() -> void:
 	# 响应式重排：依据顶部/底部预留空间反算 hex_size 并重新居中。
@@ -847,11 +853,13 @@ func _on_unit_died(dead_unit: Node, _killer: Node, team_id: int) -> void:
 		_remove_unit_from_map(_enemy_deployed, dead_unit)
 	if _is_valid_unit(dead_unit) and dead_unit is CanvasItem:
 		(dead_unit as CanvasItem).visible = false
-	_refresh_multimesh()
-	_refresh_all_ui()
+	# 延迟合并：避免同帧多次死亡导致重复全量刷新。
+	_multimesh_dirty = true
+	_ui_dirty = true
 
 func _on_battle_ended(winner_team: int, _summary: Dictionary) -> void:
 	_set_stage(Stage.RESULT)
+	_flush_pending_runtime_refreshes(true)
 	if winner_team == 1:
 		debug_label.text = "战斗结束：己方胜利。F7 重开"
 	elif winner_team == 2:
@@ -860,6 +868,16 @@ func _on_battle_ended(winner_team: int, _summary: Dictionary) -> void:
 		debug_label.text = "战斗结束：平局。F7 重开"
 
 func _remove_unit_from_map(target_map: Dictionary, unit: Node) -> void:
+	# O(1) 移除：利用单位的 deployed_cell 属性直接构造 key，避免 O(n) 值扫描。
+	if _is_valid_unit(unit):
+		var cell: Vector2i = unit.get("deployed_cell")
+		if cell.x > -900: # Check if deployed_cell is valid (not -999, -999)
+			var key: String = _cell_key(cell)
+			if target_map.has(key) and target_map[key] == unit:
+				target_map.erase(key)
+				_clear_unit_map_cache(unit)
+				return
+	# 兜底：deployed_cell 不可用时回退到遍历查找。
 	var remove_key: String = ""
 	for key in target_map.keys():
 		if target_map[key] == unit:
@@ -867,6 +885,115 @@ func _remove_unit_from_map(target_map: Dictionary, unit: Node) -> void:
 			break
 	if not remove_key.is_empty():
 		target_map.erase(remove_key)
+		_clear_unit_map_cache(unit)
+
+func _refresh_dynamic_ui_incremental() -> void:
+	var ally_alive: int = int(combat_manager.call("get_alive_count", TEAM_ALLY)) if _stage != Stage.PREPARATION else _ally_deployed.size()
+	var enemy_alive: int = int(combat_manager.call("get_alive_count", TEAM_ENEMY)) if _stage != Stage.PREPARATION else _enemy_deployed.size()
+	var bench_count: int = bench_ui.get_unit_count()
+	_set_label_text_if_changed(round_label, "round_label", "第 %d 回合" % _round_index)
+	var render_fps: int = int(Engine.get_frames_per_second())
+	var timer_text: String = "%.1fs | %d fps" % [_combat_elapsed, render_fps] if _stage == Stage.COMBAT else "-- | %d fps" % render_fps
+	_set_label_text_if_changed(timer_label, "timer_label", timer_text)
+	var total_power: int = maxi(ally_alive + enemy_alive, 1)
+	_set_progress_value_if_changed(power_bar, "power_bar_value", float(ally_alive) / float(total_power) * 100.0)
+	_set_control_tooltip_if_changed(power_bar, "power_bar_tooltip", "己方 %d / 敌方 %d" % [ally_alive, enemy_alive])
+	_set_label_text_if_changed(resource_label, "resource_label", "门派LV7  |  银两328  |  备战席%d / %d" % [bench_count, bench_ui.get_slot_count()])
+	if gongfa_manager != null:
+		var linkage_summary: String = ""
+		if gongfa_manager.has_method("get_active_linkage_summary_text"):
+			linkage_summary = str(gongfa_manager.call("get_active_linkage_summary_text"))
+		if linkage_summary.is_empty():
+			var linkage_names: Array = gongfa_manager.call("get_active_linkage_names")
+			linkage_summary = "当前联动：无" if linkage_names.is_empty() else "当前联动：%s" % "、".join(linkage_names)
+		_set_label_text_if_changed(linkage_info, "linkage_info", linkage_summary)
+	else:
+		_set_label_text_if_changed(linkage_info, "linkage_info", "当前联动：未连接 GongfaManager")
+	_set_label_text_if_changed(minimap_info, "minimap_info", "小地图：己 %d / 敌 %d" % [ally_alive, enemy_alive])
+	var stage_name: String = "PREPARATION"
+	if _stage == Stage.COMBAT:
+		stage_name = "COMBAT"
+	elif _stage == Stage.RESULT:
+		stage_name = "RESULT"
+	_set_label_text_if_changed(debug_label, "debug_label", "阶段:%s  备战:%d  己方:%d  敌方:%d  渲染fps:%d  逻辑fps:%.1f" % [
+		stage_name,
+		bench_count,
+		_ally_deployed.size(),
+		_enemy_deployed.size(),
+		render_fps,
+		float(combat_manager.get("logic_fps"))
+	])
+
+func _remove_unit_from_map_cached(target_map: Dictionary, unit: Node) -> void:
+	if not _is_valid_unit(unit):
+		return
+	var remove_key: String = _get_unit_map_key(unit)
+	if not remove_key.is_empty() and target_map.get(remove_key, null) == unit:
+		target_map.erase(remove_key)
+		_clear_unit_map_cache(unit)
+		return
+	for key in target_map.keys():
+		if target_map[key] == unit:
+			target_map.erase(key)
+			_clear_unit_map_cache(unit)
+			return
+
+func _set_unit_map_cache(unit: Node, map_key: String, team_id: int) -> void:
+	if not _is_valid_unit(unit):
+		return
+	unit.set_meta("map_cell_key", map_key)
+	unit.set_meta("map_team_id", team_id)
+
+func _get_unit_map_key(unit: Node) -> String:
+	if not _is_valid_unit(unit):
+		return ""
+	return str(unit.get_meta("map_cell_key", ""))
+
+func _clear_unit_map_cache(unit: Node) -> void:
+	if not _is_valid_unit(unit):
+		return
+	unit.remove_meta("map_cell_key")
+	unit.remove_meta("map_team_id")
+
+func _mark_runtime_refresh(multimesh_dirty: bool, ui_dirty: bool) -> void:
+	_pending_multimesh_refresh = _pending_multimesh_refresh or multimesh_dirty
+	_pending_ui_refresh = _pending_ui_refresh or ui_dirty
+
+func _flush_pending_runtime_refreshes(allow_ui_refresh: bool) -> void:
+	if _pending_multimesh_refresh:
+		_refresh_multimesh()
+		_pending_multimesh_refresh = false
+	if allow_ui_refresh and _pending_ui_refresh:
+		_pending_ui_refresh = false
+
+func _request_drag_overlay_redraw(force: bool = false) -> void:
+	if force or _dragging_unit != null or _drag_target_cell.x >= 0:
+		queue_redraw()
+
+func _set_label_text_if_changed(label: Label, cache_key: String, next_text: String) -> void:
+	if label == null:
+		return
+	if str(_cached_ui_values.get(cache_key, "")) == next_text:
+		return
+	_cached_ui_values[cache_key] = next_text
+	label.text = next_text
+
+func _set_progress_value_if_changed(progress_bar: ProgressBar, cache_key: String, next_value: float) -> void:
+	if progress_bar == null:
+		return
+	var cached_value: float = float(_cached_ui_values.get(cache_key, -INF))
+	if is_equal_approx(cached_value, next_value):
+		return
+	_cached_ui_values[cache_key] = next_value
+	progress_bar.value = next_value
+
+func _set_control_tooltip_if_changed(control: Control, cache_key: String, next_text: String) -> void:
+	if control == null:
+		return
+	if str(_cached_ui_values.get(cache_key, "")) == next_text:
+		return
+	_cached_ui_values[cache_key] = next_text
+	control.tooltip_text = next_text
 
 func _connect_signals() -> void:
 	var cb_bench: Callable = Callable(self, "_on_bench_changed")

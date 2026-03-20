@@ -1,12 +1,11 @@
 extends RefCounted
 
 # ===========================
-# 角色数据解析器（M1）
+# 角色数据解析器
 # ===========================
 # 说明：
 # 1. DataManager 负责“通用 JSON 加载”，而 UnitData 负责“角色字段语义化解析”。
 # 2. 本脚本只处理 units 分类，统一补默认值、清洗字段并输出可直接给 UnitBase 使用的结构。
-# 3. 后续 M2/M3 若新增角色字段，可优先在此处扩展，避免业务脚本散落硬编码。
 
 const DEFAULT_BASE_STATS := {
 	"hp": 500.0,
@@ -59,7 +58,7 @@ static func normalize_unit_record(raw_record: Dictionary) -> Dictionary:
 	result["gongfa_slots"] = _normalize_gongfa_slots(raw_record.get("gongfa_slots", {}), initial_gongfa)
 	result["max_gongfa_count"] = clampi(int(raw_record.get("max_gongfa_count", 3)), 1, 5)
 
-	# 装备槽位（M3）：与功法槽位相同，统一在数据层补齐默认值，
+	# 装备槽位与功法槽位一样，统一在数据层补齐默认值，
 	# 这样战斗层/详情面板可以直接读取，避免每个调用点各自兜底。
 	result["equip_slots"] = _normalize_equip_slots(raw_record.get("equip_slots", {}))
 	result["max_equip_count"] = clampi(int(raw_record.get("max_equip_count", 3)), 0, 3)
@@ -93,7 +92,7 @@ static func normalize_unit_record(raw_record: Dictionary) -> Dictionary:
 
 
 static func build_runtime_stats(base_stats: Dictionary, star_level: int) -> Dictionary:
-	# 升星倍率用于 M1 原型验证，不代表最终平衡值：
+	# 升星倍率在数据层统一维护，便于后续整体调平：
 	# 1星 1.0x, 2星 1.8x, 3星 3.0x
 	var multiplier: float = 1.0
 	match star_level:

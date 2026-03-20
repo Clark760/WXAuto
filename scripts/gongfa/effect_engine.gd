@@ -2,7 +2,7 @@ extends RefCounted
 class_name GongfaEffectEngine
 
 # ===========================
-# 功法效果执行引擎（M3）
+# 功法效果执行引擎
 # ===========================
 # 设计说明：
 # 1. 将“效果字典(op + 参数)”翻译为可执行逻辑，避免业务层硬编码分散。
@@ -45,6 +45,7 @@ func execute_active_effects(source: Node, target: Node, effects: Array, context:
 	var summary: Dictionary = {
 		"damage_total": 0.0,
 		"heal_total": 0.0,
+		"mp_total": 0.0,
 		"buff_applied": 0,
 		"debuff_applied": 0,
 		# 详细事件列表用于外层日志系统：
@@ -53,6 +54,7 @@ func execute_active_effects(source: Node, target: Node, effects: Array, context:
 		# - buff_events：记录每次实际施加的 Buff 目标/ID/持续时间/来源 op
 		"damage_events": [],
 		"heal_events": [],
+		"mp_events": [],
 		"buff_events": []
 	}
 	for effect_value in effects:
@@ -172,6 +174,13 @@ func _execute_active_op(source: Node, target: Node, effect: Dictionary, context:
 				summary["heal_total"] = float(summary.get("heal_total", 0.0)) + healed_ally
 				_append_heal_event(summary, source, ally, healed_ally, op)
 
+		# 周期回蓝效果会走主动执行链路；这里按“立即回复内力”处理。
+		"mp_regen_add":
+			var mp_target: Node = target if target != null and is_instance_valid(target) else source
+			var restored_mp: float = _restore_mp_unit(mp_target, float(effect.get("value", 0.0)))
+			summary["mp_total"] = float(summary.get("mp_total", 0.0)) + restored_mp
+			_append_mp_event(summary, source, mp_target, restored_mp, op)
+
 		"buff_self":
 			if _apply_buff_op(source, source, effect, context):
 				summary["buff_applied"] = int(summary.get("buff_applied", 0)) + 1
@@ -201,7 +210,7 @@ func _execute_active_op(source: Node, target: Node, effect: Dictionary, context:
 		"spawn_vfx":
 			_spawn_vfx_by_effect(source, target, effect, context)
 
-		# 下列 op 先保留接口；后续 M3.1 补完位移/召唤/嘲讽等行为细节。
+		# 下列 op 先保留接口，后续再补完位移/召唤/嘲讽等行为细节。
 		"teleport_behind", "dash_forward", "knockback_target", "summon_clone", "revive_random_ally", "taunt_aoe":
 			push_warning("EffectEngine: op=%s 已预留，当前版本暂未实现。" % op)
 
@@ -310,6 +319,25 @@ func _append_heal_event(
 	summary["heal_events"] = heal_events
 
 
+func _append_mp_event(
+	summary: Dictionary,
+	source: Node,
+	target: Node,
+	mp: float,
+	op: String
+) -> void:
+	if mp <= 0.0:
+		return
+	var mp_events: Array = summary.get("mp_events", [])
+	mp_events.append({
+		"source": source,
+		"target": target,
+		"mp": mp,
+		"op": op
+	})
+	summary["mp_events"] = mp_events
+
+
 func _deal_damage(source: Node, target: Node, amount: float, damage_type: String) -> float:
 	if target == null or not is_instance_valid(target):
 		return 0.0
@@ -337,6 +365,18 @@ func _heal_unit(target: Node, amount: float) -> float:
 	var before: float = float(combat.get("current_hp"))
 	combat.call("restore_hp", maxf(amount, 0.0))
 	var after: float = float(combat.get("current_hp"))
+	return maxf(after - before, 0.0)
+
+
+func _restore_mp_unit(target: Node, amount: float) -> float:
+	if target == null or not is_instance_valid(target):
+		return 0.0
+	var combat: Node = target.get_node_or_null("Components/UnitCombat")
+	if combat == null:
+		return 0.0
+	var before: float = float(combat.get("current_mp"))
+	combat.call("add_mp", maxf(amount, 0.0))
+	var after: float = float(combat.get("current_mp"))
 	return maxf(after - before, 0.0)
 
 

@@ -2,7 +2,7 @@ extends Node2D
 class_name VfxFactory
 
 # ===========================
-# 程序化特效工厂（M2 FPS 优化版）
+# 程序化特效工厂
 # ===========================
 # 优化要点：
 # 1. 伤害数字不再每次创建 Tween，改为 _process 批量更新。
@@ -224,9 +224,9 @@ func _update_particles(delta: float) -> void:
 
 func _resolve_record(vfx_id: String) -> Dictionary:
 	if _vfx_records.has(vfx_id):
-		return (_vfx_records[vfx_id] as Dictionary).duplicate(true)
+		return _vfx_records[vfx_id] as Dictionary
 	if _vfx_records.has("vfx_sword_qi"):
-		return (_vfx_records["vfx_sword_qi"] as Dictionary).duplicate(true)
+		return _vfx_records["vfx_sword_qi"] as Dictionary
 	return {}
 
 

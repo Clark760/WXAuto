@@ -48,7 +48,7 @@ func _draw() -> void:
 
 
 func axial_to_world(axial: Vector2i) -> Vector2:
-	# M2 中“世界坐标”定义为 WorldContainer 内本地坐标。
+	# “世界坐标”统一定义为 WorldContainer 内本地坐标。
 	# 因此这里返回 HexGrid 变换后的父空间坐标，而不是全局屏幕坐标。
 	return transform * axial_to_local(axial)
 

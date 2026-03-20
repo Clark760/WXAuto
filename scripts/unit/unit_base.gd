@@ -1,12 +1,14 @@
 extends Node2D
 
 # ===========================
-# 角色基类（M1/M2）
+# 角色基类
 # ===========================
 # 目标：
 # 1. 承载角色基础属性与运行态属性。
 # 2. 组合战斗、移动、动画组件（组合优于继承）。
 # 3. 支持拖拽部署、升星、状态切换的可视化反馈。
+
+const _UNIT_DATA_SCRIPT: Script = preload("res://scripts/data/unit_data.gd")
 
 signal drag_started(unit: Node)
 signal drag_updated(unit: Node, world_position: Vector2)
@@ -80,12 +82,25 @@ func _ready() -> void:
 		_apply_animation_overrides()
 	_refresh_visual()
 	_apply_pending_texture_if_needed()
+	refresh_process_state()
 
 
 func _process(delta: float) -> void:
-	# 移动组件在 M1 中主要用于拖拽后的缓动归位，后续可接入路径点导航。
+	# 移动组件统一负责拖拽归位与战场位移推进。
 	if movement_component != null:
 		movement_component.call("tick", delta)
+		# 移动完成后关闭 process，减少空转开销。
+		if not bool(movement_component.get("has_target")):
+			set_process(false)
+
+
+func refresh_process_state() -> void:
+	var should_process: bool = false
+	if is_dragging:
+		should_process = true
+	elif movement_component != null:
+		should_process = bool(movement_component.get("has_target"))
+	set_process(should_process)
 
 
 func setup_from_unit_record(unit_record: Dictionary, forced_star: int = -1) -> void:
@@ -116,7 +131,7 @@ func setup_from_unit_record(unit_record: Dictionary, forced_star: int = -1) -> v
 			gongfa_slots[slot] = str(slots_raw.get(slot, ""))
 	max_gongfa_count = clampi(int(unit_record.get("max_gongfa_count", 3)), 1, 5)
 
-	# M3 装备槽位：与功法槽位同样在角色实例上常驻，便于管理器直接读写。
+	# 装备槽位与功法槽位一样常驻在角色实例上，便于管理器直接读写。
 	equip_slots = {
 		"weapon": "",
 		"armor": "",
@@ -220,6 +235,7 @@ func set_star_level(next_star: int) -> void:
 func set_on_bench_state(value: bool, slot_index: int = -1) -> void:
 	is_on_bench = value
 	bench_slot_index = slot_index if value else -1
+	refresh_process_state()
 
 	if sprite_animator == null:
 		return
@@ -244,11 +260,13 @@ func enter_combat() -> void:
 	is_on_bench = false
 	bench_slot_index = -1
 	play_anim_state(0, {})
+	refresh_process_state()
 
 
 func leave_combat() -> void:
 	is_in_combat = false
 	play_anim_state(0, {})
+	refresh_process_state()
 
 
 func play_anim_state(state: int, context: Dictionary = {}) -> void:
@@ -273,7 +291,7 @@ func contains_point(world_position: Vector2) -> bool:
 
 
 func set_compact_visual_mode(is_compact: bool) -> void:
-	# M2 大规模战斗时隐藏名称/星级文本，降低画面噪音并减少 UI 重叠。
+	# 大规模战斗时隐藏名称/星级文本，降低画面噪音并减少 UI 重叠。
 	if name_label != null:
 		name_label.visible = not is_compact
 	if star_label != null:
@@ -284,6 +302,7 @@ func begin_drag() -> void:
 	if is_in_combat:
 		return
 	is_dragging = true
+	refresh_process_state()
 	z_index = 200
 	# 从备战席拖拽时，先清空摇摆残留角度，确保拖拽姿态端正。
 	if visual_root != null:
@@ -305,6 +324,7 @@ func end_drag(world_position: Vector2) -> void:
 	if not is_dragging:
 		return
 	is_dragging = false
+	refresh_process_state()
 	z_index = 0
 	if visual_root != null:
 		visual_root.position = Vector2.ZERO
@@ -315,8 +335,7 @@ func end_drag(world_position: Vector2) -> void:
 
 func _apply_runtime_stats() -> void:
 	# 角色运行时属性由 UnitData 统一按星级倍率计算，便于后续做统一平衡。
-	var unit_data_script: Script = load("res://scripts/data/unit_data.gd")
-	runtime_stats = unit_data_script.call("build_runtime_stats", base_stats, star_level)
+	runtime_stats = _UNIT_DATA_SCRIPT.call("build_runtime_stats", base_stats, star_level)
 	runtime_equipped_gongfa_ids = get_equipped_gongfa_ids()
 	runtime_equipped_equip_ids = get_equipped_equip_ids()
 

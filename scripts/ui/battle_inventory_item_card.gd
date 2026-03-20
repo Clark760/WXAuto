@@ -1,8 +1,8 @@
 extends PanelContainer
-class_name M3InventoryItemCard
+class_name BattleInventoryItemCard
 
 # ===========================
-# M3 仓库卡片（拖放源）
+# 仓库卡片（拖放源）
 # ===========================
 # 说明：
 # 1. 卡片同时支持“点击”与“拖动”两种交互。

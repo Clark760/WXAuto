@@ -1,12 +1,12 @@
-extends "res://scripts/board/battlefield_m2.gd"
+extends "res://scripts/battle/battlefield_runtime.gd"
 
 # ===========================
-# M3 战斗测试场景脚本
+# 战场 UI 层
 # ===========================
 # 设计目标：
-# 1. 复用 M2 已验证的“战场/视角/拖拽/战斗流程”基础能力，避免重复造轮子。
-# 2. 按新版 M2 场景显示逻辑补齐 M3 所需的 UI：富信息 Tooltip + 角色详情面板。
-# 3. 接入功法槽位轮换测试入口，便于快速验证 M3 功法/联动系统。
+# 1. 承接战场展示、Tooltip、详情面板、库存面板与战斗日志。
+# 2. 与基础战斗运行层分离，避免把大量 UI 逻辑塞回战场核心。
+# 3. 保持输入交互与显示刷新集中在一层维护。
 
 const SLOT_ORDER: Array[String] = ["neigong", "waigong", "qinggong", "zhenfa", "qishu"]
 const EQUIP_ORDER: Array[String] = ["weapon", "armor", "accessory"]
@@ -16,6 +16,8 @@ const LEFT_PANEL_WIDTH: float = 180.0
 const TOP_BAR_HEIGHT: float = 56.0
 const DETAIL_DEFAULT_WIDTH: float = 720.0
 const DETAIL_DEFAULT_HEIGHT: float = 520.0
+const BATTLE_LOG_MAX_LINES: int = 50
+const BATTLE_LOG_FLUSH_INTERVAL: float = 0.12
 
 @onready var tooltip_header_name: Label = $HUDLayer/UnitTooltip/TooltipVBox/HeaderRow/HeaderName
 @onready var tooltip_faction_icon: ColorRect = $HUDLayer/UnitTooltip/TooltipVBox/HeaderRow/FactionIcon
@@ -58,8 +60,8 @@ const DETAIL_DEFAULT_HEIGHT: float = 520.0
 @onready var item_tooltip_skill_effects: VBoxContainer = $DetailLayer/ItemTooltip/TooltipMargin/TooltipRoot/SkillSection/SkillEffects
 @onready var item_tooltip_linkage_tags: Label = $DetailLayer/ItemTooltip/TooltipMargin/TooltipRoot/LinkageTags
 
-var _inventory_card_script: Script = load("res://scripts/ui/m3_inventory_item_card.gd")
-var _slot_drop_target_script: Script = load("res://scripts/ui/m3_slot_drop_target.gd")
+var _inventory_card_script: Script = load("res://scripts/ui/battle_inventory_item_card.gd")
+var _slot_drop_target_script: Script = load("res://scripts/ui/battle_slot_drop_target.gd")
 
 var _detail_unit: Node = null
 var _detail_refresh_accum: float = 0.0
@@ -88,7 +90,7 @@ var _inventory_panel: PanelContainer = null
 var _inventory_title: Label = null
 var _inventory_filter_row: HBoxContainer = null
 var _inventory_search: LineEdit = null
-var _inventory_grid: GridContainer = null
+var _inventory_grid: VBoxContainer = null
 var _inventory_summary: Label = null
 var _inventory_tab_gongfa_btn: Button = null
 var _inventory_tab_equip_btn: Button = null
@@ -98,6 +100,11 @@ var _inventory_drag_enabled: bool = true
 
 var _battle_log_panel: PanelContainer = null
 var _battle_log_text: RichTextLabel = null
+var _battle_log_entries: Array[String] = []
+var _battle_log_dirty: bool = false
+var _battle_log_flush_accum: float = 0.0
+var _battle_log_last_flushed_count: int = 0
+var _battle_log_requires_rebuild: bool = false
 
 var _is_dragging_detail_panel: bool = false
 var _detail_drag_offset: Vector2 = Vector2.ZERO
@@ -113,7 +120,8 @@ func _ready() -> void:
 		equip_button.disabled = true
 	_reparent_tooltips_to_high_layer()
 	_hide_legacy_tooltip_nodes()
-	_connect_m3_ui_signals()
+	_connect_ui_signals()
+	_prune_verbose_battle_log_signals()
 	_build_gongfa_type_cache()
 	_reload_external_item_data()
 	_ensure_battle_log_panel()
@@ -143,10 +151,10 @@ func _reparent_tooltips_to_high_layer() -> void:
 
 
 func _input(event: InputEvent) -> void:
-	# M3 交互规则：
+	# UI 交互规则：
 	# 1. 备战席“短按”打开详情。
 	# 2. 备战席“移动超过阈值”才开始拖拽，避免点击和拖放冲突。
-	# 3. 战场单位仍保持 M2 拖拽逻辑，点击可打开详情。
+	# 3. 战场单位保持拖拽与点击打开详情并存。
 	# 4. 右侧常驻仓库优先处理鼠标，不应透传到战场。
 	if _inventory_panel != null and _inventory_panel.visible:
 		if event is InputEventMouseButton:
@@ -276,6 +284,7 @@ func _input(event: InputEvent) -> void:
 
 func _process(delta: float) -> void:
 	super._process(delta)
+	_update_battle_log_view(delta)
 	_update_item_tooltip_hover(delta)
 	if not unit_detail_panel.visible:
 		return
@@ -314,11 +323,11 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _handle_key_input(event: InputEventKey) -> void:
-	# M3 场景中 F7 固定重开自身，便于反复验证功法改动。
+	# UI 层复用统一重开入口，方便反复验证拖拽、详情和日志。
 	if event.pressed and not event.echo and event.keycode == KEY_F7:
 		var event_bus: Node = _get_root_node("EventBus")
 		if event_bus != null:
-			event_bus.call("emit_scene_change_requested", "res://scenes/battle/battlefield_m3.tscn")
+			event_bus.call("emit_scene_change_requested", "res://scenes/battle/battlefield.tscn")
 		return
 	super._handle_key_input(event)
 
@@ -373,7 +382,7 @@ func _show_tooltip_for_unit(unit: Node, screen_pos: Vector2) -> void:
 	_position_tooltip(screen_pos)
 
 
-func _connect_m3_ui_signals() -> void:
+func _connect_ui_signals() -> void:
 	var close_cb: Callable = Callable(self, "_on_detail_close_pressed")
 	if not detail_close_button.is_connected("pressed", close_cb):
 		detail_close_button.connect("pressed", close_cb)
@@ -404,6 +413,20 @@ func _connect_m3_ui_signals() -> void:
 			event_bus.connect("data_reloaded", data_reload_cb)
 
 
+func _prune_verbose_battle_log_signals() -> void:
+	if combat_manager != null:
+		var damage_cb: Callable = Callable(self, "_on_damage_resolved")
+		if combat_manager.has_signal("damage_resolved") and combat_manager.is_connected("damage_resolved", damage_cb):
+			combat_manager.disconnect("damage_resolved", damage_cb)
+	if gongfa_manager != null:
+		var skill_damage_cb: Callable = Callable(self, "_on_skill_effect_damage_for_log")
+		if gongfa_manager.has_signal("skill_effect_damage") and gongfa_manager.is_connected("skill_effect_damage", skill_damage_cb):
+			gongfa_manager.disconnect("skill_effect_damage", skill_damage_cb)
+		var buff_event_cb: Callable = Callable(self, "_on_buff_event_for_log")
+		if gongfa_manager.has_signal("buff_event") and gongfa_manager.is_connected("buff_event", buff_event_cb):
+			gongfa_manager.disconnect("buff_event", buff_event_cb)
+
+
 func _on_gongfa_data_reloaded(_summary: Dictionary) -> void:
 	_build_gongfa_type_cache()
 	_reload_external_item_data()
@@ -428,12 +451,17 @@ func _refresh_all_ui() -> void:
 
 
 func _set_stage(next_stage: int) -> void:
+	var previous_stage: int = _stage
 	super._set_stage(next_stage)
+	if previous_stage != Stage.COMBAT and next_stage == Stage.COMBAT:
+		_clear_battle_log()
+	elif next_stage == Stage.RESULT:
+		_flush_battle_log(true)
 	_apply_stage_ui_state()
 
 
 func _apply_stage_ui_state() -> void:
-	# 按 M3 UI 指南控制各区域显隐与交互能力。
+	# 按正式战场 UI 规则控制各区域显隐与交互能力。
 	if _inventory_panel != null and is_instance_valid(_inventory_panel):
 		match _stage:
 			Stage.PREPARATION:
@@ -465,47 +493,59 @@ func _apply_stage_ui_state() -> void:
 
 
 func _append_battle_log(line: String, event_type: String = "info") -> void:
-	if _battle_log_text == null or not is_instance_valid(_battle_log_text):
+	if line.strip_edges().is_empty():
 		return
 	var color_hex: String = _battle_log_color_hex(event_type)
-	# RichTextLabel 开启 BBCode 后，可直接写入 [color] 标签做事件分色。
-	_battle_log_text.append_text("[color=%s]%s[/color]\n" % [color_hex, line])
-	_battle_log_text.scroll_to_line(_battle_log_text.get_line_count())
-
-
-func _on_damage_resolved(event_dict: Dictionary) -> void:
-	super._on_damage_resolved(event_dict)
+	_battle_log_entries.append("[color=%s]%s[/color]" % [color_hex, line])
+	while _battle_log_entries.size() > BATTLE_LOG_MAX_LINES:
+		_battle_log_entries.remove_at(0)
+		_battle_log_requires_rebuild = true
+	_battle_log_dirty = true
 	if _stage != Stage.COMBAT:
+		_flush_battle_log(true)
+
+
+func _update_battle_log_view(delta: float) -> void:
+	if not _battle_log_dirty:
 		return
-	var source_id: int = int(event_dict.get("source_id", -1))
-	var target_id: int = int(event_dict.get("target_id", -1))
-	var source_team: int = int(event_dict.get("source_team", 0))
-	var target_team: int = int(event_dict.get("target_team", 0))
-	var source_name: String = _find_unit_name_by_instance_id(source_id)
-	var target_name: String = _find_unit_name_by_instance_id(target_id)
-	var source_label: String = _format_name_with_team(source_name, source_team)
-	var target_label: String = _format_name_with_team(target_name, target_team)
-	var source_kind: String = "技能" if bool(event_dict.get("is_skill", false)) else "普攻"
-	var damage_type_cn: String = _damage_type_to_cn(str(event_dict.get("damage_type", "external")))
-	if bool(event_dict.get("is_dodged", false)):
-		_append_battle_log(
-			"%s -> %s | 来源:%s | 类型:%s | 结果:闪避" % [source_label, target_label, source_kind, damage_type_cn],
-			"damage"
-		)
+	_battle_log_flush_accum += delta
+	if _battle_log_flush_accum < BATTLE_LOG_FLUSH_INTERVAL:
 		return
-	var damage_value: int = int(round(float(event_dict.get("damage", 0.0))))
-	var crit_suffix: String = " | 暴击" if bool(event_dict.get("is_crit", false)) else ""
-	_append_battle_log(
-		"%s -> %s | 来源:%s | 类型:%s | 伤害:%d%s" % [
-			source_label,
-			target_label,
-			source_kind,
-			damage_type_cn,
-			damage_value,
-			crit_suffix
-		],
-		"damage"
-	)
+	_flush_battle_log(true)
+
+
+func _flush_battle_log(scroll_to_bottom: bool) -> void:
+	if _battle_log_text == null or not is_instance_valid(_battle_log_text):
+		return
+	if _battle_log_requires_rebuild or _battle_log_last_flushed_count > _battle_log_entries.size():
+		_battle_log_text.clear()
+		if not _battle_log_entries.is_empty():
+			_battle_log_text.append_text("\n".join(_battle_log_entries))
+		_battle_log_last_flushed_count = _battle_log_entries.size()
+		_battle_log_requires_rebuild = false
+	else:
+		for i in range(_battle_log_last_flushed_count, _battle_log_entries.size()):
+			_battle_log_text.append_text("%s\n" % _battle_log_entries[i])
+		_battle_log_last_flushed_count = _battle_log_entries.size()
+	if scroll_to_bottom and _battle_log_panel != null and _battle_log_panel.visible:
+		_battle_log_text.scroll_to_line(_battle_log_text.get_line_count())
+	_battle_log_dirty = false
+	_battle_log_flush_accum = 0.0
+
+
+func _clear_battle_log() -> void:
+	_battle_log_entries.clear()
+	_battle_log_last_flushed_count = 0
+	_battle_log_requires_rebuild = true
+	_battle_log_dirty = false
+	if _battle_log_text != null and is_instance_valid(_battle_log_text):
+		_battle_log_text.clear()
+	_battle_log_flush_accum = 0.0
+
+
+func _on_damage_resolved(_event_dict: Dictionary) -> void:
+	super._on_damage_resolved(_event_dict)
+	return
 
 
 func _on_unit_died(dead_unit: Node, killer: Node, team_id: int) -> void:
@@ -517,7 +557,6 @@ func _on_unit_died(dead_unit: Node, killer: Node, team_id: int) -> void:
 
 func _on_battle_ended(winner_team: int, summary: Dictionary) -> void:
 	super._on_battle_ended(winner_team, summary)
-	_append_battle_log("战斗结束：胜利方队伍 %d" % winner_team, "system")
 
 
 func _on_skill_triggered_for_log(unit: Node, gongfa_id: String, trigger: String) -> void:
@@ -536,70 +575,12 @@ func _on_skill_triggered_for_log(unit: Node, gongfa_id: String, trigger: String)
 	)
 
 
-func _on_skill_effect_damage_for_log(event_dict: Dictionary) -> void:
-	if _stage != Stage.COMBAT:
-		return
-	var source_node: Node = event_dict.get("source", null)
-	var target_node: Node = event_dict.get("target", null)
-	var source_name: String = _resolve_unit_name(source_node)
-	var target_name: String = _resolve_unit_name(target_node)
-	var source_team: int = int(event_dict.get("source_team", _resolve_unit_team(source_node)))
-	var target_team: int = int(event_dict.get("target_team", _resolve_unit_team(target_node)))
-	var source_label: String = _format_name_with_team(source_name, source_team)
-	var target_label: String = _format_name_with_team(target_name, target_team)
-	var damage_value: int = int(round(float(event_dict.get("damage", 0.0))))
-	if damage_value <= 0:
-		return
-	var damage_type_cn: String = _damage_type_to_cn(str(event_dict.get("damage_type", "internal")))
-	var source_kind: String = _origin_to_cn(str(event_dict.get("origin", "skill")))
-	var source_detail: String = source_kind
-	var gongfa_id: String = str(event_dict.get("gongfa_id", "")).strip_edges()
-	if not gongfa_id.is_empty():
-		source_detail = "%s/%s" % [source_kind, _resolve_gongfa_name(gongfa_id)]
-	_append_battle_log(
-		"%s -> %s | 来源:%s | 类型:%s | 伤害:%d" % [
-			source_label,
-			target_label,
-			source_detail,
-			damage_type_cn,
-			damage_value
-		],
-		"damage"
-	)
+func _on_skill_effect_damage_for_log(_event_dict: Dictionary) -> void:
+	return
 
 
-func _on_buff_event_for_log(event_dict: Dictionary) -> void:
-	if _stage != Stage.COMBAT:
-		return
-	var source_node: Node = event_dict.get("source", null)
-	var target_node: Node = event_dict.get("target", null)
-	var source_name: String = _resolve_unit_name(source_node)
-	var target_name: String = _resolve_unit_name(target_node)
-	var source_team: int = int(event_dict.get("source_team", _resolve_unit_team(source_node)))
-	var target_team: int = int(event_dict.get("target_team", _resolve_unit_team(target_node)))
-	var source_label: String = _format_name_with_team(source_name, source_team)
-	var target_label: String = _format_name_with_team(target_name, target_team)
-	var buff_id: String = str(event_dict.get("buff_id", "")).strip_edges()
-	if buff_id.is_empty():
-		return
-	var buff_name: String = _buff_name_from_id(buff_id)
-	var event_type: String = str(event_dict.get("event_type", "apply")).strip_edges()
-	if event_type == "tick":
-		_append_battle_log("%s 触发Buff「%s」 -> %s" % [source_label, buff_name, target_label], "buff")
-		return
-	var source_kind: String = _origin_to_cn(str(event_dict.get("origin", "skill")))
-	var duration: float = float(event_dict.get("duration", 0.0))
-	var duration_text: String = "" if duration <= 0.0 else "(%.1fs)" % duration
-	_append_battle_log(
-		"%s 对 %s 施加Buff「%s」%s | 来源:%s" % [
-			source_label,
-			target_label,
-			buff_name,
-			duration_text,
-			source_kind
-		],
-		"buff"
-	)
+func _on_buff_event_for_log(_event_dict: Dictionary) -> void:
+	return
 
 
 func _battle_log_color_hex(event_type: String) -> String:
@@ -725,13 +706,14 @@ func _ensure_inventory_panel_created() -> void:
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.custom_minimum_size = Vector2(0, 320)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
+	scroll.clip_contents = true
 	root_vbox.add_child(scroll)
 
-	_inventory_grid = GridContainer.new()
-	_inventory_grid.columns = 3
+	# 仓库改为单列纵向列表，避免窄宽度下的多列裁切与滚动遮挡。
+	_inventory_grid = VBoxContainer.new()
 	_inventory_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_inventory_grid.add_theme_constant_override("h_separation", 8)
-	_inventory_grid.add_theme_constant_override("v_separation", 8)
+	_inventory_grid.add_theme_constant_override("separation", 8)
 	scroll.add_child(_inventory_grid)
 
 	var footer := HBoxContainer.new()
@@ -788,7 +770,7 @@ func _layout_left_side_panels() -> void:
 
 
 func _refit_hex_grid() -> void:
-	# M3 重新定义棋盘可用区域：扣除左侧信息区和右侧仓库区，避免 UI 与棋盘重叠。
+	# 重新定义棋盘可用区域：扣除左侧信息区和右侧仓库区，避免 UI 与棋盘重叠。
 	var viewport_size: Vector2 = get_viewport().get_visible_rect().size
 	if viewport_size.x <= 1.0 or viewport_size.y <= 1.0:
 		return

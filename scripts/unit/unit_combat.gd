@@ -1,12 +1,12 @@
 extends Node
 
 # ===========================
-# 角色战斗组件（M2）
+# 角色战斗组件
 # ===========================
 # 设计目标：
 # 1. 将战斗数值与公式集中在组件内，外部管理器只负责调度与目标分配。
 # 2. 同时支持“普攻”和“技能”两条伤害轨道（外功/内功）。
-# 3. 实现总纲要求的闪避/暴击/内力机制，并保持与 M1 组件接口兼容。
+# 3. 实现总纲要求的闪避/暴击/内力机制，并保持组件接口稳定。
 
 signal attacked(attacker: Node, target: Node, event: Dictionary)
 signal damaged(target: Node, source: Node, event: Dictionary)
@@ -30,11 +30,11 @@ var skill_mp_cost: float = 60.0
 var mp_gain_on_attack: float = 15.0
 var mp_gain_on_hit: float = 10.0
 var passive_mp_regen: float = 2.0
-# 生命自然回复（基础值）。M3 旧被动兼容值走 external_modifiers["hp_regen_add"]。
+# 生命自然回复（基础值）。旧被动兼容值走 external_modifiers["hp_regen_add"]。
 var passive_hp_regen: float = 0.0
 
 # 外部修正层（功法/联动/Buff 汇总）：
-# 由 GongfaManager 注入，避免把 M3 逻辑耦合进基础战斗流程。
+# 由 GongfaManager 注入，避免把功法逻辑耦合进基础战斗流程。
 const DEFAULT_EXTERNAL_MODIFIERS: Dictionary = {
 	"mp_regen_add": 0.0,
 	"hp_regen_add": 0.0,
@@ -93,7 +93,7 @@ func try_attack_target(target: Node, rng_source: Variant = null) -> Dictionary:
 	if target == null or not is_instance_valid(target):
 		return {"performed": false, "reason": "invalid_target"}
 
-	var target_combat: Node = target.get_node_or_null("Components/UnitCombat")
+	var target_combat: Node = _get_target_combat(target)
 	if target_combat == null:
 		return {"performed": false, "reason": "target_no_combat"}
 	if not bool(target_combat.get("is_alive")):
@@ -101,26 +101,22 @@ func try_attack_target(target: Node, rng_source: Variant = null) -> Dictionary:
 
 	var use_skill: bool = current_mp >= skill_mp_cost and max_mp > 0.0
 	var attack_stats: Dictionary = _select_attack_profile(use_skill)
-
 	var offense: float = float(attack_stats.get("offense", 1.0))
 	var damage_type: String = str(attack_stats.get("damage_type", "external"))
 	var defense: float = _get_target_stat(target, "def")
 	if damage_type == "internal":
 		defense = _get_target_stat(target, "idr")
-	var multiplier: float = skill_multiplier if use_skill else normal_multiplier
+	var multiplier: float = _get_attack_multiplier(use_skill)
 
 	var attacker_spd: float = _get_owner_stat("spd")
 	var target_spd: float = _get_target_stat(target, "spd")
 
 	# 总纲公式：闪避率 = (自身SPD - 对方SPD) / (自身SPD + 100)，限制 [0, 40%]。
 	# 这里“自身”按防守方理解，因此以 target_spd 为分子主项。
-	var dodge_rate: float = 0.0
-	if target_spd > 0.0:
-		dodge_rate = clampf((target_spd - attacker_spd) / (target_spd + 100.0), 0.0, 0.4)
 	var target_modifiers: Dictionary = {}
 	if target_combat.has_method("get_external_modifiers"):
 		target_modifiers = target_combat.call("get_external_modifiers")
-	dodge_rate = clampf(dodge_rate + float(target_modifiers.get("dodge_bonus", 0.0)), 0.0, 0.75)
+	var dodge_rate: float = _calc_dodge_rate(attacker_spd, target_spd, target_modifiers)
 
 	var rng_value_dodge: float = _randf(rng_source)
 	var is_dodged: bool = rng_value_dodge < dodge_rate
@@ -131,15 +127,10 @@ func try_attack_target(target: Node, rng_source: Variant = null) -> Dictionary:
 		var random_factor: float = lerpf(0.9, 1.1, _randf(rng_source))
 		raw_damage = offense * multiplier * (100.0 / (100.0 + maxf(defense, 0.0))) * random_factor
 
-		var crit_rate: float = clampf(
-			0.05 + _get_owner_stat("wis") * 0.001 + float(_external_modifiers.get("crit_bonus", 0.0)),
-			0.05,
-			0.8
-		)
+		var crit_rate: float = _calc_crit_rate()
 		is_crit = _randf(rng_source) < crit_rate
 		if is_crit:
-			var crit_multiplier: float = 1.5 + _get_owner_stat("wis") * 0.0005 + float(_external_modifiers.get("crit_damage_bonus", 0.0))
-			raw_damage *= crit_multiplier
+			raw_damage *= _calc_crit_multiplier()
 
 	var receive_result: Dictionary = target_combat.call(
 		"receive_damage",
@@ -154,26 +145,10 @@ func try_attack_target(target: Node, rng_source: Variant = null) -> Dictionary:
 	# 攻击后的内力变化：
 	# - 技能：消耗内力。
 	# - 普攻命中：回内力。
-	if use_skill:
-		add_mp(-skill_mp_cost)
-	elif not is_dodged:
-		add_mp(mp_gain_on_attack)
+	_apply_attack_resource_changes(use_skill, is_dodged)
 
 	_attack_cd = attack_interval
-
-	var event: Dictionary = {
-		"performed": true,
-		"is_skill": use_skill,
-		"is_dodged": is_dodged,
-		"is_crit": is_crit,
-		"damage_type": damage_type,
-		"damage": float(receive_result.get("damage", 0.0)),
-		"target_died": bool(receive_result.get("target_died", false)),
-		"target_hp_after": float(receive_result.get("target_hp_after", 0.0)),
-		"target_mp_after": float(receive_result.get("target_mp_after", 0.0)),
-		"attacker_hp_after": current_hp,
-		"attacker_mp_after": current_mp
-	}
+	var event: Dictionary = _build_attack_event(receive_result, use_skill, is_dodged, is_crit, damage_type)
 	attacked.emit(owner_unit, target, event)
 	return event
 
@@ -277,6 +252,64 @@ func _rebuild_attack_interval(runtime_stats: Dictionary) -> void:
 	var speed_bonus: float = clampf(float(_external_modifiers.get("attack_speed_bonus", 0.0)), -0.8, 0.9)
 	# 攻速加成为“间隔缩短百分比”，例如 0.2 => 间隔 * 0.8。
 	attack_interval = clampf(base_interval * (1.0 - speed_bonus), 0.08, 3.0)
+
+
+func _get_target_combat(target: Node) -> Node:
+	if target == null or not is_instance_valid(target):
+		return null
+	return target.get_node_or_null("Components/UnitCombat")
+
+
+func _get_attack_multiplier(use_skill: bool) -> float:
+	return skill_multiplier if use_skill else normal_multiplier
+
+
+func _calc_dodge_rate(attacker_spd: float, target_spd: float, target_modifiers: Dictionary) -> float:
+	var dodge_rate: float = 0.0
+	if target_spd > 0.0:
+		dodge_rate = clampf((target_spd - attacker_spd) / (target_spd + 100.0), 0.0, 0.4)
+	return clampf(dodge_rate + float(target_modifiers.get("dodge_bonus", 0.0)), 0.0, 0.75)
+
+
+func _calc_crit_rate() -> float:
+	return clampf(
+		0.05 + _get_owner_stat("wis") * 0.001 + float(_external_modifiers.get("crit_bonus", 0.0)),
+		0.05,
+		0.8
+	)
+
+
+func _calc_crit_multiplier() -> float:
+	return 1.5 + _get_owner_stat("wis") * 0.0005 + float(_external_modifiers.get("crit_damage_bonus", 0.0))
+
+
+func _apply_attack_resource_changes(use_skill: bool, is_dodged: bool) -> void:
+	if use_skill:
+		add_mp(-skill_mp_cost)
+	elif not is_dodged:
+		add_mp(mp_gain_on_attack)
+
+
+func _build_attack_event(
+	receive_result: Dictionary,
+	use_skill: bool,
+	is_dodged: bool,
+	is_crit: bool,
+	damage_type: String
+) -> Dictionary:
+	return {
+		"performed": true,
+		"is_skill": use_skill,
+		"is_dodged": is_dodged,
+		"is_crit": is_crit,
+		"damage_type": damage_type,
+		"damage": float(receive_result.get("damage", 0.0)),
+		"target_died": bool(receive_result.get("target_died", false)),
+		"target_hp_after": float(receive_result.get("target_hp_after", 0.0)),
+		"target_mp_after": float(receive_result.get("target_mp_after", 0.0)),
+		"attacker_hp_after": current_hp,
+		"attacker_mp_after": current_mp
+	}
 
 
 func _select_attack_profile(use_skill: bool) -> Dictionary:

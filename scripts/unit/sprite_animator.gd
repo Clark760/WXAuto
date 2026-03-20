@@ -1,7 +1,7 @@
 extends Node
 
 # ===========================
-# 程序化精灵动画器（M2 FPS 优化版）
+# 程序化精灵动画器
 # ===========================
 # 优化要点：
 # 1. 循环动画（IDLE/MOVE/BENCH/VICTORY）在 _process 里计算，不创建 Tween。
@@ -38,6 +38,9 @@ var _has_rest_transform: bool = false
 
 var _loop_anim_time: float = 0.0
 var _loop_state_active: bool = false
+var _impulse_anim_time: float = 0.0
+var _impulse_duration: float = 0.0
+var _impulse_direction: Vector2 = Vector2.ZERO
 
 var _params: Dictionary = {
 	"idle_amplitude": 2.0,
@@ -72,13 +75,16 @@ func _exit_tree() -> void:
 
 
 func _process(delta: float) -> void:
-	if not _loop_state_active:
-		return
 	if _target == null or not is_instance_valid(_target):
 		return
 
-	_loop_anim_time += delta
-	_apply_loop_pose(_loop_anim_time)
+	if _loop_state_active:
+		_loop_anim_time += delta
+		_apply_loop_pose(_loop_anim_time)
+		return
+	if _state == AnimState.ATTACK or _state == AnimState.HIT:
+		_impulse_anim_time += delta
+		_apply_impulse_pose()
 
 
 func set_overrides(overrides: Dictionary) -> void:
@@ -98,6 +104,7 @@ func play_state(state: int, context: Dictionary = {}) -> void:
 		return
 
 	_stop_tween()
+	_clear_impulse_state()
 	_normalize_base_before_state(state)
 	_cache_base_transform()
 
@@ -129,6 +136,38 @@ func play_state(state: int, context: Dictionary = {}) -> void:
 
 func _is_loop_state(state: int) -> bool:
 	return state == AnimState.IDLE or state == AnimState.MOVE or state == AnimState.BENCH or state == AnimState.VICTORY
+
+
+func _apply_impulse_pose() -> void:
+	if _target == null:
+		return
+	if _impulse_duration <= 0.0:
+		_switch_to_idle_if_current(_state)
+		return
+
+	var normalized: float = clampf(_impulse_anim_time / _impulse_duration, 0.0, 1.0)
+	match _state:
+		AnimState.ATTACK:
+			var dash_distance: float = float(_params["attack_dash_distance"])
+			var dash_ratio: float = 1.0 - absf(normalized * 2.0 - 1.0)
+			_target.position = _base_position + _impulse_direction * dash_distance * dash_ratio
+			_target.rotation = _base_rotation
+			_target.scale = _base_scale
+		AnimState.HIT:
+			var knockback: float = float(_params["hit_knockback"])
+			var back_ratio: float = sin(normalized * PI)
+			_target.position = _base_position + _impulse_direction * knockback * back_ratio
+			_target.rotation = _base_rotation
+			_target.scale = _base_scale
+			if _target is CanvasItem:
+				var flash_ratio: float = sin(normalized * PI)
+				(_target as CanvasItem).modulate = _base_modulate.lerp(Color(1.6, 0.4, 0.4, 1.0), flash_ratio)
+		_:
+			return
+
+	if normalized >= 1.0:
+		_reset_to_base()
+		_switch_to_idle_if_current(_state)
 
 
 func _apply_loop_pose(anim_time: float) -> void:
@@ -241,6 +280,12 @@ func _stop_tween() -> void:
 	_tween = null
 
 
+func _clear_impulse_state() -> void:
+	_impulse_anim_time = 0.0
+	_impulse_duration = 0.0
+	_impulse_direction = Vector2.ZERO
+
+
 func _switch_to_idle_if_current(expected_state: int) -> void:
 	if _state == expected_state:
 		play_state(AnimState.IDLE)
@@ -248,20 +293,14 @@ func _switch_to_idle_if_current(expected_state: int) -> void:
 
 func _play_attack(direction: Vector2) -> void:
 	_reset_to_base()
-	_tween = create_tween()
-
-	var dash_distance: float = float(_params["attack_dash_distance"])
-	var duration: float = maxf(float(_params["attack_duration"]), 0.01)
 	var dash_dir: Vector2 = direction.normalized()
 	if dash_dir.is_zero_approx():
 		dash_dir = Vector2.RIGHT
-
-	var forward: Vector2 = _base_position + dash_dir * dash_distance
-	_tween.tween_property(_target, "position", forward, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	_tween.tween_property(_target, "position", _base_position, duration).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
-	_tween.finished.connect(func() -> void:
-		_switch_to_idle_if_current(AnimState.ATTACK)
-	)
+	_impulse_direction = dash_dir
+	_impulse_duration = maxf(float(_params["attack_duration"]), 0.01) * 2.0
+	_impulse_anim_time = 0.0
+	set_process(true)
+	_apply_impulse_pose()
 
 
 func _play_skill() -> void:
@@ -287,26 +326,14 @@ func _play_skill() -> void:
 
 func _play_hit(direction: Vector2) -> void:
 	_reset_to_base()
-	_tween = create_tween()
-
-	var knockback: float = float(_params["hit_knockback"])
-	var flash_duration: float = maxf(float(_params["hit_flash_duration"]), 0.01)
 	var back_dir: Vector2 = -direction.normalized()
 	if back_dir.is_zero_approx():
 		back_dir = Vector2.LEFT
-
-	var hit_pos: Vector2 = _base_position + back_dir * knockback
-	_tween.tween_property(_target, "position", hit_pos, flash_duration * 0.6).set_trans(Tween.TRANS_SINE)
-	_tween.tween_property(_target, "position", _base_position, flash_duration * 0.6).set_trans(Tween.TRANS_SINE)
-
-	if _target is CanvasItem:
-		var canvas: CanvasItem = _target as CanvasItem
-		_tween.parallel().tween_property(canvas, "modulate", Color(1.6, 0.4, 0.4, 1.0), flash_duration * 0.5)
-		_tween.parallel().tween_property(canvas, "modulate", _base_modulate, flash_duration * 0.7)
-
-	_tween.finished.connect(func() -> void:
-		_switch_to_idle_if_current(AnimState.HIT)
-	)
+	_impulse_direction = back_dir
+	_impulse_duration = maxf(float(_params["hit_flash_duration"]), 0.01) * 1.2
+	_impulse_anim_time = 0.0
+	set_process(true)
+	_apply_impulse_pose()
 
 
 func _play_death() -> void:

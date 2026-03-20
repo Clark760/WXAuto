@@ -31,12 +31,12 @@ offset_top = 360.0
 offset_right = 920.0
 offset_bottom = 420.0
 theme_override_font_sizes/font_size = 16
-text = "按 F1 切换场景，按 F5 重载数据"
+text = "按 F6/Enter 进入战斗，按 F5 重载数据"
 
-[node name="EnterM4Button" type="Button" parent="CanvasLayer"]
+[node name="EnterBattleButton" type="Button" parent="CanvasLayer"]
 offset_left = 20.0
 offset_top = 430.0
 offset_right = 280.0
 offset_bottom = 476.0
 theme_override_font_sizes/font_size = 18
-text = "进入 M4 测试场景"
+text = "进入正式战斗"

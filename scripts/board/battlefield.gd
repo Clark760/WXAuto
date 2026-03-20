@@ -1,272 +1,1761 @@
-extends Node2D
+extends "res://scripts/ui/battlefield_ui.gd"
 
 # ===========================
-# 战场管理（M1 角色核心原型）
+# 正式战斗场景
 # ===========================
-# M1 目标对齐：
-# 1. 从 JSON 加载角色并放入备战席。
-# 2. 支持拖拽角色部署到六边形网格。
-# 3. 支持从战场拖回备战席。
-# 4. 支持备战席 3 合 1 升星。
-# 5. 更新 MultiMesh 批量渲染验证同屏渲染路径。
+# 说明：
+# 1. 在基础战场交互之上接入经济、商店、回收出售与战斗统计结算。
+# 2. 本脚本负责正式战斗场景编排，不再承担历史阶段测试职责。
+# 3. 与基础战斗层、UI 层、统计层按职责协作。
 
-@export var initial_bench_count: int = 14
+const SHOP_TAB_RECRUIT: String = "recruit"
+const SHOP_TAB_GONGFA: String = "gongfa"
+const SHOP_TAB_EQUIPMENT: String = "equipment"
 
-@onready var hex_grid: Node2D = $HexGrid
-@onready var unit_layer: Node2D = $UnitLayer
-@onready var bench: Node2D = $Bench
-@onready var unit_factory: Node = $UnitFactory
-@onready var multimesh_renderer: Node2D = $UnitMultiMeshRenderer
-@onready var info_label: Label = $CanvasLayer/InfoLabel
-@onready var tip_label: Label = $CanvasLayer/TipLabel
+const SHOP_LAYER_INDEX: int = 12
+const SHOP_PANEL_MIN_WIDTH: float = 760.0
+const SHOP_PANEL_MAX_WIDTH: float = 980.0
+const SHOP_PANEL_HEIGHT: float = 320.0
 
-var _deployed_units: Dictionary = {} # "q,r" -> unit
-var _dragging_unit: Node = null
-var _drag_from_bench: bool = false
-var _drag_origin_cell: Vector2i = Vector2i(-999, -999)
+const QUALITY_SELL_PRICE: Dictionary = {
+	"white": 1,
+	"green": 2,
+	"blue": 3,
+	"purple": 5,
+	"orange": 8,
+	"red": 15
+}
+
+const HEALER_ROLE_KEY: String = "healer"
+const HEALER_FALLBACK_GONGFA_BY_QUALITY: Dictionary = {
+	# 低品质补“保底治疗”功法，保证医者最基础治疗职责可用。
+	"white": ["gf_baicao_jiushi", "gongfa_taiji_neigong"],
+	"green": ["gf_yangchun_huixin", "gongfa_taiji_neigong"],
+	"blue": ["gongfa_taiji_neigong", "gf_wudang_heal"],
+	"purple": ["gf_emei_heal", "gf_wudang_heal", "gongfa_huagong"],
+	"orange": ["gf_jiuyang_heal", "gf_huqingniu", "gf_yideng_heal"],
+	"red": ["gf_shennong", "gf_yijin", "gf_xisui"]
+}
+
+const ECONOMY_MANAGER_SCRIPT: Script = preload("res://scripts/economy/economy_manager.gd")
+const SHOP_MANAGER_SCRIPT: Script = preload("res://scripts/economy/shop_manager.gd")
+const RECYCLE_DROP_ZONE_SCRIPT: Script = preload("res://scripts/ui/recycle_drop_zone.gd")
+const BATTLE_FLOW_SCRIPT: Script = preload("res://scripts/combat/battle_flow.gd")
+
+@onready var _shop_bar: HBoxContainer = $BottomLayer/BottomPanel/RootVBox/ShopBar
+@onready var _shop_label: Label = $BottomLayer/BottomPanel/RootVBox/ShopBar/ShopLabel
+
+var _economy_manager: Node = null
+var _shop_manager: Node = null
+
+var _shop_layer: CanvasLayer = null
+var _shop_panel: PanelContainer = null
+var _shop_open_button: Button = null
+var _shop_title_label: Label = null
+var _shop_status_label: Label = null
+var _shop_close_button: Button = null
+var _shop_tabs: Dictionary = {}
+var _shop_offer_row: HBoxContainer = null
+var _shop_silver_label: Label = null
+var _shop_level_label: Label = null
+var _shop_refresh_button: Button = null
+var _shop_upgrade_button: Button = null
+var _shop_lock_button: Button = null
+var _shop_test_add_silver_button: Button = null
+var _shop_test_add_exp_button: Button = null
+
+var _shop_current_tab: String = SHOP_TAB_RECRUIT
+var _shop_open_in_preparation: bool = true
+var _battle_scene_initialized: bool = false
+
+var _owned_gongfa_stock: Dictionary = {}    # gongfa_id -> count
+var _owned_equipment_stock: Dictionary = {} # equip_id -> count
+var _recycle_drop_zone: PanelContainer = null
+
+var _battle_flow: Node = null
 
 
 func _ready() -> void:
-	_connect_signals()
-	_set_preparation_phase()
-	_spawn_initial_bench_units()
-	_refresh_info()
+	# 兜底取消暂停：防止从调试切场景时遗留 pause 状态，导致“进入场景像挂起”。
+	get_tree().paused = false
+	_bootstrap_battle_services()
+	super._ready()
+	_simplify_bottom_workspace_ui()
+	_ensure_recycle_zone_created()
+	_ensure_battle_flow_created()
+	_ensure_shop_panel_created()
+	_ensure_shop_open_button()
+	_connect_battle_ui_signals()
+	_refresh_shop_for_preparation(true)
+	_update_shop_ui()
+	_battle_scene_initialized = true
+	_refresh_all_ui()
+	_apply_stage_ui_state()
+	_prepare_linkage_panel()
+	_sync_linkage_panel_visibility()
 
 
-func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventKey:
-		_handle_key_input(event as InputEventKey)
-		return
+func _input(event: InputEvent) -> void:
+	# 输入优先级修复：
+	# 当鼠标位于商店面板上时，不让战场层 _input 抢先消费，
+	# 交给 Button/Tab 等 UI 控件处理，解决“点击无响应”。
+	if _shop_panel != null and _shop_panel.visible:
+		if event is InputEventMouseButton:
+			var mouse_btn: InputEventMouseButton = event as InputEventMouseButton
+			if _shop_panel.get_global_rect().has_point(mouse_btn.position):
+				return
+		elif event is InputEventMouseMotion:
+			var mouse_motion: InputEventMouseMotion = event as InputEventMouseMotion
+			if _shop_panel.get_global_rect().has_point(mouse_motion.position):
+				return
 
-	if event is InputEventMouseButton:
-		_handle_mouse_button(event as InputEventMouseButton)
-	elif event is InputEventMouseMotion:
-		_handle_mouse_motion(event as InputEventMouseMotion)
+	# 回收区与仓库同属 UI 层，鼠标位于回收区时应阻止战场输入抢占。
+	if _dragging_unit == null and _recycle_drop_zone != null and is_instance_valid(_recycle_drop_zone):
+		if event is InputEventMouseButton:
+			var recycle_mouse_btn: InputEventMouseButton = event as InputEventMouseButton
+			if _recycle_drop_zone.get_global_rect().has_point(recycle_mouse_btn.position):
+				return
+		elif event is InputEventMouseMotion:
+			var recycle_mouse_motion: InputEventMouseMotion = event as InputEventMouseMotion
+			if _recycle_drop_zone.get_global_rect().has_point(recycle_mouse_motion.position):
+				return
+	super._input(event)
 
 
 func _handle_key_input(event: InputEventKey) -> void:
-	if not event.pressed or event.echo:
-		return
-
-	# F3: 回到 M0 主场景，便于快速对照验证。
-	if event.keycode == KEY_F3:
+	# 战斗场景内按 F7 直接重开正式战场，便于反复调试完整局内循环。
+	if event.pressed and not event.echo and event.keycode == KEY_F7:
 		var event_bus: Node = _get_root_node("EventBus")
 		if event_bus != null:
-			event_bus.call("emit_scene_change_requested", "res://scenes/main/main.tscn")
-
-	# F4: 重新补充一批角色到备战席，快速压力测试拖拽和升星。
-	if event.keycode == KEY_F4:
-		_spawn_random_units_to_bench(6)
-		_refresh_info()
-
-
-func _handle_mouse_button(event: InputEventMouseButton) -> void:
-	if event.button_index != MOUSE_BUTTON_LEFT:
+			event_bus.call("emit_scene_change_requested", "res://scenes/battle/battlefield.tscn")
 		return
-
-	var world_pos: Vector2 = get_global_mouse_position()
-
-	if event.pressed:
-		_try_begin_drag(world_pos)
-	else:
-		_try_end_drag(world_pos)
-
-
-func _handle_mouse_motion(_event: InputEventMouseMotion) -> void:
-	if _dragging_unit == null:
+	if event.pressed and not event.echo and event.keycode == KEY_B and _stage == Stage.PREPARATION:
+		_shop_open_in_preparation = not (_shop_panel != null and _shop_panel.visible)
+		_set_shop_panel_visible(_shop_open_in_preparation)
+		_update_shop_ui()
 		return
-	_dragging_unit.call("update_drag", get_global_mouse_position())
+	super._handle_key_input(event)
 
 
-func _try_begin_drag(world_pos: Vector2) -> void:
-	if _dragging_unit != null:
+func _unhandled_input(event: InputEvent) -> void:
+	super._unhandled_input(event)
+	if not (event is InputEventKey):
 		return
-
-	var bench_unit: Node = bench.call("pick_unit_at_world", world_pos)
-	if bench_unit != null:
-		if bool(bench.call("remove_unit", bench_unit)):
-			_dragging_unit = bench_unit
-			_drag_from_bench = true
-			_drag_origin_cell = Vector2i(-999, -999)
-			_dragging_unit.call("begin_drag")
-			_refresh_info()
+	var key_event: InputEventKey = event as InputEventKey
+	if not key_event.pressed or key_event.echo:
 		return
-
-	var deployed_unit: Node = _pick_deployed_unit_at(world_pos)
-	if deployed_unit != null:
-		_dragging_unit = deployed_unit
-		_drag_from_bench = false
-		_drag_origin_cell = deployed_unit.get("deployed_cell")
-		_remove_deployed_mapping(deployed_unit)
-		_dragging_unit.call("begin_drag")
-		_refresh_multimesh()
-		_refresh_info()
+	if key_event.keycode == KEY_ESCAPE and _shop_panel != null and _shop_panel.visible:
+		# ESC 在详情面板关闭后，可继续关闭商店面板。
+		_set_shop_panel_visible(false)
+		get_viewport().set_input_as_handled()
 
 
-func _try_end_drag(world_pos: Vector2) -> void:
-	if _dragging_unit == null:
+func _set_stage(next_stage: int) -> void:
+	var previous_stage: int = _stage
+	super._set_stage(next_stage)
+	if next_stage == Stage.PREPARATION and previous_stage != Stage.PREPARATION:
+		_shop_open_in_preparation = true
+		_refresh_shop_for_preparation(false)
+	_update_shop_ui()
+
+
+func _apply_stage_ui_state() -> void:
+	super._apply_stage_ui_state()
+	if _shop_panel != null and is_instance_valid(_shop_panel):
+		if _stage == Stage.PREPARATION:
+			_set_shop_panel_visible(_shop_open_in_preparation)
+		else:
+			_set_shop_panel_visible(false)
+	if _recycle_drop_zone != null and is_instance_valid(_recycle_drop_zone):
+		var recycle_visible: bool = _stage == Stage.PREPARATION
+		_recycle_drop_zone.visible = recycle_visible
+		if _recycle_drop_zone.has_method("set_drop_enabled"):
+			_recycle_drop_zone.call("set_drop_enabled", recycle_visible)
+		if not recycle_visible and _recycle_drop_zone.has_method("clear_external_preview"):
+			_recycle_drop_zone.call("clear_external_preview")
+	if _battle_flow != null and is_instance_valid(_battle_flow):
+		_battle_flow.call("sync_stage", _stage, Stage.RESULT)
+	_sync_linkage_panel_visibility()
+	_update_shop_ui()
+
+
+func _on_viewport_size_changed() -> void:
+	super._on_viewport_size_changed()
+	_layout_shop_panel()
+	_layout_bench_recycle_wrap()
+	if _battle_flow != null and is_instance_valid(_battle_flow):
+		_battle_flow.call("refresh_layout")
+
+
+func _set_bottom_expanded(expanded: bool, animate: bool) -> void:
+	# 底栏在展开/收起时，回收区与备战席的可见区域会发生变化，
+	# 这里在父类布局结束后立刻重排，避免“回收区被挤出屏幕”。
+	super._set_bottom_expanded(expanded, animate)
+	_layout_bench_recycle_wrap()
+
+
+func _refresh_dynamic_ui() -> void:
+	super._refresh_dynamic_ui()
+	if _economy_manager == null:
 		return
-
-	_dragging_unit.call("end_drag", world_pos)
-
-	var drop_cell: Vector2i = hex_grid.call("world_to_axial", world_pos)
-	if _can_deploy_to_cell(drop_cell):
-		_deploy_unit_to_cell(_dragging_unit, drop_cell)
-		_clear_drag_state()
-		_refresh_info()
-		return
-
-	# 非法落点时：
-	# - 来自备战席：尝试放回备战席（满了则原地保留并提示）。
-	# - 来自战场：优先回备战席；若失败，退回原战场格。
-	var put_back_ok: bool = bool(bench.call("add_unit", _dragging_unit))
-	if not put_back_ok and not _drag_from_bench and _drag_origin_cell.x > -900:
-		_deploy_unit_to_cell(_dragging_unit, _drag_origin_cell)
-
-	_clear_drag_state()
-	_refresh_info()
-
-
-func _deploy_unit_to_cell(unit: Node, cell: Vector2i) -> void:
-	var cell_key: String = _cell_key(cell)
-	if _deployed_units.has(cell_key):
-		return
-
-	_deployed_units[cell_key] = unit
-	unit.set("deployed_cell", cell)
-	unit.call("set_on_bench_state", false, -1)
-	unit.global_position = hex_grid.call("axial_to_world", cell)
-	unit.call("play_anim_state", 0, {}) # IDLE
-	_refresh_multimesh()
+	var assets: Dictionary = _economy_manager.get_assets_snapshot()
+	var level: int = int(assets.get("level", 1))
+	var exp_value: int = int(assets.get("exp", 0))
+	var max_exp: int = int(assets.get("max_exp", 0))
+	var silver: int = int(assets.get("silver", 0))
+	var bench_count: int = bench_ui.get_unit_count() if bench_ui != null else 0
+	var bench_slots: int = bench_ui.get_slot_count() if bench_ui != null else 0
+	var deploy_limit: int = _economy_manager.get_max_deploy_limit()
+	if resource_label != null and resource_label.visible:
+		resource_label.text = "门派LV%d (%d/%d) | 银两%d | 上场上限%d | 备战席 %d/%d" % [
+			level,
+			exp_value,
+			max_exp,
+			silver,
+			deploy_limit,
+			bench_count,
+			bench_slots
+		]
+	_refresh_linkage_info_for_deployed_only()
+	_update_shop_operation_labels()
 
 
-func _remove_deployed_mapping(unit: Node) -> void:
-	var target_key: String = ""
-	for cell_key in _deployed_units.keys():
-		if _deployed_units[cell_key] == unit:
-			target_key = str(cell_key)
-			break
-	if not target_key.is_empty():
-		_deployed_units.erase(target_key)
+func _refresh_all_ui() -> void:
+	super._refresh_all_ui()
+	_update_shop_ui()
+	if _battle_flow != null and is_instance_valid(_battle_flow):
+		_battle_flow.call("refresh_panel")
 
 
-func _pick_deployed_unit_at(world_pos: Vector2) -> Node:
-	for unit in _deployed_units.values():
-		if unit == null:
-			continue
-		if bool(unit.call("contains_point", world_pos)):
-			return unit
-	return null
-
-
-func _can_deploy_to_cell(cell: Vector2i) -> bool:
-	if not bool(hex_grid.call("is_inside_grid", cell)):
-		return false
-	return not _deployed_units.has(_cell_key(cell))
-
-
-func _cell_key(cell: Vector2i) -> String:
-	return "%d,%d" % [cell.x, cell.y]
-
-
-func _clear_drag_state() -> void:
-	_dragging_unit = null
-	_drag_from_bench = false
-	_drag_origin_cell = Vector2i(-999, -999)
-
-
-func _spawn_initial_bench_units() -> void:
-	_spawn_random_units_to_bench(initial_bench_count)
-
-
-func _spawn_random_units_to_bench(count: int) -> void:
-	var unit_ids: Array[String] = unit_factory.call("get_unit_ids")
-	if unit_ids.is_empty():
-		return
-
-	var rng := RandomNumberGenerator.new()
-	rng.randomize()
-
-	for i in range(count):
-		var idx: int = rng.randi_range(0, unit_ids.size() - 1)
-		var unit_id: String = unit_ids[idx]
-		var unit_node: Node = unit_factory.call("acquire_unit", unit_id, -1, unit_layer)
-		if unit_node == null:
-			continue
-
-		var added: bool = bool(bench.call("add_unit", unit_node))
-		if not added:
-			unit_factory.call("release_unit", unit_node)
-			break
-
-
-func _connect_signals() -> void:
-	var cb_upgrade: Callable = Callable(self, "_on_unit_star_upgraded")
-	if not bench.is_connected("unit_star_upgraded", cb_upgrade):
-		bench.connect("unit_star_upgraded", cb_upgrade)
-
-	var cb_bench_changed: Callable = Callable(self, "_on_bench_changed")
-	if not bench.is_connected("bench_changed", cb_bench_changed):
-		bench.connect("bench_changed", cb_bench_changed)
-
-
-func _on_unit_star_upgraded(result_unit: Node, consumed_units: Array[Node], _new_star: int) -> void:
-	# 合成时的被消耗单位回收到对象池，避免无意义销毁。
-	for consumed in consumed_units:
-		unit_factory.call("release_unit", consumed)
-	result_unit.call("play_anim_state", 3, {}) # SKILL 动画作为合成反馈
-	_refresh_info()
+func _on_battle_ended(winner_team: int, summary: Dictionary) -> void:
+	super._on_battle_ended(winner_team, summary)
+	if _economy_manager != null:
+		_economy_manager.record_battle_result_by_team(winner_team, 1)
+		var income_detail: Dictionary = _economy_manager.apply_round_income()
+		_append_battle_log(
+			"经济结算：基础%d + 利息%d + 连胜/败%d = +%d 银两" % [
+				int(income_detail.get("base", 0)),
+				int(income_detail.get("interest", 0)),
+				int(income_detail.get("streak", 0)),
+				int(income_detail.get("total", 0))
+			],
+			"system"
+		)
+		_update_shop_ui()
 
 
 func _on_bench_changed() -> void:
-	_refresh_info()
+	super._on_bench_changed()
+	_update_shop_operation_labels()
 
 
-func _refresh_multimesh() -> void:
-	var deployed_list: Array[Node] = []
-	for unit in _deployed_units.values():
-		if unit != null:
-			deployed_list.append(unit)
-	multimesh_renderer.call("set_units", deployed_list)
+func _get_drop_target(screen_mouse: Vector2) -> Dictionary:
+	# 优先识别“回收区”落点，再回退到棋盘/备战席判定。
+	if _is_point_in_recycle_zone(screen_mouse):
+		return {"type": "recycle"}
+	return super._get_drop_target(screen_mouse)
 
 
-func _refresh_info() -> void:
-	var bench_units_variant: Variant = bench.call("get_all_units")
-	var bench_count: int = 0
-	if bench_units_variant is Array:
-		bench_count = (bench_units_variant as Array).size()
-	var bench_capacity: int = int(bench.get("max_slots"))
-	var deployed_count: int = _deployed_units.size()
-	var phase_name: String = "PREPARATION"
+func _update_drag_target(screen_pos: Vector2) -> void:
+	# 为“备战角色拖到回收区”提供实时预估售价提示。
+	var target: Dictionary = _get_drop_target(screen_pos)
+	var target_type: String = str(target.get("type", "invalid"))
+	if target_type == "battlefield":
+		_drag_target_cell = target.get("cell", Vector2i(-999, -999))
+		_drag_target_valid = _can_deploy_ally_to_cell(_dragging_unit, _drag_target_cell)
+	else:
+		_drag_target_cell = Vector2i(-999, -999)
+		_drag_target_valid = false
 
-	var game_manager: Node = _get_root_node("GameManager")
-	if game_manager != null:
-		phase_name = str(game_manager.call("get_phase_name", int(game_manager.get("current_phase"))))
+	if _recycle_drop_zone != null and is_instance_valid(_recycle_drop_zone):
+		if target_type == "recycle" and _dragging_unit != null and _is_valid_unit(_dragging_unit):
+			var can_sell_unit: bool = _drag_origin_kind == "bench"
+			var payload: Dictionary = {
+				"type": "unit",
+				"id": str(_dragging_unit.get("unit_id")),
+				"unit_node": _dragging_unit,
+				"cost": int(_safe_node_prop(_dragging_unit, "cost", 0))
+			}
+			if _recycle_drop_zone.has_method("set_external_preview"):
+				_recycle_drop_zone.call("set_external_preview", payload, can_sell_unit)
+		elif _recycle_drop_zone.has_method("clear_external_preview"):
+			_recycle_drop_zone.call("clear_external_preview")
 
-	var lines: Array[String] = []
-	lines.append("M1 角色核心系统验证场景")
-	lines.append("当前阶段: %s" % phase_name)
-	lines.append("备战席人数: %d / %d" % [bench_count, bench_capacity])
-	lines.append("已部署人数: %d" % deployed_count)
-	lines.append("提示：同名同星 3 个会自动升星")
-
-	info_label.text = "\n".join(lines)
-	tip_label.text = "操作：鼠标左键拖拽部署/回收 | F4补充随机角色 | F3返回主场景"
-
-
-func _set_preparation_phase() -> void:
-	var game_manager: Node = _get_root_node("GameManager")
-	if game_manager != null:
-		# GamePhase 枚举定义在 GameManager 内部，M1 直接使用已约定值：
-		# BOOT=0, MAIN_MENU=1, PREPARATION=2
-		game_manager.call("set_phase", 2)
+	queue_redraw()
 
 
-func _get_root_node(node_name: String) -> Node:
-	var main_loop: MainLoop = Engine.get_main_loop()
-	if not (main_loop is SceneTree):
+func _try_end_drag(screen_pos: Vector2) -> void:
+	if _dragging_unit == null:
+		return
+	var dropped: bool = false
+	var target: Dictionary = _get_drop_target(screen_pos)
+	var target_type: String = str(target.get("type", "invalid"))
+	if target_type == "battlefield":
+		var cell: Vector2i = target.get("cell", Vector2i(-999, -999))
+		if _can_deploy_ally_to_cell(_dragging_unit, cell):
+			_deploy_ally_unit_to_cell(_dragging_unit, cell)
+			dropped = true
+	elif target_type == "bench":
+		var slot_index: int = int(target.get("slot", -1))
+		dropped = _drop_to_bench_slot(_dragging_unit, slot_index)
+	elif target_type == "recycle":
+		dropped = _try_sell_dragging_unit()
+	if not dropped:
+		_restore_drag_origin()
+	_finish_drag()
+
+
+func _finish_drag() -> void:
+	if _recycle_drop_zone != null and is_instance_valid(_recycle_drop_zone):
+		if _recycle_drop_zone.has_method("clear_external_preview"):
+			_recycle_drop_zone.call("clear_external_preview")
+	super._finish_drag()
+
+
+func _on_data_reloaded(is_full_reload: bool, summary: Dictionary) -> void:
+	super._on_data_reloaded(is_full_reload, summary)
+	_rebuild_battle_data_caches()
+	_refresh_shop_for_preparation(true)
+
+
+func _on_gongfa_data_reloaded(summary: Dictionary) -> void:
+	super._on_gongfa_data_reloaded(summary)
+	_rebuild_battle_data_caches()
+	_refresh_shop_for_preparation(true)
+
+
+func _can_deploy_ally_to_cell(unit: Node, cell: Vector2i) -> bool:
+	if not super._can_deploy_ally_to_cell(unit, cell):
+		return false
+	if _economy_manager == null:
+		return true
+	var limit: int = _economy_manager.get_max_deploy_limit()
+	# 仅限制“新增上场单位”。战场单位重新拖拽换位不应被阻断。
+	if _ally_deployed.size() >= limit and not _ally_deployed.has(_cell_key(cell)):
+		return false
+	return true
+
+
+func _start_combat() -> void:
+	# 开战前按门派等级动态收紧自动上场上限。
+	if _battle_flow != null and is_instance_valid(_battle_flow):
+		_battle_flow.call("prepare_for_battle_start")
+	if _economy_manager != null:
+		max_auto_deploy = _economy_manager.get_max_deploy_limit()
+	super._start_combat()
+	if bool(combat_manager.call("is_battle_running")) and _battle_flow != null and is_instance_valid(_battle_flow):
+		_battle_flow.call(
+			"start_battle_capture",
+			_collect_units_from_map(_ally_deployed),
+			_collect_units_from_map(_enemy_deployed)
+		)
+
+
+func _rebuild_inventory_items() -> void:
+	# 正式仓库使用“拥有库存”视图：
+	# - 仅展示已购买或已装备中的条目；
+	# - 支持显示库存与已装备数量；
+	# - 拖放装备会消耗库存，卸下会返还库存。
+	if _inventory_grid == null or gongfa_manager == null:
+		return
+
+	for child in _inventory_grid.get_children():
+		child.queue_free()
+
+	var item_mode: String = _inventory_mode
+	var stock_map: Dictionary = _owned_gongfa_stock if item_mode == "gongfa" else _owned_equipment_stock
+	var id_set: Dictionary = {}
+
+	for key in stock_map.keys():
+		var item_id: String = str(key).strip_edges()
+		if item_id.is_empty():
+			continue
+		if int(stock_map.get(item_id, 0)) > 0:
+			id_set[item_id] = true
+
+	for unit in _collect_player_units():
+		if unit == null or not _is_valid_unit(unit):
+			continue
+		if item_mode == "gongfa":
+			var slots: Dictionary = _normalize_unit_slots(unit.get("gongfa_slots"))
+			for slot in SLOT_ORDER:
+				var gid: String = str(slots.get(slot, "")).strip_edges()
+				if not gid.is_empty():
+					id_set[gid] = true
+		else:
+			var equip_slots: Dictionary = _normalize_equip_slots(_get_unit_equip_slots(unit))
+			for equip_slot in EQUIP_ORDER:
+				var eid: String = str(equip_slots.get(equip_slot, "")).strip_edges()
+				if not eid.is_empty():
+					id_set[eid] = true
+
+	var items: Array[Dictionary] = []
+	for id_key in id_set.keys():
+		var lookup_id: String = str(id_key)
+		var data: Dictionary = {}
+		if item_mode == "gongfa":
+			data = gongfa_manager.call("get_gongfa_data", lookup_id)
+		else:
+			data = gongfa_manager.call("get_equipment_data", lookup_id)
+		if data.is_empty():
+			continue
+		var packed: Dictionary = data.duplicate(true)
+		packed["_owned_count"] = int(stock_map.get(lookup_id, 0))
+		packed["_equipped_count"] = _count_equipped_instances(item_mode, lookup_id)
+		items.append(packed)
+
+	items.sort_custom(Callable(self, "_sort_inventory_item"))
+
+	var search_text: String = _inventory_search.text.strip_edges().to_lower() if _inventory_search != null else ""
+	var filtered: Array[Dictionary] = []
+	for item_data in items:
+		var item_type: String = str(item_data.get("type", "")).strip_edges()
+		if _inventory_filter_type != "all" and item_type != _inventory_filter_type:
+			continue
+		if not search_text.is_empty():
+			var item_name: String = str(item_data.get("name", "")).to_lower()
+			if not item_name.contains(search_text):
+				continue
+		filtered.append(item_data)
+
+	var total_owned: int = 0
+	var total_equipped: int = 0
+	for item_data in filtered:
+		total_owned += int(item_data.get("_owned_count", 0))
+		total_equipped += int(item_data.get("_equipped_count", 0))
+		var card: PanelContainer = _create_inventory_card(item_data)
+		_inventory_grid.add_child(card)
+
+	_inventory_summary.text = "库存 %d 件 | 已装备 %d 件 | 条目 %d" % [total_owned, total_equipped, filtered.size()]
+
+
+func _create_inventory_card(item_data: Dictionary) -> PanelContainer:
+	var card := _inventory_card_script.new() as PanelContainer
+	if card == null:
+		card = PanelContainer.new()
+	card.custom_minimum_size = Vector2(0, 122)
+	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	card.mouse_filter = Control.MOUSE_FILTER_STOP
+
+	var vbox := VBoxContainer.new()
+	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	vbox.add_theme_constant_override("separation", 3)
+	card.add_child(vbox)
+
+	var icon_label := Label.new()
+	var item_type: String = str(item_data.get("type", ""))
+	icon_label.text = _slot_icon(item_type) if _inventory_mode == "gongfa" else _equip_icon(item_type)
+	vbox.add_child(icon_label)
+
+	var name_label := Label.new()
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	name_label.text = str(item_data.get("name", str(item_data.get("id", "未知"))))
+	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	vbox.add_child(name_label)
+
+	var type_line := Label.new()
+	type_line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	type_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	if _inventory_mode == "gongfa":
+		type_line.text = "[%s] %s · %s" % [
+			_quality_to_cn(str(item_data.get("quality", "white"))),
+			_slot_to_cn(item_type),
+			_element_to_cn(str(item_data.get("element", "none")))
+		]
+	else:
+		type_line.text = "[%s] %s · %s" % [
+			_quality_to_cn(str(item_data.get("rarity", "white"))),
+			_equip_type_to_cn(item_type),
+			_element_to_cn(str(item_data.get("element", "none")))
+		]
+	vbox.add_child(type_line)
+
+	var item_id: String = str(item_data.get("id", "")).strip_edges()
+	var owned_count: int = int(item_data.get("_owned_count", 0))
+	var equipped_count: int = int(item_data.get("_equipped_count", 0))
+	var status_label := Label.new()
+	status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	status_label.text = "库存 x%d | 已装备 x%d" % [owned_count, equipped_count]
+	if owned_count <= 0 and equipped_count > 0:
+		status_label.text = "库存 x0 | 已装备 x%d" % equipped_count
+	elif owned_count <= 0 and equipped_count <= 0:
+		status_label.text = "无库存"
+	vbox.add_child(status_label)
+
+	var tooltip_payload: Dictionary = _build_gongfa_item_tooltip_data(item_id) if _inventory_mode == "gongfa" else _build_equip_item_tooltip_data(item_id)
+	var drag_payload: Dictionary = {
+		"type": _inventory_mode,
+		"id": item_id,
+		"item_data": item_data.duplicate(true),
+		"slot_type": item_type
+	}
+
+	var can_drag: bool = owned_count > 0 and _inventory_drag_enabled
+	if card.has_method("setup_card"):
+		card.call("setup_card", item_id, item_data, drag_payload, can_drag)
+		var click_cb: Callable = Callable(self, "_on_inventory_card_clicked")
+		if card.has_signal("card_clicked") and not card.is_connected("card_clicked", click_cb):
+			card.connect("card_clicked", click_cb)
+
+	if not can_drag:
+		card.modulate = Color(0.75, 0.75, 0.75, 0.92)
+
+	card.set_meta("item_id", item_id)
+	card.set_meta("item_data", item_data.duplicate(true))
+	card.set_meta("tooltip_data", tooltip_payload)
+	card.mouse_entered.connect(Callable(self, "_on_item_source_hover_entered").bind(card, tooltip_payload))
+	card.mouse_exited.connect(Callable(self, "_on_item_source_hover_exited").bind(card))
+	return card
+
+
+func _on_slot_item_dropped(slot_category: String, slot_key: String, item_id: String) -> void:
+	# 正式场景的槽位拖放规则：
+	# 1) 槽位装备成功后会扣减仓库库存；
+	# 2) 被替换下来的旧条目会返还到仓库库存。
+	if _detail_unit == null or not _is_valid_unit(_detail_unit):
+		return
+	if _stage != Stage.PREPARATION:
+		return
+	if gongfa_manager == null:
+		return
+
+	var stock_category: String = "gongfa" if slot_category == "gongfa" else "equipment"
+	if _get_owned_item_count(stock_category, item_id) <= 0:
+		debug_label.text = "库存不足：无法装备 %s" % item_id
+		return
+
+	var replaced_item_id: String = ""
+	var ok: bool = false
+	if slot_category == "gongfa":
+		var slots: Dictionary = _normalize_unit_slots(_detail_unit.get("gongfa_slots"))
+		replaced_item_id = str(slots.get(slot_key, "")).strip_edges()
+		if replaced_item_id == item_id:
+			return
+		ok = bool(gongfa_manager.call("equip_gongfa", _detail_unit, slot_key, item_id))
+	else:
+		var equip_slots: Dictionary = _normalize_equip_slots(_get_unit_equip_slots(_detail_unit))
+		replaced_item_id = str(equip_slots.get(slot_key, "")).strip_edges()
+		if replaced_item_id == item_id:
+			return
+		ok = bool(gongfa_manager.call("equip_equipment", _detail_unit, slot_key, item_id))
+
+	if not ok:
+		debug_label.text = "拖放失败：槽位不匹配或数据无效。"
+		return
+
+	_consume_owned_item(stock_category, item_id, 1)
+	if not replaced_item_id.is_empty():
+		_add_owned_item(stock_category, replaced_item_id, 1)
+
+	_update_detail_panel(_detail_unit)
+	_refresh_all_ui()
+
+
+func _on_slot_unequip_pressed(slot_category: String, slot: String) -> void:
+	if _detail_unit == null or not _is_valid_unit(_detail_unit):
+		return
+	if _stage != Stage.PREPARATION:
+		return
+	if gongfa_manager == null:
+		return
+
+	var removed_item_id: String = ""
+	if slot_category == "gongfa":
+		var slots: Dictionary = _normalize_unit_slots(_detail_unit.get("gongfa_slots"))
+		removed_item_id = str(slots.get(slot, "")).strip_edges()
+		if removed_item_id.is_empty():
+			return
+		gongfa_manager.call("unequip_gongfa", _detail_unit, slot)
+		_add_owned_item("gongfa", removed_item_id, 1)
+	else:
+		var equip_slots: Dictionary = _normalize_equip_slots(_get_unit_equip_slots(_detail_unit))
+		removed_item_id = str(equip_slots.get(slot, "")).strip_edges()
+		if removed_item_id.is_empty():
+			return
+		gongfa_manager.call("unequip_equipment", _detail_unit, slot)
+		_add_owned_item("equipment", removed_item_id, 1)
+
+	_update_detail_panel(_detail_unit)
+	_refresh_all_ui()
+
+
+func _bootstrap_battle_services() -> void:
+	if _economy_manager == null:
+		_economy_manager = ECONOMY_MANAGER_SCRIPT.new() as Node
+		_economy_manager.name = "RuntimeEconomyManager"
+		add_child(_economy_manager)
+	if _shop_manager == null:
+		_shop_manager = SHOP_MANAGER_SCRIPT.new() as Node
+		_shop_manager.name = "RuntimeShopManager"
+		add_child(_shop_manager)
+	_rebuild_battle_data_caches()
+
+	if _economy_manager != null:
+		var data_manager: Node = _get_root_node("DataManager")
+		_economy_manager.setup_from_data_manager(data_manager)
+
+
+func _rebuild_battle_data_caches() -> void:
+	if _shop_manager == null:
+		return
+	_shop_manager.reload_pools(unit_factory, gongfa_manager)
+
+
+func _connect_battle_ui_signals() -> void:
+	if _economy_manager != null:
+		var assets_cb: Callable = Callable(self, "_on_assets_changed")
+		if not _economy_manager.is_connected("assets_changed", assets_cb):
+			_economy_manager.connect("assets_changed", assets_cb)
+		var lock_cb: Callable = Callable(self, "_on_shop_locked_changed")
+		if not _economy_manager.is_connected("shop_lock_changed", lock_cb):
+			_economy_manager.connect("shop_lock_changed", lock_cb)
+
+	if _shop_manager != null:
+		var refresh_cb: Callable = Callable(self, "_on_shop_snapshot_refreshed")
+		if not _shop_manager.is_connected("shop_refreshed", refresh_cb):
+			_shop_manager.connect("shop_refreshed", refresh_cb)
+
+	if _recycle_drop_zone != null and is_instance_valid(_recycle_drop_zone):
+		var sell_cb: Callable = Callable(self, "_on_recycle_sell_requested")
+		if _recycle_drop_zone.has_signal("sell_requested") and not _recycle_drop_zone.is_connected("sell_requested", sell_cb):
+			_recycle_drop_zone.connect("sell_requested", sell_cb)
+
+	var refresh_cb_btn: Callable = Callable(self, "_on_bottom_refresh_pressed")
+	if refresh_button != null and not refresh_button.is_connected("pressed", refresh_cb_btn):
+		refresh_button.connect("pressed", refresh_cb_btn)
+	var lock_cb_btn: Callable = Callable(self, "_on_bottom_lock_pressed")
+	if lock_button != null and not lock_button.is_connected("pressed", lock_cb_btn):
+		lock_button.connect("pressed", lock_cb_btn)
+	var upgrade_cb_btn: Callable = Callable(self, "_on_bottom_upgrade_pressed")
+	if upgrade_button != null and not upgrade_button.is_connected("pressed", upgrade_cb_btn):
+		upgrade_button.connect("pressed", upgrade_cb_btn)
+
+
+func _simplify_bottom_workspace_ui() -> void:
+	# 底部只保留备战区与回收区，商店/门派信息统一以上方商店面板为准。
+	if _shop_bar != null:
+		_shop_bar.visible = false
+		_shop_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if refresh_button != null:
+		refresh_button.focus_mode = Control.FOCUS_NONE
+	if lock_button != null:
+		lock_button.focus_mode = Control.FOCUS_NONE
+	if resource_label != null:
+		var resource_bar: Control = resource_label.get_parent() as Control
+		if resource_bar != null:
+			resource_bar.visible = false
+			resource_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if upgrade_button != null:
+		var action_bar: Control = upgrade_button.get_parent() as Control
+		if action_bar != null:
+			action_bar.visible = false
+			action_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		upgrade_button.focus_mode = Control.FOCUS_NONE
+	if gongfa_button != null:
+		gongfa_button.focus_mode = Control.FOCUS_NONE
+	if equip_button != null:
+		equip_button.focus_mode = Control.FOCUS_NONE
+
+
+func _ensure_battle_flow_created() -> void:
+	if _battle_flow != null and is_instance_valid(_battle_flow):
+		return
+	var detail_layer: CanvasLayer = get_node_or_null("DetailLayer") as CanvasLayer
+	if detail_layer == null:
+		return
+	_battle_flow = BATTLE_FLOW_SCRIPT.new() as Node
+	if _battle_flow == null:
+		return
+	_battle_flow.name = "BattleFlow"
+	add_child(_battle_flow)
+	_battle_flow.call("setup", self, combat_manager, gongfa_manager, detail_layer)
+
+
+func _ensure_recycle_zone_created() -> void:
+	if _recycle_drop_zone != null and is_instance_valid(_recycle_drop_zone):
+		return
+	if bottom_panel == null or bench_ui == null:
+		return
+	var root_vbox: VBoxContainer = bottom_panel.get_node_or_null("RootVBox") as VBoxContainer
+	var bench_control: Control = bench_ui as Control
+	if root_vbox == null or bench_control == null:
+		return
+	var wrap_node_new: Node = root_vbox.get_node_or_null("BenchRecycleWrapRuntime")
+	if wrap_node_new != null and _recycle_drop_zone != null and is_instance_valid(_recycle_drop_zone):
+		_layout_bench_recycle_wrap()
+		return
+	if wrap_node_new == null:
+		var bench_wrap_new := Control.new()
+		bench_wrap_new.name = "BenchRecycleWrapRuntime"
+		bench_wrap_new.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		bench_wrap_new.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		bench_wrap_new.custom_minimum_size = Vector2(0.0, 154.0)
+		bench_wrap_new.clip_contents = true
+		bench_wrap_new.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var bench_index_new: int = root_vbox.get_children().find(bench_control)
+		root_vbox.add_child(bench_wrap_new)
+		root_vbox.move_child(bench_wrap_new, maxi(bench_index_new, 0))
+		var resize_cb_new: Callable = Callable(self, "_layout_bench_recycle_wrap")
+		if not bench_wrap_new.is_connected("resized", resize_cb_new):
+			bench_wrap_new.connect("resized", resize_cb_new)
+		if bench_control.get_parent() != bench_wrap_new:
+			var old_parent_new: Node = bench_control.get_parent()
+			if old_parent_new != null:
+				old_parent_new.remove_child(bench_control)
+			bench_wrap_new.add_child(bench_control)
+		bench_control.size_flags_horizontal = 0
+		bench_control.size_flags_vertical = 0
+		bench_control.custom_minimum_size.x = 0.0
+		bench_control.anchor_left = 0.0
+		bench_control.anchor_top = 0.0
+		bench_control.anchor_right = 0.0
+		bench_control.anchor_bottom = 0.0
+		bench_control.position = Vector2.ZERO
+		if bench_control is ScrollContainer:
+			var bench_scroll_new: ScrollContainer = bench_control as ScrollContainer
+			bench_scroll_new.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
+			bench_scroll_new.clip_contents = true
+		_recycle_drop_zone = RECYCLE_DROP_ZONE_SCRIPT.new() as PanelContainer
+		if _recycle_drop_zone == null:
+			return
+		_recycle_drop_zone.name = "RecycleDropZone"
+		_recycle_drop_zone.custom_minimum_size = Vector2(148, 118)
+		_recycle_drop_zone.size_flags_horizontal = 0
+		_recycle_drop_zone.size_flags_vertical = 0
+		_recycle_drop_zone.anchor_left = 0.0
+		_recycle_drop_zone.anchor_top = 0.0
+		_recycle_drop_zone.anchor_right = 0.0
+		_recycle_drop_zone.anchor_bottom = 0.0
+		bench_wrap_new.add_child(_recycle_drop_zone)
+		_layout_bench_recycle_wrap()
+		return
+
+	# 用 MarginContainer 给“备战+回收行”预留右侧空间，避免被右栏仓库遮挡。
+	var bench_wrap: Control = root_vbox.get_node_or_null("BenchRecycleWrap") as Control
+	if bench_wrap != null and bench_wrap is Container:
+		bench_wrap.queue_free()
+		bench_wrap = null
+	if bench_wrap == null:
+		bench_wrap = Control.new()
+		bench_wrap.name = "BenchRecycleWrap"
+		bench_wrap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		bench_wrap.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		bench_wrap.custom_minimum_size = Vector2(0.0, 154.0)
+		bench_wrap.clip_contents = true
+		bench_wrap.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var bench_index: int = root_vbox.get_children().find(bench_control)
+		root_vbox.add_child(bench_wrap)
+		root_vbox.move_child(bench_wrap, maxi(bench_index, 0))
+
+	var bench_row: HBoxContainer = bench_wrap.get_node_or_null("BenchRecycleRow") as HBoxContainer
+	if bench_row == null:
+		bench_row = HBoxContainer.new()
+		bench_row.name = "BenchRecycleRow"
+		bench_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		bench_row.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		bench_row.add_theme_constant_override("separation", 8)
+		bench_wrap.add_child(bench_row)
+	bench_row.alignment = BoxContainer.ALIGNMENT_BEGIN
+
+	if bench_control.get_parent() != bench_row:
+		var old_parent: Node = bench_control.get_parent()
+		if old_parent != null:
+			old_parent.remove_child(bench_control)
+		bench_row.add_child(bench_control)
+	bench_control.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bench_control.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	# ★ 关键修复：清零 minimum_size.x 防止 GridContainer 撑爆 HBox。
+	# TSCN 中 horizontal_scroll_mode=0 (DISABLED) 会让 ScrollContainer 把子控件宽度
+	# 作为自身最小宽度向上传播，导致 BenchRecycleRow 溢出屏幕。
+	# 改为 SCROLL_MODE_SHOW_NEVER(=3) 即可让 ScrollContainer 不传播子控件宽度。
+	bench_control.custom_minimum_size.x = 0.0
+	if bench_control is ScrollContainer:
+		(bench_control as ScrollContainer).horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
+
+	_recycle_drop_zone = RECYCLE_DROP_ZONE_SCRIPT.new() as PanelContainer
+	if _recycle_drop_zone == null:
+		return
+	_recycle_drop_zone.name = "RecycleDropZone"
+	_recycle_drop_zone.custom_minimum_size = Vector2(148, 118)
+	_recycle_drop_zone.size_flags_horizontal = Control.SIZE_SHRINK_END
+	_recycle_drop_zone.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	bench_row.add_child(_recycle_drop_zone)
+	bench_row.move_child(bench_control, 0)
+	bench_row.move_child(_recycle_drop_zone, 1)
+	_layout_bench_recycle_wrap()
+
+
+func _is_point_in_recycle_zone(screen_pos: Vector2) -> bool:
+	if _recycle_drop_zone == null or not is_instance_valid(_recycle_drop_zone):
+		return false
+	if not _recycle_drop_zone.visible:
+		return false
+	return _recycle_drop_zone.get_global_rect().has_point(screen_pos)
+
+
+func _try_sell_dragging_unit() -> bool:
+	if _dragging_unit == null or not _is_valid_unit(_dragging_unit):
+		return false
+	# 规则：仅允许出售备战区角色，已上场角色必须先拖回备战区。
+	if _drag_origin_kind != "bench":
+		debug_label.text = "已上场角色不可直接出售，请先拖回备战区。"
+		return false
+	return _sell_unit_node(_dragging_unit)
+
+
+func _on_recycle_sell_requested(payload: Dictionary, price: int) -> void:
+	if _stage != Stage.PREPARATION:
+		return
+	if _economy_manager == null:
+		return
+	var item_type: String = str(payload.get("type", "")).strip_edges()
+	if item_type == "unit":
+		var unit_node: Node = payload.get("unit_node", null)
+		if unit_node == null or not _is_valid_unit(unit_node):
+			return
+		if _sell_unit_node(unit_node):
+			return
+		debug_label.text = "出售失败：该角色不在备战区。"
+		return
+	if item_type == "gongfa" or item_type == "equipment":
+		var item_id: String = str(payload.get("id", "")).strip_edges()
+		if item_id.is_empty():
+			return
+		if not _consume_owned_item(item_type, item_id, 1):
+			debug_label.text = "出售失败：库存不足。"
+			return
+		var item_data: Dictionary = {}
+		var raw_item_data: Variant = payload.get("item_data", {})
+		if raw_item_data is Dictionary:
+			item_data = (raw_item_data as Dictionary).duplicate(true)
+		# 价格以服务端（场景逻辑）重算为准，避免 UI 侧 payload 被误改后价格异常。
+		var final_price: int = _get_sell_price_item(item_data)
+		if final_price <= 0:
+			final_price = maxi(price, 0)
+		_economy_manager.add_silver(final_price)
+		_append_battle_log(
+			"出售%s：%s（+%d 银两）" % [
+				"功法" if item_type == "gongfa" else "装备",
+				_resolve_sell_item_name(item_type, item_id),
+				final_price
+			],
+			"system"
+		)
+		_refresh_all_ui()
+
+
+func _sell_unit_node(unit_node: Node) -> bool:
+	if unit_node == null or not _is_valid_unit(unit_node):
+		return false
+	if _economy_manager == null:
+		return false
+	var unit_name: String = str(_safe_node_prop(unit_node, "unit_name", "未知角色"))
+	var in_bench: bool = bool(unit_node.get("is_on_bench"))
+	# 若单位仍在备战席，先从槽位移除，再交给对象池回收。
+	if bench_ui != null and bench_ui.has_method("find_slot_of_unit"):
+		var slot: int = int(bench_ui.call("find_slot_of_unit", unit_node))
+		if slot >= 0:
+			in_bench = true
+			bench_ui.call("remove_unit_at", slot)
+	if not in_bench:
+		return false
+	var price: int = _get_sell_price_unit(unit_node)
+	if _detail_unit == unit_node:
+		_close_detail_panel(false)
+	unit_factory.call("release_unit", unit_node)
+	_economy_manager.add_silver(price)
+	_append_battle_log(
+		"出售角色：%s（+%d 银两）" % [
+			unit_name,
+			price
+		],
+		"system"
+	)
+	_refresh_all_ui()
+	return true
+
+
+func _get_sell_price_unit(unit: Node) -> int:
+	if unit == null or not _is_valid_unit(unit):
+		return 0
+	return maxi(int(_safe_node_prop(unit, "cost", 0)), 0)
+
+
+func _get_sell_price_item(item_data: Dictionary) -> int:
+	var quality_key: String = str(item_data.get("quality", item_data.get("rarity", "white"))).strip_edges().to_lower()
+	return int(QUALITY_SELL_PRICE.get(quality_key, 1))
+
+
+func _resolve_sell_item_name(item_type: String, item_id: String) -> String:
+	if gongfa_manager == null:
+		return item_id
+	var data: Dictionary = {}
+	if item_type == "gongfa":
+		data = gongfa_manager.call("get_gongfa_data", item_id)
+	else:
+		data = gongfa_manager.call("get_equipment_data", item_id)
+	return str(data.get("name", item_id))
+
+
+func _ensure_shop_open_button() -> void:
+	var top_bar_row: HBoxContainer = timer_label.get_parent() as HBoxContainer if timer_label != null else null
+	if top_bar_row == null:
+		return
+	if _shop_label != null:
+		_shop_label.text = "综合商店"
+	if _shop_open_button == null or not is_instance_valid(_shop_open_button):
+		_shop_open_button = Button.new()
+		_shop_open_button.toggle_mode = true
+		_shop_open_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		_shop_open_button.pressed.connect(Callable(self, "_on_shop_open_button_pressed"))
+	if _shop_open_button.get_parent() != top_bar_row:
+		if _shop_open_button.get_parent() != null:
+			_shop_open_button.get_parent().remove_child(_shop_open_button)
+		top_bar_row.add_child(_shop_open_button)
+	var timer_index: int = top_bar_row.get_children().find(timer_label)
+	if timer_index >= 0:
+		top_bar_row.move_child(_shop_open_button, timer_index + 1)
+	_shop_open_button.text = "商店(B)"
+	_shop_open_button.button_pressed = _shop_panel != null and _shop_panel.visible
+
+
+func _ensure_shop_panel_created() -> void:
+	if _shop_panel != null and is_instance_valid(_shop_panel):
+		return
+
+	_shop_layer = CanvasLayer.new()
+	_shop_layer.name = "ShopPanelLayer"
+	_shop_layer.layer = SHOP_LAYER_INDEX
+	add_child(_shop_layer)
+
+	_shop_panel = PanelContainer.new()
+	_shop_panel.name = "ShopPanel"
+	_shop_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	_shop_layer.add_child(_shop_panel)
+
+	var root := VBoxContainer.new()
+	root.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	root.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	root.add_theme_constant_override("separation", 8)
+	_shop_panel.add_child(root)
+
+	var header := HBoxContainer.new()
+	header.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	root.add_child(header)
+
+	_shop_title_label = Label.new()
+	_shop_title_label.text = "综合商店"
+	_shop_title_label.add_theme_font_size_override("font_size", 20)
+	header.add_child(_shop_title_label)
+
+	_shop_status_label = Label.new()
+	_shop_status_label.text = "布阵期可购买"
+	_shop_status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_shop_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	header.add_child(_shop_status_label)
+
+	_shop_close_button = Button.new()
+	_shop_close_button.text = "关闭(B)"
+	_shop_close_button.pressed.connect(Callable(self, "_on_shop_close_pressed"))
+	header.add_child(_shop_close_button)
+
+	var tab_row := HBoxContainer.new()
+	tab_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	tab_row.add_theme_constant_override("separation", 8)
+	root.add_child(tab_row)
+
+	_shop_tabs.clear()
+	for tab_info in [
+		{"id": SHOP_TAB_RECRUIT, "name": "招募侠客"},
+		{"id": SHOP_TAB_GONGFA, "name": "秘籍阁"},
+		{"id": SHOP_TAB_EQUIPMENT, "name": "神兵铺"}
+	]:
+		var tab_id: String = str(tab_info.get("id", ""))
+		var tab_btn := Button.new()
+		tab_btn.text = str(tab_info.get("name", tab_id))
+		tab_btn.toggle_mode = true
+		tab_btn.button_pressed = tab_id == _shop_current_tab
+		tab_btn.pressed.connect(Callable(self, "_on_shop_tab_pressed").bind(tab_id))
+		tab_row.add_child(tab_btn)
+		_shop_tabs[tab_id] = tab_btn
+
+	_shop_offer_row = HBoxContainer.new()
+	_shop_offer_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_shop_offer_row.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_shop_offer_row.add_theme_constant_override("separation", 10)
+	root.add_child(_shop_offer_row)
+
+	var op_panel := PanelContainer.new()
+	op_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	root.add_child(op_panel)
+
+	var op_root := VBoxContainer.new()
+	op_root.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	op_root.add_theme_constant_override("separation", 4)
+	op_panel.add_child(op_root)
+
+	var row1 := HBoxContainer.new()
+	row1.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	op_root.add_child(row1)
+
+	_shop_silver_label = Label.new()
+	_shop_silver_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_shop_silver_label.text = "银两: 0"
+	row1.add_child(_shop_silver_label)
+
+	_shop_refresh_button = Button.new()
+	_shop_refresh_button.text = "刷新(2)"
+	_shop_refresh_button.pressed.connect(Callable(self, "_on_bottom_refresh_pressed"))
+	row1.add_child(_shop_refresh_button)
+
+	_shop_test_add_silver_button = Button.new()
+	_shop_test_add_silver_button.text = "测试+10银两"
+	_shop_test_add_silver_button.pressed.connect(Callable(self, "_on_test_add_silver_pressed"))
+	row1.add_child(_shop_test_add_silver_button)
+
+	var row2 := HBoxContainer.new()
+	row2.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	op_root.add_child(row2)
+
+	_shop_level_label = Label.new()
+	_shop_level_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_shop_level_label.text = "门派LV1 (0/2)"
+	row2.add_child(_shop_level_label)
+
+	_shop_upgrade_button = Button.new()
+	_shop_upgrade_button.text = "升级(4)"
+	_shop_upgrade_button.pressed.connect(Callable(self, "_on_bottom_upgrade_pressed"))
+	row2.add_child(_shop_upgrade_button)
+
+	_shop_test_add_exp_button = Button.new()
+	_shop_test_add_exp_button.text = "测试+5经验"
+	_shop_test_add_exp_button.pressed.connect(Callable(self, "_on_test_add_exp_pressed"))
+	row2.add_child(_shop_test_add_exp_button)
+
+	_shop_lock_button = Button.new()
+	_shop_lock_button.text = "锁定"
+	_shop_lock_button.pressed.connect(Callable(self, "_on_bottom_lock_pressed"))
+	row2.add_child(_shop_lock_button)
+
+	_layout_shop_panel()
+	_set_shop_panel_visible(true)
+
+
+func _layout_shop_panel() -> void:
+	if _shop_panel == null or not is_instance_valid(_shop_panel):
+		return
+	var viewport_size: Vector2 = get_viewport().get_visible_rect().size
+	var left_limit: float = LEFT_PANEL_WIDTH + 18.0
+	var right_limit: float = viewport_size.x - INVENTORY_PANEL_WIDTH - 16.0
+	if right_limit - left_limit < 420.0:
+		left_limit = 12.0
+		right_limit = viewport_size.x - 12.0
+	var available_width: float = maxf(right_limit - left_limit, 360.0)
+	var panel_width: float = clampf(available_width, SHOP_PANEL_MIN_WIDTH, SHOP_PANEL_MAX_WIDTH)
+	panel_width = minf(panel_width, available_width)
+
+	var bottom_top: float = bottom_panel.position.y if bottom_panel != null else viewport_size.y - 230.0
+	var panel_height: float = minf(SHOP_PANEL_HEIGHT, maxf(bottom_top - TOP_BAR_HEIGHT - 24.0, 220.0))
+	var panel_x: float = left_limit + (available_width - panel_width) * 0.5
+	var panel_y: float = clampf(bottom_top - panel_height - 10.0, TOP_BAR_HEIGHT + 10.0, viewport_size.y - panel_height - 8.0)
+	_shop_panel.position = Vector2(panel_x, panel_y)
+	_shop_panel.size = Vector2(panel_width, panel_height)
+
+
+func _set_shop_panel_visible(panel_visible: bool) -> void:
+	if _shop_panel == null or not is_instance_valid(_shop_panel):
+		return
+	_shop_panel.visible = panel_visible
+	if _shop_open_button != null and is_instance_valid(_shop_open_button):
+		_shop_open_button.button_pressed = panel_visible
+	_sync_linkage_panel_visibility()
+
+
+func _on_shop_open_button_pressed() -> void:
+	if _stage != Stage.PREPARATION:
+		return
+	_shop_open_in_preparation = not (_shop_panel != null and _shop_panel.visible)
+	_set_shop_panel_visible(_shop_open_in_preparation)
+	_update_shop_ui()
+
+
+func _on_shop_close_pressed() -> void:
+	_shop_open_in_preparation = false
+	_set_shop_panel_visible(false)
+	_update_shop_ui()
+
+
+func _on_shop_tab_pressed(tab_id: String) -> void:
+	_shop_current_tab = tab_id
+	for key in _shop_tabs.keys():
+		var btn: Button = _shop_tabs[key] as Button
+		if btn != null:
+			btn.button_pressed = str(key) == _shop_current_tab
+	_rebuild_shop_cards()
+
+
+func _on_bottom_refresh_pressed() -> void:
+	if _stage != Stage.PREPARATION or _economy_manager == null or _shop_manager == null:
+		return
+	var cost: int = _economy_manager.get_refresh_cost()
+	if not _economy_manager.spend_silver(cost):
+		debug_label.text = "银两不足：刷新需要 %d 银两" % cost
+		return
+	_economy_manager.set_shop_locked(false)
+	_shop_manager.refresh_shop(_economy_manager.get_shop_probabilities(), false, true)
+	_append_battle_log("商店刷新：消耗 %d 银两" % cost, "system")
+	_update_shop_ui()
+
+
+func _on_bottom_lock_pressed() -> void:
+	if _stage != Stage.PREPARATION or _economy_manager == null:
+		return
+	var next_locked: bool = not _economy_manager.is_shop_locked()
+	_economy_manager.set_shop_locked(next_locked)
+	debug_label.text = "商店已锁定，下回合将保留当前商品。" if next_locked else "商店已解锁，下回合会自动刷新。"
+	_update_shop_ui()
+
+
+func _on_bottom_upgrade_pressed() -> void:
+	if _stage != Stage.PREPARATION or _economy_manager == null:
+		return
+	if not _economy_manager.buy_exp_with_silver():
+		debug_label.text = "银两不足：升级需要 %d 银两" % _economy_manager.get_upgrade_cost()
+		return
+	_append_battle_log(
+		"门派修炼：消耗 %d 银两，获得 %d 经验" % [
+			_economy_manager.get_upgrade_cost(),
+			_economy_manager.get_upgrade_exp_gain()
+		],
+		"system"
+	)
+	_update_shop_ui()
+
+
+func _refresh_shop_for_preparation(force_refresh: bool) -> void:
+	if _economy_manager == null or _shop_manager == null:
+		return
+	var locked: bool = _economy_manager.is_shop_locked()
+	_shop_manager.refresh_shop(_economy_manager.get_shop_probabilities(), locked, force_refresh)
+	_update_shop_ui()
+
+
+func _update_shop_ui() -> void:
+	_update_shop_operation_labels()
+	_rebuild_shop_cards()
+
+
+func _update_shop_operation_labels() -> void:
+	if _economy_manager == null:
+		return
+	var assets: Dictionary = _economy_manager.get_assets_snapshot()
+	var silver: int = int(assets.get("silver", 0))
+	var level: int = int(assets.get("level", 1))
+	var exp_value: int = int(assets.get("exp", 0))
+	var max_exp: int = int(assets.get("max_exp", 0))
+	var locked: bool = bool(assets.get("locked_shop", false))
+	var stage_editable: bool = _stage == Stage.PREPARATION
+
+	if _shop_silver_label != null:
+		_shop_silver_label.text = "当前银两: %d" % silver
+	if _shop_level_label != null:
+		_shop_level_label.text = "门派LV%d (%d/%d) 上场上限:%d" % [level, exp_value, max_exp, _economy_manager.get_max_deploy_limit()]
+	if _shop_refresh_button != null:
+		_shop_refresh_button.text = "刷新(💰%d)" % _economy_manager.get_refresh_cost()
+		_shop_refresh_button.disabled = not stage_editable
+	if _shop_upgrade_button != null:
+		_shop_upgrade_button.text = "升级(💰%d)" % _economy_manager.get_upgrade_cost()
+		_shop_upgrade_button.disabled = not stage_editable or max_exp <= 0
+	if _shop_lock_button != null:
+		_shop_lock_button.text = "🔓 解锁" if locked else "🔒 锁定当前"
+		_shop_lock_button.disabled = not stage_editable
+	if _shop_status_label != null:
+		if _stage != Stage.PREPARATION:
+			_shop_status_label.text = "交锋期/结算期关闭商店"
+		else:
+			_shop_status_label.text = "商店已锁定，下回合保留商品" if locked else "布阵期可购买"
+	if _shop_open_button != null and is_instance_valid(_shop_open_button):
+		_shop_open_button.disabled = _stage != Stage.PREPARATION
+
+
+func _rebuild_shop_cards() -> void:
+	if _shop_offer_row == null or _shop_manager == null:
+		return
+	for child in _shop_offer_row.get_children():
+		child.queue_free()
+
+	var offers: Array[Dictionary] = _shop_manager.get_offers(_shop_current_tab)
+	var slot_count: int = 5
+	for idx in range(slot_count):
+		var offer: Dictionary = offers[idx] if idx < offers.size() else {}
+		var card: PanelContainer = _create_shop_offer_card(offer, idx, _shop_current_tab)
+		_shop_offer_row.add_child(card)
+
+
+func _create_shop_offer_card(offer: Dictionary, index: int, tab_id: String) -> PanelContainer:
+	var card := PanelContainer.new()
+	card.custom_minimum_size = Vector2(136, 170)
+	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	card.mouse_filter = Control.MOUSE_FILTER_STOP
+
+	var root := VBoxContainer.new()
+	root.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	root.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	root.add_theme_constant_override("separation", 3)
+	card.add_child(root)
+
+	var color_bar := ColorRect.new()
+	color_bar.custom_minimum_size = Vector2(0, 8)
+	color_bar.color = _quality_color(str(offer.get("quality", "white")))
+	root.add_child(color_bar)
+
+	var name_label := Label.new()
+	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	name_label.text = "已售罄"
+	root.add_child(name_label)
+
+	var type_label := Label.new()
+	type_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	type_label.text = "-"
+	root.add_child(type_label)
+
+	var price_label := Label.new()
+	price_label.text = ""
+	root.add_child(price_label)
+
+	var spacer := Control.new()
+	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	root.add_child(spacer)
+
+	var buy_button := Button.new()
+	buy_button.text = "购买"
+	buy_button.disabled = true
+	root.add_child(buy_button)
+
+	if offer.is_empty():
+		name_label.text = "空位"
+		type_label.text = "暂无商品"
+		price_label.text = ""
+		buy_button.text = "—"
+		buy_button.disabled = true
+		return card
+
+	var item_name: String = str(offer.get("name", "未知"))
+	var quality: String = str(offer.get("quality", "white"))
+	var slot_type: String = str(offer.get("slot_type", ""))
+	var price: int = int(offer.get("price", 0))
+	var sold: bool = bool(offer.get("sold", false))
+	var item_id: String = str(offer.get("item_id", ""))
+
+	name_label.text = item_name
+	if tab_id == SHOP_TAB_RECRUIT:
+		type_label.text = "[%s] %s" % [_quality_to_cn(quality), _role_to_cn(slot_type)]
+	else:
+		type_label.text = "[%s] %s" % [_quality_to_cn(quality), _slot_or_equip_cn(tab_id, slot_type)]
+
+	price_label.text = "💰 %d" % price if price > 0 else ""
+	buy_button.text = "已售罄" if sold else "购买"
+	var can_afford: bool = _economy_manager != null and _economy_manager.get_silver() >= price
+	buy_button.disabled = sold or _stage != Stage.PREPARATION or not can_afford
+	buy_button.pressed.connect(Callable(self, "_on_shop_buy_pressed").bind(tab_id, index))
+
+	# 复用统一 Tooltip：秘籍和装备卡悬停时仍走详情面板。
+	if not sold and not item_id.is_empty() and tab_id != SHOP_TAB_RECRUIT:
+		var tooltip_payload: Dictionary = _build_gongfa_item_tooltip_data(item_id) if tab_id == SHOP_TAB_GONGFA else _build_equip_item_tooltip_data(item_id)
+		card.set_meta("item_data", tooltip_payload)
+		card.mouse_entered.connect(Callable(self, "_on_item_source_hover_entered").bind(card, tooltip_payload))
+		card.mouse_exited.connect(Callable(self, "_on_item_source_hover_exited").bind(card))
+
+	return card
+
+
+func _on_shop_buy_pressed(tab_id: String, index: int) -> void:
+	if _economy_manager == null or _shop_manager == null:
+		return
+	if _stage != Stage.PREPARATION:
+		return
+
+	var offer: Dictionary = _shop_manager.get_offer(tab_id, index)
+	if offer.is_empty() or bool(offer.get("sold", false)):
+		return
+
+	var price: int = maxi(int(offer.get("price", 0)), 0)
+	if not _economy_manager.spend_silver(price):
+		debug_label.text = "银两不足：购买失败。"
+		return
+
+	if not _grant_offer(offer):
+		# 发放失败时回滚银两，避免“扣钱但没拿到物品”。
+		_economy_manager.add_silver(price)
+		return
+
+	_shop_manager.purchase_offer(tab_id, index)
+	_append_battle_log("商店购买：%s（- %d 银两）" % [str(offer.get("name", "未知")), price], "system")
+	_refresh_all_ui()
+
+
+func _grant_offer(offer: Dictionary) -> bool:
+	var tab_id: String = str(offer.get("tab", ""))
+	var item_id: String = str(offer.get("item_id", "")).strip_edges()
+	if item_id.is_empty():
+		debug_label.text = "商店条目无效：缺少 item_id。"
+		return false
+
+	if tab_id == SHOP_TAB_RECRUIT:
+		return _grant_recruit_unit(item_id)
+	if tab_id == SHOP_TAB_GONGFA:
+		_add_owned_item("gongfa", item_id, 1)
+		return true
+	if tab_id == SHOP_TAB_EQUIPMENT:
+		_add_owned_item("equipment", item_id, 1)
+		return true
+
+	debug_label.text = "未知商店页签：%s" % tab_id
+	return false
+
+
+func _grant_recruit_unit(unit_id: String) -> bool:
+	if bench_ui == null:
+		return false
+	if bench_ui.get_unit_count() >= bench_ui.get_slot_count():
+		debug_label.text = "备战区已满，无法招募。"
+		return false
+	var unit_node: Node = unit_factory.call("acquire_unit", unit_id, -1, unit_layer)
+	if unit_node == null:
+		debug_label.text = "招募失败：无法创建角色 %s" % unit_id
+		return false
+	unit_node.call("set_team", 1)
+	unit_node.call("set_on_bench_state", true, -1)
+	unit_node.set("is_in_combat", false)
+	_ensure_healer_default_skill(unit_node)
+	if not bench_ui.add_unit(unit_node):
+		unit_factory.call("release_unit", unit_node)
+		debug_label.text = "备战区已满，无法招募。"
+		return false
+	_apply_visual_to_all_units()
+	return true
+
+
+func _spawn_random_units_to_bench(count: int) -> void:
+	# 在通用生成逻辑后，补一轮“医者保底治疗功法”。
+	super._spawn_random_units_to_bench(count)
+	_apply_default_healer_skills_for_bench()
+
+
+func _add_owned_item(category: String, item_id: String, amount: int) -> void:
+	var target: Dictionary = _owned_gongfa_stock if category == "gongfa" else _owned_equipment_stock
+	var count: int = maxi(int(target.get(item_id, 0)) + amount, 0)
+	target[item_id] = count
+	if count <= 0:
+		target.erase(item_id)
+	if category == "gongfa":
+		_owned_gongfa_stock = target
+	else:
+		_owned_equipment_stock = target
+
+
+func _consume_owned_item(category: String, item_id: String, amount: int) -> bool:
+	var current: int = _get_owned_item_count(category, item_id)
+	if current < amount:
+		return false
+	_add_owned_item(category, item_id, -amount)
+	return true
+
+
+func _get_owned_item_count(category: String, item_id: String) -> int:
+	if category == "gongfa":
+		return int(_owned_gongfa_stock.get(item_id, 0))
+	return int(_owned_equipment_stock.get(item_id, 0))
+
+
+func _count_equipped_instances(mode: String, item_id: String) -> int:
+	var count: int = 0
+	for unit in _collect_player_units():
+		if unit == null or not _is_valid_unit(unit):
+			continue
+		if mode == "gongfa":
+			var slots: Dictionary = _normalize_unit_slots(unit.get("gongfa_slots"))
+			for slot in SLOT_ORDER:
+				if str(slots.get(slot, "")).strip_edges() == item_id:
+					count += 1
+		else:
+			var equip_slots: Dictionary = _normalize_equip_slots(_get_unit_equip_slots(unit))
+			for equip_slot in EQUIP_ORDER:
+				if str(equip_slots.get(equip_slot, "")).strip_edges() == item_id:
+					count += 1
+	return count
+
+
+func _prepare_linkage_panel() -> void:
+	var linkage_panel: Control = _get_linkage_panel_control()
+	if linkage_panel == null:
+		return
+	# 联动面板作为信息层，不应拦截底下备战区/拖拽的输入。
+	linkage_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if linkage_info != null:
+		linkage_info.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+
+func _sync_linkage_panel_visibility() -> void:
+	var linkage_panel: Control = _get_linkage_panel_control()
+	if linkage_panel == null:
+		return
+	var hidden_by_shop: bool = _shop_panel != null and is_instance_valid(_shop_panel) and _shop_panel.visible
+	linkage_panel.visible = _stage != Stage.RESULT and not hidden_by_shop
+
+
+func _refresh_linkage_info_for_deployed_only() -> void:
+	if linkage_info == null:
+		return
+	if gongfa_manager == null:
+		linkage_info.text = "当前联动：未连接 GongfaManager"
+		return
+	var names: Array[String] = _build_deployed_linkage_names()
+	if names.is_empty():
+		linkage_info.text = "当前联动：无"
+		linkage_info.tooltip_text = linkage_info.text
+		return
+	# 长文本会遮挡下方 UI，这里只展示前几项，完整内容放到 tooltip。
+	var preview_names: Array[String] = names
+	if names.size() > 6:
+		preview_names = names.slice(0, 6)
+		linkage_info.text = "当前联动：%s 等%d项" % ["、".join(preview_names), names.size()]
+	else:
+		linkage_info.text = "当前联动：%s" % "、".join(preview_names)
+	linkage_info.tooltip_text = "当前联动（仅统计上场）：%s" % "、".join(names)
+
+
+func _build_deployed_linkage_names() -> Array[String]:
+	# 联动面板只统计“当前已上场”的己方角色，过滤备战席与历史战斗残留。
+	var names: Array[String] = []
+	if gongfa_manager == null or not gongfa_manager.has_method("get_active_linkages"):
+		return names
+	var deployed_map: Dictionary = _collect_current_deployed_ally_ids()
+	if deployed_map.is_empty():
+		return names
+	var name_seen: Dictionary = {}
+	var active_value: Variant = gongfa_manager.call("get_active_linkages")
+	if not (active_value is Array):
+		return names
+	for result_value in active_value:
+		if not (result_value is Dictionary):
+			continue
+		var result: Dictionary = result_value as Dictionary
+		if int(result.get("team_id", 0)) != TEAM_ALLY:
+			continue
+		var participants_value: Variant = result.get("participants", [])
+		if not (participants_value is Array):
+			continue
+		var participants: Array = participants_value as Array
+		if participants.is_empty():
+			continue
+		var all_on_field: bool = true
+		for unit_value in participants:
+			if not is_instance_valid(unit_value):
+				all_on_field = false
+				break
+			var unit: Node = unit_value as Node
+			if unit == null or not _is_valid_unit(unit):
+				all_on_field = false
+				break
+			if not deployed_map.has(unit.get_instance_id()):
+				all_on_field = false
+				break
+		if not all_on_field:
+			continue
+		var linkage_data: Dictionary = result.get("linkage_data", {})
+		var linkage_name: String = str(linkage_data.get("name", "")).strip_edges()
+		if linkage_name.is_empty() or name_seen.has(linkage_name):
+			continue
+		name_seen[linkage_name] = true
+		names.append(linkage_name)
+	return names
+
+
+func _collect_current_deployed_ally_ids() -> Dictionary:
+	var out: Dictionary = {}
+	for unit in _ally_deployed.values():
+		if not _is_valid_unit(unit):
+			continue
+		out[unit.get_instance_id()] = true
+	return out
+
+
+func _get_linkage_panel_control() -> Control:
+	if linkage_info == null:
 		return null
-	var tree: SceneTree = main_loop as SceneTree
-	if tree == null or tree.root == null:
+	var linkage_vbox: Control = linkage_info.get_parent() as Control
+	if linkage_vbox == null:
 		return null
-	return tree.root.get_node_or_null(node_name)
+	return linkage_vbox.get_parent() as Control
+
+
+func _layout_bench_recycle_wrap() -> void:
+	if bottom_panel == null:
+		return
+	var root_vbox: VBoxContainer = bottom_panel.get_node_or_null("RootVBox") as VBoxContainer
+	if root_vbox == null:
+		return
+	var wrap_runtime: Control = root_vbox.get_node_or_null("BenchRecycleWrapRuntime") as Control
+	if wrap_runtime != null:
+		var bench_control_runtime: Control = bench_ui as Control
+		if bench_control_runtime == null or wrap_runtime.size.x <= 1.0 or wrap_runtime.size.y <= 1.0:
+			return
+		var gap: float = 8.0
+		var wrap_size: Vector2 = wrap_runtime.size
+		var row_height: float = maxf(wrap_size.y, 154.0)
+		var base_recycle_width: float = 148.0
+		if _recycle_drop_zone != null and is_instance_valid(_recycle_drop_zone):
+			base_recycle_width = maxf(_recycle_drop_zone.custom_minimum_size.x, 120.0)
+		var slot_width: float = 112.0
+		var slot_size_value: Variant = bench_ui.get("slot_size") if bench_ui != null else null
+		if slot_size_value is Vector2:
+			slot_width = maxf((slot_size_value as Vector2).x, 96.0)
+		var recycle_min_width: float = 96.0
+		var runtime_recycle_width: float = clampf(base_recycle_width, recycle_min_width, maxf(wrap_size.x - gap - slot_width, recycle_min_width))
+		var bench_width: float = maxf(wrap_size.x - runtime_recycle_width - gap, 0.0)
+		if bench_width < slot_width:
+			runtime_recycle_width = maxf(wrap_size.x - slot_width - gap, recycle_min_width)
+			bench_width = maxf(wrap_size.x - runtime_recycle_width - gap, 0.0)
+		bench_control_runtime.clip_contents = true
+		bench_control_runtime.custom_minimum_size = Vector2(0.0, row_height)
+		bench_control_runtime.anchor_left = 0.0
+		bench_control_runtime.anchor_top = 0.0
+		bench_control_runtime.anchor_right = 0.0
+		bench_control_runtime.anchor_bottom = 0.0
+		bench_control_runtime.position = Vector2.ZERO
+		bench_control_runtime.size = Vector2(bench_width, row_height)
+		if bench_ui.has_method("set_layout_width"):
+			bench_ui.call("set_layout_width", bench_width)
+		if _recycle_drop_zone != null and is_instance_valid(_recycle_drop_zone):
+			_recycle_drop_zone.anchor_left = 0.0
+			_recycle_drop_zone.anchor_top = 0.0
+			_recycle_drop_zone.anchor_right = 0.0
+			_recycle_drop_zone.anchor_bottom = 0.0
+			_recycle_drop_zone.position = Vector2(wrap_size.x - runtime_recycle_width, 0.0)
+			_recycle_drop_zone.size = Vector2(runtime_recycle_width, row_height)
+			_recycle_drop_zone.custom_minimum_size = Vector2(runtime_recycle_width, row_height)
+			_recycle_drop_zone.visible = _stage == Stage.PREPARATION
+		wrap_runtime.custom_minimum_size = Vector2(0.0, row_height)
+		if bench_ui.has_method("refresh_adaptive_layout"):
+			bench_ui.call_deferred("refresh_adaptive_layout")
+		return
+	var wrap_container: MarginContainer = root_vbox.get_node_or_null("BenchRecycleWrap") as MarginContainer
+	if wrap_container == null:
+		return
+
+	# ── 1. 计算右边距（避开仓库面板） ──
+	var right_margin: int = 0
+	wrap_container.add_theme_constant_override("margin_right", right_margin)
+	wrap_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	wrap_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
+
+	var row: HBoxContainer = wrap_container.get_node_or_null("BenchRecycleRow") as HBoxContainer
+	if row == null:
+		return
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	if wrap_container.size.x <= 1.0:
+		return
+
+	# ── 2. 计算行总可用宽度 ──
+	# bottom_panel.size.x 已经被 _set_bottom_expanded 限制为视口宽度 - 24px。
+	# 行可用 = 面板内容宽 - 右边距 - 一些内边距
+	var total_row_width: float = maxf(wrap_container.size.x - float(right_margin), 0.0)
+
+	# ── 3. 回收区固定宽度 ──
+	var recycle_width: float = 160.0
+	if _recycle_drop_zone != null and is_instance_valid(_recycle_drop_zone):
+		recycle_width = maxf(_recycle_drop_zone.custom_minimum_size.x, 148.0)
+	var row_gap: float = maxf(float(row.get_theme_constant("separation")), 8.0)
+	var min_bench_width: float = 112.0
+	var bench_slot_size: Variant = bench_ui.get("slot_size") if bench_ui != null else null
+	if bench_slot_size is Vector2:
+		min_bench_width = maxf((bench_slot_size as Vector2).x, 96.0)
+	var max_recycle_width: float = maxf(total_row_width - row_gap - min_bench_width, 96.0)
+	recycle_width = clampf(recycle_width, 96.0, max_recycle_width)
+
+	# ── 4. 备战区可用宽度 ──
+	var bench_max_width: float = maxf(total_row_width - recycle_width - row_gap, min_bench_width)
+
+	# ── 5. 强制设置行容器宽度（截断溢出） ──
+	row.clip_contents = true
+	row.custom_minimum_size.x = total_row_width
+
+	# ── 6. 强制限制备战区 ScrollContainer 宽度 ──
+	var bench_control: Control = bench_ui as Control
+	if bench_control != null:
+		bench_control.clip_contents = true
+		bench_control.custom_minimum_size.x = bench_max_width
+		bench_control.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		bench_control.size_flags_stretch_ratio = 1.0
+
+		var row_min_h: float = maxf(bench_control.custom_minimum_size.y, 154.0)
+		wrap_container.custom_minimum_size = Vector2(0.0, row_min_h)
+
+		# 通知备战席基于新宽度重算列数
+		if bench_ui.has_method("refresh_adaptive_layout"):
+			bench_ui.call_deferred("refresh_adaptive_layout")
+
+		if _recycle_drop_zone != null and is_instance_valid(_recycle_drop_zone):
+			_recycle_drop_zone.custom_minimum_size = Vector2(recycle_width, row_min_h)
+			_recycle_drop_zone.size_flags_horizontal = Control.SIZE_SHRINK_END
+			_recycle_drop_zone.size_flags_stretch_ratio = 0.0
+			_recycle_drop_zone.visible = _stage == Stage.PREPARATION
+
+
+func _apply_default_healer_skills_for_bench() -> void:
+	if bench_ui == null or not is_instance_valid(bench_ui):
+		return
+	if not bench_ui.has_method("get_all_units"):
+		return
+	var units_value: Variant = bench_ui.call("get_all_units")
+	if not (units_value is Array):
+		return
+	for unit in units_value:
+		_ensure_healer_default_skill(unit as Node)
+
+
+func _ensure_healer_default_skill(unit: Node) -> void:
+	if unit == null or not _is_valid_unit(unit):
+		return
+	if gongfa_manager == null:
+		return
+	var role: String = str(_safe_node_prop(unit, "role", "")).strip_edges().to_lower()
+	if role != HEALER_ROLE_KEY:
+		return
+	if _unit_has_healing_gongfa(unit):
+		return
+	var quality: String = str(_safe_node_prop(unit, "quality", "white")).strip_edges().to_lower()
+	var fallback_id: String = _pick_healer_fallback_gongfa_id(quality)
+	if fallback_id.is_empty():
+		return
+	var fallback_data: Dictionary = gongfa_manager.call("get_gongfa_data", fallback_id)
+	if fallback_data.is_empty():
+		return
+	var slot: String = str(fallback_data.get("type", "qishu")).strip_edges()
+	if slot.is_empty():
+		return
+	var slots: Dictionary = _normalize_unit_slots(unit.get("gongfa_slots"))
+	slots[slot] = fallback_id
+	unit.set("gongfa_slots", slots)
+	gongfa_manager.call("apply_gongfa", unit)
+
+
+func _unit_has_healing_gongfa(unit: Node) -> bool:
+	if unit == null or not _is_valid_unit(unit):
+		return false
+	var slots: Dictionary = _normalize_unit_slots(unit.get("gongfa_slots"))
+	for slot in SLOT_ORDER:
+		var gongfa_id: String = str(slots.get(slot, "")).strip_edges()
+		if gongfa_id.is_empty():
+			continue
+		var data: Dictionary = gongfa_manager.call("get_gongfa_data", gongfa_id)
+		if _is_healing_gongfa_data(data):
+			return true
+	return false
+
+
+func _pick_healer_fallback_gongfa_id(quality: String) -> String:
+	var preferred: Variant = HEALER_FALLBACK_GONGFA_BY_QUALITY.get(quality, [])
+	if preferred is Array:
+		for id_value in preferred:
+			var gongfa_id: String = str(id_value).strip_edges()
+			if gongfa_id.is_empty():
+				continue
+			var data: Dictionary = gongfa_manager.call("get_gongfa_data", gongfa_id)
+			if not data.is_empty():
+				return gongfa_id
+	# 兜底：按全部映射遍历，拿到任意可用治疗功法。
+	for key in HEALER_FALLBACK_GONGFA_BY_QUALITY.keys():
+		var arr: Variant = HEALER_FALLBACK_GONGFA_BY_QUALITY[key]
+		if not (arr is Array):
+			continue
+		for id_value in arr:
+			var gongfa_id: String = str(id_value).strip_edges()
+			if gongfa_id.is_empty():
+				continue
+			var data: Dictionary = gongfa_manager.call("get_gongfa_data", gongfa_id)
+			if not data.is_empty():
+				return gongfa_id
+	return ""
+
+
+func _is_healing_gongfa_data(data: Dictionary) -> bool:
+	if data.is_empty():
+		return false
+	var tags_value: Variant = data.get("tags", [])
+	if tags_value is Array:
+		for tag in tags_value:
+			var tag_str: String = str(tag).to_lower()
+			if tag_str == "heal" or tag_str == "recovery" or tag_str == "support":
+				return true
+	var skill_value: Variant = data.get("skill", {})
+	if not (skill_value is Dictionary):
+		return false
+	var effects_value: Variant = (skill_value as Dictionary).get("effects", [])
+	if not (effects_value is Array):
+		return false
+	for effect_value in effects_value:
+		if not (effect_value is Dictionary):
+			continue
+		var op: String = str((effect_value as Dictionary).get("op", "")).strip_edges()
+		if op == "heal_self" or op == "heal_self_percent" or op == "heal_allies_aoe" or op == "buff_allies_aoe":
+			return true
+	return false
+
+
+func _slot_or_equip_cn(tab_id: String, slot_type: String) -> String:
+	if tab_id == SHOP_TAB_GONGFA:
+		return _slot_to_cn(slot_type)
+	return _equip_type_to_cn(slot_type)
+
+
+func _role_to_cn(role: String) -> String:
+	match role:
+		"vanguard":
+			return "先锋"
+		"swordsman":
+			return "剑客"
+		"assassin":
+			return "刺客"
+		"archer":
+			return "射手"
+		"caster":
+			return "术师"
+		"healer":
+			return "医者"
+		"commander":
+			return "统领"
+		_:
+			return role
+
+
+func _on_assets_changed(_snapshot: Dictionary) -> void:
+	_update_shop_ui()
+
+
+func _on_shop_locked_changed(_locked: bool) -> void:
+	_update_shop_ui()
+
+
+func _on_shop_snapshot_refreshed(_snapshot: Dictionary) -> void:
+	_rebuild_shop_cards()
+
+
+func _on_test_add_silver_pressed() -> void:
+	if _economy_manager == null:
+		return
+	_economy_manager.add_silver(10)
+	_append_battle_log("测试指令：银两 +10", "system")
+	_refresh_all_ui()
+
+
+func _on_test_add_exp_pressed() -> void:
+	if _economy_manager == null:
+		return
+	_economy_manager.add_exp(5)
+	_append_battle_log("测试指令：经验 +5", "system")
+	_refresh_all_ui()

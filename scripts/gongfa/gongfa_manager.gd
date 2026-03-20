@@ -1,7 +1,7 @@
 extends Node
 
 # ===========================
-# 功法总管理器（M3）
+# 功法总管理器
 # ===========================
 # 说明：
 # 1. 统一管理“功法被动、技能触发、Buff、联动”四块逻辑。
@@ -40,8 +40,11 @@ var _battle_running: bool = false
 var _battle_elapsed: float = 0.0
 var _trigger_accum: float = 0.0
 var _linkage_accum: float = 0.0
+var _linkages_dirty: bool = false
 
 var _active_linkages: Array[Dictionary] = []
+var _active_linkage_names_cache: Array[String] = []
+var _active_linkage_summary_text: String = "当前联动：无"
 
 
 func _ready() -> void:
@@ -66,8 +69,9 @@ func _process(delta: float) -> void:
 		_trigger_accum = 0.0
 		_poll_auto_triggers()
 
-	if _linkage_accum >= maxf(linkage_refresh_interval, 0.2):
+	if _linkages_dirty and _linkage_accum >= maxf(linkage_refresh_interval, 0.2):
 		_linkage_accum = 0.0
+		_linkages_dirty = false
 		_refresh_linkages(true)
 
 
@@ -103,10 +107,13 @@ func prepare_battle(
 	_unit_lookup.clear()
 	_unit_states.clear()
 	_active_linkages.clear()
+	_active_linkage_names_cache.clear()
+	_active_linkage_summary_text = "当前联动：无"
 	_battle_elapsed = 0.0
 	_trigger_accum = 0.0
 	_linkage_accum = 0.0
 	_battle_running = false
+	_linkages_dirty = false
 	_buff_manager.clear_all()
 
 	for unit in ally_units:
@@ -115,12 +122,12 @@ func prepare_battle(
 		_register_battle_unit(unit)
 
 	for unit in _battle_units:
-		apply_gongfa(unit)
+		apply_gongfa(unit, true)
 
 	_refresh_linkages(false)
 
 
-func apply_gongfa(unit: Node) -> void:
+func apply_gongfa(unit: Node, defer_apply: bool = false) -> void:
 	if unit == null or not is_instance_valid(unit):
 		return
 
@@ -143,7 +150,8 @@ func apply_gongfa(unit: Node) -> void:
 		if pfx is Array:
 			for effect_value in pfx:
 				if effect_value is Dictionary:
-					passive_effects.append((effect_value as Dictionary).duplicate(true))
+					# 被动效果只读，浅拷贝即可。
+					passive_effects.append((effect_value as Dictionary).duplicate(false))
 
 		for tag in _to_string_array(gongfa_data.get("linkage_tags", [])):
 			linkage_tags[tag] = true
@@ -163,10 +171,11 @@ func apply_gongfa(unit: Node) -> void:
 				"next_ready_time": 0.0,
 				"trigger_count": 0,
 				"max_trigger_count": maxi(int(skill.get("max_trigger_count", 0)), 0),
-				"skill_data": skill.duplicate(true)
+				# 浅拷贝即可，skill_data 内部字段只读。
+				"skill_data": skill.duplicate(false)
 			})
 
-	# ===== 第 2 层：装备来源（M3 新增）=====
+	# ===== 第 2 层：装备来源 =====
 	var equipped_equip_ids: Array[String] = _resolve_equipped_equip_ids(unit)
 	var equipment_effects: Array[Dictionary] = []
 	var equip_triggers: Array[Dictionary] = []
@@ -181,7 +190,8 @@ func apply_gongfa(unit: Node) -> void:
 		if passive_value is Array:
 			for effect_value in passive_value:
 				if effect_value is Dictionary:
-					equipment_effects.append((effect_value as Dictionary).duplicate(true))
+					# 装备被动效果只读，浅拷贝即可。
+					equipment_effects.append((effect_value as Dictionary).duplicate(false))
 
 		# 2) 装备联动标签直接并入角色 runtime_linkage_tags，参与联动检测。
 		for tag in _to_string_array(equip_data.get("linkage_tags", [])):
@@ -200,7 +210,7 @@ func apply_gongfa(unit: Node) -> void:
 				"next_ready_time": 0.0,
 				"trigger_count": 0,
 				"max_trigger_count": maxi(int(trigger_data.get("max_trigger_count", 0)), 0),
-				"skill_data": trigger_data.duplicate(true)
+				"skill_data": trigger_data.duplicate(false)
 			})
 
 	# 装备触发器与功法触发器共享同一轮询与事件触发链路。
@@ -219,7 +229,8 @@ func apply_gongfa(unit: Node) -> void:
 		"runtime_elements": _dict_keys_to_string_array(elements)
 	}
 
-	_apply_state_to_unit(iid, false)
+	if not defer_apply:
+		_apply_state_to_unit(iid, false)
 
 
 func remove_gongfa(unit: Node) -> void:
@@ -334,17 +345,15 @@ func get_active_linkages() -> Array[Dictionary]:
 
 
 func get_active_linkage_names() -> Array[String]:
-	var names: Array[String] = []
-	for result in _active_linkages:
-		var linkage: Dictionary = result.get("linkage_data", {})
-		var linkage_name: String = str(linkage.get("name", ""))
-		if not linkage_name.is_empty():
-			names.append(linkage_name)
-	return names
+	return _active_linkage_names_cache.duplicate()
+
+
+func get_active_linkage_summary_text() -> String:
+	return _active_linkage_summary_text
 
 
 func get_unit_buff_ids(unit: Node) -> Array[String]:
-	# 提供给 M3 Tooltip/详情面板读取单位当前 Buff 列表。
+	# 提供给 Tooltip/详情面板读取单位当前 Buff 列表。
 	return _buff_manager.get_active_buff_ids_for_unit(unit)
 
 
@@ -410,7 +419,7 @@ func _apply_state_to_unit(unit_id: int, preserve_health_ratio: bool) -> void:
 	var runtime_stats: Dictionary = (state.get("baseline_stats", {}) as Dictionary).duplicate(true)
 	var modifiers: Dictionary = _effect_engine.create_empty_modifier_bundle()
 
-	# 属性叠加顺序（M3）：
+	# 属性叠加顺序：
 	# 1. 功法被动 -> 2. 装备被动 -> 3. 联动效果 -> 4. Buff 效果。
 	# 该顺序会影响 stat_percent 的乘算基准，必须保持稳定。
 	_effect_engine.apply_passive_effects(runtime_stats, modifiers, state.get("passive_effects", []))
@@ -715,14 +724,28 @@ func _emit_effect_log_events(
 
 
 func _refresh_linkages(preserve_health_ratio: bool) -> void:
+	_linkages_dirty = false
+	# 收集“本轮实际分配到联动效果的单位”，避免对全部 400 单位做 _apply_state_to_unit。
+	var affected_unit_ids: Dictionary = {} # iid -> true
+
 	for key in _unit_states.keys():
 		var state: Dictionary = _unit_states[key]
+		var prev_linkage: Array = state.get("linkage_effects", [])
+		if not prev_linkage.is_empty():
+			# 上一轮有联动效果的单位需要重算（效果可能已变）。
+			affected_unit_ids[key] = true
 		state["linkage_effects"] = []
 		_unit_states[key] = state
 
 	var linkages: Array[Dictionary] = _registry.get_all_linkages()
 	var results: Array[Dictionary] = _linkage_detector.detect_all(linkages, _battle_units, _bound_hex_grid)
 	_active_linkages = results
+	_active_linkage_names_cache.clear()
+	for result in results:
+		var linkage_name: String = str((result.get("linkage_data", {}) as Dictionary).get("name", "")).strip_edges()
+		if not linkage_name.is_empty():
+			_active_linkage_names_cache.append(linkage_name)
+	_active_linkage_summary_text = "当前联动：无" if _active_linkage_names_cache.is_empty() else "当前联动：%s" % "、".join(_active_linkage_names_cache)
 
 	for result in results:
 		var linkage_data: Dictionary = result.get("linkage_data", {})
@@ -732,7 +755,7 @@ func _refresh_linkages(preserve_health_ratio: bool) -> void:
 		for effect_value in effects_value:
 			if not (effect_value is Dictionary):
 				continue
-			var linkage_effect: Dictionary = (effect_value as Dictionary).duplicate(true)
+			var linkage_effect: Dictionary = (effect_value as Dictionary).duplicate(false)
 			var target_mode: String = str(linkage_effect.get("target", "participants"))
 			linkage_effect.erase("target")
 			for target_unit in _resolve_linkage_targets(target_mode, result):
@@ -743,11 +766,13 @@ func _refresh_linkages(preserve_health_ratio: bool) -> void:
 					continue
 				var state2: Dictionary = _unit_states[iid]
 				var effect_list: Array = state2.get("linkage_effects", [])
-				effect_list.append(linkage_effect.duplicate(true))
+				effect_list.append(linkage_effect.duplicate(false))
 				state2["linkage_effects"] = effect_list
 				_unit_states[iid] = state2
+				affected_unit_ids[iid] = true
 
-	for key in _unit_states.keys():
+	# 只对实际受到联动影响的单位重算属性，避免全量 apply。
+	for key in affected_unit_ids.keys():
 		_apply_state_to_unit(int(key), preserve_health_ratio)
 
 	linkage_changed.emit(get_active_linkages())
@@ -914,6 +939,7 @@ func _on_battle_started(_ally_count: int, _enemy_count: int) -> void:
 	_battle_elapsed = 0.0
 	_trigger_accum = 0.0
 	_linkage_accum = 0.0
+	_linkages_dirty = false
 	_fire_trigger_for_all("on_combat_start", {})
 
 
@@ -948,7 +974,7 @@ func _on_unit_died(dead_unit: Node, killer: Node, team_id: int) -> void:
 		_fire_trigger_for_unit(ally, "on_ally_death", {"target": dead_unit})
 
 	_buff_manager.remove_all_for_unit(dead_unit)
-	_refresh_linkages(true)
+	_linkages_dirty = true
 
 
 func _on_battle_ended(_winner_team: int, _summary: Dictionary) -> void:

@@ -1,8 +1,8 @@
 extends PanelContainer
-class_name M3SlotDropTarget
+class_name BattleSlotDropTarget
 
 # ===========================
-# M3 详情槽位（拖放接收器）
+# 详情槽位（拖放接收器）
 # ===========================
 # 说明：
 # 1. 每个槽位绑定一个 category + key，用于做类型匹配。

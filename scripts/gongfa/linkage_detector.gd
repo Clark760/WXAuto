@@ -2,7 +2,7 @@ extends RefCounted
 class_name LinkageDetector
 
 # ===========================
-# 联动检测器（M3）
+# 联动检测器
 # ===========================
 # 设计目标：
 # 1. 按联动配置遍历检测，不把某个联动写死在代码里。
@@ -56,7 +56,7 @@ func _match_linkage(linkage: Dictionary, team_units: Array, team_id: int, hex_gr
 	var is_active: bool = not participants.is_empty()
 	return {
 		"linkage_id": linkage_id,
-		"linkage_data": linkage.duplicate(true),
+		"linkage_data": linkage,
 		"team_id": team_id,
 		"participants": participants,
 		"is_active": is_active
