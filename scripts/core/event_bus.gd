@@ -24,6 +24,14 @@ signal data_reloaded(is_full_reload: bool, summary: Dictionary)
 signal mod_loaded(mod_id: String, mod_name: String, load_order: int)
 signal mod_load_completed(summary: Dictionary)
 
+# 关卡流程相关：由 StageManager 发出，供 UI/战场/统计系统订阅。
+signal stage_loaded(config: Dictionary)
+signal stage_prepare_started(config: Dictionary)
+signal stage_combat_started(config: Dictionary)
+signal stage_completed(config: Dictionary, rewards: Dictionary)
+signal stage_failed(config: Dictionary)
+signal all_stages_cleared()
+
 # 对象池相关：便于调试池状态与实例生命周期。
 signal object_pool_registered(pool_key: String)
 signal object_pool_acquired(pool_key: String, instance_id: int)
@@ -52,6 +60,30 @@ func emit_mod_loaded(mod_id: String, mod_name: String, load_order: int) -> void:
 
 func emit_mod_load_completed(summary: Dictionary) -> void:
 	mod_load_completed.emit(summary)
+
+
+func emit_stage_loaded(config: Dictionary) -> void:
+	stage_loaded.emit(config.duplicate(true))
+
+
+func emit_stage_prepare_started(config: Dictionary) -> void:
+	stage_prepare_started.emit(config.duplicate(true))
+
+
+func emit_stage_combat_started(config: Dictionary) -> void:
+	stage_combat_started.emit(config.duplicate(true))
+
+
+func emit_stage_completed(config: Dictionary, rewards: Dictionary) -> void:
+	stage_completed.emit(config.duplicate(true), rewards.duplicate(true))
+
+
+func emit_stage_failed(config: Dictionary) -> void:
+	stage_failed.emit(config.duplicate(true))
+
+
+func emit_all_stages_cleared() -> void:
+	all_stages_cleared.emit()
 
 
 func emit_object_pool_registered(pool_key: String) -> void:

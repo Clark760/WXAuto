@@ -134,6 +134,9 @@ func try_attack_target(target: Node, rng_source: Variant = null) -> Dictionary:
 		is_crit = _randf(rng_source) < crit_rate
 		if is_crit:
 			raw_damage *= _calc_crit_multiplier()
+		# M5-Boss 机制扩展：允许关卡机制给特定单位施加“额外输出系数”。
+		var stage_outgoing_bonus: float = _get_stage_meta_float("stage_outgoing_damage_bonus", 0.0)
+		raw_damage *= maxf(1.0 + stage_outgoing_bonus, 0.0)
 
 	var receive_result: Dictionary = target_combat.call(
 		"receive_damage",
@@ -172,12 +175,43 @@ func receive_damage(
 			"target_mp_after": current_mp
 		}
 
+	# M5-Boss 机制扩展：护盾优先吸收，直接拦截本体掉血。
+	var shield_hp: float = _get_stage_meta_float("stage_shield_hp", 0.0)
+	if shield_hp > 0.0 and not _is_dodged:
+		var absorbed: float = minf(maxf(amount, 0.0), shield_hp)
+		shield_hp = maxf(shield_hp - absorbed, 0.0)
+		if owner_unit != null and is_instance_valid(owner_unit):
+			owner_unit.set_meta("stage_shield_hp", shield_hp)
+		var shield_event: Dictionary = {
+			"damage": 0.0,
+			"target_died": false,
+			"target_hp_after": current_hp,
+			"target_mp_after": current_mp,
+			"shield_absorbed": absorbed,
+			"shield_hp_after": shield_hp
+		}
+		damaged.emit(owner_unit, source, shield_event)
+		return shield_event
+
+	# M5-Boss 机制扩展：免伤开关（例如部分 Boss 相位）。
+	if _get_stage_meta_bool("stage_damage_immune", false):
+		var immune_event: Dictionary = {
+			"damage": 0.0,
+			"target_died": false,
+			"target_hp_after": current_hp,
+			"target_mp_after": current_mp
+		}
+		damaged.emit(owner_unit, source, immune_event)
+		return immune_event
+
 	var final_damage: float = 0.0
 	if not _is_dodged:
 		final_damage = maxf(amount, 0.0)
 		final_damage = maxf(final_damage - float(_external_modifiers.get("damage_reduce_flat", 0.0)), 0.0)
 		var reduce_ratio: float = clampf(float(_external_modifiers.get("damage_reduce_percent", 0.0)), 0.0, 0.95)
 		final_damage *= (1.0 - reduce_ratio)
+		# M5-Boss 机制扩展：易伤/减伤倍率（默认 1.0）。
+		final_damage *= maxf(_get_stage_meta_float("stage_damage_taken_multiplier", 1.0), 0.0)
 		current_hp = maxf(current_hp - final_damage, 0.0)
 		add_mp(mp_gain_on_hit)
 
@@ -374,3 +408,15 @@ func _randf(rng_source: Variant) -> float:
 		if rng != null:
 			return rng.randf()
 	return randf()
+
+
+func _get_stage_meta_float(meta_key: String, fallback: float) -> float:
+	if owner_unit == null or not is_instance_valid(owner_unit):
+		return fallback
+	return float(owner_unit.get_meta(meta_key, fallback))
+
+
+func _get_stage_meta_bool(meta_key: String, fallback: bool) -> bool:
+	if owner_unit == null or not is_instance_valid(owner_unit):
+		return fallback
+	return bool(owner_unit.get_meta(meta_key, fallback))

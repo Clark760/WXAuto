@@ -1,0 +1,94 @@
+{
+  "id": "stage_1_3_boss",
+  "chapter": 1,
+  "index": 3,
+  "name": "山巅首领",
+  "type": "boss",
+  "description": "首个 Boss 关卡，中心敌将会触发多段机制。",
+  "grid": {
+    "width": 32,
+    "height": 16,
+    "deploy_zone": {
+      "x_min": 0,
+      "x_max": 15,
+      "y_min": 0,
+      "y_max": 15
+    },
+    "hex_size": 24.0
+  },
+  "enemies": [
+    { "unit_id": "unit_green_106", "count": 10, "star": 1, "deploy_zone": "front" },
+    { "unit_id": "unit_blue_182", "count": 6, "star": 2, "deploy_zone": "back" },
+    {
+      "unit_id": "unit_blue_183",
+      "count": 1,
+      "star": 3,
+      "deploy_zone": "center",
+      "stat_scale": 1.2,
+      "gongfa_ids": ["gf_jiuyin", "gf_dugu"],
+      "equip_ids": ["eq_tulong"],
+      "is_boss": true
+    }
+  ],
+  "obstacles": [
+    { "type": "rock", "cells": [[19, 7], [20, 7], [20, 8]] },
+    { "type": "water", "cells": [[22, 4], [22, 5], [23, 5], [23, 6]] }
+  ],
+  "rewards": {
+    "silver": 20,
+    "exp": 5,
+    "drops": [
+      { "type": "gongfa", "pool": ["gf_jiuyin", "gf_dugu", "gf_qiankun"], "count": 1, "chance": 0.8 },
+      { "type": "equipment", "pool": ["eq_tulong", "eq_yitian", "eq_zhenwu"], "count": 1, "chance": 0.9 },
+      { "type": "unit", "pool": ["unit_blue_184"], "count": 1, "chance": 0.5, "star": 2 }
+    ]
+  },
+  "boss_mechanics": [
+    {
+      "type": "phase_shield",
+      "config": {
+        "phases": [
+          { "hp_threshold": 0.7, "shield_hp": 400, "buff_on_break": "atk_up_20" },
+          { "hp_threshold": 0.35, "shield_hp": 700, "buff_on_break": "berserk" }
+        ]
+      }
+    },
+    {
+      "type": "summon_wave",
+      "config": {
+        "interval_seconds": 14,
+        "max_waves": 2,
+        "wave_units": [
+          { "unit_id": "unit_green_106", "count": 4, "star": 1, "deploy_zone": "back" },
+          { "unit_id": "unit_blue_182", "count": 2, "star": 1, "deploy_zone": "center" }
+        ]
+      }
+    },
+    {
+      "type": "hazard_zones",
+      "config": {
+        "damage_per_second": 16,
+        "radius_cells": 2,
+        "move_interval_seconds": 8,
+        "count": 2,
+        "warning_seconds": 1.5
+      }
+    },
+    {
+      "type": "enrage_timer",
+      "config": {
+        "enrage_after_seconds": 60,
+        "pre_enrage_warning_seconds": 10,
+        "enrage_buffs": {
+          "atk_percent": 0.8,
+          "spd_percent": 0.35,
+          "damage_reduce_percent": 0.25
+        },
+        "soft_enrage_stages": [
+          { "at_seconds": 25, "atk_percent": 0.2 },
+          { "at_seconds": 45, "atk_percent": 0.35 }
+        ]
+      }
+    }
+  ]
+}

@@ -5,8 +5,8 @@ class_name EconomyManager
 # 经济与经验系统管理器
 # ===========================
 # 设计目标：
-# 1. 将银两、门派等级、经验、连胜连败、商店锁定统一为单一资产模型。
-# 2. 对外只暴露“加银两/扣银两/加经验/回合结算”接口，业务层不直接改字典。
+# 1. 将银两、门派等级、经验、商店锁定统一为单一资产模型。
+# 2. 对外只暴露“加银两/扣银两/加经验”接口，业务层不直接改字典。
 # 3. 基于 levels 数据驱动等级曲线，保证后续可用 JSON 调参数值。
 
 signal silver_changed(current_silver: int, delta: int)
@@ -14,7 +14,6 @@ signal level_changed(new_level: int, max_deploy: int)
 signal exp_changed(current_exp: int, max_exp: int, level: int)
 signal shop_lock_changed(locked: bool)
 signal assets_changed(snapshot: Dictionary)
-signal round_income_applied(detail: Dictionary)
 
 const QUALITY_KEYS: Array[String] = ["white", "green", "blue", "purple", "orange", "red"]
 
@@ -84,18 +83,15 @@ const DEFAULT_LEVEL_ROWS: Array[Dictionary] = [
 ]
 
 @export var starting_silver: int = 20
-@export var base_round_income: int = 5
 @export var refresh_cost: int = 2
 @export var upgrade_cost: int = 4
 @export var upgrade_exp_gain: int = 4
-@export var interest_cap_silver: int = 50
 
 var assets: Dictionary = {
 	"silver": 20,
 	"level": 1,
 	"exp": 0,
 	"max_exp": 2,
-	"streak_count": 0,
 	"locked_shop": false
 }
 
@@ -123,7 +119,6 @@ func reset_assets(new_starting_silver: int = -1) -> void:
 	assets["level"] = 1
 	assets["exp"] = 0
 	assets["max_exp"] = _exp_required_to_next(1)
-	assets["streak_count"] = 0
 	assets["locked_shop"] = false
 	_emit_all_changed(0)
 
@@ -138,10 +133,6 @@ func get_level() -> int:
 
 func get_silver() -> int:
 	return int(assets.get("silver", 0))
-
-
-func get_streak_count() -> int:
-	return int(assets.get("streak_count", 0))
 
 
 func is_shop_locked() -> bool:
@@ -245,51 +236,16 @@ func set_shop_locked(locked: bool) -> void:
 	assets_changed.emit(get_assets_snapshot())
 
 
-func calculate_round_income() -> int:
-	var detail: Dictionary = calculate_round_income_detail()
-	return int(detail.get("total", 0))
-
-
-func calculate_round_income_detail() -> Dictionary:
-	var silver_now: int = get_silver()
-	var base_income_value: int = maxi(base_round_income, 0)
-	var interest_income: int = int(floor(float(mini(silver_now, interest_cap_silver)) / 10.0))
-	var streak_income: int = _calculate_streak_bonus(get_streak_count())
-	return {
-		"base": base_income_value,
-		"interest": interest_income,
-		"streak": streak_income,
-		"total": base_income_value + interest_income + streak_income
-	}
-
-
-func apply_round_income() -> Dictionary:
-	var detail: Dictionary = calculate_round_income_detail()
-	add_silver(int(detail.get("total", 0)))
-	round_income_applied.emit(detail.duplicate(true))
-	return detail
-
-
-func record_battle_result(player_won: bool) -> void:
-	if player_won:
-		if get_streak_count() < 0:
-			assets["streak_count"] = 0
-		assets["streak_count"] = int(assets.get("streak_count", 0)) + 1
-	else:
-		if get_streak_count() > 0:
-			assets["streak_count"] = 0
-		assets["streak_count"] = int(assets.get("streak_count", 0)) - 1
-	add_exp(1)
-	assets_changed.emit(get_assets_snapshot())
+func record_battle_result(_player_won: bool) -> void:
+	# M5 开始：战斗结束不再自动发放经验，统一由关卡奖励配置决定。
+	return
 
 
 func record_battle_result_by_team(winner_team: int, player_team: int = 1) -> void:
-	if winner_team <= 0:
-		assets["streak_count"] = 0
-		add_exp(1)
-		assets_changed.emit(get_assets_snapshot())
-		return
-	record_battle_result(winner_team == player_team)
+	# 保留接口兼容旧调用链，但不再自动结算经验/奖励。
+	var _unused_winner_team: int = winner_team
+	var _unused_player_team: int = player_team
+	return
 
 
 func _emit_all_changed(silver_delta: int) -> void:
@@ -387,15 +343,3 @@ func _normalize_probabilities(raw_probabilities: Variant) -> Dictionary:
 	for key in QUALITY_KEYS:
 		out_probabilities[key] = float(out_probabilities[key]) / total
 	return out_probabilities
-
-
-func _calculate_streak_bonus(streak_count: int) -> int:
-	# 连胜与连败共用奖励区间，保持“保底追赶 + 顺风增益”。
-	var streak: int = absi(streak_count)
-	if streak >= 6:
-		return 3
-	if streak >= 4:
-		return 2
-	if streak >= 2:
-		return 1
-	return 0

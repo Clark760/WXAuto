@@ -41,12 +41,25 @@ const ECONOMY_MANAGER_SCRIPT: Script = preload("res://scripts/economy/economy_ma
 const SHOP_MANAGER_SCRIPT: Script = preload("res://scripts/economy/shop_manager.gd")
 const RECYCLE_DROP_ZONE_SCRIPT: Script = preload("res://scripts/ui/recycle_drop_zone.gd")
 const BATTLE_FLOW_SCRIPT: Script = preload("res://scripts/combat/battle_flow.gd")
+const STAGE_MANAGER_SCRIPT: Script = preload("res://scripts/stage/stage_manager.gd")
+const OBSTACLE_MANAGER_SCRIPT: Script = preload("res://scripts/stage/obstacle_manager.gd")
+const BOSS_MECHANIC_RUNNER_SCRIPT: Script = preload("res://scripts/stage/boss_mechanic_runner.gd")
+
+const DEFAULT_DEPLOY_ZONE: Dictionary = {
+	"x_min": 0,
+	"x_max": 15,
+	"y_min": 0,
+	"y_max": 15
+}
 
 @onready var _shop_bar: HBoxContainer = $BottomLayer/BottomPanel/RootVBox/ShopBar
 @onready var _shop_label: Label = $BottomLayer/BottomPanel/RootVBox/ShopBar/ShopLabel
 
 var _economy_manager: Node = null
 var _shop_manager: Node = null
+var _stage_manager: Node = null
+var _obstacle_manager: Node = null
+var _boss_mechanic_runner: Node = null
 
 var _shop_layer: CanvasLayer = null
 var _shop_panel: PanelContainer = null
@@ -76,11 +89,16 @@ var _owned_equipment_stock: Dictionary = {} # equip_id -> count
 var _recycle_drop_zone: PanelContainer = null
 
 var _battle_flow: Node = null
+var _current_stage_config: Dictionary = {}
+var _current_deploy_zone: Dictionary = DEFAULT_DEPLOY_ZONE.duplicate(true)
+var _stage_enemy_rng: RandomNumberGenerator = RandomNumberGenerator.new()
+var _stage_forced_hex_size: float = -1.0
 
 
 func _ready() -> void:
 	# 兜底取消暂停：防止从调试切场景时遗留 pause 状态，导致“进入场景像挂起”。
 	get_tree().paused = false
+	_stage_enemy_rng.randomize()
 	_bootstrap_battle_services()
 	super._ready()
 	_simplify_bottom_workspace_ui()
@@ -89,6 +107,7 @@ func _ready() -> void:
 	_ensure_shop_panel_created()
 	_ensure_shop_open_button()
 	_connect_battle_ui_signals()
+	_initialize_stage_progression()
 	_refresh_shop_for_preparation(true)
 	_update_shop_ui()
 	_battle_scene_initialized = true
@@ -230,19 +249,11 @@ func _refresh_all_ui() -> void:
 
 func _on_battle_ended(winner_team: int, summary: Dictionary) -> void:
 	super._on_battle_ended(winner_team, summary)
-	if _economy_manager != null:
-		_economy_manager.record_battle_result_by_team(winner_team, 1)
-		var income_detail: Dictionary = _economy_manager.apply_round_income()
-		_append_battle_log(
-			"经济结算：基础%d + 利息%d + 连胜/败%d = +%d 银两" % [
-				int(income_detail.get("base", 0)),
-				int(income_detail.get("interest", 0)),
-				int(income_detail.get("streak", 0)),
-				int(income_detail.get("total", 0))
-			],
-			"system"
-		)
-		_update_shop_ui()
+	if _boss_mechanic_runner != null and is_instance_valid(_boss_mechanic_runner):
+		_boss_mechanic_runner.call("stop_all_mechanics")
+	if _stage_manager != null and is_instance_valid(_stage_manager):
+		_stage_manager.call("on_battle_ended", winner_team, summary)
+	_update_shop_ui()
 
 
 func _on_bench_changed() -> void:
@@ -316,17 +327,76 @@ func _finish_drag() -> void:
 func _on_data_reloaded(is_full_reload: bool, summary: Dictionary) -> void:
 	super._on_data_reloaded(is_full_reload, summary)
 	_rebuild_battle_data_caches()
+	if _stage_manager != null and is_instance_valid(_stage_manager):
+		var data_manager: Node = _get_root_node("DataManager")
+		_stage_manager.call("load_stage_sequence", data_manager)
+		var current_stage_id: String = str(_stage_manager.call("get_current_stage_id"))
+		if current_stage_id.is_empty() or not bool(_stage_manager.call("start_stage", current_stage_id)):
+			_stage_manager.call("start_first_stage")
 	_refresh_shop_for_preparation(true)
 
 
 func _on_gongfa_data_reloaded(summary: Dictionary) -> void:
 	super._on_gongfa_data_reloaded(summary)
 	_rebuild_battle_data_caches()
+	if _stage_manager != null and is_instance_valid(_stage_manager):
+		var data_manager: Node = _get_root_node("DataManager")
+		_stage_manager.call("load_stage_sequence", data_manager)
+		var current_stage_id: String = str(_stage_manager.call("get_current_stage_id"))
+		if not current_stage_id.is_empty():
+			_stage_manager.call("start_stage", current_stage_id)
 	_refresh_shop_for_preparation(true)
+
+
+func _is_ally_deploy_zone(cell: Vector2i) -> bool:
+	if not bool(hex_grid.is_inside_grid(cell)):
+		return false
+	var x_min: int = int(_current_deploy_zone.get("x_min", 0))
+	var x_max: int = int(_current_deploy_zone.get("x_max", 15))
+	var y_min: int = int(_current_deploy_zone.get("y_min", 0))
+	var y_max: int = int(_current_deploy_zone.get("y_max", int(hex_grid.grid_height) - 1))
+	return cell.x >= x_min and cell.x <= x_max and cell.y >= y_min and cell.y <= y_max
+
+
+func _collect_ally_spawn_cells() -> Array[Vector2i]:
+	var cells: Array[Vector2i] = []
+	var width: int = int(hex_grid.grid_width)
+	var height: int = int(hex_grid.grid_height)
+	for y in range(height):
+		for x in range(width):
+			var cell: Vector2i = Vector2i(x, y)
+			if _is_ally_deploy_zone(cell) and not _is_stage_cell_blocked(cell):
+				cells.append(cell)
+	return cells
+
+
+func _collect_enemy_spawn_cells() -> Array[Vector2i]:
+	var cells: Array[Vector2i] = []
+	var width: int = int(hex_grid.grid_width)
+	var height: int = int(hex_grid.grid_height)
+	for y in range(height):
+		for x in range(width):
+			var cell: Vector2i = Vector2i(x, y)
+			if _is_ally_deploy_zone(cell):
+				continue
+			if _is_stage_cell_blocked(cell):
+				continue
+			cells.append(cell)
+	return cells
+
+
+func _is_stage_cell_blocked(cell: Vector2i) -> bool:
+	if _obstacle_manager == null or not is_instance_valid(_obstacle_manager):
+		return false
+	if not _obstacle_manager.has_method("is_cell_blocked"):
+		return false
+	return bool(_obstacle_manager.call("is_cell_blocked", cell))
 
 
 func _can_deploy_ally_to_cell(unit: Node, cell: Vector2i) -> bool:
 	if not super._can_deploy_ally_to_cell(unit, cell):
+		return false
+	if _is_stage_cell_blocked(cell):
 		return false
 	if _economy_manager == null:
 		return true
@@ -337,19 +407,302 @@ func _can_deploy_ally_to_cell(unit: Node, cell: Vector2i) -> bool:
 	return true
 
 
+func _spawn_enemy_wave(count: int) -> void:
+	if _spawn_enemies_from_stage_config():
+		return
+	super._spawn_enemy_wave(count)
+
+
+func _spawn_enemies_from_stage_config() -> bool:
+	if _current_stage_config.is_empty():
+		return false
+	_clear_enemy_wave()
+	var enemies_value: Variant = _current_stage_config.get("enemies", [])
+	if not (enemies_value is Array):
+		return true
+	var enemies: Array = enemies_value
+	if enemies.is_empty():
+		return true
+
+	var occupied: Dictionary = {}
+	for raw_enemy in enemies:
+		if not (raw_enemy is Dictionary):
+			continue
+		var enemy_cfg: Dictionary = raw_enemy
+		var unit_id: String = str(enemy_cfg.get("unit_id", "")).strip_edges()
+		var spawn_count: int = maxi(int(enemy_cfg.get("count", 0)), 0)
+		if unit_id.is_empty() or spawn_count <= 0:
+			continue
+		var is_boss_cfg: bool = _is_stage_boss_enemy_cfg(enemy_cfg)
+		var spawn_cells: Array[Vector2i] = _resolve_stage_enemy_cells(enemy_cfg, spawn_count, occupied)
+		var forced_star: int = clampi(int(enemy_cfg.get("star", 1)), 1, 3)
+		for cell in spawn_cells:
+			var unit_node: Node = unit_factory.call("acquire_unit", unit_id, forced_star, unit_layer)
+			if unit_node == null:
+				continue
+			if is_boss_cfg:
+				unit_node.set_meta("stage_is_boss", true)
+			_apply_stage_enemy_overrides(unit_node, enemy_cfg)
+			_deploy_enemy_unit_to_cell(unit_node, cell)
+	return true
+
+
+func _resolve_stage_enemy_cells(enemy_cfg: Dictionary, wanted_count: int, occupied: Dictionary) -> Array[Vector2i]:
+	var zone: String = str(enemy_cfg.get("deploy_zone", "random")).strip_edges().to_lower()
+	var candidates: Array[Vector2i] = []
+	if zone == "fixed":
+		var fixed_cells_value: Variant = enemy_cfg.get("fixed_cells", [])
+		if fixed_cells_value is Array:
+			for cell_value in fixed_cells_value:
+				if not (cell_value is Vector2i):
+					continue
+				var fixed_cell: Vector2i = cell_value as Vector2i
+				if not bool(hex_grid.is_inside_grid(fixed_cell)):
+					continue
+				if _is_ally_deploy_zone(fixed_cell):
+					continue
+				if _is_stage_cell_blocked(fixed_cell):
+					continue
+				if _ally_deployed.has(_cell_key(fixed_cell)) or _enemy_deployed.has(_cell_key(fixed_cell)):
+					continue
+				if occupied.has(_cell_key(fixed_cell)):
+					continue
+				candidates.append(fixed_cell)
+		return _pick_stage_enemy_cells(candidates, wanted_count, occupied)
+
+	var zone_cells: Array[Vector2i] = _collect_enemy_cells_by_zone(zone)
+	return _pick_stage_enemy_cells(zone_cells, wanted_count, occupied)
+
+
+func _collect_enemy_cells_by_zone(zone: String) -> Array[Vector2i]:
+	var all_enemy_cells: Array[Vector2i] = _collect_enemy_spawn_cells()
+	if all_enemy_cells.is_empty():
+		return []
+	var width: int = int(hex_grid.grid_width)
+	var x_min: int = int(_current_deploy_zone.get("x_min", 0))
+	var x_max: int = int(_current_deploy_zone.get("x_max", 15))
+	var y_min: int = int(_current_deploy_zone.get("y_min", 0))
+	var y_max: int = int(_current_deploy_zone.get("y_max", int(hex_grid.grid_height) - 1))
+	var enemy_x_start: int = clampi(x_max + 1, 0, width - 1)
+	var enemy_x_end: int = width - 1
+	var enemy_span: int = maxi(enemy_x_end - enemy_x_start + 1, 1)
+	var third: int = maxi(int(round(float(enemy_span) / 3.0)), 1)
+
+	var front_cells: Array[Vector2i] = []
+	var back_cells: Array[Vector2i] = []
+	var center_cells: Array[Vector2i] = []
+	var center_x_min: int = clampi(enemy_x_start + enemy_span / 3, enemy_x_start, enemy_x_end)
+	var center_x_max: int = clampi(enemy_x_end - enemy_span / 3, enemy_x_start, enemy_x_end)
+	var center_y_min: int = y_min + maxi((y_max - y_min) / 4, 0)
+	var center_y_max: int = y_max - maxi((y_max - y_min) / 4, 0)
+
+	for cell in all_enemy_cells:
+		if cell.x <= enemy_x_start + third - 1:
+			front_cells.append(cell)
+		if cell.x >= enemy_x_end - third + 1:
+			back_cells.append(cell)
+		if cell.x >= center_x_min and cell.x <= center_x_max and cell.y >= center_y_min and cell.y <= center_y_max:
+			center_cells.append(cell)
+
+	match zone:
+		"front":
+			return front_cells if not front_cells.is_empty() else all_enemy_cells
+		"back":
+			return back_cells if not back_cells.is_empty() else all_enemy_cells
+		"center":
+			return center_cells if not center_cells.is_empty() else all_enemy_cells
+		_:
+			return all_enemy_cells
+
+
+func _pick_stage_enemy_cells(candidates: Array[Vector2i], wanted_count: int, occupied: Dictionary) -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+	if candidates.is_empty() or wanted_count <= 0:
+		return result
+	var pool: Array[Vector2i] = candidates.duplicate()
+	_shuffle_cells(pool, _stage_enemy_rng)
+	for cell in pool:
+		if result.size() >= wanted_count:
+			break
+		var key: String = _cell_key(cell)
+		if occupied.has(key):
+			continue
+		if _ally_deployed.has(key) or _enemy_deployed.has(key):
+			continue
+		occupied[key] = true
+		result.append(cell)
+	return result
+
+
+func _apply_stage_enemy_overrides(unit_node: Node, enemy_cfg: Dictionary) -> void:
+	if unit_node == null or not _is_valid_unit(unit_node):
+		return
+	var stat_scale: float = maxf(float(enemy_cfg.get("stat_scale", 1.0)), 0.01)
+	if not is_equal_approx(stat_scale, 1.0):
+		var base_stats: Dictionary = (unit_node.get("base_stats") as Dictionary).duplicate(true)
+		for stat_key in base_stats.keys():
+			var current_value: Variant = base_stats[stat_key]
+			if current_value is int or current_value is float:
+				base_stats[stat_key] = float(current_value) * stat_scale
+		unit_node.set("base_stats", base_stats)
+		unit_node.call("_apply_runtime_stats")
+
+	var gongfa_ids_value: Variant = enemy_cfg.get("gongfa_ids", [])
+	if gongfa_ids_value is Array and not (gongfa_ids_value as Array).is_empty():
+		var slots: Dictionary = _normalize_unit_slots(unit_node.get("gongfa_slots"))
+		for gongfa_id_value in (gongfa_ids_value as Array):
+			var gongfa_id: String = str(gongfa_id_value).strip_edges()
+			if gongfa_id.is_empty():
+				continue
+			var gongfa_data: Dictionary = gongfa_manager.call("get_gongfa_data", gongfa_id) if gongfa_manager != null else {}
+			var slot: String = str(gongfa_data.get("type", "")).strip_edges()
+			if not slot.is_empty() and slots.has(slot):
+				slots[slot] = gongfa_id
+		unit_node.set("gongfa_slots", slots)
+
+	var equip_ids_value: Variant = enemy_cfg.get("equip_ids", [])
+	if equip_ids_value is Array and not (equip_ids_value as Array).is_empty():
+		var equip_slots: Dictionary = _normalize_equip_slots(_get_unit_equip_slots(unit_node))
+		for equip_id_value in (equip_ids_value as Array):
+			var equip_id: String = str(equip_id_value).strip_edges()
+			if equip_id.is_empty():
+				continue
+			var equip_data: Dictionary = gongfa_manager.call("get_equipment_data", equip_id) if gongfa_manager != null else {}
+			var slot2: String = str(equip_data.get("type", "")).strip_edges()
+			if not slot2.is_empty() and equip_slots.has(slot2):
+				equip_slots[slot2] = equip_id
+		unit_node.set("equip_slots", equip_slots)
+
+	if gongfa_manager != null:
+		gongfa_manager.call("apply_gongfa", unit_node)
+
+
+func _is_stage_boss_enemy_cfg(enemy_cfg: Dictionary) -> bool:
+	if bool(enemy_cfg.get("is_boss", false)):
+		return true
+	var stage_type: String = str(_current_stage_config.get("type", "normal")).strip_edges().to_lower()
+	if stage_type != "boss":
+		return false
+	var deploy_zone: String = str(enemy_cfg.get("deploy_zone", "random")).strip_edges().to_lower()
+	var count: int = maxi(int(enemy_cfg.get("count", 1)), 0)
+	var star: int = clampi(int(enemy_cfg.get("star", 1)), 1, 3)
+	return count == 1 and (deploy_zone == "center" or star >= 3)
+
+
+func get_primary_boss_unit() -> Node:
+	var tagged_boss: Node = null
+	for unit in _enemy_deployed.values():
+		if not _is_valid_unit(unit):
+			continue
+		if not _is_enemy_unit_alive(unit):
+			continue
+		if bool((unit as Node).get_meta("stage_is_boss", false)):
+			tagged_boss = unit as Node
+			break
+	if tagged_boss != null:
+		return tagged_boss
+
+	var fallback_boss: Node = null
+	var best_hp: float = -1.0
+	for unit in _enemy_deployed.values():
+		if not _is_valid_unit(unit):
+			continue
+		if not _is_enemy_unit_alive(unit):
+			continue
+		var combat: Node = (unit as Node).get_node_or_null("Components/UnitCombat")
+		if combat == null:
+			continue
+		var hp: float = float(combat.get("max_hp"))
+		if hp > best_hp:
+			best_hp = hp
+			fallback_boss = unit as Node
+	return fallback_boss
+
+
+func spawn_mechanic_enemy_wave(wave_units_value: Variant) -> int:
+	if not (wave_units_value is Array):
+		return 0
+	var wave_units: Array = wave_units_value
+	if wave_units.is_empty():
+		return 0
+
+	var occupied: Dictionary = {}
+	for key in _ally_deployed.keys():
+		occupied[str(key)] = true
+	for key in _enemy_deployed.keys():
+		occupied[str(key)] = true
+
+	var spawned_total: int = 0
+	for row_value in wave_units:
+		if not (row_value is Dictionary):
+			continue
+		var row: Dictionary = (row_value as Dictionary).duplicate(true)
+		var unit_id: String = str(row.get("unit_id", "")).strip_edges()
+		var count: int = maxi(int(row.get("count", 1)), 0)
+		var star: int = clampi(int(row.get("star", 1)), 1, 3)
+		if unit_id.is_empty() or count <= 0:
+			continue
+		if not row.has("deploy_zone"):
+			row["deploy_zone"] = "back"
+		var spawn_cells: Array[Vector2i] = _resolve_stage_enemy_cells(row, count, occupied)
+		for cell in spawn_cells:
+			var unit_node: Node = unit_factory.call("acquire_unit", unit_id, star, unit_layer)
+			if unit_node == null:
+				continue
+			_apply_stage_enemy_overrides(unit_node, row)
+			_deploy_enemy_unit_to_cell(unit_node, cell)
+			if combat_manager != null \
+			and combat_manager.has_method("is_battle_running") \
+			and bool(combat_manager.call("is_battle_running")) \
+			and combat_manager.has_method("add_unit_mid_battle"):
+				combat_manager.call("add_unit_mid_battle", unit_node)
+			spawned_total += 1
+
+	if spawned_total > 0:
+		_refresh_multimesh()
+		_refresh_all_ui()
+	return spawned_total
+
+
+func _is_enemy_unit_alive(unit: Node) -> bool:
+	if unit == null or not is_instance_valid(unit):
+		return false
+	var combat: Node = unit.get_node_or_null("Components/UnitCombat")
+	if combat == null:
+		return false
+	return bool(combat.get("is_alive"))
+
+
+func _is_non_combat_stage(config: Dictionary) -> bool:
+	if config.is_empty():
+		return false
+	var stage_type: String = str(config.get("type", "normal")).strip_edges().to_lower()
+	return stage_type == "rest" or stage_type == "event"
+
+
 func _start_combat() -> void:
 	# 开战前按门派等级动态收紧自动上场上限。
 	if _battle_flow != null and is_instance_valid(_battle_flow):
 		_battle_flow.call("prepare_for_battle_start")
 	if _economy_manager != null:
 		max_auto_deploy = _economy_manager.get_max_deploy_limit()
+	# 休息/事件关不进入战斗，按一次“开始战斗”直接结算关卡奖励并推进。
+	if _is_non_combat_stage(_current_stage_config):
+		if _stage_manager != null and is_instance_valid(_stage_manager):
+			if bool(_stage_manager.call("complete_current_stage_without_battle")):
+				return
 	super._start_combat()
-	if bool(combat_manager.call("is_battle_running")) and _battle_flow != null and is_instance_valid(_battle_flow):
-		_battle_flow.call(
-			"start_battle_capture",
-			_collect_units_from_map(_ally_deployed),
-			_collect_units_from_map(_enemy_deployed)
-		)
+	if bool(combat_manager.call("is_battle_running")):
+		if _stage_manager != null and is_instance_valid(_stage_manager):
+			_stage_manager.call("notify_stage_combat_started")
+		if _boss_mechanic_runner != null and is_instance_valid(_boss_mechanic_runner):
+			_boss_mechanic_runner.call("start_stage_mechanics", _current_stage_config)
+		if _battle_flow != null and is_instance_valid(_battle_flow):
+			_battle_flow.call(
+				"start_battle_capture",
+				_collect_units_from_map(_ally_deployed),
+				_collect_units_from_map(_enemy_deployed)
+			)
 
 
 func _rebuild_inventory_items() -> void:
@@ -583,6 +936,7 @@ func _on_slot_unequip_pressed(slot_category: String, slot: String) -> void:
 
 
 func _bootstrap_battle_services() -> void:
+	var data_manager: Node = _get_root_node("DataManager")
 	if _economy_manager == null:
 		_economy_manager = ECONOMY_MANAGER_SCRIPT.new() as Node
 		_economy_manager.name = "RuntimeEconomyManager"
@@ -591,11 +945,43 @@ func _bootstrap_battle_services() -> void:
 		_shop_manager = SHOP_MANAGER_SCRIPT.new() as Node
 		_shop_manager.name = "RuntimeShopManager"
 		add_child(_shop_manager)
+	if _stage_manager == null:
+		_stage_manager = STAGE_MANAGER_SCRIPT.new() as Node
+		_stage_manager.name = "RuntimeStageManager"
+		add_child(_stage_manager)
+	if _obstacle_manager == null:
+		_obstacle_manager = OBSTACLE_MANAGER_SCRIPT.new() as Node
+		_obstacle_manager.name = "RuntimeObstacleManager"
+		add_child(_obstacle_manager)
+	if _boss_mechanic_runner == null:
+		_boss_mechanic_runner = BOSS_MECHANIC_RUNNER_SCRIPT.new() as Node
+		_boss_mechanic_runner.name = "RuntimeBossMechanicRunner"
+		add_child(_boss_mechanic_runner)
 	_rebuild_battle_data_caches()
 
 	if _economy_manager != null:
-		var data_manager: Node = _get_root_node("DataManager")
 		_economy_manager.setup_from_data_manager(data_manager)
+	if _stage_manager != null:
+		_stage_manager.call(
+			"configure_runtime_context",
+			_economy_manager,
+			bench_ui,
+			self,
+			unit_factory,
+			TEAM_ALLY
+		)
+		_stage_manager.call("load_stage_sequence", data_manager)
+	if _obstacle_manager != null and hex_grid != null:
+		_obstacle_manager.call("configure_visual_parent", hex_grid)
+	if _boss_mechanic_runner != null and is_instance_valid(_boss_mechanic_runner):
+		_boss_mechanic_runner.call(
+			"configure_context",
+			self,
+			combat_manager,
+			unit_factory,
+			hex_grid,
+			TEAM_ENEMY
+		)
 
 
 func _rebuild_battle_data_caches() -> void:
@@ -617,6 +1003,22 @@ func _connect_battle_ui_signals() -> void:
 		var refresh_cb: Callable = Callable(self, "_on_shop_snapshot_refreshed")
 		if not _shop_manager.is_connected("shop_refreshed", refresh_cb):
 			_shop_manager.connect("shop_refreshed", refresh_cb)
+	if _stage_manager != null:
+		var stage_loaded_cb: Callable = Callable(self, "_on_stage_loaded")
+		if _stage_manager.has_signal("stage_loaded") and not _stage_manager.is_connected("stage_loaded", stage_loaded_cb):
+			_stage_manager.connect("stage_loaded", stage_loaded_cb)
+		var stage_combat_cb: Callable = Callable(self, "_on_stage_combat_started")
+		if _stage_manager.has_signal("stage_combat_started") and not _stage_manager.is_connected("stage_combat_started", stage_combat_cb):
+			_stage_manager.connect("stage_combat_started", stage_combat_cb)
+		var stage_completed_cb: Callable = Callable(self, "_on_stage_completed")
+		if _stage_manager.has_signal("stage_completed") and not _stage_manager.is_connected("stage_completed", stage_completed_cb):
+			_stage_manager.connect("stage_completed", stage_completed_cb)
+		var stage_failed_cb: Callable = Callable(self, "_on_stage_failed")
+		if _stage_manager.has_signal("stage_failed") and not _stage_manager.is_connected("stage_failed", stage_failed_cb):
+			_stage_manager.connect("stage_failed", stage_failed_cb)
+		var all_cleared_cb: Callable = Callable(self, "_on_all_stages_cleared")
+		if _stage_manager.has_signal("all_stages_cleared") and not _stage_manager.is_connected("all_stages_cleared", all_cleared_cb):
+			_stage_manager.connect("all_stages_cleared", all_cleared_cb)
 
 	if _recycle_drop_zone != null and is_instance_valid(_recycle_drop_zone):
 		var sell_cb: Callable = Callable(self, "_on_recycle_sell_requested")
@@ -632,6 +1034,149 @@ func _connect_battle_ui_signals() -> void:
 	var upgrade_cb_btn: Callable = Callable(self, "_on_bottom_upgrade_pressed")
 	if upgrade_button != null and not upgrade_button.is_connected("pressed", upgrade_cb_btn):
 		upgrade_button.connect("pressed", upgrade_cb_btn)
+
+
+func _initialize_stage_progression() -> void:
+	if _stage_manager == null or not is_instance_valid(_stage_manager):
+		return
+	var data_manager: Node = _get_root_node("DataManager")
+	_stage_manager.call("load_stage_sequence", data_manager)
+	var started: bool = bool(_stage_manager.call("start_first_stage"))
+	if not started:
+		debug_label.text = "M5 提示：未检测到关卡配置，沿用旧战场模式。"
+
+
+func _on_stage_loaded(config: Dictionary) -> void:
+	_current_stage_config = config.duplicate(true)
+	_round_index = maxi(int(_current_stage_config.get("index", _round_index)), 1)
+	_apply_stage_runtime_config(_current_stage_config)
+	# 切回布阵期，准备下一关。
+	_set_stage(Stage.PREPARATION)
+	_refresh_shop_for_preparation(false)
+	_update_shop_ui()
+	var stage_name: String = str(_current_stage_config.get("name", str(_current_stage_config.get("id", "未知关卡"))))
+	var stage_type: String = str(_current_stage_config.get("type", "normal"))
+	_append_battle_log("进入关卡：%s（%s）" % [stage_name, stage_type], "system")
+	debug_label.text = "当前关卡：%s（布阵阶段）" % stage_name
+
+
+func _on_stage_combat_started(config: Dictionary) -> void:
+	var stage_name: String = str(config.get("name", str(config.get("id", "未知关卡"))))
+	_append_battle_log("关卡开战：%s" % stage_name, "system")
+
+
+func _on_stage_completed(config: Dictionary, rewards: Dictionary) -> void:
+	var stage_name: String = str(config.get("name", str(config.get("id", "未知关卡"))))
+	var silver: int = int(rewards.get("silver", 0))
+	var exp_value: int = int(rewards.get("exp", 0))
+	var granted_units: int = (rewards.get("granted_units", []) as Array).size() if rewards.get("granted_units", []) is Array else 0
+	var drops_count: int = (rewards.get("drops", []) as Array).size() if rewards.get("drops", []) is Array else 0
+	_append_battle_log(
+		"关卡胜利：%s，奖励 银两+%d 经验+%d 掉落%d 侠客%d" % [stage_name, silver, exp_value, drops_count, granted_units],
+		"system"
+	)
+	var advanced: bool = false
+	if _stage_manager != null and is_instance_valid(_stage_manager):
+		advanced = bool(_stage_manager.call("advance_to_next_stage"))
+	if not advanced:
+		return
+	return
+
+
+func _on_stage_failed(config: Dictionary) -> void:
+	var stage_name: String = str(config.get("name", str(config.get("id", "未知关卡"))))
+	_append_battle_log("关卡失败：%s（按 F7 重置，或调试后重开）" % stage_name, "death")
+
+
+func _on_all_stages_cleared() -> void:
+	_append_battle_log("全部关卡已完成，恭喜通关。", "system")
+	debug_label.text = "全部关卡已完成。按 F7 可重开。"
+
+
+func _apply_stage_runtime_config(config: Dictionary) -> void:
+	if _boss_mechanic_runner != null and is_instance_valid(_boss_mechanic_runner):
+		_boss_mechanic_runner.call("stop_all_mechanics")
+	_apply_stage_grid_config(config.get("grid", {}))
+	_apply_stage_obstacles(config.get("obstacles", []))
+	_clear_enemy_wave()
+	# 若仍残留战斗状态，强制停战并重置计时。
+	if combat_manager != null and combat_manager.has_method("is_battle_running") and bool(combat_manager.call("is_battle_running")):
+		if combat_manager.has_method("stop_battle"):
+			combat_manager.call("stop_battle", "stage_switched", 0)
+	_combat_elapsed = 0.0
+	_refresh_deployed_positions()
+	_apply_visual_to_all_units()
+	_refresh_all_ui()
+
+
+func _apply_stage_grid_config(grid_value: Variant) -> void:
+	var grid_cfg: Dictionary = {}
+	if grid_value is Dictionary:
+		grid_cfg = (grid_value as Dictionary).duplicate(true)
+	var width: int = maxi(int(grid_cfg.get("width", int(hex_grid.grid_width))), 4)
+	var height: int = maxi(int(grid_cfg.get("height", int(hex_grid.grid_height))), 4)
+	hex_grid.grid_width = width
+	hex_grid.grid_height = height
+	_stage_forced_hex_size = -1.0
+	if grid_cfg.has("hex_size"):
+		_stage_forced_hex_size = maxf(float(grid_cfg.get("hex_size", -1.0)), 8.0)
+		hex_grid.hex_size = _stage_forced_hex_size
+	if grid_cfg.get("deploy_zone", null) is Dictionary:
+		_current_deploy_zone = (grid_cfg.get("deploy_zone", {}) as Dictionary).duplicate(true)
+	else:
+		_current_deploy_zone = DEFAULT_DEPLOY_ZONE.duplicate(true)
+	_current_deploy_zone["x_min"] = clampi(int(_current_deploy_zone.get("x_min", 0)), 0, width - 1)
+	_current_deploy_zone["x_max"] = clampi(int(_current_deploy_zone.get("x_max", 15)), 0, width - 1)
+	_current_deploy_zone["y_min"] = clampi(int(_current_deploy_zone.get("y_min", 0)), 0, height - 1)
+	_current_deploy_zone["y_max"] = clampi(int(_current_deploy_zone.get("y_max", height - 1)), 0, height - 1)
+	if int(_current_deploy_zone["x_min"]) > int(_current_deploy_zone["x_max"]):
+		var swap_x: int = int(_current_deploy_zone["x_min"])
+		_current_deploy_zone["x_min"] = int(_current_deploy_zone["x_max"])
+		_current_deploy_zone["x_max"] = swap_x
+	if int(_current_deploy_zone["y_min"]) > int(_current_deploy_zone["y_max"]):
+		var swap_y: int = int(_current_deploy_zone["y_min"])
+		_current_deploy_zone["y_min"] = int(_current_deploy_zone["y_max"])
+		_current_deploy_zone["y_max"] = swap_y
+	# 兼容旧逻辑：仍同步到 ally_deploy_columns，避免未覆写路径读到旧值。
+	ally_deploy_columns = int(_current_deploy_zone["x_max"]) + 1
+	if deploy_overlay != null and deploy_overlay.has_method("set_deploy_zone_rect"):
+		deploy_overlay.call(
+			"set_deploy_zone_rect",
+			int(_current_deploy_zone.get("x_min", 0)),
+			int(_current_deploy_zone.get("x_max", 15)),
+			int(_current_deploy_zone.get("y_min", 0)),
+			int(_current_deploy_zone.get("y_max", height - 1))
+		)
+	elif deploy_overlay != null and deploy_overlay.has_method("set_ally_columns"):
+		deploy_overlay.call("set_ally_columns", ally_deploy_columns)
+	_refit_hex_grid()
+
+
+func _calculate_fit_hex_size(available_w: float, available_h: float) -> float:
+	if _stage_forced_hex_size > 0.0:
+		# M5 支持关卡自定义 hex_size：优先使用关卡配置，并保留一个最小可视下限。
+		return maxf(_stage_forced_hex_size, 8.0)
+	return super._calculate_fit_hex_size(available_w, available_h)
+
+
+func _apply_stage_obstacles(obstacles_value: Variant) -> void:
+	if _obstacle_manager == null or not is_instance_valid(_obstacle_manager):
+		if combat_manager != null and combat_manager.has_method("clear_static_blocked_cells"):
+			combat_manager.call("clear_static_blocked_cells")
+		return
+	var obstacles: Array = []
+	if obstacles_value is Array:
+		obstacles = obstacles_value
+	_obstacle_manager.call("spawn_obstacles", obstacles, hex_grid)
+	var blocked_cells: Array[Vector2i] = []
+	if _obstacle_manager.has_method("get_all_blocked_cells"):
+		var blocked_value: Variant = _obstacle_manager.call("get_all_blocked_cells")
+		if blocked_value is Array:
+			for cell_value in blocked_value:
+				if cell_value is Vector2i:
+					blocked_cells.append(cell_value as Vector2i)
+	if combat_manager != null and combat_manager.has_method("set_static_blocked_cells"):
+		combat_manager.call("set_static_blocked_cells", blocked_cells)
 
 
 func _simplify_bottom_workspace_ui() -> void:
@@ -1418,6 +1963,79 @@ func _spawn_random_units_to_bench(count: int) -> void:
 	# 在通用生成逻辑后，补一轮“医者保底治疗功法”。
 	super._spawn_random_units_to_bench(count)
 	_apply_default_healer_skills_for_bench()
+
+
+func grant_stage_reward_item(item_type: String, item_id: String, count: int = 1) -> bool:
+	var normalized_type: String = item_type.strip_edges().to_lower()
+	var amount: int = maxi(count, 1)
+	if item_id.strip_edges().is_empty():
+		return false
+	match normalized_type:
+		"gongfa":
+			_add_owned_item("gongfa", item_id, amount)
+			_refresh_all_ui()
+			return true
+		"equipment":
+			_add_owned_item("equipment", item_id, amount)
+			_refresh_all_ui()
+			return true
+		_:
+			return false
+
+
+func grant_stage_reward_unit(unit_id: String, star: int = 1) -> Dictionary:
+	var result: Dictionary = {
+		"type": "unit",
+		"id": unit_id,
+		"star": clampi(star, 1, 3),
+		"granted": false,
+		"placement": "discarded"
+	}
+	if unit_id.strip_edges().is_empty():
+		return result
+	var unit_node: Node = unit_factory.call("acquire_unit", unit_id, clampi(star, 1, 3), unit_layer)
+	if unit_node == null:
+		return result
+	unit_node.call("set_team", TEAM_ALLY)
+	unit_node.call("set_on_bench_state", true, -1)
+	unit_node.set("is_in_combat", false)
+	_ensure_healer_default_skill(unit_node)
+
+	# 优先放备战席；满员时退化为“棋盘部署区随机空格”。
+	if bench_ui != null and bench_ui.has_method("add_unit") and bool(bench_ui.call("add_unit", unit_node)):
+		result["granted"] = true
+		result["placement"] = "bench"
+		_apply_visual_to_all_units()
+		_refresh_all_ui()
+		return result
+
+	var board_cell: Vector2i = _find_reward_unit_board_cell()
+	if board_cell.x >= 0:
+		_deploy_ally_unit_to_cell(unit_node, board_cell)
+		result["granted"] = true
+		result["placement"] = "board"
+		result["cell"] = board_cell
+		_apply_visual_to_all_units()
+		_refresh_all_ui()
+		return result
+
+	unit_factory.call("release_unit", unit_node)
+	return result
+
+
+func _find_reward_unit_board_cell() -> Vector2i:
+	var candidates: Array[Vector2i] = _collect_ally_spawn_cells()
+	if candidates.is_empty():
+		return Vector2i(-1, -1)
+	_shuffle_cells(candidates, _stage_enemy_rng)
+	for cell in candidates:
+		var cell_key: String = _cell_key(cell)
+		if _ally_deployed.has(cell_key):
+			continue
+		if _is_stage_cell_blocked(cell):
+			continue
+		return cell
+	return Vector2i(-1, -1)
 
 
 func _add_owned_item(category: String, item_id: String, amount: int) -> void:

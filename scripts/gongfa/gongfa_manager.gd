@@ -258,11 +258,14 @@ func equip_gongfa(unit: Node, slot: String, gongfa_id: String) -> bool:
 		return false
 	if not _registry.has_gongfa(gongfa_id):
 		return false
+	# 功法类型必须和目标槽位严格一致，确保“每类功法只占自己的槽位”。
+	var gongfa_data: Dictionary = _registry.get_gongfa(gongfa_id)
+	var gongfa_type: String = str(gongfa_data.get("type", "")).strip_edges()
+	if gongfa_type != slot:
+		return false
 
 	var slots: Dictionary = _normalize_slots_dict(_node_prop(unit, "gongfa_slots", {}))
 	slots[slot] = gongfa_id
-	if _count_filled_slots(slots) > int(_node_prop(unit, "max_gongfa_count", 3)):
-		return false
 
 	unit.set("gongfa_slots", slots)
 	apply_gongfa(unit)
@@ -375,7 +378,6 @@ func _build_unit_baseline_stats(unit: Node) -> Dictionary:
 
 func _resolve_equipped_gongfa_ids(unit: Node) -> Array[String]:
 	var ids: Array[String] = []
-	var max_count: int = maxi(int(_node_prop(unit, "max_gongfa_count", 3)), 1)
 	var slots: Dictionary = _normalize_slots_dict(_node_prop(unit, "gongfa_slots", {}))
 	for slot in ALLOWED_SLOTS:
 		var gid: String = str(slots.get(slot, "")).strip_edges()
@@ -384,8 +386,6 @@ func _resolve_equipped_gongfa_ids(unit: Node) -> Array[String]:
 		if ids.has(gid):
 			continue
 		ids.append(gid)
-		if ids.size() >= max_count:
-			return ids
 
 	return ids
 

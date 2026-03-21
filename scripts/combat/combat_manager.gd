@@ -106,6 +106,7 @@ var _metric_last_tick: Dictionary = {}
 # - _unit_cell：单位 -> 当前逻辑格子
 var _cell_occupancy: Dictionary = {} # int(cell_key) -> int(unit_instance_id)
 var _unit_cell: Dictionary = {}      # int(unit_instance_id) -> Vector2i
+var _static_blocked_cells: Dictionary = {} # int(cell_key) -> true（地形障碍等固定阻挡）
 
 
 func _ready() -> void:
@@ -134,8 +135,136 @@ func configure_dependencies(hex_grid: Node, vfx_factory: Node) -> void:
 	_vfx_factory = vfx_factory
 
 
+func set_static_blocked_cells(cells: Array[Vector2i]) -> void:
+	_static_blocked_cells.clear()
+	for cell in cells:
+		var key: int = _cell_key_int(cell)
+		_static_blocked_cells[key] = true
+
+
+func clear_static_blocked_cells() -> void:
+	_static_blocked_cells.clear()
+
+
 func is_battle_running() -> bool:
 	return _battle_running
+
+
+func get_logic_time() -> float:
+	return _logic_time
+
+
+func get_alive_units(team_id: int = 0) -> Array[Node]:
+	var output: Array[Node] = []
+	if team_id == TEAM_ALLY or team_id == TEAM_ENEMY:
+		var cached_team: Array = _team_alive_cache.get(team_id, [])
+		for unit in cached_team:
+			if _is_live_unit(unit) and _is_unit_alive(unit):
+				output.append(unit)
+		return output
+	for unit in _all_units:
+		if _is_live_unit(unit) and _is_unit_alive(unit):
+			output.append(unit)
+	return output
+
+
+func get_unit_cell_of(unit: Node) -> Vector2i:
+	return _get_unit_cell(unit)
+
+
+func add_unit_mid_battle(unit: Node) -> bool:
+	if not _battle_running:
+		return false
+	if not _is_live_unit(unit):
+		return false
+	var iid: int = unit.get_instance_id()
+	if _unit_by_instance_id.has(iid):
+		return true
+
+	var team_id: int = int(unit.get("team_id"))
+	if team_id != TEAM_ALLY and team_id != TEAM_ENEMY:
+		team_id = TEAM_ENEMY
+		unit.call("set_team", team_id)
+
+	_prepare_unit_for_battle(unit, team_id)
+	_cache_components_for_unit(unit)
+	var combat: Node = _get_combat(unit)
+	if combat == null:
+		return false
+	combat.call("prepare_for_battle")
+	var movement: Node = _get_movement(unit)
+	if movement != null:
+		movement.call("clear_target")
+
+	_all_units.append(unit)
+	_unit_by_instance_id[iid] = unit
+	_dead_registry.erase(iid)
+	_spatial_hash.update(iid, unit.position)
+	_unit_position_cache[iid] = unit.position
+	_alive_by_team[team_id] = int(_alive_by_team.get(team_id, 0)) + 1
+	var alive_list: Array = _team_alive_cache.get(team_id, [])
+	alive_list.append(unit)
+	_team_alive_cache[team_id] = alive_list
+
+	if _hex_grid != null:
+		var start_cell: Vector2i = _hex_grid.call("world_to_axial", unit.position)
+		if bool(_hex_grid.call("is_inside_grid", start_cell)):
+			var resolved_cell: Vector2i = start_cell
+			if not _is_cell_free(resolved_cell):
+				resolved_cell = _find_nearest_free_cell(start_cell)
+			if resolved_cell.x >= 0 and _occupy_cell(resolved_cell, unit):
+				var node_2d: Node2D = unit as Node2D
+				if node_2d != null:
+					node_2d.position = _hex_grid.call("axial_to_world", resolved_cell)
+	return true
+
+
+func apply_environment_damage(
+	target: Node,
+	damage_amount: float,
+	source: Node = null,
+	damage_type: String = "internal"
+) -> Dictionary:
+	if not _battle_running:
+		return {}
+	if not _is_live_unit(target):
+		return {}
+	if not _is_unit_alive(target):
+		return {}
+	var combat: Node = _get_combat(target)
+	if combat == null:
+		return {}
+	var result_value: Variant = combat.call(
+		"receive_damage",
+		maxf(damage_amount, 0.0),
+		source,
+		damage_type,
+		true,
+		false,
+		false
+	)
+	if not (result_value is Dictionary):
+		return {}
+	var result: Dictionary = result_value
+	var event_dict: Dictionary = {
+		"source_id": source.get_instance_id() if _is_live_unit(source) else -1,
+		"target_id": target.get_instance_id(),
+		"source_team": int(source.get("team_id")) if _is_live_unit(source) else 0,
+		"target_team": int(target.get("team_id")),
+		"is_skill": true,
+		"is_dodged": false,
+		"is_crit": false,
+		"damage_type": damage_type,
+		"damage": float(result.get("damage", 0.0)),
+		"target_hp_after": float(result.get("target_hp_after", 0.0)),
+		"target_mp_after": float(result.get("target_mp_after", 0.0)),
+		"logic_frame": _logic_frame,
+		"is_environment": true
+	}
+	damage_resolved.emit(event_dict)
+	if bool(result.get("target_died", false)):
+		_handle_unit_death(target, source)
+	return event_dict
 
 
 func start_battle(ally_units: Array[Node], enemy_units: Array[Node], battle_seed: int = 0) -> bool:
@@ -843,6 +972,8 @@ func _occupy_cell(cell: Vector2i, unit: Node) -> bool:
 		return false
 	if _hex_grid != null and not bool(_hex_grid.call("is_inside_grid", cell)):
 		return false
+	if _static_blocked_cells.has(_cell_key_int(cell)):
+		return false
 	var iid: int = unit.get_instance_id()
 	var cell_key: int = _cell_key_int(cell)
 	if _cell_occupancy.has(cell_key) and int(_cell_occupancy[cell_key]) != iid:
@@ -887,6 +1018,8 @@ func _vacate_unit(unit: Node) -> void:
 func _is_cell_free(cell: Vector2i) -> bool:
 	if _hex_grid != null and not bool(_hex_grid.call("is_inside_grid", cell)):
 		return false
+	if _static_blocked_cells.has(_cell_key_int(cell)):
+		return false
 	return not _cell_occupancy.has(_cell_key_int(cell))
 
 
@@ -918,7 +1051,7 @@ func _get_unit_cell(unit: Node) -> Vector2i:
 
 
 func _build_blocked_cells_for_team(self_team: int) -> Dictionary:
-	var blocked: Dictionary = {}
+	var blocked: Dictionary = _static_blocked_cells.duplicate()
 	for raw_key in _cell_occupancy.keys():
 		var cell_key: int = int(raw_key)
 		var iid: int = int(_cell_occupancy[cell_key])

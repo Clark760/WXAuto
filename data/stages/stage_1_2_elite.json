@@ -1,0 +1,37 @@
+{
+  "id": "stage_1_2_elite",
+  "chapter": 1,
+  "index": 2,
+  "name": "山门精英",
+  "type": "elite",
+  "description": "敌方精英率队，阵型更紧凑。",
+  "grid": {
+    "width": 32,
+    "height": 16,
+    "deploy_zone": {
+      "x_min": 0,
+      "x_max": 15,
+      "y_min": 0,
+      "y_max": 15
+    },
+    "hex_size": 24.0
+  },
+  "enemies": [
+    { "unit_id": "unit_green_103", "count": 10, "star": 1, "deploy_zone": "front" },
+    { "unit_id": "unit_blue_181", "count": 3, "star": 2, "deploy_zone": "center", "stat_scale": 1.1 }
+  ],
+  "obstacles": [
+    { "type": "bamboo", "cells": [[17, 5], [17, 6], [17, 7], [18, 6]] },
+    { "type": "rock", "cells": [[24, 10], [25, 10]] }
+  ],
+  "rewards": {
+    "silver": 14,
+    "exp": 3,
+    "drops": [
+      { "type": "gongfa", "pool": ["gf_jiuyang_heal", "gf_chunyang", "gf_tiyun"], "count": 1, "chance": 0.6 },
+      { "type": "equipment", "pool": ["eq_yitian", "eq_xuantie", "eq_tiancan"], "count": 1, "chance": 0.65 },
+      { "type": "unit", "pool": ["unit_green_104", "unit_green_105"], "count": 1, "chance": 0.2, "star": 1 }
+    ]
+  },
+  "boss_mechanics": null
+}

@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wxauto.local/schema/stage.schema.json",
+  "title": "Stage Config",
+  "type": "object",
+  "required": [
+    "id",
+    "chapter",
+    "index",
+    "type",
+    "grid",
+    "enemies",
+    "rewards"
+  ],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "chapter": { "type": "integer", "minimum": 1 },
+    "index": { "type": "integer", "minimum": 1 },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "type": {
+      "type": "string",
+      "enum": ["normal", "elite", "boss", "rest", "event"]
+    },
+    "grid": {
+      "type": "object",
+      "required": ["width", "height", "deploy_zone"],
+      "properties": {
+        "width": { "type": "integer", "minimum": 4 },
+        "height": { "type": "integer", "minimum": 4 },
+        "hex_size": { "type": "number", "minimum": 8.0 },
+        "deploy_zone": {
+          "type": "object",
+          "required": ["x_min", "x_max", "y_min", "y_max"],
+          "properties": {
+            "x_min": { "type": "integer", "minimum": 0 },
+            "x_max": { "type": "integer", "minimum": 0 },
+            "y_min": { "type": "integer", "minimum": 0 },
+            "y_max": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    },
+    "enemies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["unit_id", "count"],
+        "properties": {
+          "unit_id": { "type": "string", "minLength": 1 },
+          "count": { "type": "integer", "minimum": 1 },
+          "star": { "type": "integer", "minimum": 1, "maximum": 3 },
+          "deploy_zone": {
+            "type": "string",
+            "enum": ["front", "back", "center", "random", "fixed"]
+          },
+          "fixed_cells": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2,
+              "items": { "type": "integer" }
+            }
+          },
+          "gongfa_ids": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "equip_ids": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "stat_scale": { "type": "number", "minimum": 0.01 },
+          "is_boss": { "type": "boolean" }
+        }
+      }
+    },
+    "obstacles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "cells"],
+        "properties": {
+          "type": { "type": "string", "minLength": 1 },
+          "cells": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2,
+              "items": { "type": "integer" }
+            }
+          }
+        }
+      }
+    },
+    "rewards": {
+      "type": "object",
+      "required": ["silver", "exp"],
+      "properties": {
+        "silver": { "type": "integer", "minimum": 0 },
+        "exp": { "type": "integer", "minimum": 0 },
+        "drops": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["type", "pool", "count", "chance"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["gongfa", "equipment", "unit"]
+              },
+              "pool": {
+                "type": "array",
+                "items": { "type": "string", "minLength": 1 },
+                "minItems": 1
+              },
+              "count": { "type": "integer", "minimum": 1 },
+              "chance": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+              "star": { "type": "integer", "minimum": 1, "maximum": 3 }
+            }
+          }
+        }
+      }
+    },
+    "boss_mechanics": {
+      "anyOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "required": ["type"],
+          "properties": {
+            "type": { "type": "string", "minLength": 1 },
+            "config": { "type": "object" }
+          }
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": { "type": "string", "minLength": 1 },
+              "config": { "type": "object" }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,22 +1,18 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://d0m0g61juedwl"]
 
-[ext_resource type="Script" path="res://scripts/main/main_scene.gd" id="1_o7c3p"]
-[ext_resource type="Script" path="res://scripts/board/hex_grid.gd" id="2_4vy10"]
+[ext_resource type="Script" uid="uid://bjdc13wvtgaqj" path="res://scripts/main/main_scene.gd" id="1_o7c3p"]
+[ext_resource type="Script" uid="uid://b2igrq6di1mtd" path="res://scripts/board/hex_grid.gd" id="2_4vy10"]
 
-[node name="MainScene" type="Node2D"]
+[node name="MainScene" type="Node2D" unique_id=1281395411]
 script = ExtResource("1_o7c3p")
 
-[node name="HexGrid" type="Node2D" parent="."]
+[node name="HexGrid" type="Node2D" parent="." unique_id=126211736]
 script = ExtResource("2_4vy10")
-grid_width = 16
-grid_height = 8
-hex_size = 28.0
 origin_offset = Vector2(260, 120)
-draw_coordinates = true
 
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=2003383806]
 
-[node name="InfoLabel" type="Label" parent="CanvasLayer"]
+[node name="InfoLabel" type="Label" parent="CanvasLayer" unique_id=524790713]
 offset_left = 20.0
 offset_top = 20.0
 offset_right = 740.0
@@ -25,15 +21,15 @@ theme_override_font_sizes/font_size = 18
 text = "加载中..."
 autowrap_mode = 2
 
-[node name="TipLabel" type="Label" parent="CanvasLayer"]
+[node name="TipLabel" type="Label" parent="CanvasLayer" unique_id=1116489948]
 offset_left = 20.0
-offset_top = 360.0
+offset_top = 500.0
 offset_right = 920.0
-offset_bottom = 420.0
+offset_bottom = 560.0
 theme_override_font_sizes/font_size = 16
 text = "按 F6/Enter 进入战斗，按 F5 重载数据"
 
-[node name="EnterBattleButton" type="Button" parent="CanvasLayer"]
+[node name="EnterBattleButton" type="Button" parent="CanvasLayer" unique_id=2118262177]
 offset_left = 20.0
 offset_top = 430.0
 offset_right = 280.0

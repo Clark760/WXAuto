@@ -41,7 +41,7 @@ var gongfa_slots: Dictionary = {
 	"zhenfa": "",
 	"qishu": ""
 }
-var max_gongfa_count: int = 3
+var max_gongfa_count: int = 5
 var equip_slots: Dictionary = {
 	"weapon": "",
 	"armor": "",
@@ -131,7 +131,7 @@ func setup_from_unit_record(unit_record: Dictionary, forced_star: int = -1) -> v
 		var slots_raw: Dictionary = unit_record["gongfa_slots"]
 		for slot in gongfa_slots.keys():
 			gongfa_slots[slot] = str(slots_raw.get(slot, ""))
-	max_gongfa_count = clampi(int(unit_record.get("max_gongfa_count", 3)), 1, 5)
+	max_gongfa_count = clampi(int(unit_record.get("max_gongfa_count", 5)), 1, 5)
 
 	# 装备槽位与功法槽位一样常驻在角色实例上，便于管理器直接读写。
 	equip_slots = {
@@ -370,6 +370,7 @@ func _apply_runtime_stats() -> void:
 
 func get_equipped_gongfa_ids() -> Array[String]:
 	# 槽位顺序固定，保证 UI 展示和触发优先级稳定可预期。
+	# 规则修正：功法按“类型槽位”装备，不再按总数量上限截断。
 	var ids: Array[String] = []
 	var ordered_slots: Array[String] = ["neigong", "waigong", "qinggong", "zhenfa", "qishu"]
 	for slot in ordered_slots:
@@ -379,8 +380,6 @@ func get_equipped_gongfa_ids() -> Array[String]:
 		if ids.has(gid):
 			continue
 		ids.append(gid)
-		if ids.size() >= max_gongfa_count:
-			return ids
 	return ids
 
 
