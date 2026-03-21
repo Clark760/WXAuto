@@ -43,7 +43,10 @@ const RECYCLE_DROP_ZONE_SCRIPT: Script = preload("res://scripts/ui/recycle_drop_
 const BATTLE_FLOW_SCRIPT: Script = preload("res://scripts/combat/battle_flow.gd")
 const STAGE_MANAGER_SCRIPT: Script = preload("res://scripts/stage/stage_manager.gd")
 const OBSTACLE_MANAGER_SCRIPT: Script = preload("res://scripts/stage/obstacle_manager.gd")
-const BOSS_MECHANIC_RUNNER_SCRIPT: Script = preload("res://scripts/stage/boss_mechanic_runner.gd")
+const SHOP_CONTROLLER_SCRIPT: Script = preload("res://scripts/board/shop_controller.gd")
+const STAGE_BRIDGE_SCRIPT: Script = preload("res://scripts/board/stage_bridge.gd")
+const INVENTORY_CONTROLLER_SCRIPT: Script = preload("res://scripts/board/inventory_controller.gd")
+const RECYCLE_CONTROLLER_SCRIPT: Script = preload("res://scripts/board/recycle_controller.gd")
 
 const DEFAULT_DEPLOY_ZONE: Dictionary = {
 	"x_min": 0,
@@ -59,7 +62,6 @@ var _economy_manager: Node = null
 var _shop_manager: Node = null
 var _stage_manager: Node = null
 var _obstacle_manager: Node = null
-var _boss_mechanic_runner: Node = null
 
 var _shop_layer: CanvasLayer = null
 var _shop_panel: PanelContainer = null
@@ -93,11 +95,36 @@ var _current_stage_config: Dictionary = {}
 var _current_deploy_zone: Dictionary = DEFAULT_DEPLOY_ZONE.duplicate(true)
 var _stage_enemy_rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var _stage_forced_hex_size: float = -1.0
+var _shop_controller: Node = null
+var _stage_bridge: Node = null
+var _inventory_controller: Node = null
+var _recycle_controller: Node = null
+
+
+func _bootstrap_board_controllers() -> void:
+	# M5 ??????/??/??/????????????battlefield ?????
+	if _shop_controller == null:
+		_shop_controller = SHOP_CONTROLLER_SCRIPT.new() as Node
+		_shop_controller.name = "RuntimeShopController"
+		add_child(_shop_controller)
+	if _stage_bridge == null:
+		_stage_bridge = STAGE_BRIDGE_SCRIPT.new() as Node
+		_stage_bridge.name = "RuntimeStageBridge"
+		add_child(_stage_bridge)
+	if _inventory_controller == null:
+		_inventory_controller = INVENTORY_CONTROLLER_SCRIPT.new() as Node
+		_inventory_controller.name = "RuntimeInventoryController"
+		add_child(_inventory_controller)
+	if _recycle_controller == null:
+		_recycle_controller = RECYCLE_CONTROLLER_SCRIPT.new() as Node
+		_recycle_controller.name = "RuntimeRecycleController"
+		add_child(_recycle_controller)
 
 
 func _ready() -> void:
 	# 兜底取消暂停：防止从调试切场景时遗留 pause 状态，导致“进入场景像挂起”。
 	get_tree().paused = false
+	_bootstrap_board_controllers()
 	_stage_enemy_rng.randomize()
 	_bootstrap_battle_services()
 	super._ready()
@@ -173,6 +200,9 @@ func _unhandled_input(event: InputEvent) -> void:
 func _set_stage(next_stage: int) -> void:
 	var previous_stage: int = _stage
 	super._set_stage(next_stage)
+	# M5-FIX: 从结算阶段离开时，立即停止胜利动作并重置为待机。
+	if previous_stage == Stage.RESULT and next_stage != Stage.RESULT:
+		reset_all_units_to_idle()
 	if next_stage == Stage.PREPARATION and previous_stage != Stage.PREPARATION:
 		_shop_open_in_preparation = true
 		_refresh_shop_for_preparation(false)
@@ -249,12 +279,26 @@ func _refresh_all_ui() -> void:
 
 func _on_battle_ended(winner_team: int, summary: Dictionary) -> void:
 	super._on_battle_ended(winner_team, summary)
-	if _boss_mechanic_runner != null and is_instance_valid(_boss_mechanic_runner):
-		_boss_mechanic_runner.call("stop_all_mechanics")
 	if _stage_manager != null and is_instance_valid(_stage_manager):
 		_stage_manager.call("on_battle_ended", winner_team, summary)
 	_update_shop_ui()
 
+
+func reset_all_units_to_idle() -> void:
+	# ?? RESULT ??????????????????
+	var units: Array[Node] = []
+	units.append_array(_collect_units_from_map(_ally_deployed))
+	units.append_array(_collect_units_from_map(_enemy_deployed))
+	for unit in units:
+		if not _is_valid_unit(unit):
+			continue
+		# M5-FIX: ???????????????????????
+		var combat: Node = unit.get_node_or_null("Components/UnitCombat")
+		if combat != null and not bool(combat.get("is_alive")):
+			continue
+		if unit.has_method("reset_visual_transform"):
+			unit.call("reset_visual_transform")
+		unit.call("play_anim_state", 0, {})
 
 func _on_bench_changed() -> void:
 	super._on_bench_changed()
@@ -281,7 +325,7 @@ func _update_drag_target(screen_pos: Vector2) -> void:
 
 	if _recycle_drop_zone != null and is_instance_valid(_recycle_drop_zone):
 		if target_type == "recycle" and _dragging_unit != null and _is_valid_unit(_dragging_unit):
-			var can_sell_unit: bool = _drag_origin_kind == "bench"
+			var can_sell_unit: bool = str(_dragging_unit.get_meta("drag_origin_kind", "")) == "bench"
 			var payload: Dictionary = {
 				"type": "unit",
 				"id": str(_dragging_unit.get("unit_id")),
@@ -414,38 +458,9 @@ func _spawn_enemy_wave(count: int) -> void:
 
 
 func _spawn_enemies_from_stage_config() -> bool:
-	if _current_stage_config.is_empty():
-		return false
-	_clear_enemy_wave()
-	var enemies_value: Variant = _current_stage_config.get("enemies", [])
-	if not (enemies_value is Array):
-		return true
-	var enemies: Array = enemies_value
-	if enemies.is_empty():
-		return true
-
-	var occupied: Dictionary = {}
-	for raw_enemy in enemies:
-		if not (raw_enemy is Dictionary):
-			continue
-		var enemy_cfg: Dictionary = raw_enemy
-		var unit_id: String = str(enemy_cfg.get("unit_id", "")).strip_edges()
-		var spawn_count: int = maxi(int(enemy_cfg.get("count", 0)), 0)
-		if unit_id.is_empty() or spawn_count <= 0:
-			continue
-		var is_boss_cfg: bool = _is_stage_boss_enemy_cfg(enemy_cfg)
-		var spawn_cells: Array[Vector2i] = _resolve_stage_enemy_cells(enemy_cfg, spawn_count, occupied)
-		var forced_star: int = clampi(int(enemy_cfg.get("star", 1)), 1, 3)
-		for cell in spawn_cells:
-			var unit_node: Node = unit_factory.call("acquire_unit", unit_id, forced_star, unit_layer)
-			if unit_node == null:
-				continue
-			if is_boss_cfg:
-				unit_node.set_meta("stage_is_boss", true)
-			_apply_stage_enemy_overrides(unit_node, enemy_cfg)
-			_deploy_enemy_unit_to_cell(unit_node, cell)
-	return true
-
+	if _stage_bridge != null:
+		return bool(_stage_bridge.call("spawn_enemies_from_stage_config", self))
+	return false
 
 func _resolve_stage_enemy_cells(enemy_cfg: Dictionary, wanted_count: int, occupied: Dictionary) -> Array[Vector2i]:
 	var zone: String = str(enemy_cfg.get("deploy_zone", "random")).strip_edges().to_lower()
@@ -479,7 +494,7 @@ func _collect_enemy_cells_by_zone(zone: String) -> Array[Vector2i]:
 	if all_enemy_cells.is_empty():
 		return []
 	var width: int = int(hex_grid.grid_width)
-	var x_min: int = int(_current_deploy_zone.get("x_min", 0))
+	var _x_min: int = int(_current_deploy_zone.get("x_min", 0))
 	var x_max: int = int(_current_deploy_zone.get("x_max", 15))
 	var y_min: int = int(_current_deploy_zone.get("y_min", 0))
 	var y_max: int = int(_current_deploy_zone.get("y_max", int(hex_grid.grid_height) - 1))
@@ -537,23 +552,50 @@ func _pick_stage_enemy_cells(candidates: Array[Vector2i], wanted_count: int, occ
 func _apply_stage_enemy_overrides(unit_node: Node, enemy_cfg: Dictionary) -> void:
 	if unit_node == null or not _is_valid_unit(unit_node):
 		return
+	var base_stats: Dictionary = (unit_node.get("base_stats") as Dictionary).duplicate(true)
+	var stats_changed: bool = false
 	var stat_scale: float = maxf(float(enemy_cfg.get("stat_scale", 1.0)), 0.01)
 	if not is_equal_approx(stat_scale, 1.0):
-		var base_stats: Dictionary = (unit_node.get("base_stats") as Dictionary).duplicate(true)
 		for stat_key in base_stats.keys():
 			var current_value: Variant = base_stats[stat_key]
 			if current_value is int or current_value is float:
 				base_stats[stat_key] = float(current_value) * stat_scale
+		stats_changed = true
+	# summon_units 的 clone 模式可按 hp/atk 比例局部缩放，避免只能整表缩放。
+	var hp_ratio: float = maxf(float(enemy_cfg.get("hp_ratio", 1.0)), 0.01)
+	if not is_equal_approx(hp_ratio, 1.0):
+		base_stats["hp"] = float(base_stats.get("hp", 1.0)) * hp_ratio
+		stats_changed = true
+	var atk_ratio: float = maxf(float(enemy_cfg.get("atk_ratio", 1.0)), 0.01)
+	if not is_equal_approx(atk_ratio, 1.0):
+		base_stats["atk"] = float(base_stats.get("atk", 1.0)) * atk_ratio
+		base_stats["iat"] = float(base_stats.get("iat", 1.0)) * atk_ratio
+		stats_changed = true
+	if stats_changed:
 		unit_node.set("base_stats", base_stats)
 		unit_node.call("_apply_runtime_stats")
 
+	var merged_gongfa_ids: Array[String] = []
 	var gongfa_ids_value: Variant = enemy_cfg.get("gongfa_ids", [])
-	if gongfa_ids_value is Array and not (gongfa_ids_value as Array).is_empty():
-		var slots: Dictionary = _normalize_unit_slots(unit_node.get("gongfa_slots"))
+	if gongfa_ids_value is Array:
 		for gongfa_id_value in (gongfa_ids_value as Array):
-			var gongfa_id: String = str(gongfa_id_value).strip_edges()
-			if gongfa_id.is_empty():
+			var base_gongfa_id: String = str(gongfa_id_value).strip_edges()
+			if base_gongfa_id.is_empty() or merged_gongfa_ids.has(base_gongfa_id):
 				continue
+			merged_gongfa_ids.append(base_gongfa_id)
+	# M5 合并方案：Boss 机制改为关卡声明的 boss_gongfa_ids，由功法管线统一执行。
+	if _is_stage_boss_enemy_cfg(enemy_cfg):
+		var stage_boss_gongfa_value: Variant = _current_stage_config.get("boss_gongfa_ids", [])
+		if stage_boss_gongfa_value is Array:
+			for stage_gongfa_value in (stage_boss_gongfa_value as Array):
+				var stage_gongfa_id: String = str(stage_gongfa_value).strip_edges()
+				if stage_gongfa_id.is_empty() or merged_gongfa_ids.has(stage_gongfa_id):
+					continue
+				merged_gongfa_ids.append(stage_gongfa_id)
+
+	if not merged_gongfa_ids.is_empty():
+		var slots: Dictionary = _normalize_unit_slots(unit_node.get("gongfa_slots"))
+		for gongfa_id in merged_gongfa_ids:
 			var gongfa_data: Dictionary = gongfa_manager.call("get_gongfa_data", gongfa_id) if gongfa_manager != null else {}
 			var slot: String = str(gongfa_data.get("type", "")).strip_edges()
 			if not slot.is_empty() and slots.has(slot):
@@ -674,11 +716,12 @@ func _is_enemy_unit_alive(unit: Node) -> bool:
 
 
 func _is_non_combat_stage(config: Dictionary) -> bool:
+	if _stage_bridge != null:
+		return bool(_stage_bridge.call("is_non_combat_stage", config))
 	if config.is_empty():
 		return false
 	var stage_type: String = str(config.get("type", "normal")).strip_edges().to_lower()
 	return stage_type == "rest" or stage_type == "event"
-
 
 func _start_combat() -> void:
 	# 开战前按门派等级动态收紧自动上场上限。
@@ -695,8 +738,6 @@ func _start_combat() -> void:
 	if bool(combat_manager.call("is_battle_running")):
 		if _stage_manager != null and is_instance_valid(_stage_manager):
 			_stage_manager.call("notify_stage_combat_started")
-		if _boss_mechanic_runner != null and is_instance_valid(_boss_mechanic_runner):
-			_boss_mechanic_runner.call("start_stage_mechanics", _current_stage_config)
 		if _battle_flow != null and is_instance_valid(_battle_flow):
 			_battle_flow.call(
 				"start_battle_capture",
@@ -706,6 +747,13 @@ func _start_combat() -> void:
 
 
 func _rebuild_inventory_items() -> void:
+	if _inventory_controller != null:
+		_inventory_controller.call("rebuild_inventory_items", self)
+		return
+	_rebuild_inventory_items_impl()
+
+
+func _rebuild_inventory_items_impl() -> void:
 	# 正式仓库使用“拥有库存”视图：
 	# - 仅展示已购买或已装备中的条目；
 	# - 支持显示库存与已装备数量；
@@ -953,10 +1001,6 @@ func _bootstrap_battle_services() -> void:
 		_obstacle_manager = OBSTACLE_MANAGER_SCRIPT.new() as Node
 		_obstacle_manager.name = "RuntimeObstacleManager"
 		add_child(_obstacle_manager)
-	if _boss_mechanic_runner == null:
-		_boss_mechanic_runner = BOSS_MECHANIC_RUNNER_SCRIPT.new() as Node
-		_boss_mechanic_runner.name = "RuntimeBossMechanicRunner"
-		add_child(_boss_mechanic_runner)
 	_rebuild_battle_data_caches()
 
 	if _economy_manager != null:
@@ -971,17 +1015,7 @@ func _bootstrap_battle_services() -> void:
 			TEAM_ALLY
 		)
 		_stage_manager.call("load_stage_sequence", data_manager)
-	if _obstacle_manager != null and hex_grid != null:
-		_obstacle_manager.call("configure_visual_parent", hex_grid)
-	if _boss_mechanic_runner != null and is_instance_valid(_boss_mechanic_runner):
-		_boss_mechanic_runner.call(
-			"configure_context",
-			self,
-			combat_manager,
-			unit_factory,
-			hex_grid,
-			TEAM_ENEMY
-		)
+	# M5 合并后 Boss 机制改由 GongfaManager 统一执行，这里不再挂载旧 runner。
 
 
 func _rebuild_battle_data_caches() -> void:
@@ -1094,8 +1128,6 @@ func _on_all_stages_cleared() -> void:
 
 
 func _apply_stage_runtime_config(config: Dictionary) -> void:
-	if _boss_mechanic_runner != null and is_instance_valid(_boss_mechanic_runner):
-		_boss_mechanic_runner.call("stop_all_mechanics")
 	_apply_stage_grid_config(config.get("grid", {}))
 	_apply_stage_obstacles(config.get("obstacles", []))
 	_clear_enemy_wave()
@@ -1342,14 +1374,9 @@ func _is_point_in_recycle_zone(screen_pos: Vector2) -> bool:
 
 
 func _try_sell_dragging_unit() -> bool:
-	if _dragging_unit == null or not _is_valid_unit(_dragging_unit):
-		return false
-	# 规则：仅允许出售备战区角色，已上场角色必须先拖回备战区。
-	if _drag_origin_kind != "bench":
-		debug_label.text = "已上场角色不可直接出售，请先拖回备战区。"
-		return false
-	return _sell_unit_node(_dragging_unit)
-
+	if _recycle_controller != null:
+		return bool(_recycle_controller.call("try_sell_dragging_unit", self))
+	return false
 
 func _on_recycle_sell_requested(payload: Dictionary, price: int) -> void:
 	if _stage != Stage.PREPARATION:
@@ -1736,17 +1763,21 @@ func _on_bottom_upgrade_pressed() -> void:
 
 
 func _refresh_shop_for_preparation(force_refresh: bool) -> void:
+	if _shop_controller != null:
+		_shop_controller.call("refresh_shop_for_preparation", self, force_refresh)
+		return
 	if _economy_manager == null or _shop_manager == null:
 		return
 	var locked: bool = _economy_manager.is_shop_locked()
 	_shop_manager.refresh_shop(_economy_manager.get_shop_probabilities(), locked, force_refresh)
 	_update_shop_ui()
 
-
 func _update_shop_ui() -> void:
+	if _shop_controller != null:
+		_shop_controller.call("update_shop_ui", self)
+		return
 	_update_shop_operation_labels()
 	_rebuild_shop_cards()
-
 
 func _refresh_top_quick_action_buttons() -> void:
 	var editable_stage: bool = _stage == Stage.PREPARATION

@@ -46,6 +46,8 @@ func execute_active_effects(source: Node, target: Node, effects: Array, context:
 		"damage_total": 0.0,
 		"heal_total": 0.0,
 		"mp_total": 0.0,
+		"summon_total": 0,
+		"hazard_total": 0,
 		"buff_applied": 0,
 		"debuff_applied": 0,
 		# 详细事件列表用于外层日志系统：
@@ -207,6 +209,20 @@ func _execute_active_op(source: Node, target: Node, effect: Dictionary, context:
 					summary["debuff_applied"] = int(summary.get("debuff_applied", 0)) + 1
 					_append_buff_event(summary, source, enemy, str(effect.get("buff_id", "")), float(effect.get("duration", 0.0)), op)
 
+		"shield_self":
+			_apply_shield_self_op(source, effect, context, summary)
+
+		"immunity_self":
+			_apply_immunity_self_op(source, effect, context, summary)
+
+		"summon_units":
+			var summoned_count: int = _execute_summon_units_op(source, effect, context)
+			summary["summon_total"] = int(summary.get("summon_total", 0)) + summoned_count
+
+		"hazard_zone":
+			var hazard_count: int = _execute_hazard_zone_op(source, effect, context)
+			summary["hazard_total"] = int(summary.get("hazard_total", 0)) + hazard_count
+
 		"spawn_vfx":
 			_spawn_vfx_by_effect(source, target, effect, context)
 
@@ -216,6 +232,204 @@ func _execute_active_op(source: Node, target: Node, effect: Dictionary, context:
 
 		_:
 			push_warning("EffectEngine: 未实现的主动 op=%s" % op)
+
+
+func _apply_shield_self_op(source: Node, effect: Dictionary, context: Dictionary, summary: Dictionary) -> void:
+	if source == null or not is_instance_valid(source):
+		return
+	var shield_value: float = maxf(float(effect.get("value", 0.0)), 0.0)
+	if shield_value <= 0.0:
+		return
+	var combat: Node = source.get_node_or_null("Components/UnitCombat")
+	if combat == null:
+		return
+	if combat.has_method("add_shield"):
+		combat.call("add_shield", shield_value)
+	else:
+		# 旧战斗组件兜底：仍兼容 stage_shield_hp 元数据。
+		var old_shield: float = float(source.get_meta("stage_shield_hp", 0.0))
+		source.set_meta("stage_shield_hp", maxf(old_shield + shield_value, 0.0))
+
+	var buff_manager: Variant = context.get("buff_manager", null)
+	var shield_buff_id: String = str(effect.get("shield_buff_id", effect.get("buff_id", "boss_shield"))).strip_edges()
+	var shield_duration: float = float(effect.get("duration", -1.0))
+	if buff_manager != null and not shield_buff_id.is_empty():
+		if bool(buff_manager.call("apply_buff", source, shield_buff_id, shield_duration, source)):
+			summary["buff_applied"] = int(summary.get("buff_applied", 0)) + 1
+			_append_buff_event(summary, source, source, shield_buff_id, shield_duration, "shield_self")
+			source.set_meta("shield_bound_buff_id", shield_buff_id)
+
+	# 可选：护盾开启时同步挂“免疫类 Buff”，便于按 Buff 时长自动过期。
+	var immunity_buff_id: String = str(effect.get("immunity_buff_id", "")).strip_edges()
+	if buff_manager != null and not immunity_buff_id.is_empty():
+		var immunity_duration: float = float(effect.get("immunity_duration", shield_duration))
+		if bool(buff_manager.call("apply_buff", source, immunity_buff_id, immunity_duration, source)):
+			summary["buff_applied"] = int(summary.get("buff_applied", 0)) + 1
+			_append_buff_event(summary, source, source, immunity_buff_id, immunity_duration, "shield_self")
+			source.set_meta("shield_immunity_buff_id", immunity_buff_id)
+
+
+func _apply_immunity_self_op(source: Node, effect: Dictionary, context: Dictionary, summary: Dictionary) -> void:
+	if source == null or not is_instance_valid(source):
+		return
+	# 推荐走 Buff 实现（可自动过期、可被 on_buff_expired 监听）。
+	var buff_id: String = str(effect.get("buff_id", "")).strip_edges()
+	var duration: float = float(effect.get("duration", 0.0))
+	if not buff_id.is_empty():
+		if _apply_buff_op(source, source, {"buff_id": buff_id, "duration": duration}, context):
+			summary["buff_applied"] = int(summary.get("buff_applied", 0)) + 1
+			_append_buff_event(summary, source, source, buff_id, duration, "immunity_self")
+		return
+	# 无 buff_id 时退化为元数据开关（持续到本场结束或外部手动关闭）。
+	source.set_meta("stage_damage_immune", true)
+
+
+func _execute_summon_units_op(source: Node, effect: Dictionary, context: Dictionary) -> int:
+	var battlefield: Node = context.get("battlefield", null)
+	if battlefield == null or not is_instance_valid(battlefield):
+		return 0
+	if not battlefield.has_method("spawn_mechanic_enemy_wave"):
+		return 0
+	var units_value: Variant = effect.get("units", [])
+	if not (units_value is Array):
+		return 0
+	var source_unit_id: String = str(source.get("unit_id")) if source != null and is_instance_valid(source) else ""
+	var source_star: int = int(source.get("star_level")) if source != null and is_instance_valid(source) else 1
+	var deploy_mode: String = str(effect.get("deploy", "around_self")).strip_edges().to_lower()
+	var radius_cells: int = maxi(int(effect.get("radius", 2)), 0)
+	var hex_grid: Node = context.get("hex_grid", null)
+	var rows: Array[Dictionary] = []
+	for row_value in (units_value as Array):
+		if not (row_value is Dictionary):
+			continue
+		var row: Dictionary = (row_value as Dictionary).duplicate(true)
+		var clone_source: String = str(row.get("clone_source", "")).strip_edges().to_lower()
+		if clone_source == "self":
+			if source_unit_id.is_empty():
+				continue
+			row["unit_id"] = source_unit_id
+			if not row.has("star"):
+				row["star"] = source_star
+		var unit_id: String = str(row.get("unit_id", "")).strip_edges()
+		var count: int = maxi(int(row.get("count", 1)), 0)
+		if unit_id.is_empty() or count <= 0:
+			continue
+		if deploy_mode == "around_self" and source != null and is_instance_valid(source):
+			var center_cell: Vector2i = Vector2i(-1, -1)
+			if hex_grid != null and is_instance_valid(hex_grid) and hex_grid.has_method("world_to_axial"):
+				center_cell = hex_grid.call("world_to_axial", _node_pos(source))
+			var candidate_cells: Array[Vector2i] = _collect_cells_in_radius(hex_grid, center_cell, radius_cells)
+			if not candidate_cells.is_empty():
+				row["deploy_zone"] = "fixed"
+				row["fixed_cells"] = candidate_cells
+			else:
+				row["deploy_zone"] = "back"
+		else:
+			row["deploy_zone"] = deploy_mode
+		rows.append(row)
+	if rows.is_empty():
+		return 0
+	return int(battlefield.call("spawn_mechanic_enemy_wave", rows))
+
+
+func _execute_hazard_zone_op(source: Node, effect: Dictionary, context: Dictionary) -> int:
+	var buff_manager: Variant = context.get("buff_manager", null)
+	if buff_manager == null:
+		return 0
+	if not buff_manager.has_method("add_battlefield_effect"):
+		return 0
+	var hex_grid: Node = context.get("hex_grid", null)
+	if hex_grid == null or not is_instance_valid(hex_grid):
+		return 0
+	var count: int = maxi(int(effect.get("count", 1)), 1)
+	var radius_cells: int = maxi(int(effect.get("radius_cells", effect.get("radius", 2))), 0)
+	var duration: float = maxf(float(effect.get("duration", 6.0)), 0.1)
+	var warning_seconds: float = maxf(float(effect.get("warning_seconds", 0.0)), 0.0)
+	var tick_interval: float = maxf(float(effect.get("tick_interval", 0.5)), 0.05)
+	var dps: float = maxf(float(effect.get("damage_per_second", effect.get("value", 0.0))), 0.0)
+	if dps <= 0.0:
+		return 0
+	var damage_per_tick: float = dps * tick_interval
+	var center_mode: String = str(effect.get("target_mode", "random_position")).strip_edges().to_lower()
+	var affect_mode: String = str(effect.get("affect_mode", "enemies")).strip_edges().to_lower()
+	var damage_type: String = str(effect.get("damage_type", "internal")).strip_edges().to_lower()
+	var source_team: int = int(source.get("team_id")) if source != null and is_instance_valid(source) else 0
+	var created: int = 0
+	for idx in range(count):
+		var center_cell: Vector2i = _pick_hazard_center_cell(center_mode, source, hex_grid, radius_cells)
+		if center_cell.x < 0:
+			continue
+		var ok: bool = bool(buff_manager.call("add_battlefield_effect", {
+			"effect_id": "hazard_zone_%d_%d" % [Time.get_ticks_msec(), idx],
+			"center_cell": center_cell,
+			"radius_cells": radius_cells,
+			"target_mode": affect_mode,
+			"duration": duration,
+			"warning_seconds": warning_seconds,
+			"tick_interval": tick_interval,
+			"source_team": source_team,
+			"tick_effects": [{
+				"op": "damage_target",
+				"value": damage_per_tick,
+				"damage_type": damage_type
+			}]
+		}, source))
+		if ok:
+			created += 1
+	return created
+
+
+func _pick_hazard_center_cell(mode: String, source: Node, hex_grid: Node, radius_cells: int) -> Vector2i:
+	if mode == "around_self" and source != null and is_instance_valid(source):
+		var source_cell: Vector2i = hex_grid.call("world_to_axial", _node_pos(source))
+		var pool: Array[Vector2i] = _collect_cells_in_radius(hex_grid, source_cell, radius_cells)
+		if pool.is_empty():
+			return source_cell
+		pool.shuffle()
+		return pool[0]
+	var width: int = maxi(int(hex_grid.get("grid_width")), 1)
+	var height: int = maxi(int(hex_grid.get("grid_height")), 1)
+	return Vector2i(randi() % width, randi() % height)
+
+
+func _collect_cells_in_radius(hex_grid: Node, center_cell: Vector2i, radius_cells: int) -> Array[Vector2i]:
+	var out: Array[Vector2i] = []
+	if hex_grid == null or not is_instance_valid(hex_grid):
+		return out
+	if center_cell.x < 0 or center_cell.y < 0:
+		return out
+	if not bool(hex_grid.call("is_inside_grid", center_cell)):
+		return out
+	var queue: Array[Vector2i] = [center_cell]
+	var visited: Dictionary = {"%d,%d" % [center_cell.x, center_cell.y]: true}
+	while not queue.is_empty():
+		var cell: Vector2i = queue.pop_front()
+		if _hex_distance_by_cell(center_cell, cell, hex_grid) > radius_cells:
+			continue
+		out.append(cell)
+		var neighbors_value: Variant = hex_grid.call("get_neighbor_cells", cell)
+		if not (neighbors_value is Array):
+			continue
+		for neighbor_value in (neighbors_value as Array):
+			if not (neighbor_value is Vector2i):
+				continue
+			var neighbor: Vector2i = neighbor_value as Vector2i
+			if not bool(hex_grid.call("is_inside_grid", neighbor)):
+				continue
+			var key: String = "%d,%d" % [neighbor.x, neighbor.y]
+			if visited.has(key):
+				continue
+			visited[key] = true
+			queue.append(neighbor)
+	return out
+
+
+func _hex_distance_by_cell(a: Vector2i, b: Vector2i, hex_grid: Node) -> int:
+	if hex_grid != null and is_instance_valid(hex_grid) and hex_grid.has_method("get_cell_distance"):
+		return int(hex_grid.call("get_cell_distance", a, b))
+	var dq: int = b.x - a.x
+	var dr: int = b.y - a.y
+	return (absi(dq) + absi(dq + dr) + absi(dr)) / 2
 
 
 func _add_modifier(modifier_bundle: Dictionary, key: String, value: float) -> void:

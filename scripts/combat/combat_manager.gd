@@ -17,6 +17,10 @@ signal unit_died(unit: Node, killer: Node, team_id: int)
 
 const TEAM_ALLY: int = 1
 const TEAM_ENEMY: int = 2
+const CELL_OCCUPANCY_SCRIPT: Script = preload("res://scripts/combat/cell_occupancy.gd")
+const COMBAT_PATHFINDING_SCRIPT: Script = preload("res://scripts/combat/combat_pathfinding.gd")
+const COMBAT_TARGETING_SCRIPT: Script = preload("res://scripts/combat/combat_targeting.gd")
+const COMBAT_METRICS_SCRIPT: Script = preload("res://scripts/combat/combat_metrics.gd")
 
 @export var logic_fps: float = 10.0
 @export var logic_max_substeps: int = 6
@@ -29,10 +33,10 @@ const TEAM_ENEMY: int = 2
 @export var strict_snap_visual_step_enabled: bool = true
 @export var strict_snap_visual_step_duration_ratio: float = 0.75
 @export var shuffle_unit_order_each_tick: bool = true
-@export var block_teammate_cells_in_flow: bool = false
+@export var block_teammate_cells_in_flow: bool = true
 @export var allow_equal_cost_side_step: bool = true
 @export var allow_uphill_escape_step: bool = true
-@export var prioritize_targets_in_attack_range: bool = false
+@export var prioritize_targets_in_attack_range: bool = true
 
 var _hex_grid: Node = null
 var _vfx_factory: Node = null
@@ -108,10 +112,25 @@ var _cell_occupancy: Dictionary = {} # int(cell_key) -> int(unit_instance_id)
 var _unit_cell: Dictionary = {}      # int(unit_instance_id) -> Vector2i
 var _static_blocked_cells: Dictionary = {} # int(cell_key) -> true（地形障碍等固定阻挡）
 
+# 拆分模块（M5 大文件精简）：
+# - 占格系统
+# - 流场/寻路
+# - 目标选择
+# - 指标统计
+var _occupancy = CELL_OCCUPANCY_SCRIPT.new()
+var _pathfinding = COMBAT_PATHFINDING_SCRIPT.new()
+var _targeting = COMBAT_TARGETING_SCRIPT.new()
+var _metrics = COMBAT_METRICS_SCRIPT.new()
+
 
 func _ready() -> void:
 	_logic_step = 1.0 / maxf(logic_fps, 1.0)
 	_spatial_hash = SpatialHash.new(spatial_cell_size)
+	# M5 拆分后这3个字段主要由 CombatMetrics 通过 owner.set/get 访问；
+	# 这里显式读写一次，避免编辑器提示“声明但未使用”。
+	_metric_tick_duration_us = int(_metric_tick_duration_us)
+	_metric_total_tick_duration_us = int(_metric_total_tick_duration_us)
+	_metric_last_tick = (_metric_last_tick as Dictionary)
 
 
 func _process(delta: float) -> void:
@@ -207,15 +226,7 @@ func add_unit_mid_battle(unit: Node) -> bool:
 	_team_alive_cache[team_id] = alive_list
 
 	if _hex_grid != null:
-		var start_cell: Vector2i = _hex_grid.call("world_to_axial", unit.position)
-		if bool(_hex_grid.call("is_inside_grid", start_cell)):
-			var resolved_cell: Vector2i = start_cell
-			if not _is_cell_free(resolved_cell):
-				resolved_cell = _find_nearest_free_cell(start_cell)
-			if resolved_cell.x >= 0 and _occupy_cell(resolved_cell, unit):
-				var node_2d: Node2D = unit as Node2D
-				if node_2d != null:
-					node_2d.position = _hex_grid.call("axial_to_world", resolved_cell)
+		_resolve_and_register_unit_cell(unit)
 	return true
 
 
@@ -258,6 +269,9 @@ func apply_environment_damage(
 		"damage": float(result.get("damage", 0.0)),
 		"target_hp_after": float(result.get("target_hp_after", 0.0)),
 		"target_mp_after": float(result.get("target_mp_after", 0.0)),
+		"shield_absorbed": float(result.get("shield_absorbed", 0.0)),
+		"shield_hp_after": float(result.get("shield_hp_after", 0.0)),
+		"shield_broken": bool(result.get("shield_broken", false)),
 		"logic_frame": _logic_frame,
 		"is_environment": true
 	}
@@ -292,14 +306,11 @@ func stop_battle(reason: String = "manual", winner_team: int = 0) -> void:
 	_battle_running = false
 	var summary: Dictionary = _build_battle_summary(reason, winner_team)
 
-	# M4 规则：结算阶段等同“暂停”，仅冻结位移，不做动画/战斗状态重置。
-	# 这样可保持棋子在击杀瞬间的姿态，避免切到 Victory/Idle 造成画面跳变。
+	# M5 修复：战斗结束后统一走清理流程，避免残留 tween/倾斜与视觉重叠。
 	for unit in _all_units:
 		if not _is_live_unit(unit):
 			continue
-		var movement: Node = _get_movement(unit)
-		if movement != null:
-			movement.call("clear_target")
+		_cleanup_unit_after_battle(unit, winner_team)
 
 	battle_ended.emit(winner_team, summary)
 
@@ -309,50 +320,12 @@ func get_alive_count(team_id: int) -> int:
 
 
 func get_runtime_metrics_snapshot() -> Dictionary:
-	var logic_frames: int = maxi(_logic_frame, 1)
-	var move_checks: int = maxi(_metric_total_move_checks, 1)
-	var attack_checks: int = maxi(_metric_total_attack_checks, 1)
-	return {
-		"logic_frame": _logic_frame,
-		"logic_time": _logic_time,
-		"battle_running": _battle_running,
-		"ally_alive": int(_alive_by_team.get(TEAM_ALLY, 0)),
-		"enemy_alive": int(_alive_by_team.get(TEAM_ENEMY, 0)),
-		"avg_tick_ms": float(_metric_total_tick_duration_us) / float(logic_frames) / 1000.0,
-		"avg_units_per_tick": float(_metric_total_units) / float(logic_frames),
-		"attack_performed_rate": float(_metric_total_attacks_performed) / float(attack_checks),
-		"move_success_rate": float(_metric_total_move_started) / float(move_checks),
-		"move_blocked_rate": float(_metric_total_move_blocked) / float(move_checks),
-		"move_conflict_rate": float(_metric_total_move_conflicts) / float(move_checks),
-		"flow_unreachable_rate": float(_metric_total_flow_unreachable) / float(move_checks),
-		"idle_no_cell_rate": float(_metric_total_idle_no_cell) / float(move_checks),
-		"totals": {
-			"units": _metric_total_units,
-			"attack_checks": _metric_total_attack_checks,
-			"attacks_performed": _metric_total_attacks_performed,
-			"move_checks": _metric_total_move_checks,
-			"move_started": _metric_total_move_started,
-			"move_blocked": _metric_total_move_blocked,
-			"move_conflicts": _metric_total_move_conflicts,
-			"flow_unreachable": _metric_total_flow_unreachable,
-			"idle_no_cell": _metric_total_idle_no_cell,
-			"tick_duration_us": _metric_total_tick_duration_us
-		},
-		"last_tick": _metric_last_tick.duplicate(true)
-	}
+	return _metrics.build_runtime_snapshot(self)
 
 
 func _logic_tick(delta: float) -> void:
 	var tick_begin_us: int = Time.get_ticks_usec()
-	_metric_tick_units = 0
-	_metric_tick_attack_checks = 0
-	_metric_tick_attacks_performed = 0
-	_metric_tick_move_checks = 0
-	_metric_tick_move_started = 0
-	_metric_tick_move_blocked = 0
-	_metric_tick_move_conflicts = 0
-	_metric_tick_idle_no_cell = 0
-	_metric_tick_flow_unreachable = 0
+	_metrics.reset_tick_metrics(self)
 	_logic_frame += 1
 	_logic_time += delta
 	var allow_attack_phase: bool = true
@@ -365,8 +338,7 @@ func _logic_tick(delta: float) -> void:
 	_pre_tick_scan()
 	if _all_units.is_empty():
 		_finalize_if_needed()
-		_metric_tick_duration_us = Time.get_ticks_usec() - tick_begin_us
-		_metric_total_tick_duration_us += _metric_tick_duration_us
+		_metrics.finalize_tick(self, tick_begin_us, allow_attack_phase, allow_move_phase)
 		return
 
 	_update_group_ai_focus()
@@ -383,24 +355,7 @@ func _logic_tick(delta: float) -> void:
 		_run_unit_logic(unit, delta, allow_attack_phase, allow_move_phase)
 
 	_finalize_if_needed()
-	_metric_tick_duration_us = Time.get_ticks_usec() - tick_begin_us
-	_metric_total_tick_duration_us += _metric_tick_duration_us
-	_metric_last_tick = {
-		"logic_frame": _logic_frame,
-		"phase": "attack" if allow_attack_phase and not allow_move_phase else ("move" if allow_move_phase and not allow_attack_phase else "both"),
-		"units": _metric_tick_units,
-		"attack_checks": _metric_tick_attack_checks,
-		"attacks_performed": _metric_tick_attacks_performed,
-		"move_checks": _metric_tick_move_checks,
-		"move_started": _metric_tick_move_started,
-		"move_blocked": _metric_tick_move_blocked,
-		"move_conflicts": _metric_tick_move_conflicts,
-		"flow_unreachable": _metric_tick_flow_unreachable,
-		"idle_no_cell": _metric_tick_idle_no_cell,
-		"tick_duration_us": _metric_tick_duration_us,
-		"ally_alive": int(_alive_by_team.get(TEAM_ALLY, 0)),
-		"enemy_alive": int(_alive_by_team.get(TEAM_ENEMY, 0))
-	}
+	_metrics.finalize_tick(self, tick_begin_us, allow_attack_phase, allow_move_phase)
 
 
 func _pre_tick_scan() -> void:
@@ -470,6 +425,7 @@ func _pre_tick_scan_incremental() -> void:
 
 	_trim_component_caches(valid_ids)
 	_trim_runtime_caches(valid_ids)
+	_validate_cell_occupancy()
 
 
 func _cache_alive_unit_incremental(unit: Node, ally_seen_cells: Dictionary, enemy_seen_cells: Dictionary) -> void:
@@ -557,71 +513,19 @@ func _register_units(units: Array[Node], team_id: int) -> void:
 
 		# 注册时将单位吸附到格心并登记占格，作为后续格子逻辑的唯一真值。
 		if _hex_grid != null:
-			var cell: Vector2i = _hex_grid.call("world_to_axial", unit.position)
-			if bool(_hex_grid.call("is_inside_grid", cell)):
-				var resolved_cell: Vector2i = cell
-				if not _is_cell_free(resolved_cell):
-					resolved_cell = _find_nearest_free_cell(cell)
-				if resolved_cell.x >= 0 and _occupy_cell(resolved_cell, unit):
-					var unit_node: Node2D = unit as Node2D
-					if unit_node != null:
-						unit_node.position = _hex_grid.call("axial_to_world", resolved_cell)
+			_resolve_and_register_unit_cell(unit)
 
 
 func _update_group_ai_focus() -> void:
-	_group_focus_target_id.clear()
-	_group_center.clear()
-
-	_update_team_focus(TEAM_ALLY, TEAM_ENEMY)
-	_update_team_focus(TEAM_ENEMY, TEAM_ALLY)
+	_targeting.update_group_ai_focus(self)
 
 
 func _update_team_focus(self_team: int, enemy_team: int) -> void:
-	var own_alive: Array = _team_alive_cache.get(self_team, [])
-	var enemy_alive: Array = _team_alive_cache.get(enemy_team, [])
-	if own_alive.is_empty() or enemy_alive.is_empty():
-		return
-
-	var center: Vector2 = Vector2.ZERO
-	for unit in own_alive:
-		center += (unit as Node2D).position
-	center /= float(maxi(own_alive.size(), 1))
-	_group_center[self_team] = center
-
-	var best_enemy: Node = null
-	var best_dist_sq: float = INF
-	for enemy in enemy_alive:
-		var enemy_node: Node2D = enemy as Node2D
-		var d2: float = center.distance_squared_to(enemy_node.position)
-		if d2 < best_dist_sq:
-			best_dist_sq = d2
-			best_enemy = enemy
-
-	if best_enemy != null:
-		_group_focus_target_id[self_team] = best_enemy.get_instance_id()
+	_targeting.update_team_focus(self, self_team, enemy_team)
 
 
 func _rebuild_flow_fields() -> void:
-	if _hex_grid == null:
-		return
-
-	# 高密度战斗默认采用“软阻挡”：
-	# - 流场阶段不过滤友方占格，保证全图成本可达，避免大面积 -1 无路。
-	# - 真正的一格一人由 _is_cell_free() 与占格提交阶段严格保证。
-	var blocked_for_ally: Dictionary = {}
-	var blocked_for_enemy: Dictionary = {}
-	if block_teammate_cells_in_flow:
-		blocked_for_ally = _build_blocked_cells_for_team(TEAM_ALLY)
-		blocked_for_enemy = _build_blocked_cells_for_team(TEAM_ENEMY)
-	var ally_targets: Array[Vector2i] = []
-	var enemy_targets: Array[Vector2i] = []
-	for cell in _team_cells_cache.get(TEAM_ENEMY, []):
-		ally_targets.append(cell)
-	for cell in _team_cells_cache.get(TEAM_ALLY, []):
-		enemy_targets.append(cell)
-
-	_flow_to_enemy.build(_hex_grid, ally_targets, blocked_for_ally)
-	_flow_to_ally.build(_hex_grid, enemy_targets, blocked_for_enemy)
+	_pathfinding.rebuild_flow_fields(self)
 
 
 func _run_unit_logic(unit: Node, delta: float, allow_attack: bool = true, allow_move: bool = true) -> void:
@@ -639,6 +543,8 @@ func _run_unit_logic(unit: Node, delta: float, allow_attack: bool = true, allow_
 		return
 
 	combat.call("tick_logic", delta)
+	var self_team: int = int(unit.get("team_id"))
+	var enemy_team: int = TEAM_ENEMY if self_team == TEAM_ALLY else TEAM_ALLY
 	var target: Node = _pick_target_for_unit(unit)
 
 	if allow_attack:
@@ -650,6 +556,21 @@ func _run_unit_logic(unit: Node, delta: float, allow_attack: bool = true, allow_
 			return
 
 	if not allow_move:
+		return
+
+	# 关键修复（M5）：目标已经在射程内时，不再继续移动。
+	# 这条守卫要放在 move 分支最前面，才能覆盖：
+	# 1) 攻击帧中因 CD 未好而攻击失败；
+	# 2) split_attack_move_phase 下的纯移动帧。
+	if target != null and _is_target_in_attack_range(unit, target):
+		var idle_movement: Node = _get_movement(unit)
+		if idle_movement != null:
+			idle_movement.call("clear_target")
+		unit.call("play_anim_state", 0, {}) # IDLE
+		_metric_tick_move_checks += 1
+		_metric_total_move_checks += 1
+		_metric_tick_move_blocked += 1
+		_metric_total_move_blocked += 1
 		return
 
 	_metric_tick_move_checks += 1
@@ -671,6 +592,13 @@ func _run_unit_logic(unit: Node, delta: float, allow_attack: bool = true, allow_
 		_metric_total_flow_unreachable += 1
 	var best_next: Vector2i = _pick_best_adjacent_cell(unit, current_cell)
 	if best_next == current_cell:
+		# 被堵住时兜底：优先尝试攻击“射程内任意敌人”，避免双方僵持。
+		if allow_attack:
+			var alt_target: Node = _pick_target_in_attack_range(unit, enemy_team)
+			if alt_target != null and _try_execute_attack(unit, combat, alt_target):
+				_metric_tick_attacks_performed += 1
+				_metric_total_attacks_performed += 1
+				return
 		var movement_idle: Node = _get_movement(unit)
 		if movement_idle != null:
 			movement_idle.call("clear_target")
@@ -679,11 +607,18 @@ func _run_unit_logic(unit: Node, delta: float, allow_attack: bool = true, allow_
 		_metric_total_move_blocked += 1
 		return
 
-	# 逻辑层先完成“旧格释放 + 新格占据”，再把渲染层目标设到新格格心。
-	_vacate_cell(current_cell)
+	# 提交前再次检查，若目标格已被本帧其他单位占用则直接判定冲突。
+	if not _is_cell_free(best_next):
+		var conflict_movement: Node = _get_movement(unit)
+		if conflict_movement != null:
+			conflict_movement.call("clear_target")
+		unit.call("play_anim_state", 0, {}) # IDLE
+		_metric_tick_move_conflicts += 1
+		_metric_total_move_conflicts += 1
+		return
+
+	# 关键修复：先占新格，旧格由 _occupy_cell 内部自动释放，避免“先释后占”竞态。
 	if not _occupy_cell(best_next, unit):
-		# 防御式兜底：若目标格被并发占用，回滚到原格并原地待机。
-		_occupy_cell(current_cell, unit)
 		var rollback_movement: Node = _get_movement(unit)
 		if rollback_movement != null:
 			rollback_movement.call("clear_target")
@@ -721,129 +656,19 @@ func _run_unit_logic(unit: Node, delta: float, allow_attack: bool = true, allow_
 
 
 func _pick_target_for_unit(unit: Node) -> Node:
-	var self_team: int = int(unit.get("team_id"))
-	var enemy_team: int = TEAM_ENEMY if self_team == TEAM_ALLY else TEAM_ALLY
-
-	# 拥堵优化：优先攻击“已在射程内”的敌人，避免全队盲目追逐同一焦点。
-	if prioritize_targets_in_attack_range:
-		var in_range_target: Node = _pick_target_in_attack_range(unit, enemy_team)
-		if in_range_target != null:
-			return in_range_target
-
-	# 分组 AI：优先尝试共享焦点目标，减少每单位筛选开销。
-	var focus_id: int = int(_group_focus_target_id.get(self_team, -1))
-	if focus_id > 0 and _unit_by_instance_id.has(focus_id):
-		var focus_target: Node = _unit_by_instance_id[focus_id]
-		if _is_live_unit(focus_target) and _is_unit_alive(focus_target):
-			if int(focus_target.get("team_id")) == enemy_team:
-				return focus_target
-
-	var search_ids: Array[int] = _spatial_hash.query_radius(unit.position, target_query_radius)
-	var best_target: Node = null
-	var best_dist_sq: float = INF
-	for candidate_id in search_ids:
-		if not _unit_by_instance_id.has(candidate_id):
-			continue
-		var candidate: Node = _unit_by_instance_id[candidate_id]
-		if not _is_live_unit(candidate):
-			continue
-		if not _is_unit_alive(candidate):
-			continue
-		if int(candidate.get("team_id")) != enemy_team:
-			continue
-
-		var d2: float = unit.position.distance_squared_to(candidate.position)
-		if d2 < best_dist_sq:
-			best_dist_sq = d2
-			best_target = candidate
-
-	if best_target != null:
-		return best_target
-
-	# 兜底：若空间查询为空，使用敌方存活列表中最近目标。
-	for enemy in _team_alive_cache.get(enemy_team, []):
-		var d2: float = unit.position.distance_squared_to((enemy as Node2D).position)
-		if d2 < best_dist_sq:
-			best_dist_sq = d2
-			best_target = enemy
-	return best_target
+	return _targeting.pick_target_for_unit(self, unit)
 
 
 func _pick_target_in_attack_range(unit: Node, enemy_team: int) -> Node:
-	var combat: Node = _get_combat(unit)
-	if combat == null:
-		return null
-	var self_cell: Vector2i = _get_unit_cell(unit)
-	if self_cell.x < 0:
-		return null
-	var range_cells: int = maxi(int(combat.call("get_attack_range_cells")), 1)
-	if range_cells == 1:
-		# 近战热点优化：1 格射程直接查 6 邻格占用，避免大半径空间查询。
-		for neighbor in _neighbors_of(self_cell):
-			var occupant: Node = _get_occupant_unit_at_cell(neighbor)
-			if occupant == null:
-				continue
-			if int(occupant.get("team_id")) == enemy_team:
-				return occupant
-		return null
-	var query_radius: float = target_query_radius
-	if _hex_grid != null:
-		var hex_size: float = maxf(float(_hex_grid.get("hex_size")), 1.0)
-		query_radius = maxf(float(range_cells) * hex_size * 1.35, hex_size * 1.2)
-	var best_target: Node = null
-	var best_hex_dist: int = 1 << 30
-	var best_world_dist_sq: float = INF
-	for candidate_id in _spatial_hash.query_radius(unit.position, query_radius):
-		if not _unit_by_instance_id.has(candidate_id):
-			continue
-		var candidate: Node = _unit_by_instance_id[candidate_id]
-		if not _is_live_unit(candidate):
-			continue
-		if not _is_unit_alive(candidate):
-			continue
-		if int(candidate.get("team_id")) != enemy_team:
-			continue
-		var candidate_cell: Vector2i = _get_unit_cell(candidate)
-		if candidate_cell.x < 0:
-			continue
-		var hex_dist: int = _hex_distance(self_cell, candidate_cell)
-		if hex_dist > range_cells:
-			continue
-		var world_dist_sq: float = unit.position.distance_squared_to(candidate.position)
-		if hex_dist < best_hex_dist or (hex_dist == best_hex_dist and world_dist_sq < best_world_dist_sq):
-			best_hex_dist = hex_dist
-			best_world_dist_sq = world_dist_sq
-			best_target = candidate
-	return best_target
+	return _targeting.pick_target_in_attack_range(self, unit, enemy_team)
 
 
 func _get_occupant_unit_at_cell(cell: Vector2i) -> Node:
-	var cell_key: int = _cell_key_int(cell)
-	if not _cell_occupancy.has(cell_key):
-		return null
-	var iid: int = int(_cell_occupancy[cell_key])
-	if not _unit_by_instance_id.has(iid):
-		return null
-	var unit: Node = _unit_by_instance_id[iid]
-	if not _is_live_unit(unit):
-		return null
-	if not _is_unit_alive(unit):
-		return null
-	return unit
+	return _targeting.get_occupant_unit_at_cell(self, cell)
 
 
 func _is_target_in_attack_range(attacker: Node, target: Node) -> bool:
-	var combat: Node = _get_combat(attacker)
-	if combat == null:
-		return false
-
-	var attacker_cell: Vector2i = _get_unit_cell(attacker)
-	var target_cell: Vector2i = _get_unit_cell(target)
-	if attacker_cell.x < 0 or target_cell.x < 0:
-		return false
-	var hex_dist: int = _hex_distance(attacker_cell, target_cell)
-	var range_cells: int = maxi(int(combat.call("get_attack_range_cells")), 1)
-	return hex_dist <= range_cells
+	return _targeting.is_target_in_attack_range(self, attacker, target)
 
 
 func _on_attack_resolved(source: Node, target: Node, event_dict: Dictionary) -> void:
@@ -964,231 +789,55 @@ func _is_live_unit(unit: Variant) -> bool:
 
 
 func _cell_key_int(cell: Vector2i) -> int:
-	return ((cell.x & 0xFFFF) << 16) | (cell.y & 0xFFFF)
+	return _occupancy.cell_key_int(cell)
 
 
 func _occupy_cell(cell: Vector2i, unit: Node) -> bool:
-	if not _is_live_unit(unit):
-		return false
-	if _hex_grid != null and not bool(_hex_grid.call("is_inside_grid", cell)):
-		return false
-	if _static_blocked_cells.has(_cell_key_int(cell)):
-		return false
-	var iid: int = unit.get_instance_id()
-	var cell_key: int = _cell_key_int(cell)
-	if _cell_occupancy.has(cell_key) and int(_cell_occupancy[cell_key]) != iid:
-		# 严格占格：格子已被其他单位占据时拒绝覆盖。
-		return false
-	if _unit_cell.has(iid):
-		var old_cell: Vector2i = _unit_cell[iid]
-		if old_cell != cell:
-			var old_key: int = _cell_key_int(old_cell)
-			if _cell_occupancy.has(old_key) and int(_cell_occupancy[old_key]) == iid:
-				_cell_occupancy.erase(old_key)
-	_cell_occupancy[cell_key] = iid
-	_unit_cell[iid] = cell
-	return true
+	return _occupancy.occupy_cell(self, cell, unit)
 
 
 func _vacate_cell(cell: Vector2i) -> void:
-	var cell_key: int = _cell_key_int(cell)
-	if not _cell_occupancy.has(cell_key):
-		return
-	var occupant_iid: int = int(_cell_occupancy[cell_key])
-	_cell_occupancy.erase(cell_key)
-	if _unit_cell.has(occupant_iid):
-		var occupant_cell: Vector2i = _unit_cell[occupant_iid]
-		if occupant_cell == cell:
-			_unit_cell.erase(occupant_iid)
+	_occupancy.vacate_cell(self, cell)
 
 
 func _vacate_unit(unit: Node) -> void:
-	if not _is_live_unit(unit):
-		return
-	var iid: int = unit.get_instance_id()
-	if not _unit_cell.has(iid):
-		return
-	var cell: Vector2i = _unit_cell[iid]
-	var cell_key: int = _cell_key_int(cell)
-	if _cell_occupancy.has(cell_key) and int(_cell_occupancy[cell_key]) == iid:
-		_cell_occupancy.erase(cell_key)
-	_unit_cell.erase(iid)
+	_occupancy.vacate_unit(self, unit)
 
 
 func _is_cell_free(cell: Vector2i) -> bool:
-	if _hex_grid != null and not bool(_hex_grid.call("is_inside_grid", cell)):
-		return false
-	if _static_blocked_cells.has(_cell_key_int(cell)):
-		return false
-	return not _cell_occupancy.has(_cell_key_int(cell))
+	return _occupancy.is_cell_free(self, cell)
 
 
 func _get_unit_cell(unit: Node) -> Vector2i:
-	if not _is_live_unit(unit):
-		return Vector2i(-1, -1)
-	var iid: int = unit.get_instance_id()
-	if _unit_cell.has(iid):
-		var cached_cell: Vector2i = _unit_cell[iid]
-		if _hex_grid == null or bool(_hex_grid.call("is_inside_grid", cached_cell)):
-			return cached_cell
-	_unit_cell.erase(iid)
-	if _hex_grid == null:
-		return Vector2i(-1, -1)
-	var fallback_cell: Vector2i = _hex_grid.call("world_to_axial", unit.position)
-	if not bool(_hex_grid.call("is_inside_grid", fallback_cell)):
-		return Vector2i(-1, -1)
-	var resolved_cell: Vector2i = fallback_cell
-	if not _is_cell_free(resolved_cell):
-		resolved_cell = _find_nearest_free_cell(fallback_cell)
-	if resolved_cell.x < 0:
-		return Vector2i(-1, -1)
-	if _occupy_cell(resolved_cell, unit):
-		var unit_node: Node2D = unit as Node2D
-		if unit_node != null:
-			unit_node.position = _hex_grid.call("axial_to_world", resolved_cell)
-		return resolved_cell
-	return Vector2i(-1, -1)
+	return _occupancy.get_unit_cell(self, unit)
+
+
+func _resolve_and_register_unit_cell(unit: Node) -> Vector2i:
+	return _occupancy.resolve_and_register_unit_cell(self, unit)
+
+
+func _validate_cell_occupancy() -> void:
+	_occupancy.validate_occupancy(self)
 
 
 func _build_blocked_cells_for_team(self_team: int) -> Dictionary:
-	var blocked: Dictionary = _static_blocked_cells.duplicate()
-	for raw_key in _cell_occupancy.keys():
-		var cell_key: int = int(raw_key)
-		var iid: int = int(_cell_occupancy[cell_key])
-		if not _unit_by_instance_id.has(iid):
-			continue
-		var unit: Node = _unit_by_instance_id[iid]
-		if not _is_live_unit(unit) or not _is_unit_alive(unit):
-			continue
-		if int(unit.get("team_id")) == self_team:
-			blocked[cell_key] = true
-	return blocked
+	return _pathfinding.build_blocked_cells_for_team(self, self_team)
 
 
 func _pick_best_adjacent_cell(unit: Node, current_cell: Vector2i) -> Vector2i:
-	if _hex_grid == null:
-		return current_cell
-	var team_id: int = int(unit.get("team_id"))
-	var flow_field: FlowField = _flow_to_enemy if team_id == TEAM_ALLY else _flow_to_ally
-	var current_cost: int = flow_field.sample_cost(current_cell)
-	var best_cell: Vector2i = current_cell
-	var best_cost: float = INF
-	var best_focus_dist: int = 1 << 30
-	var side_step_cell: Vector2i = current_cell
-	var side_step_found: bool = false
-	var side_step_focus_dist: int = 1 << 30
-	var uphill_cell: Vector2i = current_cell
-	var uphill_found: bool = false
-	var uphill_cost: int = 1 << 30
-	var uphill_focus_dist: int = 1 << 30
-	var has_focus_cell: bool = false
-	var focus_cell: Vector2i = Vector2i.ZERO
-	var focus_target_id: int = int(_group_focus_target_id.get(team_id, -1))
-	if focus_target_id > 0 and _unit_by_instance_id.has(focus_target_id):
-		var focus_target: Node = _unit_by_instance_id[focus_target_id]
-		if _is_live_unit(focus_target) and _is_unit_alive(focus_target):
-			var resolved_focus_cell: Vector2i = _get_unit_cell(focus_target)
-			if resolved_focus_cell.x >= 0:
-				has_focus_cell = true
-				focus_cell = resolved_focus_cell
-	if current_cost < 0:
-		best_cost = INF
-	else:
-		best_cost = float(current_cost)
-
-	for neighbor in _neighbors_of(current_cell):
-		if not _is_cell_free(neighbor):
-			continue
-		var neighbor_cost: int = flow_field.sample_cost(neighbor)
-		if neighbor_cost < 0:
-			continue
-		var neighbor_focus_dist: int = 0
-		if has_focus_cell:
-			neighbor_focus_dist = _hex_distance(neighbor, focus_cell)
-		if current_cost < 0:
-			# 当前格不可达时，优先选择“可达且成本最低”的邻格破局。
-			if float(neighbor_cost) < best_cost or (is_equal_approx(float(neighbor_cost), best_cost) and neighbor_focus_dist < best_focus_dist):
-				best_cost = float(neighbor_cost)
-				best_focus_dist = neighbor_focus_dist
-				best_cell = neighbor
-			continue
-		if neighbor_cost < current_cost:
-			if float(neighbor_cost) < best_cost or (is_equal_approx(float(neighbor_cost), best_cost) and neighbor_focus_dist < best_focus_dist):
-				best_cost = float(neighbor_cost)
-				best_focus_dist = neighbor_focus_dist
-				best_cell = neighbor
-			continue
-		if allow_equal_cost_side_step and neighbor_cost == current_cost:
-			if not side_step_found or neighbor_focus_dist < side_step_focus_dist:
-				side_step_found = true
-				side_step_focus_dist = neighbor_focus_dist
-				side_step_cell = neighbor
-			continue
-		if allow_uphill_escape_step and neighbor_cost > current_cost:
-			if not uphill_found \
-			or neighbor_cost < uphill_cost \
-			or (neighbor_cost == uphill_cost and neighbor_focus_dist < uphill_focus_dist):
-				uphill_found = true
-				uphill_cost = neighbor_cost
-				uphill_focus_dist = neighbor_focus_dist
-				uphill_cell = neighbor
-	if best_cell != current_cell:
-		return best_cell
-	if allow_equal_cost_side_step and side_step_found:
-		return side_step_cell
-	if allow_uphill_escape_step and uphill_found:
-		return uphill_cell
-	return best_cell
+	return _pathfinding.pick_best_adjacent_cell(self, unit, current_cell)
 
 
 func _find_nearest_free_cell(start_cell: Vector2i) -> Vector2i:
-	if _hex_grid == null:
-		return Vector2i(-1, -1)
-	if not bool(_hex_grid.call("is_inside_grid", start_cell)):
-		return Vector2i(-1, -1)
-	if _is_cell_free(start_cell):
-		return start_cell
-	var queue: Array[Vector2i] = [start_cell]
-	var visited: Dictionary = {_cell_key_int(start_cell): true}
-	var head: int = 0
-	while head < queue.size():
-		var current: Vector2i = queue[head]
-		head += 1
-		for neighbor in _neighbors_of(current):
-			var key: int = _cell_key_int(neighbor)
-			if visited.has(key):
-				continue
-			visited[key] = true
-			if _is_cell_free(neighbor):
-				return neighbor
-			queue.append(neighbor)
-	return Vector2i(-1, -1)
+	return _occupancy.find_nearest_free_cell(self, start_cell)
 
 
 func _neighbors_of(cell: Vector2i) -> Array[Vector2i]:
-	if _hex_grid != null and _hex_grid.has_method("get_neighbor_cells"):
-		var neighbors_value: Variant = _hex_grid.call("get_neighbor_cells", cell)
-		if neighbors_value is Array:
-			var neighbors_typed: Array[Vector2i] = []
-			for candidate in (neighbors_value as Array):
-				if candidate is Vector2i:
-					neighbors_typed.append(candidate)
-			return neighbors_typed
-	var fallback: Array[Vector2i] = []
-	for dir in FlowField.AXIAL_DIRS:
-		var next_cell: Vector2i = cell + dir
-		if _hex_grid == null or bool(_hex_grid.call("is_inside_grid", next_cell)):
-			fallback.append(next_cell)
-	return fallback
+	return _occupancy.neighbors_of(self, cell)
 
 
 func _hex_distance(a: Vector2i, b: Vector2i) -> int:
-	if _hex_grid != null and _hex_grid.has_method("get_cell_distance"):
-		return int(_hex_grid.call("get_cell_distance", a, b))
-	# 轴坐标六角距离公式：( |dq| + |dq+dr| + |dr| ) / 2
-	var dq: int = b.x - a.x
-	var dr: int = b.y - a.y
-	return (absi(dq) + absi(dq + dr) + absi(dr)) / 2
+	return _pathfinding.hex_distance(self, a, b)
 
 
 func _reset_battle_runtime_state() -> void:
@@ -1211,27 +860,7 @@ func _reset_battle_runtime_state() -> void:
 	_team_cells_cache[TEAM_ENEMY] = []
 	_cell_occupancy.clear()
 	_unit_cell.clear()
-	_metric_tick_units = 0
-	_metric_tick_attack_checks = 0
-	_metric_tick_attacks_performed = 0
-	_metric_tick_move_checks = 0
-	_metric_tick_move_started = 0
-	_metric_tick_move_blocked = 0
-	_metric_tick_move_conflicts = 0
-	_metric_tick_idle_no_cell = 0
-	_metric_tick_flow_unreachable = 0
-	_metric_tick_duration_us = 0
-	_metric_total_units = 0
-	_metric_total_attack_checks = 0
-	_metric_total_attacks_performed = 0
-	_metric_total_move_checks = 0
-	_metric_total_move_started = 0
-	_metric_total_move_blocked = 0
-	_metric_total_move_conflicts = 0
-	_metric_total_idle_no_cell = 0
-	_metric_total_flow_unreachable = 0
-	_metric_total_tick_duration_us = 0
-	_metric_last_tick.clear()
+	_metrics.reset_all_metrics(self)
 
 
 func _setup_battle_seed(battle_seed: int) -> void:
@@ -1266,6 +895,23 @@ func _cleanup_unit_after_battle(unit: Node, winner_team: int) -> void:
 	var movement: Node = _get_movement(unit)
 	if movement != null:
 		movement.call("clear_target")
+
+	# 杀掉严格格子模式的短 Tween，避免战后仍在位移导致视觉重叠。
+	if unit.has_method("kill_quick_step_tween"):
+		unit.call("kill_quick_step_tween")
+
+	# 战后以逻辑占格为准强制吸附到格心，彻底消除“逻辑不同格但视觉同格”的情况。
+	var iid: int = unit.get_instance_id()
+	if _hex_grid != null and _unit_cell.has(iid):
+		var cell: Vector2i = _unit_cell[iid]
+		var snap_pos: Vector2 = _hex_grid.call("axial_to_world", cell)
+		var unit_node: Node2D = unit as Node2D
+		if unit_node != null:
+			unit_node.position = snap_pos
+
+	# 重置可视节点变换，清除 MOVE/VICTORY 残留倾斜与缩放偏移。
+	if unit.has_method("reset_visual_transform"):
+		unit.call("reset_visual_transform")
 
 	if _is_unit_alive(unit):
 		var team_id: int = int(unit.get("team_id"))
@@ -1359,5 +1005,8 @@ func _build_damage_event(source: Node, target: Node, event_dict: Dictionary) -> 
 		"damage": float(event_dict.get("damage", 0.0)),
 		"target_hp_after": float(event_dict.get("target_hp_after", 0.0)),
 		"target_mp_after": float(event_dict.get("target_mp_after", 0.0)),
+		"shield_absorbed": float(event_dict.get("shield_absorbed", 0.0)),
+		"shield_hp_after": float(event_dict.get("shield_hp_after", 0.0)),
+		"shield_broken": bool(event_dict.get("shield_broken", false)),
 		"logic_frame": _logic_frame
 	}

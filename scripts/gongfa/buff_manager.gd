@@ -1,6 +1,8 @@
 extends RefCounted
 class_name GongfaBuffManager
 
+signal buff_removed(event: Dictionary)
+
 # ===========================
 # Buff / Debuff 管理器
 # ===========================
@@ -11,10 +13,13 @@ class_name GongfaBuffManager
 
 var _buff_defs: Dictionary = {}      # buff_id -> buff_data
 var _active_by_unit: Dictionary = {} # unit_instance_id -> Array[Dictionary]
+# 战场级效果（例如 hazard_zone）：不绑定单个单位，按区域与时间驱动。
+var _battlefield_effects: Array[Dictionary] = []
 
 
 func clear_all() -> void:
 	_active_by_unit.clear()
+	_battlefield_effects.clear()
 
 
 func set_buff_definitions(buff_defs: Dictionary) -> void:
@@ -71,10 +76,48 @@ func apply_buff(target: Node, buff_id: String, duration: float, source: Node = n
 	return true
 
 
+func remove_buff(target: Node, buff_id: String, reason: String = "manual") -> int:
+	if target == null or not is_instance_valid(target):
+		return 0
+	var normalized_buff_id: String = buff_id.strip_edges()
+	if normalized_buff_id.is_empty():
+		return 0
+	var iid: int = target.get_instance_id()
+	if not _active_by_unit.has(iid):
+		return 0
+	var entries: Array = _active_by_unit.get(iid, [])
+	var next_entries: Array = []
+	var removed_count: int = 0
+	for entry_value in entries:
+		if not (entry_value is Dictionary):
+			continue
+		var entry: Dictionary = entry_value
+		if str(entry.get("buff_id", "")).strip_edges() != normalized_buff_id:
+			next_entries.append(entry)
+			continue
+		removed_count += 1
+		_emit_buff_removed(iid, normalized_buff_id, int(entry.get("source_id", -1)), reason)
+	if next_entries.is_empty():
+		_active_by_unit.erase(iid)
+	else:
+		_active_by_unit[iid] = next_entries
+	return removed_count
+
+
 func remove_all_for_unit(target: Node) -> void:
 	if target == null or not is_instance_valid(target):
 		return
-	_active_by_unit.erase(target.get_instance_id())
+	var iid: int = target.get_instance_id()
+	var entries: Array = _active_by_unit.get(iid, [])
+	for entry_value in entries:
+		if not (entry_value is Dictionary):
+			continue
+		var entry: Dictionary = entry_value
+		var buff_id: String = str(entry.get("buff_id", "")).strip_edges()
+		if buff_id.is_empty():
+			continue
+		_emit_buff_removed(iid, buff_id, int(entry.get("source_id", -1)), "unit_removed")
+	_active_by_unit.erase(iid)
 
 
 func collect_passive_effects_for_unit(target: Node) -> Array[Dictionary]:
@@ -119,7 +162,46 @@ func get_active_buff_ids_for_unit(target: Node) -> Array[String]:
 	return ids
 
 
-func tick(delta: float) -> Dictionary:
+func add_battlefield_effect(effect_config: Dictionary, source: Node = null) -> bool:
+	if effect_config.is_empty():
+		return false
+	var center_cell_value: Variant = effect_config.get("center_cell", Vector2i(-1, -1))
+	if not (center_cell_value is Vector2i):
+		return false
+	var center_cell: Vector2i = center_cell_value as Vector2i
+	if center_cell.x < 0 or center_cell.y < 0:
+		return false
+	var tick_effects_value: Variant = effect_config.get("tick_effects", [])
+	if not (tick_effects_value is Array) or (tick_effects_value as Array).is_empty():
+		return false
+	var source_id: int = int(effect_config.get("source_id", -1))
+	if source_id <= 0 and source != null and is_instance_valid(source):
+		source_id = source.get_instance_id()
+	var source_team: int = int(effect_config.get("source_team", 0))
+	if source_team == 0 and source != null and is_instance_valid(source):
+		source_team = int(source.get("team_id"))
+	var duration: float = float(effect_config.get("duration", 0.0))
+	if duration < 0.0:
+		duration = -1.0
+	var tick_interval: float = maxf(float(effect_config.get("tick_interval", 0.5)), 0.05)
+	var warning_seconds: float = maxf(float(effect_config.get("warning_seconds", 0.0)), 0.0)
+	_battlefield_effects.append({
+		"effect_id": str(effect_config.get("effect_id", "battlefield_effect")).strip_edges(),
+		"source_id": source_id,
+		"source_team": source_team,
+		"center_cell": center_cell,
+		"radius_cells": maxi(int(effect_config.get("radius_cells", 1)), 0),
+		"target_mode": str(effect_config.get("target_mode", "enemies")).strip_edges().to_lower(),
+		"remaining": duration,
+		"tick_interval": tick_interval,
+		"tick_accum": 0.0,
+		"warning_remaining": warning_seconds,
+		"tick_effects": (tick_effects_value as Array).duplicate(true)
+	})
+	return true
+
+
+func tick(delta: float, context: Dictionary = {}) -> Dictionary:
 	# 返回值包含两类信息：
 	# 1) tick_requests：到点需要触发的周期效果。
 	# 2) changed_unit_ids：Buff 状态变化，需要重算属性的单位。
@@ -162,6 +244,9 @@ func tick(delta: float) -> Dictionary:
 				expired = true
 
 			if expired:
+				var expired_buff_id: String = str(entry.get("buff_id", "")).strip_edges()
+				if not expired_buff_id.is_empty():
+					_emit_buff_removed(iid, expired_buff_id, int(entry.get("source_id", -1)), "expired")
 				changed_units[iid] = true
 				continue
 
@@ -172,6 +257,45 @@ func tick(delta: float) -> Dictionary:
 		if next_entries.is_empty():
 			_active_by_unit.erase(iid)
 
+	var next_battlefield_effects: Array[Dictionary] = []
+	for effect_value in _battlefield_effects:
+		if not (effect_value is Dictionary):
+			continue
+		var effect_entry: Dictionary = (effect_value as Dictionary).duplicate(true)
+		var previous_remaining_bf: float = float(effect_entry.get("remaining", 0.0))
+		var remaining_bf: float = previous_remaining_bf
+		if remaining_bf >= 0.0:
+			remaining_bf -= delta
+			effect_entry["remaining"] = remaining_bf
+
+		var warning_remaining: float = float(effect_entry.get("warning_remaining", 0.0))
+		if warning_remaining > 0.0:
+			warning_remaining = maxf(warning_remaining - delta, 0.0)
+			effect_entry["warning_remaining"] = warning_remaining
+
+		var expired_bf: bool = previous_remaining_bf >= 0.0 and remaining_bf <= 0.0
+		if expired_bf:
+			continue
+
+		if warning_remaining <= 0.0:
+			var tick_interval_bf: float = maxf(float(effect_entry.get("tick_interval", 0.5)), 0.05)
+			var tick_accum_bf: float = float(effect_entry.get("tick_accum", 0.0)) + delta
+			while tick_accum_bf >= tick_interval_bf:
+				tick_accum_bf -= tick_interval_bf
+				var target_ids: Array[int] = _collect_battlefield_target_ids(effect_entry, context)
+				var tick_effects: Array = effect_entry.get("tick_effects", [])
+				for target_iid in target_ids:
+					tick_requests.append({
+						"source_id": int(effect_entry.get("source_id", -1)),
+						"target_id": int(target_iid),
+						"buff_id": str(effect_entry.get("effect_id", "battlefield_effect")).strip_edges(),
+						"effects": tick_effects.duplicate(true),
+						"event_type": "battlefield_tick"
+					})
+			effect_entry["tick_accum"] = tick_accum_bf
+		next_battlefield_effects.append(effect_entry)
+	_battlefield_effects = next_battlefield_effects
+
 	var changed_unit_ids: Array[int] = []
 	for changed_id in changed_units.keys():
 		changed_unit_ids.append(int(changed_id))
@@ -180,3 +304,75 @@ func tick(delta: float) -> Dictionary:
 		"changed_unit_ids": changed_unit_ids,
 		"tick_requests": tick_requests
 	}
+
+
+func _emit_buff_removed(target_id: int, buff_id: String, source_id: int, reason: String) -> void:
+	buff_removed.emit({
+		"target_id": target_id,
+		"buff_id": buff_id,
+		"source_id": source_id,
+		"reason": reason
+	})
+
+
+func _collect_battlefield_target_ids(effect_entry: Dictionary, context: Dictionary) -> Array[int]:
+	var output: Array[int] = []
+	var all_units_value: Variant = context.get("all_units", [])
+	if not (all_units_value is Array):
+		return output
+	var center_value: Variant = effect_entry.get("center_cell", Vector2i(-1, -1))
+	if not (center_value is Vector2i):
+		return output
+	var center_cell: Vector2i = center_value as Vector2i
+	var radius_cells: int = maxi(int(effect_entry.get("radius_cells", 0)), 0)
+	var source_team: int = int(effect_entry.get("source_team", 0))
+	var target_mode: String = str(effect_entry.get("target_mode", "enemies")).strip_edges().to_lower()
+	var combat_manager: Node = context.get("combat_manager", null)
+	var hex_grid: Node = context.get("hex_grid", null)
+	for unit_value in (all_units_value as Array):
+		if not (unit_value is Node):
+			continue
+		var unit: Node = unit_value as Node
+		if unit == null or not is_instance_valid(unit):
+			continue
+		if not _is_unit_alive_node(unit):
+			continue
+		var team_id: int = int(unit.get("team_id"))
+		if target_mode == "allies" and source_team != 0 and team_id != source_team:
+			continue
+		if target_mode == "enemies" and source_team != 0 and team_id == source_team:
+			continue
+		var unit_cell: Vector2i = _resolve_unit_cell(unit, combat_manager, hex_grid)
+		if unit_cell.x < 0:
+			continue
+		if _hex_distance_cells(center_cell, unit_cell, hex_grid) > radius_cells:
+			continue
+		output.append(unit.get_instance_id())
+	return output
+
+
+func _resolve_unit_cell(unit: Node, combat_manager: Node, hex_grid: Node) -> Vector2i:
+	if combat_manager != null and is_instance_valid(combat_manager) and combat_manager.has_method("get_unit_cell_of"):
+		var cell_value: Variant = combat_manager.call("get_unit_cell_of", unit)
+		if cell_value is Vector2i:
+			return cell_value as Vector2i
+	if hex_grid != null and is_instance_valid(hex_grid) and hex_grid.has_method("world_to_axial"):
+		var node2d: Node2D = unit as Node2D
+		if node2d != null:
+			return hex_grid.call("world_to_axial", node2d.position)
+	return Vector2i(-1, -1)
+
+
+func _hex_distance_cells(a: Vector2i, b: Vector2i, hex_grid: Node) -> int:
+	if hex_grid != null and is_instance_valid(hex_grid) and hex_grid.has_method("get_cell_distance"):
+		return int(hex_grid.call("get_cell_distance", a, b))
+	var dq: int = b.x - a.x
+	var dr: int = b.y - a.y
+	return (absi(dq) + absi(dq + dr) + absi(dr)) / 2
+
+
+func _is_unit_alive_node(unit: Node) -> bool:
+	var combat: Node = unit.get_node_or_null("Components/UnitCombat")
+	if combat == null:
+		return false
+	return bool(combat.get("is_alive"))

@@ -45,6 +45,7 @@ func normalize_stage_record(raw: Dictionary) -> Dictionary:
 	var enemies: Array[Dictionary] = _normalize_enemies(raw.get("enemies", []))
 	var obstacles: Array[Dictionary] = _normalize_obstacles(raw.get("obstacles", []))
 	var rewards: Dictionary = _normalize_rewards(raw.get("rewards", {}))
+	var boss_gongfa_ids: Array[String] = _normalize_boss_gongfa_ids(raw.get("boss_gongfa_ids", []))
 	var boss_mechanics: Array[Dictionary] = _normalize_boss_mechanics(raw.get("boss_mechanics", null))
 
 	var result: Dictionary = {
@@ -58,6 +59,7 @@ func normalize_stage_record(raw: Dictionary) -> Dictionary:
 		"enemies": enemies,
 		"obstacles": obstacles,
 		"rewards": rewards,
+		"boss_gongfa_ids": boss_gongfa_ids,
 		"boss_mechanics": boss_mechanics
 	}
 	return result
@@ -205,6 +207,11 @@ func _normalize_boss_mechanics(raw_boss_mechanics: Variant) -> Array[Dictionary]
 			"config": config
 		})
 	return mechanics
+
+
+func _normalize_boss_gongfa_ids(value: Variant) -> Array[String]:
+	# M5：Boss 机制改为“特殊功法”后，关卡只需要声明功法 ID 列表。
+	return _to_string_array(value)
 
 
 func _normalize_obstacles(raw_obstacles: Variant) -> Array[Dictionary]:

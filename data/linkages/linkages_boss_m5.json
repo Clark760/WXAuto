@@ -1,0 +1,18 @@
+[
+  {
+    "id": "linkage_boss_formation",
+    "name": "天罡阵法",
+    "type": "formation_boost",
+    "description": "Boss 自身阵法联动：减伤并持续回血。",
+    "conditions": {
+      "require_zhenfa_tag": "boss_formation_master",
+      "require_any_tag": ["boss_formation_master"],
+      "min_count": 1
+    },
+    "effects": [
+      { "op": "damage_reduce_percent", "value": 0.5, "target": "participants" },
+      { "op": "hp_regen_add", "value": 20.0, "target": "participants" }
+    ],
+    "vfx_id": "vfx_star_shield"
+  }
+]

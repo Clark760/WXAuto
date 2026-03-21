@@ -258,10 +258,19 @@ func set_team(value: int) -> void:
 
 
 func enter_combat() -> void:
+	# M5-FIX: 上一局死亡后可能被隐藏，这里入战前强制恢复可见。
+	visible = true
 	is_in_combat = true
 	is_on_bench = false
 	bench_slot_index = -1
 	_apply_label_visibility()
+	# 对象池复用防御：每次入战先清空 visual_root 残留，再重建动画基准。
+	if visual_root != null:
+		visual_root.position = Vector2.ZERO
+		visual_root.scale = Vector2.ONE
+		visual_root.rotation = 0.0
+	if sprite_animator != null and sprite_animator.has_method("force_reset_rest_transform"):
+		sprite_animator.call("force_reset_rest_transform")
 	play_anim_state(0, {})
 	refresh_process_state()
 
@@ -269,8 +278,28 @@ func enter_combat() -> void:
 func leave_combat() -> void:
 	is_in_combat = false
 	_apply_label_visibility()
-	play_anim_state(0, {})
 	refresh_process_state()
+
+
+func kill_quick_step_tween() -> void:
+	if _quick_step_tween != null and _quick_step_tween.is_valid():
+		_quick_step_tween.kill()
+	_quick_step_tween = null
+
+
+func reset_visual_transform() -> void:
+	kill_quick_step_tween()
+	# 战后统一重置视觉节点，清除循环动画残留旋转/缩放。
+	if visual_root != null:
+		visual_root.position = Vector2.ZERO
+		visual_root.scale = Vector2.ONE
+		visual_root.rotation = 0.0
+		if visual_root is CanvasItem:
+			(visual_root as CanvasItem).modulate = Color(1, 1, 1, 1)
+	if sprite_animator != null and sprite_animator.has_method("force_reset_rest_transform"):
+		sprite_animator.call("force_reset_rest_transform")
+		return
+	_sync_sprite_animator_rest_anchor()
 
 
 func play_anim_state(state: int, context: Dictionary = {}) -> void:
@@ -311,14 +340,35 @@ func play_quick_cell_step(target_world: Vector2, duration: float = 0.08) -> void
 
 	if unit_node.position.distance_to(target_world) <= 0.5:
 		unit_node.position = target_world
+		# 移动完成后同步动画静止锚点，避免状态切换时出现水平漂移。
+		_sync_sprite_animator_rest_anchor()
 		return
 
 	var step_duration: float = clampf(duration, 0.03, 0.14)
-	if _quick_step_tween != null and _quick_step_tween.is_valid():
-		_quick_step_tween.kill()
+	kill_quick_step_tween()
 	_quick_step_tween = create_tween()
 	_quick_step_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	_quick_step_tween.tween_property(unit_node, "position", target_world, step_duration)
+	_quick_step_tween.finished.connect(func() -> void:
+		_quick_step_tween = null
+		# Tween 结束后重置 rest/base，避免下一次 IDLE 继承 MOVE 残留偏移。
+		_sync_sprite_animator_rest_anchor()
+	)
+
+
+func _sync_sprite_animator_rest_anchor() -> void:
+	if sprite_animator == null:
+		return
+	if sprite_animator.has_method("sync_rest_transform_to_current"):
+		sprite_animator.call("sync_rest_transform_to_current")
+		return
+	if sprite_animator.has_method("update_rest_position"):
+		# 兼容旧接口：默认动画目标是 VisualRoot，其静止位置应为当前局部坐标。
+		var rest_position: Vector2 = visual_root.position if visual_root != null else Vector2.ZERO
+		sprite_animator.call("update_rest_position", rest_position)
+		return
+	if sprite_animator.has_method("force_reset_rest_transform"):
+		sprite_animator.call("force_reset_rest_transform")
 
 
 func begin_drag() -> void:

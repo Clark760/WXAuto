@@ -22,6 +22,9 @@ var current_hp: float = 0.0
 var current_mp: float = 0.0
 var max_hp: float = 1.0
 var max_mp: float = 0.0
+# M5：护盾池（独立于生命值），受击时优先扣除。
+var shield_hp: float = 0.0
+var max_shield_hp: float = 0.0
 
 var attack_interval: float = 0.8
 var _attack_cd: float = 0.0
@@ -60,6 +63,7 @@ func reset_from_stats(runtime_stats: Dictionary) -> void:
 	_external_modifiers = DEFAULT_EXTERNAL_MODIFIERS.duplicate(true)
 	refresh_runtime_stats(runtime_stats, false)
 	_attack_cd = 0.0
+	clear_shield()
 
 	# 技能蓝耗按最大内力比例估算，保证不同角色可自然触发技能。
 	skill_mp_cost = clampf(max_mp * 0.6, 20.0, 120.0)
@@ -172,26 +176,34 @@ func receive_damage(
 			"damage": 0.0,
 			"target_died": true,
 			"target_hp_after": current_hp,
-			"target_mp_after": current_mp
-		}
-
-	# M5-Boss 机制扩展：护盾优先吸收，直接拦截本体掉血。
-	var shield_hp: float = _get_stage_meta_float("stage_shield_hp", 0.0)
-	if shield_hp > 0.0 and not _is_dodged:
-		var absorbed: float = minf(maxf(amount, 0.0), shield_hp)
-		shield_hp = maxf(shield_hp - absorbed, 0.0)
-		if owner_unit != null and is_instance_valid(owner_unit):
-			owner_unit.set_meta("stage_shield_hp", shield_hp)
-		var shield_event: Dictionary = {
-			"damage": 0.0,
-			"target_died": false,
-			"target_hp_after": current_hp,
 			"target_mp_after": current_mp,
-			"shield_absorbed": absorbed,
 			"shield_hp_after": shield_hp
 		}
-		damaged.emit(owner_unit, source, shield_event)
-		return shield_event
+
+	# M5：护盾优先吸收伤害，保留旧 stage_shield_hp 元数据兼容。
+	var total_shield_before: float = get_current_shield()
+	var shield_absorbed: float = 0.0
+	var shield_broken: bool = false
+	if total_shield_before > 0.0 and not _is_dodged:
+		var incoming: float = maxf(amount, 0.0)
+		shield_absorbed = minf(incoming, total_shield_before)
+		incoming = maxf(incoming - shield_absorbed, 0.0)
+		var total_shield_after: float = maxf(total_shield_before - shield_absorbed, 0.0)
+		_set_shield_value(total_shield_after)
+		shield_broken = total_shield_before > 0.0 and total_shield_after <= 0.0
+		amount = incoming
+		if incoming <= 0.0:
+			var shield_event: Dictionary = {
+				"damage": 0.0,
+				"target_died": false,
+				"target_hp_after": current_hp,
+				"target_mp_after": current_mp,
+				"shield_absorbed": shield_absorbed,
+				"shield_hp_after": get_current_shield(),
+				"shield_broken": shield_broken
+			}
+			damaged.emit(owner_unit, source, shield_event)
+			return shield_event
 
 	# M5-Boss 机制扩展：免伤开关（例如部分 Boss 相位）。
 	if _get_stage_meta_bool("stage_damage_immune", false):
@@ -199,7 +211,10 @@ func receive_damage(
 			"damage": 0.0,
 			"target_died": false,
 			"target_hp_after": current_hp,
-			"target_mp_after": current_mp
+			"target_mp_after": current_mp,
+			"shield_absorbed": shield_absorbed,
+			"shield_hp_after": get_current_shield(),
+			"shield_broken": shield_broken
 		}
 		damaged.emit(owner_unit, source, immune_event)
 		return immune_event
@@ -225,7 +240,10 @@ func receive_damage(
 		"damage": final_damage,
 		"target_died": dead_now,
 		"target_hp_after": current_hp,
-		"target_mp_after": current_mp
+		"target_mp_after": current_mp,
+		"shield_absorbed": shield_absorbed,
+		"shield_hp_after": get_current_shield(),
+		"shield_broken": shield_broken
 	}
 	damaged.emit(owner_unit, source, event)
 	return event
@@ -246,6 +264,23 @@ func add_mp(amount: float) -> void:
 	current_mp = clampf(current_mp + amount, 0.0, max_mp)
 
 
+func add_shield(amount: float) -> float:
+	var delta: float = maxf(amount, 0.0)
+	if delta <= 0.0:
+		return get_current_shield()
+	_set_shield_value(get_current_shield() + delta)
+	return get_current_shield()
+
+
+func clear_shield() -> void:
+	_set_shield_value(0.0)
+
+
+func get_current_shield() -> float:
+	var legacy_meta: float = _get_stage_meta_float("stage_shield_hp", 0.0)
+	return maxf(maxf(shield_hp, legacy_meta), 0.0)
+
+
 func get_attack_range_world(hex_size: float = 26.0) -> float:
 	# 把“格子攻击范围”换算为世界半径，便于 CombatManager 做距离判断。
 	var range_cells: float = maxf(_get_owner_stat("rng") + float(_external_modifiers.get("range_add", 0.0)), 1.0)
@@ -259,6 +294,13 @@ func get_attack_range_cells() -> int:
 	var min_cells: int = maxi(attack_range_min_cells, 1)
 	var max_cells: int = maxi(attack_range_max_cells, min_cells)
 	return clampi(int(range_cells), min_cells, max_cells)
+
+
+func get_max_effective_range_cells() -> int:
+	# M5 预留接口：
+	# 目标是把“可立即释放的技能射程”也纳入有效射程判定，避免角色已能放远程技能
+	# 却继续贴脸移动的错误行为。当前阶段先回落到普攻射程，后续接 GongfaManager。
+	return get_attack_range_cells()
 
 
 func refresh_runtime_stats(runtime_stats: Dictionary, preserve_ratio: bool = true) -> void:
@@ -420,3 +462,14 @@ func _get_stage_meta_bool(meta_key: String, fallback: bool) -> bool:
 	if owner_unit == null or not is_instance_valid(owner_unit):
 		return fallback
 	return bool(owner_unit.get_meta(meta_key, fallback))
+
+
+func _set_shield_value(value: float) -> void:
+	var next_value: float = maxf(value, 0.0)
+	shield_hp = next_value
+	max_shield_hp = maxf(max_shield_hp, next_value)
+	if next_value <= 0.0:
+		max_shield_hp = 0.0
+	if owner_unit != null and is_instance_valid(owner_unit):
+		# 保留旧字段兼容，避免仍在读取 meta 的老逻辑失效。
+		owner_unit.set_meta("stage_shield_hp", next_value)

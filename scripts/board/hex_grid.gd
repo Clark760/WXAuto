@@ -41,6 +41,9 @@ const OFFSET_DIRS_ODD_ROW: Array[Vector2i] = [
 @export var line_color: Color = Color(0.75, 0.82, 0.88, 0.85)
 @export var coordinate_color: Color = Color(0.95, 0.95, 0.98, 0.9)
 
+# 障碍物格渲染缓存：key 为打包后的坐标 int，value 为对应填充颜色。
+var _obstacle_cells: Dictionary = {} # int(cell_key) -> Color
+
 
 func _ready() -> void:
 	queue_redraw()
@@ -54,13 +57,29 @@ func _draw() -> void:
 			var cell: Vector2i = Vector2i(q, r)
 			var center: Vector2 = axial_to_local(cell)
 			var points: PackedVector2Array = _build_hex_points(center)
-			draw_colored_polygon(points, fill_color)
+			# 统一在 HexGrid 内绘制障碍颜色，避免外部 Polygon2D 因坐标系/hex_size 变化产生错位。
+			var cell_key: int = ((q & 0xFFFF) << 16) | (r & 0xFFFF)
+			var cell_fill: Color = fill_color
+			if _obstacle_cells.has(cell_key):
+				cell_fill = _obstacle_cells[cell_key] as Color
+			draw_colored_polygon(points, cell_fill)
 			var outline: PackedVector2Array = points.duplicate()
 			outline.append(points[0])
 			draw_polyline(outline, line_color, 1.2, true)
 			if draw_coordinates and font != null:
 				var text: String = "%d,%d" % [q, r]
 				draw_string(font, center + Vector2(-14, 4), text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, coordinate_color)
+
+
+func set_obstacle_cells(cells: Dictionary) -> void:
+	# cells: { packed_cell_key_int: Color }
+	_obstacle_cells = cells.duplicate(true)
+	queue_redraw()
+
+
+func clear_obstacle_cells() -> void:
+	_obstacle_cells.clear()
+	queue_redraw()
 
 
 func axial_to_world(cell: Vector2i) -> Vector2:

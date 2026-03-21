@@ -26,6 +26,8 @@ var _registry = preload("res://scripts/gongfa/gongfa_registry.gd").new()
 var _effect_engine = preload("res://scripts/gongfa/effect_engine.gd").new()
 var _buff_manager = preload("res://scripts/gongfa/buff_manager.gd").new()
 var _linkage_detector = preload("res://scripts/gongfa/linkage_detector.gd").new()
+var _trigger_engine = preload("res://scripts/gongfa/trigger_engine.gd").new()
+var _passive_applier = preload("res://scripts/gongfa/passive_applier.gd").new()
 var _unit_data_script: Script = load("res://scripts/data/unit_data.gd")
 
 var _bound_combat_manager: Node = null
@@ -49,6 +51,7 @@ var _active_linkage_summary_text: String = "当前联动：无"
 
 func _ready() -> void:
 	reload_from_data()
+	_connect_buff_signals()
 	_connect_event_bus()
 	set_process(true)
 
@@ -61,7 +64,11 @@ func _process(delta: float) -> void:
 	_trigger_accum += delta
 	_linkage_accum += delta
 
-	var buff_tick: Dictionary = _buff_manager.tick(delta)
+	var buff_tick: Dictionary = _buff_manager.tick(delta, {
+		"all_units": _battle_units,
+		"combat_manager": _bound_combat_manager,
+		"hex_grid": _bound_hex_grid
+	})
 	_execute_buff_tick_requests(buff_tick.get("tick_requests", []))
 	_reapply_changed_units(buff_tick.get("changed_unit_ids", []))
 
@@ -159,21 +166,9 @@ func apply_gongfa(unit: Node, defer_apply: bool = false) -> void:
 		if not element.is_empty():
 			elements[element] = true
 
-		var skill_value: Variant = gongfa_data.get("skill", {})
-		if skill_value is Dictionary:
-			var skill: Dictionary = skill_value
-			triggers.append({
-				"gongfa_id": gongfa_id,
-				"trigger": str(skill.get("trigger", "")),
-				"chance": clampf(float(skill.get("chance", 1.0)), 0.0, 1.0),
-				"mp_cost": maxf(float(skill.get("mp_cost", 0.0)), 0.0),
-				"cooldown": maxf(float(skill.get("cooldown", 0.0)), 0.0),
-				"next_ready_time": 0.0,
-				"trigger_count": 0,
-				"max_trigger_count": maxi(int(skill.get("max_trigger_count", 0)), 0),
-				# 浅拷贝即可，skill_data 内部字段只读。
-				"skill_data": skill.duplicate(false)
-			})
+		var skills_list: Array[Dictionary] = _extract_skill_entries_from_gongfa(gongfa_data)
+		for skill in skills_list:
+			triggers.append(_build_trigger_entry(gongfa_id, skill))
 
 	# ===== 第 2 层：装备来源 =====
 	var equipped_equip_ids: Array[String] = _resolve_equipped_equip_ids(unit)
@@ -201,17 +196,10 @@ func apply_gongfa(unit: Node, defer_apply: bool = false) -> void:
 		var trigger_value: Variant = equip_data.get("trigger", {})
 		if trigger_value is Dictionary and not (trigger_value as Dictionary).is_empty():
 			var trigger_data: Dictionary = trigger_value
-			equip_triggers.append({
-				"gongfa_id": equip_id, # 复用字段名，便于统一 signal 与日志结构。
-				"trigger": str(trigger_data.get("type", "")),
-				"chance": clampf(float(trigger_data.get("chance", 1.0)), 0.0, 1.0),
-				"mp_cost": maxf(float(trigger_data.get("mp_cost", 0.0)), 0.0),
-				"cooldown": maxf(float(trigger_data.get("cooldown", 0.0)), 0.0),
-				"next_ready_time": 0.0,
-				"trigger_count": 0,
-				"max_trigger_count": maxi(int(trigger_data.get("max_trigger_count", 0)), 0),
-				"skill_data": trigger_data.duplicate(false)
-			})
+			# 装备老字段 type 复用为 trigger，统一进入同一触发管线。
+			if not trigger_data.has("trigger"):
+				trigger_data["trigger"] = str(trigger_data.get("type", ""))
+			equip_triggers.append(_build_trigger_entry(equip_id, trigger_data))
 
 	# 装备触发器与功法触发器共享同一轮询与事件触发链路。
 	triggers.append_array(equip_triggers)
@@ -376,6 +364,47 @@ func _build_unit_baseline_stats(unit: Node) -> Dictionary:
 	return runtime
 
 
+func _extract_skill_entries_from_gongfa(gongfa_data: Dictionary) -> Array[Dictionary]:
+	var output: Array[Dictionary] = []
+	var skills_value: Variant = gongfa_data.get("skills", [])
+	if skills_value is Array:
+		for skill_value in (skills_value as Array):
+			if skill_value is Dictionary:
+				output.append((skill_value as Dictionary).duplicate(false))
+	# 兼容旧版单技能字段 skill。
+	var single_skill_value: Variant = gongfa_data.get("skill", {})
+	if single_skill_value is Dictionary and not (single_skill_value as Dictionary).is_empty():
+		output.append((single_skill_value as Dictionary).duplicate(false))
+	return output
+
+
+func _build_trigger_entry(owner_id: String, skill_data: Dictionary) -> Dictionary:
+	var trigger_params: Dictionary = {}
+	var trigger_params_value: Variant = skill_data.get("trigger_params", {})
+	if trigger_params_value is Dictionary:
+		trigger_params = (trigger_params_value as Dictionary).duplicate(false)
+	var trigger_name: String = str(skill_data.get("trigger", skill_data.get("type", ""))).strip_edges().to_lower()
+	var entry: Dictionary = {
+		"gongfa_id": owner_id,
+		"trigger": trigger_name,
+		"trigger_params": trigger_params,
+		"chance": clampf(float(skill_data.get("chance", 1.0)), 0.0, 1.0),
+		"mp_cost": maxf(float(skill_data.get("mp_cost", 0.0)), 0.0),
+		"cooldown": maxf(float(skill_data.get("cooldown", 0.0)), 0.0),
+		"next_ready_time": 0.0,
+		"trigger_count": 0,
+		"max_trigger_count": maxi(int(skill_data.get("max_trigger_count", 0)), 0),
+		"last_hp_below_state": false,
+		# periodic_seconds 默认“过 interval 秒后首次触发”，避免开场瞬发。
+		"next_periodic_time": maxf(float(trigger_params.get("interval", 0.0)), 0.0),
+		# on_time_elapsed 触发器默认一次性；可由 max_trigger_count 覆盖。
+		"time_elapsed_fired": false,
+		# 浅拷贝即可，skill_data 在执行阶段只读。
+		"skill_data": skill_data.duplicate(false)
+	}
+	return entry
+
+
 func _resolve_equipped_gongfa_ids(unit: Node) -> Array[String]:
 	var ids: Array[String] = []
 	var slots: Dictionary = _normalize_slots_dict(_node_prop(unit, "gongfa_slots", {}))
@@ -409,100 +438,87 @@ func _resolve_equipped_equip_ids(unit: Node) -> Array[String]:
 
 
 func _apply_state_to_unit(unit_id: int, preserve_health_ratio: bool) -> void:
-	if not _unit_states.has(unit_id):
-		return
-	var state: Dictionary = _unit_states[unit_id]
-	var unit: Node = state.get("unit", null)
-	if unit == null or not is_instance_valid(unit):
-		return
-
-	var runtime_stats: Dictionary = (state.get("baseline_stats", {}) as Dictionary).duplicate(true)
-	var modifiers: Dictionary = _effect_engine.create_empty_modifier_bundle()
-
-	# 属性叠加顺序：
-	# 1. 功法被动 -> 2. 装备被动 -> 3. 联动效果 -> 4. Buff 效果。
-	# 该顺序会影响 stat_percent 的乘算基准，必须保持稳定。
-	_effect_engine.apply_passive_effects(runtime_stats, modifiers, state.get("passive_effects", []))
-	_effect_engine.apply_passive_effects(runtime_stats, modifiers, state.get("equipment_effects", []))
-	_effect_engine.apply_passive_effects(runtime_stats, modifiers, state.get("linkage_effects", []))
-	_effect_engine.apply_passive_effects(
-		runtime_stats,
-		modifiers,
-		_buff_manager.collect_passive_effects_for_unit(unit)
-	)
-	_clamp_runtime_stats(runtime_stats)
-
-	unit.set("runtime_stats", runtime_stats)
-	unit.set("runtime_linkage_tags", state.get("runtime_linkage_tags", []))
-	unit.set("runtime_gongfa_elements", state.get("runtime_elements", []))
-	unit.set("runtime_equipped_gongfa_ids", state.get("equipped_gongfa_ids", []))
-	unit.set("runtime_equipped_equip_ids", state.get("equipped_equip_ids", []))
-
-	var combat: Node = unit.get_node_or_null("Components/UnitCombat")
-	if combat != null:
-		if combat.has_method("refresh_runtime_stats"):
-			combat.call("refresh_runtime_stats", runtime_stats, preserve_health_ratio)
-		else:
-			combat.call("reset_from_stats", runtime_stats)
-		if combat.has_method("set_external_modifiers"):
-			combat.call("set_external_modifiers", modifiers)
-
-	var movement: Node = unit.get_node_or_null("Components/UnitMovement")
-	if movement != null:
-		if movement.has_method("refresh_runtime_stats"):
-			movement.call("refresh_runtime_stats", runtime_stats)
-		else:
-			movement.call("reset_from_stats", runtime_stats)
-
+	if _passive_applier != null:
+		_passive_applier.call("apply_state_to_unit", self, unit_id, preserve_health_ratio)
 
 func _reapply_changed_units(changed_ids_variant: Variant) -> void:
-	if not (changed_ids_variant is Array):
-		return
-	for iid_value in changed_ids_variant:
-		_apply_state_to_unit(int(iid_value), true)
-
+	if _passive_applier != null:
+		_passive_applier.call("reapply_changed_units", self, changed_ids_variant)
 
 func _poll_auto_triggers() -> void:
-	for key in _unit_states.keys():
-		var iid: int = int(key)
-		var state: Dictionary = _unit_states[iid]
-		var unit: Node = state.get("unit", null)
-		if unit == null or not is_instance_valid(unit):
-			continue
-		if not _is_unit_alive(unit):
-			continue
+	if _trigger_engine != null:
+		_trigger_engine.call("poll_auto_triggers", self)
 
-		var triggers: Array = state.get("triggers", [])
-		for idx in range(triggers.size()):
-			var entry: Dictionary = triggers[idx]
-			var trigger: String = str(entry.get("trigger", ""))
-			if trigger == "auto_mp_full" or trigger == "manual" or trigger == "auto_hp_below" or trigger == "passive_aura":
-				if _can_trigger_entry(unit, entry):
-					_try_fire_skill(unit, entry, {})
-			triggers[idx] = entry
-		state["triggers"] = triggers
-		_unit_states[iid] = state
-
-
-func _can_trigger_entry(unit: Node, entry: Dictionary) -> bool:
+func _can_trigger_entry(unit: Node, entry: Dictionary, event_context: Dictionary = {}) -> bool:
 	if _battle_elapsed < float(entry.get("next_ready_time", 0.0)):
 		return false
 	var max_trigger_count: int = int(entry.get("max_trigger_count", 0))
 	if max_trigger_count > 0 and int(entry.get("trigger_count", 0)) >= max_trigger_count:
 		return false
 
-	var trigger: String = str(entry.get("trigger", ""))
+	var trigger: String = str(entry.get("trigger", "")).strip_edges().to_lower()
+	var trigger_params: Dictionary = {}
+	var trigger_params_value: Variant = entry.get("trigger_params", {})
+	if trigger_params_value is Dictionary:
+		trigger_params = trigger_params_value as Dictionary
+	var skill_data: Dictionary = entry.get("skill_data", {})
 	if trigger == "auto_mp_full" or trigger == "manual":
 		var mp_cost: float = float(entry.get("mp_cost", 0.0))
 		return _get_combat_value(unit, "current_mp") >= mp_cost
 	if trigger == "auto_hp_below":
 		var threshold: float = 0.3
-		var skill_data: Dictionary = entry.get("skill_data", {})
 		if skill_data.has("threshold"):
 			threshold = clampf(float(skill_data.get("threshold", 0.3)), 0.01, 0.95)
 		var hp: float = _get_combat_value(unit, "current_hp")
 		var max_hp: float = maxf(_get_combat_value(unit, "max_hp"), 1.0)
 		return hp / max_hp <= threshold
+	if trigger == "on_hp_below":
+		var hp_threshold: float = 0.3
+		if trigger_params.has("threshold"):
+			hp_threshold = clampf(float(trigger_params.get("threshold", 0.3)), 0.01, 0.95)
+		elif skill_data.has("threshold"):
+			hp_threshold = clampf(float(skill_data.get("threshold", 0.3)), 0.01, 0.95)
+		var hp_now: float = _get_combat_value(unit, "current_hp")
+		var hp_max: float = maxf(_get_combat_value(unit, "max_hp"), 1.0)
+		var is_below: bool = hp_now / hp_max <= hp_threshold
+		var was_below: bool = bool(entry.get("last_hp_below_state", false))
+		entry["last_hp_below_state"] = is_below
+		# 只在“首次跌破阈值”的边沿触发，避免低血期间每轮询都重复触发。
+		if is_below and not was_below:
+			var mp_cost_need: float = float(entry.get("mp_cost", 0.0))
+			return _get_combat_value(unit, "current_mp") >= mp_cost_need
+		return false
+	if trigger == "on_time_elapsed":
+		var at_seconds: float = maxf(float(trigger_params.get("at_seconds", skill_data.get("at_seconds", -1.0))), -1.0)
+		if at_seconds < 0.0:
+			return false
+		if _battle_elapsed < at_seconds:
+			return false
+		var fired_once: bool = bool(entry.get("time_elapsed_fired", false))
+		if fired_once:
+			return false
+		var mp_cost_time: float = float(entry.get("mp_cost", 0.0))
+		return _get_combat_value(unit, "current_mp") >= mp_cost_time
+	if trigger == "periodic_seconds":
+		var interval: float = maxf(float(trigger_params.get("interval", skill_data.get("interval", 0.0))), 0.05)
+		var next_time: float = float(entry.get("next_periodic_time", interval))
+		if next_time <= 0.0:
+			next_time = interval
+		if _battle_elapsed < next_time:
+			return false
+		var mp_cost_periodic: float = float(entry.get("mp_cost", 0.0))
+		return _get_combat_value(unit, "current_mp") >= mp_cost_periodic
+	if trigger == "on_buff_expired":
+		var removed_buff_id: String = str(event_context.get("removed_buff_id", "")).strip_edges()
+		if removed_buff_id.is_empty():
+			return false
+		var watch_buff_id: String = str(trigger_params.get("watch_buff_id", skill_data.get("watch_buff_id", ""))).strip_edges()
+		if watch_buff_id.is_empty():
+			return false
+		if removed_buff_id != watch_buff_id:
+			return false
+		var mp_cost_buff_expired: float = float(entry.get("mp_cost", 0.0))
+		return _get_combat_value(unit, "current_mp") >= mp_cost_buff_expired
 	if trigger == "passive_aura":
 		# passive_aura 依赖冷却节奏持续刷新，默认可触发。
 		return true
@@ -577,6 +593,17 @@ func _try_fire_skill(source: Node, entry: Dictionary, event_context: Dictionary)
 
 	source.call("play_anim_state", 3, {}) # SKILL
 
+	var trigger_name: String = str(entry.get("trigger", "")).strip_edges().to_lower()
+	if trigger_name == "periodic_seconds":
+		var trigger_params: Dictionary = {}
+		var trigger_params_value: Variant = entry.get("trigger_params", {})
+		if trigger_params_value is Dictionary:
+			trigger_params = trigger_params_value as Dictionary
+		var interval_seconds: float = maxf(float(trigger_params.get("interval", skill_data.get("interval", 0.0))), 0.05)
+		entry["next_periodic_time"] = _battle_elapsed + interval_seconds
+	elif trigger_name == "on_time_elapsed":
+		entry["time_elapsed_fired"] = true
+
 	entry["trigger_count"] = int(entry.get("trigger_count", 0)) + 1
 	entry["next_ready_time"] = _battle_elapsed + float(entry.get("cooldown", 0.0))
 	skill_triggered.emit(source, str(entry.get("gongfa_id", "")), str(entry.get("trigger", "")))
@@ -584,14 +611,25 @@ func _try_fire_skill(source: Node, entry: Dictionary, event_context: Dictionary)
 
 
 func _build_effect_context(source: Node, target: Node, event_context: Dictionary) -> Dictionary:
+	var battlefield_node: Node = null
+	var unit_factory_node: Node = null
+	if _bound_combat_manager != null and is_instance_valid(_bound_combat_manager):
+		battlefield_node = _bound_combat_manager.get_parent()
+		if battlefield_node != null and is_instance_valid(battlefield_node):
+			unit_factory_node = battlefield_node.get_node_or_null("UnitFactory")
 	return {
 		"source": source,
 		"target": target,
 		"event_context": event_context,
 		"all_units": _battle_units,
 		"hex_size": _bound_hex_grid.get("hex_size") if _bound_hex_grid != null else 26.0,
+		"hex_grid": _bound_hex_grid,
 		"vfx_factory": _bound_vfx_factory,
-		"buff_manager": _buff_manager
+		"buff_manager": _buff_manager,
+		"battlefield": battlefield_node,
+		"combat_manager": _bound_combat_manager,
+		"unit_factory": unit_factory_node,
+		"battle_elapsed": _battle_elapsed
 	}
 
 
@@ -956,6 +994,17 @@ func _on_damage_resolved(event_dict: Dictionary) -> void:
 		_fire_trigger_for_unit(source, "on_attack_hit", {"target": target, "event": event_dict})
 	if target != null and is_instance_valid(target):
 		_fire_trigger_for_unit(target, "on_attacked", {"target": source, "event": event_dict})
+		# 护盾被击破时，主动移除“护盾标记 Buff / 免疫 Buff”，
+		# 后续 on_buff_expired 可据此触发“破盾后续机制”。
+		if bool(event_dict.get("shield_broken", false)):
+			var shield_buff_id: String = str(target.get_meta("shield_bound_buff_id", "")).strip_edges()
+			if not shield_buff_id.is_empty():
+				_buff_manager.remove_buff(target, shield_buff_id, "shield_broken")
+			var immunity_buff_id: String = str(target.get_meta("shield_immunity_buff_id", "")).strip_edges()
+			if not immunity_buff_id.is_empty():
+				_buff_manager.remove_buff(target, immunity_buff_id, "shield_broken")
+			target.remove_meta("shield_bound_buff_id")
+			target.remove_meta("shield_immunity_buff_id")
 
 
 func _on_unit_died(dead_unit: Node, killer: Node, team_id: int) -> void:
@@ -981,29 +1030,34 @@ func _on_battle_ended(_winner_team: int, _summary: Dictionary) -> void:
 	_battle_running = false
 
 
-func _fire_trigger_for_all(trigger: String, context: Dictionary) -> void:
-	for unit in _battle_units:
-		_fire_trigger_for_unit(unit, trigger, context)
+func _on_buff_removed(event_dict: Dictionary) -> void:
+	var target_id: int = int(event_dict.get("target_id", -1))
+	if target_id <= 0:
+		return
+	if not _unit_lookup.has(target_id):
+		return
+	var target: Node = _unit_lookup[target_id]
+	if target == null or not is_instance_valid(target):
+		return
+	if not _is_unit_alive(target):
+		return
+	var removed_buff_id: String = str(event_dict.get("buff_id", "")).strip_edges()
+	if removed_buff_id.is_empty():
+		return
+	_fire_trigger_for_unit(target, "on_buff_expired", {
+		"target": target,
+		"removed_buff_id": removed_buff_id,
+		"event": event_dict
+	})
 
+
+func _fire_trigger_for_all(trigger: String, context: Dictionary) -> void:
+	if _trigger_engine != null:
+		_trigger_engine.call("fire_trigger_for_all", self, trigger, context)
 
 func _fire_trigger_for_unit(unit: Node, trigger: String, context: Dictionary) -> void:
-	if unit == null or not is_instance_valid(unit):
-		return
-	var iid: int = unit.get_instance_id()
-	if not _unit_states.has(iid):
-		return
-	var state: Dictionary = _unit_states[iid]
-	var triggers: Array = state.get("triggers", [])
-	for idx in range(triggers.size()):
-		var entry: Dictionary = triggers[idx]
-		if str(entry.get("trigger", "")) != trigger:
-			continue
-		if _can_trigger_entry(unit, entry):
-			_try_fire_skill(unit, entry, context)
-		triggers[idx] = entry
-	state["triggers"] = triggers
-	_unit_states[iid] = state
-
+	if _trigger_engine != null:
+		_trigger_engine.call("fire_trigger_for_unit", self, unit, trigger, context)
 
 func _clamp_runtime_stats(runtime_stats: Dictionary) -> void:
 	var min_positive_keys: Array[String] = ["hp", "spd", "mov", "rng"]
@@ -1094,6 +1148,12 @@ func _get_combat_value(unit: Node, key: String) -> float:
 	if combat == null:
 		return 0.0
 	return float(combat.get(key))
+
+
+func _connect_buff_signals() -> void:
+	var cb_removed: Callable = Callable(self, "_on_buff_removed")
+	if _buff_manager != null and not _buff_manager.is_connected("buff_removed", cb_removed):
+		_buff_manager.connect("buff_removed", cb_removed)
 
 
 func _connect_event_bus() -> void:

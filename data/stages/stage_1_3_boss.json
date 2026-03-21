@@ -43,52 +43,10 @@
       { "type": "unit", "pool": ["unit_blue_184"], "count": 1, "chance": 0.5, "star": 2 }
     ]
   },
-  "boss_mechanics": [
-    {
-      "type": "phase_shield",
-      "config": {
-        "phases": [
-          { "hp_threshold": 0.7, "shield_hp": 400, "buff_on_break": "atk_up_20" },
-          { "hp_threshold": 0.35, "shield_hp": 700, "buff_on_break": "berserk" }
-        ]
-      }
-    },
-    {
-      "type": "summon_wave",
-      "config": {
-        "interval_seconds": 14,
-        "max_waves": 2,
-        "wave_units": [
-          { "unit_id": "unit_green_106", "count": 4, "star": 1, "deploy_zone": "back" },
-          { "unit_id": "unit_blue_182", "count": 2, "star": 1, "deploy_zone": "center" }
-        ]
-      }
-    },
-    {
-      "type": "hazard_zones",
-      "config": {
-        "damage_per_second": 16,
-        "radius_cells": 2,
-        "move_interval_seconds": 8,
-        "count": 2,
-        "warning_seconds": 1.5
-      }
-    },
-    {
-      "type": "enrage_timer",
-      "config": {
-        "enrage_after_seconds": 60,
-        "pre_enrage_warning_seconds": 10,
-        "enrage_buffs": {
-          "atk_percent": 0.8,
-          "spd_percent": 0.35,
-          "damage_reduce_percent": 0.25
-        },
-        "soft_enrage_stages": [
-          { "at_seconds": 25, "atk_percent": 0.2 },
-          { "at_seconds": 45, "atk_percent": 0.35 }
-        ]
-      }
-    }
-  ]
+  "boss_gongfa_ids": [
+    "boss_phase_shield",
+    "boss_summon_hazard",
+    "boss_enrage"
+  ],
+  "boss_mechanics": null
 }

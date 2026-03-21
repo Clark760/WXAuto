@@ -5,6 +5,9 @@ enum Stage { PREPARATION, COMBAT, RESULT }
 const HUD_REFRESH_INTERVAL: float = 0.1
 const TEAM_ALLY: int = 1
 const TEAM_ENEMY: int = 2
+const UNIT_DEPLOY_MANAGER_SCRIPT: Script = preload("res://scripts/battle/unit_deploy_manager.gd")
+const DRAG_CONTROLLER_SCRIPT: Script = preload("res://scripts/battle/drag_controller.gd")
+const BATTLEFIELD_RENDERER_SCRIPT: Script = preload("res://scripts/battle/battlefield_renderer.gd")
 
 @export var initial_bench_count: int = 30
 @export var enemy_wave_size: int = 200
@@ -73,9 +76,6 @@ var _is_panning: bool = false
 var _bottom_expanded: bool = true
 var _bottom_tween: Tween = null
 var _dragging_unit: Node = null
-var _drag_origin_kind: String = ""
-var _drag_origin_slot: int = -1
-var _drag_origin_cell: Vector2i = Vector2i(-999, -999)
 var _drag_target_cell: Vector2i = Vector2i(-999, -999)
 var _drag_target_valid: bool = false
 var _hover_candidate_unit: Node = null
@@ -87,8 +87,32 @@ var _ui_dirty: bool = false
 var _pending_multimesh_refresh: bool = false
 var _pending_ui_refresh: bool = false
 var _cached_ui_values: Dictionary = {}
+var _unit_deploy_manager: Node = null
+var _drag_controller: Node = null
+var _battlefield_renderer: Node = null
+
+
+func _bootstrap_runtime_modules() -> void:
+	# M5 拆分：将部署、拖拽、渲染职责委托给独立模块。
+	if _unit_deploy_manager == null:
+		_unit_deploy_manager = UNIT_DEPLOY_MANAGER_SCRIPT.new() as Node
+		_unit_deploy_manager.name = "RuntimeUnitDeployManager"
+		add_child(_unit_deploy_manager)
+		_unit_deploy_manager.call("configure", self)
+	if _drag_controller == null:
+		_drag_controller = DRAG_CONTROLLER_SCRIPT.new() as Node
+		_drag_controller.name = "RuntimeDragController"
+		add_child(_drag_controller)
+		_drag_controller.call("configure", self)
+	if _battlefield_renderer == null:
+		_battlefield_renderer = BATTLEFIELD_RENDERER_SCRIPT.new() as Node
+		_battlefield_renderer.name = "RuntimeBattlefieldRenderer"
+		add_child(_battlefield_renderer)
+		_battlefield_renderer.call("configure", self)
+
 
 func _ready() -> void:
+	_bootstrap_runtime_modules()
 	_connect_signals()
 	combat_manager.call("configure_dependencies", hex_grid, vfx_factory)
 	if gongfa_manager != null:
@@ -292,84 +316,27 @@ func _reset_view() -> void:
 	_apply_world_transform()
 
 func _try_begin_drag(screen_pos: Vector2) -> void:
-	# 拖拽优先级：先尝试备战席，再尝试战场单位。
-	if _dragging_unit != null:
-		return
-	var bench_slot: int = bench_ui.get_slot_index_at_screen_pos(screen_pos)
-	if bench_slot >= 0:
-		var bench_unit: Node = bench_ui.remove_unit_at(bench_slot)
-		if bench_unit != null:
-			_begin_drag(bench_unit, "bench", bench_slot, Vector2i(-999, -999), screen_pos)
-		return
-	var world_pos: Vector2 = _screen_to_world(screen_pos)
-	var deployed_unit: Node = _pick_deployed_ally_unit_at(world_pos)
-	if deployed_unit == null:
-		return
-	var origin_cell: Vector2i = deployed_unit.get("deployed_cell")
-	_remove_ally_mapping(deployed_unit)
-	_begin_drag(deployed_unit, "battlefield", -1, origin_cell, screen_pos)
+	if _drag_controller != null:
+		_drag_controller.call("try_begin_drag", screen_pos)
 
 func _begin_drag(unit: Node, origin_kind: String, origin_slot: int, origin_cell: Vector2i, screen_pos: Vector2) -> void:
-	_dragging_unit = unit
-	_drag_origin_kind = origin_kind
-	_drag_origin_slot = origin_slot
-	_drag_origin_cell = origin_cell
-	if _dragging_unit is CanvasItem:
-		(_dragging_unit as CanvasItem).visible = false
-	_update_drag_preview_data(_dragging_unit)
-	drag_preview.visible = true
-	_update_drag_preview(screen_pos)
-	_update_drag_target(screen_pos)
-	_refresh_multimesh()
+	if _drag_controller != null:
+		_drag_controller.call("begin_drag", unit, origin_kind, origin_slot, origin_cell, screen_pos)
 
 func _try_end_drag(screen_pos: Vector2) -> void:
-	if _dragging_unit == null:
-		return
-	var dropped: bool = false
-	var target: Dictionary = _get_drop_target(screen_pos)
-	var target_type: String = str(target.get("type", "invalid"))
-	if target_type == "battlefield":
-		var cell: Vector2i = target.get("cell", Vector2i(-999, -999))
-		if _can_deploy_ally_to_cell(_dragging_unit, cell):
-			_deploy_ally_unit_to_cell(_dragging_unit, cell)
-			dropped = true
-	elif target_type == "bench":
-		var slot_index: int = int(target.get("slot", -1))
-		dropped = _drop_to_bench_slot(_dragging_unit, slot_index)
-	if not dropped:
-		_restore_drag_origin()
-	_finish_drag()
+	if _drag_controller != null:
+		_drag_controller.call("try_end_drag", screen_pos)
 
 func _finish_drag() -> void:
-	var had_drag_overlay: bool = _dragging_unit != null or _drag_target_cell.x >= 0
-	_dragging_unit = null
-	_drag_origin_kind = ""
-	_drag_origin_slot = -1
-	_drag_origin_cell = Vector2i(-999, -999)
-	_drag_target_cell = Vector2i(-999, -999)
-	_drag_target_valid = false
-	drag_preview.visible = false
-	if had_drag_overlay:
-		_request_drag_overlay_redraw(true)
-	_refresh_multimesh()
-	_refresh_all_ui()
+	if _drag_controller != null:
+		_drag_controller.call("finish_drag")
 
 func _update_drag_preview(screen_pos: Vector2) -> void:
 	drag_preview.position = screen_pos + Vector2(14.0, 14.0)
 
 func _update_drag_target(screen_pos: Vector2) -> void:
-	var previous_cell: Vector2i = _drag_target_cell
-	var previous_valid: bool = _drag_target_valid
-	var target: Dictionary = _get_drop_target(screen_pos)
-	var target_type: String = str(target.get("type", "invalid"))
-	if target_type == "battlefield":
-		_drag_target_cell = target.get("cell", Vector2i(-999, -999))
-		_drag_target_valid = _can_deploy_ally_to_cell(_dragging_unit, _drag_target_cell)
-	else:
-		_drag_target_cell = Vector2i(-999, -999)
-		_drag_target_valid = false
-	if previous_cell != _drag_target_cell or previous_valid != _drag_target_valid:
-		_request_drag_overlay_redraw(true)
+	if _drag_controller != null:
+		_drag_controller.call("update_drag_target", screen_pos)
 
 func _update_drag_preview_data(unit: Node) -> void:
 	drag_preview_name.text = str(unit.get("unit_name"))
@@ -379,45 +346,18 @@ func _update_drag_preview_data(unit: Node) -> void:
 	drag_preview_icon.color = _quality_color(str(unit.get("quality")))
 
 func _get_drop_target(screen_mouse: Vector2) -> Dictionary:
-	# 坐标转换链路：屏幕坐标 -> WorldContainer 本地坐标 -> 六角格坐标。
-	if bench_ui.is_screen_point_inside(screen_mouse):
-		return {"type": "bench", "slot": bench_ui.get_slot_index_at_screen_pos(screen_mouse)}
-	var world_pos: Vector2 = _screen_to_world(screen_mouse)
-	var cell: Vector2i = hex_grid.world_to_axial(world_pos)
-	if bool(hex_grid.is_inside_grid(cell)) and _is_ally_deploy_zone(cell):
-		return {"type": "battlefield", "cell": cell}
+	if _drag_controller != null:
+		return _drag_controller.call("get_drop_target", screen_mouse)
 	return {"type": "invalid"}
 
 func _drop_to_bench_slot(unit: Node, slot_index: int) -> bool:
-	if slot_index < 0:
-		return bench_ui.add_unit(unit)
-	var target_unit: Node = bench_ui.get_unit_at_slot(slot_index)
-	if target_unit == null:
-		return bench_ui.add_unit_to_slot(unit, slot_index, false)
-	if _drag_origin_kind == "bench" and _drag_origin_slot >= 0:
-		var extracted: Node = bench_ui.remove_unit_at(slot_index)
-		if extracted == null:
-			return false
-		if not bench_ui.add_unit_to_slot(unit, slot_index, false):
-			bench_ui.add_unit_to_slot(extracted, slot_index, false)
-			return false
-		if bench_ui.add_unit_to_slot(extracted, _drag_origin_slot, false):
-			return true
-		# 兜底：原槽不可用时，优先保住互换出的单位不丢失。
-		return bench_ui.add_unit(extracted)
+	if _drag_controller != null:
+		return bool(_drag_controller.call("drop_to_bench_slot", unit, slot_index))
 	return false
 
 func _restore_drag_origin() -> void:
-	if _dragging_unit == null:
-		return
-	if _drag_origin_kind == "battlefield" and _drag_origin_cell.x > -900:
-		_deploy_ally_unit_to_cell(_dragging_unit, _drag_origin_cell)
-		return
-	if _drag_origin_kind == "bench" and _drag_origin_slot >= 0:
-		if bench_ui.get_unit_at_slot(_drag_origin_slot) == null:
-			if bench_ui.add_unit_to_slot(_dragging_unit, _drag_origin_slot, false):
-				return
-	bench_ui.add_unit(_dragging_unit)
+	if _drag_controller != null:
+		_drag_controller.call("restore_drag_origin")
 
 func _pick_deployed_ally_unit_at(world_pos: Vector2) -> Node:
 	for unit in _ally_deployed.values():
@@ -433,48 +373,26 @@ func _is_point_on_unit(unit: Node, world_pos: Vector2) -> bool:
 	return node2d.position.distance_squared_to(world_pos) <= radius * radius
 
 func _can_deploy_ally_to_cell(unit: Node, cell: Vector2i) -> bool:
-	if not bool(hex_grid.is_inside_grid(cell)):
-		return false
-	if not _is_ally_deploy_zone(cell):
-		return false
-	var key: String = _cell_key(cell)
-	if not _ally_deployed.has(key):
-		return true
-	return _ally_deployed[key] == unit
+	if _unit_deploy_manager != null:
+		return bool(_unit_deploy_manager.call("can_deploy_ally_to_cell", unit, cell))
+	return false
 
 func _is_ally_deploy_zone(cell: Vector2i) -> bool:
-	return cell.x >= 0 and cell.x < ally_deploy_columns
+	if _unit_deploy_manager != null:
+		return bool(_unit_deploy_manager.call("is_ally_deploy_zone", cell))
+	return false
 
 func _deploy_ally_unit_to_cell(unit: Node, cell: Vector2i) -> void:
-	# 战场单位定位使用 position（世界本地坐标），不写 global_position。
-	_ally_deployed[_cell_key(cell)] = unit
-	var map_key: String = _cell_key(cell)
-	_ally_deployed[map_key] = unit
-	_set_unit_map_cache(unit, map_key, TEAM_ALLY)
-	unit.set("deployed_cell", cell)
-	unit.call("set_team", TEAM_ALLY)
-	unit.call("set_on_bench_state", false, -1)
-	unit.set("is_in_combat", false)
-	(unit as Node2D).position = hex_grid.axial_to_world(cell)
-	(unit as CanvasItem).visible = true
-	_apply_unit_visual_presentation(unit)
-	unit.call("play_anim_state", 0, {})
+	if _unit_deploy_manager != null:
+		_unit_deploy_manager.call("deploy_ally_unit_to_cell", unit, cell)
 
 func _deploy_enemy_unit_to_cell(unit: Node, cell: Vector2i) -> void:
-	var map_key: String = _cell_key(cell)
-	_enemy_deployed[map_key] = unit
-	_set_unit_map_cache(unit, map_key, TEAM_ENEMY)
-	unit.set("deployed_cell", cell)
-	unit.call("set_team", TEAM_ENEMY)
-	unit.call("set_on_bench_state", false, -1)
-	unit.set("is_in_combat", false)
-	(unit as Node2D).position = hex_grid.axial_to_world(cell)
-	(unit as CanvasItem).visible = true
-	_apply_unit_visual_presentation(unit)
-	unit.call("play_anim_state", 0, {})
+	if _unit_deploy_manager != null:
+		_unit_deploy_manager.call("deploy_enemy_unit_to_cell", unit, cell)
 
 func _remove_ally_mapping(unit: Node) -> void:
-	_remove_unit_from_map(_ally_deployed, unit)
+	if _unit_deploy_manager != null:
+		_unit_deploy_manager.call("remove_ally_mapping", unit)
 
 func _spawn_random_units_to_bench(count: int) -> void:
 	var unit_ids: Array[String] = unit_factory.call("get_unit_ids")
@@ -529,66 +447,31 @@ func _start_combat() -> void:
 	# 不再重复调用 _refresh_multimesh() / _refresh_all_ui()。
 
 func _spawn_enemy_wave(count: int) -> void:
-	_clear_enemy_wave()
-	var unit_ids: Array[String] = unit_factory.call("get_unit_ids")
-	var cells: Array[Vector2i] = _collect_enemy_spawn_cells()
-	if unit_ids.is_empty() or cells.is_empty():
-		return
-	var rng := RandomNumberGenerator.new()
-	rng.randomize()
-	_shuffle_cells(cells, rng)
-	var spawn_total: int = mini(count, cells.size())
-	for i in range(spawn_total):
-		var unit_id: String = unit_ids[rng.randi_range(0, unit_ids.size() - 1)]
-		var unit_node: Node = unit_factory.call("acquire_unit", unit_id, -1, unit_layer)
-		if unit_node != null:
-			_deploy_enemy_unit_to_cell(unit_node, cells[i])
+	if _unit_deploy_manager != null:
+		_unit_deploy_manager.call("spawn_enemy_wave", count)
 
 func _clear_enemy_wave() -> void:
-	for enemy in _enemy_deployed.values():
-		if _is_valid_unit(enemy):
-			_clear_unit_map_cache(enemy)
-			unit_factory.call("release_unit", enemy)
-	_enemy_deployed.clear()
+	if _unit_deploy_manager != null:
+		_unit_deploy_manager.call("clear_enemy_wave")
 
 func _auto_deploy_from_bench(limit: int) -> void:
-	var deploy_cells: Array[Vector2i] = _collect_ally_spawn_cells()
-	var deployed_count: int = 0
-	for cell in deploy_cells:
-		if deployed_count >= limit:
-			break
-		var bench_units: Array[Node] = bench_ui.get_all_units()
-		if bench_units.is_empty():
-			break
-		if _ally_deployed.has(_cell_key(cell)):
-			continue
-		var unit: Node = bench_units[bench_units.size() - 1]
-		bench_ui.remove_unit(unit)
-		_deploy_ally_unit_to_cell(unit, cell)
-		deployed_count += 1
+	if _unit_deploy_manager != null:
+		_unit_deploy_manager.call("auto_deploy_from_bench", limit)
 
 func _collect_ally_spawn_cells() -> Array[Vector2i]:
-	var cells: Array[Vector2i] = []
-	for r in range(int(hex_grid.grid_height)):
-		for q in range(0, ally_deploy_columns):
-			cells.append(Vector2i(q, r))
-	return cells
+	if _unit_deploy_manager != null:
+		return _unit_deploy_manager.call("collect_ally_spawn_cells")
+	return []
 
 func _collect_enemy_spawn_cells() -> Array[Vector2i]:
-	var cells: Array[Vector2i] = []
-	var width: int = int(hex_grid.grid_width)
-	var height: int = int(hex_grid.grid_height)
-	for r in range(height):
-		for q in range(ally_deploy_columns, width):
-			cells.append(Vector2i(q, r))
-	return cells
+	if _unit_deploy_manager != null:
+		return _unit_deploy_manager.call("collect_enemy_spawn_cells")
+	return []
 
 func _collect_units_from_map(map_value: Dictionary) -> Array[Node]:
-	var units: Array[Node] = []
-	for unit in map_value.values():
-		if _is_valid_unit(unit):
-			units.append(unit)
-	return units
+	if _unit_deploy_manager != null:
+		return _unit_deploy_manager.call("collect_units_from_map", map_value)
+	return []
 
 func _apply_unit_visual_presentation(unit: Node) -> void:
 	if not _is_valid_unit(unit):
@@ -620,14 +503,8 @@ func _refresh_deployed_positions() -> void:
 			(unit as Node2D).position = hex_grid.axial_to_world(unit.get("deployed_cell"))
 
 func _refresh_multimesh() -> void:
-	var units: Array[Node] = []
-	for unit in _ally_deployed.values():
-		if _is_valid_unit(unit):
-			units.append(unit)
-	for unit in _enemy_deployed.values():
-		if _is_valid_unit(unit):
-			units.append(unit)
-	multimesh_renderer.call("set_units", units)
+	if _battlefield_renderer != null:
+		_battlefield_renderer.call("refresh_multimesh")
 
 func _update_tooltip(delta: float) -> void:
 	# Tooltip 采用“悬停 0.3s 显示 + 离开 0.15s 隐藏”的节奏，减少抖动。
@@ -797,49 +674,20 @@ func _on_viewport_size_changed() -> void:
 	_request_drag_overlay_redraw()
 
 func _refit_hex_grid() -> void:
-	# 响应式重排：依据顶部/底部预留空间反算 hex_size 并重新居中。
-	var viewport_size: Vector2 = get_viewport().get_visible_rect().size
-	if viewport_size.x <= 1.0 or viewport_size.y <= 1.0:
-		return
-	var bottom_reserved: float = bottom_reserved_preparation if _bottom_expanded else bottom_reserved_collapsed
-	var available_w: float = maxf(viewport_size.x - board_margin * 2.0, 220.0)
-	var available_h: float = maxf(viewport_size.y - top_reserved_height - bottom_reserved - board_margin, 160.0)
-	var fit_hex: float = _calculate_fit_hex_size(available_w, available_h)
-	hex_grid.hex_size = fit_hex
-	var board_size: Vector2 = _calculate_board_pixel_size(fit_hex)
-	hex_grid.origin_offset = Vector2(
-		board_margin + (available_w - board_size.x) * 0.5 + fit_hex * 0.8660254,
-		top_reserved_height + (available_h - board_size.y) * 0.5 + fit_hex
-	)
-	hex_grid.queue_redraw()
-	deploy_overlay.queue_redraw()
-	# 单位视觉缩放拆分为“两段”：自适应缩放 * 统一倍率。
-	# 当前按需求默认倍率 0.5，使单位占地约缩小 50%，避免超出六角格过多。
-	var adaptive_scale: float = clampf((fit_hex * 1.52) / 32.0, 0.42, 1.10)
-	_unit_scale_factor = clampf(adaptive_scale * unit_visual_scale_multiplier, 0.20, 1.10)
-	_apply_visual_to_all_units()
+	if _battlefield_renderer != null:
+		_battlefield_renderer.call("refit_hex_grid")
 
 func _calculate_fit_hex_size(available_w: float, available_h: float) -> float:
-	if hex_grid != null and hex_grid.has_method("get_layout_fit_hex_size"):
-		var layout_fit: Variant = hex_grid.call("get_layout_fit_hex_size", available_w, available_h)
-		return clampf(float(layout_fit), min_hex_size, max_hex_size)
-	var grid_w: int = maxi(int(hex_grid.grid_width), 1)
-	var grid_h: int = maxi(int(hex_grid.grid_height), 1)
-	var width_coeff: float = HexGrid.SQRT3 * (float(grid_w - 1) + float(grid_h - 1) * 0.5) + 1.7320508
-	var height_coeff: float = 1.5 * float(grid_h - 1) + 2.0
-	return clampf(minf(available_w / maxf(width_coeff, 1.0), available_h / maxf(height_coeff, 1.0)), min_hex_size, max_hex_size)
+	if _battlefield_renderer != null:
+		return float(_battlefield_renderer.call("calculate_fit_hex_size", available_w, available_h))
+	return clampf(minf(available_w, available_h), min_hex_size, max_hex_size)
 
 func _calculate_board_pixel_size(hex_size: float) -> Vector2:
-	if hex_grid != null and hex_grid.has_method("get_layout_board_size"):
-		var layout_size: Variant = hex_grid.call("get_layout_board_size", hex_size)
-		if layout_size is Vector2:
-			return layout_size
-	var grid_w: int = maxi(int(hex_grid.grid_width), 1)
-	var grid_h: int = maxi(int(hex_grid.grid_height), 1)
-	var x_radius: float = hex_size * 0.8660254
-	var board_w: float = hex_size * HexGrid.SQRT3 * (float(grid_w - 1) + float(grid_h - 1) * 0.5) + x_radius * 2.0
-	var board_h: float = hex_size * 1.5 * float(grid_h - 1) + hex_size * 2.0
-	return Vector2(board_w, board_h)
+	if _battlefield_renderer != null:
+		var value: Variant = _battlefield_renderer.call("calculate_board_pixel_size", hex_size)
+		if value is Vector2:
+			return value
+	return Vector2.ZERO
 
 func _on_bench_changed() -> void:
 	if _stage != Stage.PREPARATION:
@@ -890,24 +738,8 @@ func _on_battle_ended(winner_team: int, _summary: Dictionary) -> void:
 		debug_label.text = "战斗结束：平局。F7 重开"
 
 func _remove_unit_from_map(target_map: Dictionary, unit: Node) -> void:
-	# O(1) 移除：利用单位的 deployed_cell 属性直接构造 key，避免 O(n) 值扫描。
-	if _is_valid_unit(unit):
-		var cell: Vector2i = unit.get("deployed_cell")
-		if cell.x > -900: # Check if deployed_cell is valid (not -999, -999)
-			var key: String = _cell_key(cell)
-			if target_map.has(key) and target_map[key] == unit:
-				target_map.erase(key)
-				_clear_unit_map_cache(unit)
-				return
-	# 兜底：deployed_cell 不可用时回退到遍历查找。
-	var remove_key: String = ""
-	for key in target_map.keys():
-		if target_map[key] == unit:
-			remove_key = str(key)
-			break
-	if not remove_key.is_empty():
-		target_map.erase(remove_key)
-		_clear_unit_map_cache(unit)
+	if _unit_deploy_manager != null:
+		_unit_deploy_manager.call("remove_unit_from_map", target_map, unit)
 
 func _refresh_dynamic_ui_incremental() -> void:
 	var ally_alive: int = int(combat_manager.call("get_alive_count", TEAM_ALLY)) if _stage != Stage.PREPARATION else _ally_deployed.size()
@@ -947,18 +779,8 @@ func _refresh_dynamic_ui_incremental() -> void:
 	])
 
 func _remove_unit_from_map_cached(target_map: Dictionary, unit: Node) -> void:
-	if not _is_valid_unit(unit):
-		return
-	var remove_key: String = _get_unit_map_key(unit)
-	if not remove_key.is_empty() and target_map.get(remove_key, null) == unit:
-		target_map.erase(remove_key)
-		_clear_unit_map_cache(unit)
-		return
-	for key in target_map.keys():
-		if target_map[key] == unit:
-			target_map.erase(key)
-			_clear_unit_map_cache(unit)
-			return
+	if _unit_deploy_manager != null:
+		_unit_deploy_manager.call("remove_unit_from_map_cached", target_map, unit)
 
 func _set_unit_map_cache(unit: Node, map_key: String, team_id: int) -> void:
 	if not _is_valid_unit(unit):

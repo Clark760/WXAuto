@@ -221,6 +221,12 @@ func _normalize_base_before_state(state: int) -> void:
 		return
 
 	# 状态切换前先回到静止基准，避免循环动画偏移累积导致“漂移”。
+	# 旋转在静止态下必须恒为 0，防止对象池残留角度被二次采样。
+	_target.rotation = 0.0
+	if not _has_rest_transform:
+		_target.scale = Vector2.ONE
+		_target.position = Vector2.ZERO
+
 	if _has_rest_transform:
 		_target.position = _rest_position
 		_target.scale = _rest_scale
@@ -250,18 +256,72 @@ func _resolve_target() -> void:
 func _cache_base_transform() -> void:
 	if _target == null:
 		return
-	_base_position = _target.position
-	_base_scale = _target.scale
-	_base_rotation = _target.rotation
-	if _target is CanvasItem:
-		_base_modulate = (_target as CanvasItem).modulate
 
 	if not _has_rest_transform:
-		_rest_position = _base_position
-		_rest_scale = _base_scale
-		_rest_rotation = _base_rotation
-		_rest_modulate = _base_modulate
+		# 首次缓存时，以当前姿态作为“静止基准”。
+		_rest_position = _target.position
+		_rest_scale = _target.scale
+		# VisualRoot 的静止角度恒为 0，禁止从当前帧采样，避免倾斜基准污染。
+		_rest_rotation = 0.0
+		if _target is CanvasItem:
+			_rest_modulate = (_target as CanvasItem).modulate
 		_has_rest_transform = true
+
+	# 关键修复：后续状态切换始终沿用 rest transform，
+	# 避免在 MOVE 中途切状态时把瞬时偏移误记成新的 base。
+	_base_position = _rest_position
+	_base_scale = _rest_scale
+	_base_rotation = _rest_rotation
+	if _target is CanvasItem:
+		_base_modulate = _rest_modulate
+
+
+func update_rest_position(new_position: Vector2) -> void:
+	# 仅更新静止位置，适合“格子位移完成后”修正漂移锚点。
+	_rest_position = new_position
+	_rest_rotation = 0.0
+	_base_position = new_position
+	_base_rotation = 0.0
+	_has_rest_transform = true
+
+
+func sync_rest_transform_to_current() -> void:
+	# 以当前 target 姿态重建 rest/base，避免坐标系假设错误。
+	_resolve_target()
+	if _target == null:
+		return
+	_rest_position = _target.position
+	_rest_scale = _target.scale
+	_rest_rotation = 0.0
+	if _target is CanvasItem:
+		_rest_modulate = (_target as CanvasItem).modulate
+	_base_position = _rest_position
+	_base_scale = _rest_scale
+	_base_rotation = _rest_rotation
+	if _target is CanvasItem:
+		_base_modulate = _rest_modulate
+	_has_rest_transform = true
+
+
+func force_reset_rest_transform() -> void:
+	# 对外统一暴露的“强制重置锚点”接口：
+	# - 用于对象池复用、战后重置和异常姿态兜底
+	# - 目标是把 VisualRoot 恢复到绝对干净的静止态
+	_resolve_target()
+	if _target == null:
+		return
+	_stop_tween()
+	_clear_impulse_state()
+	_loop_state_active = false
+	_target.position = Vector2.ZERO
+	_target.scale = Vector2.ONE
+	_target.rotation = 0.0
+	if _target is CanvasItem:
+		(_target as CanvasItem).modulate = Color(1, 1, 1, 1)
+	_has_rest_transform = false
+	_cache_base_transform()
+	_state = AnimState.IDLE
+	set_process(false)
 
 
 func _reset_to_base() -> void:
@@ -349,4 +409,8 @@ func _play_death() -> void:
 	_tween.finished.connect(func() -> void:
 		# 死亡状态通常由外部管理，不自动切回 IDLE。
 		_stop_tween()
+		# M5-FIX: 死亡动画结束后隐藏单位根节点，防止后续状态切换把尸体重新显示。
+		var unit_root: Node = _target.get_parent() if _target != null else null
+		if unit_root != null and unit_root is CanvasItem:
+			(unit_root as CanvasItem).visible = false
 	)

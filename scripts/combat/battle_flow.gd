@@ -24,6 +24,7 @@ var _statistics: Node = null
 var _stats_panel: PanelContainer = null
 var _capture_running: bool = false
 var _unit_lookup: Dictionary = {} # instance_id -> unit
+var _last_synced_stage: int = -1
 
 
 func setup(host_scene: Node, combat_manager: Node, gongfa_manager: Node, detail_layer: CanvasLayer) -> void:
@@ -39,6 +40,7 @@ func setup(host_scene: Node, combat_manager: Node, gongfa_manager: Node, detail_
 func prepare_for_battle_start() -> void:
 	_capture_running = false
 	hide_stats_panel()
+	_last_synced_stage = -1
 
 
 func start_battle_capture(ally_units: Array[Node], enemy_units: Array[Node]) -> void:
@@ -80,6 +82,17 @@ func sync_stage(stage_value: int, result_stage: int) -> void:
 	# 统计面板只在结算阶段显示；其余阶段统一隐藏。
 	if stage_value != result_stage:
 		hide_stats_panel()
+		# 离开结算阶段时，重置棋子到 IDLE，避免 VICTORY 状态残留到下一阶段。
+		if _last_synced_stage == result_stage:
+			_reset_units_after_result()
+	_last_synced_stage = stage_value
+
+
+func _reset_units_after_result() -> void:
+	if _host_scene == null or not is_instance_valid(_host_scene):
+		return
+	if _host_scene.has_method("reset_all_units_to_idle"):
+		_host_scene.call("reset_all_units_to_idle")
 
 
 func _ensure_statistics_created() -> void:

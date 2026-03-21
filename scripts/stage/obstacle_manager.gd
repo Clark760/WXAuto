@@ -26,23 +26,11 @@ const OBSTACLE_COLORS: Dictionary = {
 
 var _obstacles: Array[Dictionary] = []
 var _blocked_cells: Dictionary = {} # int(cell_key) -> true
-var _visual_layer: Node2D = null
-
-
-func configure_visual_parent(parent_node: Node) -> void:
-	if parent_node == null or not is_instance_valid(parent_node):
-		return
-	if _visual_layer != null and is_instance_valid(_visual_layer):
-		if _visual_layer.get_parent() != parent_node:
-			_visual_layer.reparent(parent_node)
-		return
-	_visual_layer = Node2D.new()
-	_visual_layer.name = "ObstacleLayer"
-	parent_node.add_child(_visual_layer)
 
 
 func spawn_obstacles(obstacles: Array, hex_grid: Node) -> void:
 	clear_all_obstacles()
+	clear_visuals_from_grid(hex_grid)
 	if hex_grid == null or not is_instance_valid(hex_grid):
 		return
 	for obstacle_value in obstacles:
@@ -66,22 +54,44 @@ func spawn_obstacles(obstacles: Array, hex_grid: Node) -> void:
 			normalized_cells.append(cell)
 			if _is_move_block_type(obstacle_type):
 				_blocked_cells[_cell_key_int(cell)] = true
-			_spawn_visual(hex_grid, obstacle_type, cell)
 		if normalized_cells.is_empty():
 			continue
 		_obstacles.append({
 			"type": obstacle_type,
 			"cells": normalized_cells
 		})
+	# 统一交由 HexGrid 按当前网格参数绘制障碍格，避免独立节点错位。
+	apply_visuals_to_grid(hex_grid)
 
 
 func clear_all_obstacles() -> void:
 	_obstacles.clear()
 	_blocked_cells.clear()
-	if _visual_layer == null or not is_instance_valid(_visual_layer):
+
+
+func apply_visuals_to_grid(hex_grid: Node) -> void:
+	# 将障碍物格颜色映射注入 HexGrid，由 HexGrid._draw() 统一绘制。
+	if hex_grid == null or not is_instance_valid(hex_grid):
 		return
-	for child in _visual_layer.get_children():
-		child.queue_free()
+	if not hex_grid.has_method("set_obstacle_cells"):
+		return
+	var cells_colors: Dictionary = {}
+	for obstacle in _obstacles:
+		var obstacle_type: String = str(obstacle.get("type", "rock"))
+		var color: Color = OBSTACLE_COLORS.get(obstacle_type, Color(0.62, 0.42, 0.24, 0.72))
+		var cells_value: Variant = obstacle.get("cells", [])
+		if not (cells_value is Array):
+			continue
+		for cell_value in (cells_value as Array):
+			if cell_value is Vector2i:
+				var cell: Vector2i = cell_value as Vector2i
+				cells_colors[_cell_key_int(cell)] = color
+	hex_grid.call("set_obstacle_cells", cells_colors)
+
+
+func clear_visuals_from_grid(hex_grid: Node) -> void:
+	if hex_grid != null and is_instance_valid(hex_grid) and hex_grid.has_method("clear_obstacle_cells"):
+		hex_grid.call("clear_obstacle_cells")
 
 
 func is_cell_blocked(cell: Vector2i) -> bool:
@@ -111,20 +121,6 @@ func _is_move_block_type(obstacle_type: String) -> bool:
 	if BLOCK_MOVE_TYPES.has(obstacle_type):
 		return bool(BLOCK_MOVE_TYPES[obstacle_type])
 	return true
-
-
-func _spawn_visual(hex_grid: Node, obstacle_type: String, cell: Vector2i) -> void:
-	if _visual_layer == null or not is_instance_valid(_visual_layer):
-		return
-	var poly := Polygon2D.new()
-	var points_value: Variant = hex_grid.call("get_hex_points_local", cell)
-	if not (points_value is PackedVector2Array):
-		poly.queue_free()
-		return
-	poly.polygon = points_value
-	poly.color = OBSTACLE_COLORS.get(obstacle_type, Color(0.62, 0.42, 0.24, 0.72))
-	poly.z_index = -2
-	_visual_layer.add_child(poly)
 
 
 func _to_cell(value: Variant) -> Vector2i:
