@@ -18,6 +18,8 @@ const DETAIL_DEFAULT_WIDTH: float = 720.0
 const DETAIL_DEFAULT_HEIGHT: float = 520.0
 const BATTLE_LOG_MAX_LINES: int = 50
 const BATTLE_LOG_FLUSH_INTERVAL: float = 0.12
+const DETAIL_REFRESH_INTERVAL_PREP: float = 0.2
+const DETAIL_REFRESH_INTERVAL_COMBAT: float = 0.05
 
 @onready var tooltip_header_name: Label = $HUDLayer/UnitTooltip/TooltipVBox/HeaderRow/HeaderName
 @onready var tooltip_faction_icon: ColorRect = $HUDLayer/UnitTooltip/TooltipVBox/HeaderRow/FactionIcon
@@ -286,15 +288,8 @@ func _process(delta: float) -> void:
 	super._process(delta)
 	_update_battle_log_view(delta)
 	_update_item_tooltip_hover(delta)
-	if not unit_detail_panel.visible:
-		return
-	if _detail_unit == null or not _is_valid_unit(_detail_unit):
-		_close_detail_panel(true)
-		return
 	_detail_refresh_accum += delta
-	if _detail_refresh_accum >= 0.2:
-		_detail_refresh_accum = 0.0
-		_update_detail_panel(_detail_unit)
+	_refresh_open_detail_panel()
 
 
 func _update_tooltip(delta: float) -> void:
@@ -422,9 +417,6 @@ func _prune_verbose_battle_log_signals() -> void:
 		var skill_damage_cb: Callable = Callable(self, "_on_skill_effect_damage_for_log")
 		if gongfa_manager.has_signal("skill_effect_damage") and gongfa_manager.is_connected("skill_effect_damage", skill_damage_cb):
 			gongfa_manager.disconnect("skill_effect_damage", skill_damage_cb)
-		var buff_event_cb: Callable = Callable(self, "_on_buff_event_for_log")
-		if gongfa_manager.has_signal("buff_event") and gongfa_manager.is_connected("buff_event", buff_event_cb):
-			gongfa_manager.disconnect("buff_event", buff_event_cb)
 
 
 func _on_gongfa_data_reloaded(_summary: Dictionary) -> void:
@@ -483,13 +475,15 @@ func _apply_stage_ui_state() -> void:
 		var linkage_parent: Control = linkage_info.get_parent().get_parent() as Control
 		if linkage_parent != null:
 			linkage_parent.visible = _stage != Stage.RESULT
-	if _stage != Stage.PREPARATION:
-		_close_detail_panel(false)
 	if _stage == Stage.RESULT:
+		_close_detail_panel(false)
 		if unit_tooltip != null:
 			unit_tooltip.visible = false
 		if item_tooltip != null:
 			item_tooltip.visible = false
+	elif unit_detail_panel.visible and _detail_unit != null and _is_valid_unit(_detail_unit):
+		# 阶段切换后立即刷新详情面板，确保拖拽开关和实时属性状态一致。
+		_update_detail_panel(_detail_unit)
 
 
 func _append_battle_log(line: String, event_type: String = "info") -> void:
@@ -579,8 +573,52 @@ func _on_skill_effect_damage_for_log(_event_dict: Dictionary) -> void:
 	return
 
 
-func _on_buff_event_for_log(_event_dict: Dictionary) -> void:
+func _on_buff_event_for_log(event_dict: Dictionary) -> void:
+	# Buff 事件在这里仅用于“详情面板实时刷新”，避免高频日志刷屏。
+	if _event_hits_detail_unit(event_dict):
+		_refresh_open_detail_panel(true)
 	return
+
+
+func _refresh_open_detail_panel(force_update: bool = false) -> void:
+	if not unit_detail_panel.visible:
+		_detail_refresh_accum = 0.0
+		return
+	if _detail_unit == null or not _is_valid_unit(_detail_unit):
+		_close_detail_panel(true)
+		return
+	if force_update:
+		_detail_refresh_accum = 0.0
+		_update_detail_panel(_detail_unit)
+		return
+	var refresh_interval: float = DETAIL_REFRESH_INTERVAL_PREP
+	if _stage == Stage.COMBAT:
+		# 战斗中提高刷新频率，让 Buff/临时增益变化更接近实时展示。
+		refresh_interval = DETAIL_REFRESH_INTERVAL_COMBAT
+	if _detail_refresh_accum >= refresh_interval:
+		_detail_refresh_accum = 0.0
+		_update_detail_panel(_detail_unit)
+
+
+func _event_hits_detail_unit(event_dict: Dictionary) -> bool:
+	if _detail_unit == null or not _is_valid_unit(_detail_unit):
+		return false
+	var detail_unit_id: int = _detail_unit.get_instance_id()
+	if int(event_dict.get("source_id", -1)) == detail_unit_id:
+		return true
+	if int(event_dict.get("target_id", -1)) == detail_unit_id:
+		return true
+	var source_unit: Variant = event_dict.get("source", null)
+	if source_unit is Node and source_unit == _detail_unit:
+		return true
+	var target_unit: Variant = event_dict.get("target", null)
+	if target_unit is Node and target_unit == _detail_unit:
+		return true
+	return false
+
+
+func _can_open_detail_panel_in_current_stage() -> bool:
+	return _stage == Stage.PREPARATION or _stage == Stage.COMBAT
 
 
 func _battle_log_color_hex(event_type: String) -> String:
@@ -788,7 +826,10 @@ func _refit_hex_grid() -> void:
 	)
 	hex_grid.queue_redraw()
 	deploy_overlay.queue_redraw()
-	_unit_scale_factor = clampf((fit_hex * 1.52) / 32.0, 0.42, 1.10)
+	# 与运行层保持一致：自适应缩放后再乘统一倍率。
+	# 这样在 UI 场景覆写 _refit_hex_grid 时，单位缩放仍能按全局参数生效。
+	var adaptive_scale: float = clampf((fit_hex * 1.52) / 32.0, 0.42, 1.10)
+	_unit_scale_factor = clampf(adaptive_scale * unit_visual_scale_multiplier, 0.20, 1.10)
 	_apply_visual_to_all_units()
 
 
@@ -1130,10 +1171,15 @@ func _build_gongfa_type_cache() -> void:
 
 
 func _try_open_detail_from_click(screen_pos: Vector2) -> void:
-	if _stage != Stage.PREPARATION:
+	if not _can_open_detail_panel_in_current_stage():
+		return
+	# 点击到可交互 UI（如顶部按钮、面板按钮）时，不应走世界点选逻辑。
+	# 否则会吞掉按钮点击释放事件，出现“按钮点不动”的现象。
+	if _is_point_over_interactive_ui(screen_pos):
 		return
 	var world_pos: Vector2 = _screen_to_world(screen_pos)
 	var clicked_unit: Node = _pick_visible_unit_at_world(world_pos)
+	var consumed: bool = false
 	if unit_detail_panel.visible:
 		if unit_detail_panel.get_global_rect().has_point(screen_pos):
 			return
@@ -1142,12 +1188,33 @@ func _try_open_detail_from_click(screen_pos: Vector2) -> void:
 				_close_detail_panel(false)
 			else:
 				_open_detail_panel(clicked_unit)
+			consumed = true
 		else:
 			_close_detail_panel(false)
+			consumed = true
+		if consumed:
+			get_viewport().set_input_as_handled()
 		return
 	if clicked_unit != null and _is_valid_unit(clicked_unit):
 		_open_detail_panel(clicked_unit)
-	get_viewport().set_input_as_handled()
+		consumed = true
+	if consumed:
+		get_viewport().set_input_as_handled()
+
+
+func _is_point_over_interactive_ui(screen_pos: Vector2) -> bool:
+	var viewport: Viewport = get_viewport()
+	if viewport == null:
+		return false
+	var hovered: Control = viewport.gui_get_hovered_control()
+	if hovered == null or not hovered.visible:
+		return false
+	var current: Control = hovered
+	while current != null:
+		if current.mouse_filter != Control.MOUSE_FILTER_IGNORE and current.get_global_rect().has_point(screen_pos):
+			return true
+		current = current.get_parent() as Control
+	return false
 
 
 func _open_detail_for_bench_slot(slot_index: int) -> void:
@@ -1160,7 +1227,7 @@ func _open_detail_for_bench_slot(slot_index: int) -> void:
 
 
 func _open_detail_panel(unit: Node) -> void:
-	if _stage != Stage.PREPARATION:
+	if not _can_open_detail_panel_in_current_stage():
 		return
 	if unit == null or not _is_valid_unit(unit):
 		return

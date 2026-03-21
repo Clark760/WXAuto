@@ -412,36 +412,46 @@ func _try_star_upgrade_loop() -> void:
 
 
 func _try_star_merge_once() -> bool:
-	var grouped: Dictionary = {}
-	for unit in get_all_units():
+	var grouped_slot_indices: Dictionary = {}
+	# 只按槽位顺序做升星：最靠前保留并升星，后两个删除，不做整排重排。
+	for slot_index in range(_slots.size()):
+		var unit: Node = _slots[slot_index]
+		if unit == null or not is_instance_valid(unit):
+			continue
 		var star: int = int(unit.get("star_level"))
 		if star >= 3:
 			continue
 		var key: String = "%s:%d" % [str(unit.get("unit_id")), star]
-		if not grouped.has(key):
-			grouped[key] = []
-		(grouped[key] as Array).append(unit)
+		if not grouped_slot_indices.has(key):
+			grouped_slot_indices[key] = []
+		(grouped_slot_indices[key] as Array).append(slot_index)
 
-	for key in grouped.keys():
-		var group: Array = grouped[key]
-		if group.size() < 3:
+	for key in grouped_slot_indices.keys():
+		var slot_group: Array = grouped_slot_indices[key]
+		if slot_group.size() < 3:
 			continue
 
-		var result_unit: Node = group[0]
-		var consume_a: Node = group[1]
-		var consume_b: Node = group[2]
-		var consumed: Array[Node] = [consume_a, consume_b]
+		var result_slot: int = int(slot_group[0])
+		var consume_slot_a: int = int(slot_group[1])
+		var consume_slot_b: int = int(slot_group[2])
+		var result_unit: Node = _slots[result_slot]
+		var consume_a: Node = _slots[consume_slot_a]
+		var consume_b: Node = _slots[consume_slot_b]
+		if result_unit == null or consume_a == null or consume_b == null:
+			continue
 
-		remove_unit(consume_a)
-		remove_unit(consume_b)
+		var consumed: Array[Node] = [consume_a, consume_b]
+		_slots[consume_slot_a] = null
+		_slots[consume_slot_b] = null
 		for consumed_unit in consumed:
 			if consumed_unit is CanvasItem:
 				(consumed_unit as CanvasItem).visible = false
 
 		result_unit.call("set_star_level", int(result_unit.get("star_level")) + 1)
-		_compact_slots()
+		_prepare_unit_for_bench(result_unit, result_slot)
 		_refresh_all_slot_ui()
 		emit_signal("unit_star_upgraded", result_unit, consumed, int(result_unit.get("star_level")))
+		emit_signal("bench_changed")
 		return true
 
 	return false

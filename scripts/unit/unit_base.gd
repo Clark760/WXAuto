@@ -67,6 +67,8 @@ var portrait_path: String = ""
 var team_id: int = 1
 var battle_uid: int = -1
 var is_in_combat: bool = false
+var _compact_visual_mode: bool = false
+var _quick_step_tween: Tween = null
 
 var is_on_bench: bool = true
 var bench_slot_index: int = -1
@@ -259,12 +261,14 @@ func enter_combat() -> void:
 	is_in_combat = true
 	is_on_bench = false
 	bench_slot_index = -1
+	_apply_label_visibility()
 	play_anim_state(0, {})
 	refresh_process_state()
 
 
 func leave_combat() -> void:
 	is_in_combat = false
+	_apply_label_visibility()
 	play_anim_state(0, {})
 	refresh_process_state()
 
@@ -291,11 +295,30 @@ func contains_point(world_position: Vector2) -> bool:
 
 
 func set_compact_visual_mode(is_compact: bool) -> void:
-	# 大规模战斗时隐藏名称/星级文本，降低画面噪音并减少 UI 重叠。
-	if name_label != null:
-		name_label.visible = not is_compact
-	if star_label != null:
-		star_label.visible = not is_compact
+	# M4：紧凑模式下不再“一刀切”隐藏文本。
+	# 战斗中强制显示名称/星级，非战斗时按 compact 规则显示。
+	_compact_visual_mode = is_compact
+	_apply_label_visibility()
+
+
+func play_quick_cell_step(target_world: Vector2, duration: float = 0.08) -> void:
+	# 严格六角格模式里，逻辑占格已经瞬时完成。
+	# 这里补一段很短的视觉位移动画，避免看起来像瞬移。
+	if movement_component != null:
+		movement_component.call("clear_target")
+
+	var unit_node: Node2D = self
+
+	if unit_node.position.distance_to(target_world) <= 0.5:
+		unit_node.position = target_world
+		return
+
+	var step_duration: float = clampf(duration, 0.03, 0.14)
+	if _quick_step_tween != null and _quick_step_tween.is_valid():
+		_quick_step_tween.kill()
+	_quick_step_tween = create_tween()
+	_quick_step_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	_quick_step_tween.tween_property(unit_node, "position", target_world, step_duration)
 
 
 func begin_drag() -> void:
@@ -395,7 +418,20 @@ func _refresh_visual() -> void:
 	name_label.text = "%s" % unit_name
 	star_label.text = "★".repeat(star_level)
 	star_label.modulate = _get_star_color(star_level)
+	name_label.modulate = _get_team_name_color(team_id)
+	_apply_label_visibility()
 	modulate = _get_quality_tint(quality) * _get_team_tint(team_id)
+
+
+func _apply_label_visibility() -> void:
+	# 中文说明：
+	# 1) 战斗中始终显示名称与星级，便于读场面和找单位。
+	# 2) 非战斗阶段遵循 compact 模式，避免日常界面过密。
+	var should_show_labels: bool = is_in_combat or not _compact_visual_mode
+	if name_label != null:
+		name_label.visible = should_show_labels
+	if star_label != null:
+		star_label.visible = should_show_labels
 
 
 func _apply_pending_texture_if_needed() -> void:
@@ -434,6 +470,18 @@ func _get_quality_tint(q: String) -> Color:
 			return Color(1.0, 0.62, 0.62, 1)
 		_:
 			return Color(1, 1, 1, 1)
+
+
+func _get_team_name_color(team: int) -> Color:
+	match team:
+		2:
+			# 敌方名称暖红，突出敌我辨识。
+			return Color(1.0, 0.45, 0.45, 1.0)
+		1:
+			# 我方名称青蓝，和敌方颜色形成明显对比。
+			return Color(0.58, 0.9, 1.0, 1.0)
+		_:
+			return Color(0.9, 0.9, 0.9, 1.0)
 
 
 func _get_team_tint(team: int) -> Color:

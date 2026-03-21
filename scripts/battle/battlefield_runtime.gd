@@ -20,6 +20,7 @@ const TEAM_ENEMY: int = 2
 @export var world_zoom_max: float = 2.5
 @export var world_zoom_step: float = 0.1
 @export var world_pan_speed: float = 540.0
+@export var unit_visual_scale_multiplier: float = 0.5
 
 @onready var world_container: Node2D = $WorldContainer
 @onready var hex_grid: HexGrid = $WorldContainer/HexGrid
@@ -812,10 +813,16 @@ func _refit_hex_grid() -> void:
 	)
 	hex_grid.queue_redraw()
 	deploy_overlay.queue_redraw()
-	_unit_scale_factor = clampf((fit_hex * 1.52) / 32.0, 0.42, 1.10)
+	# 单位视觉缩放拆分为“两段”：自适应缩放 * 统一倍率。
+	# 当前按需求默认倍率 0.5，使单位占地约缩小 50%，避免超出六角格过多。
+	var adaptive_scale: float = clampf((fit_hex * 1.52) / 32.0, 0.42, 1.10)
+	_unit_scale_factor = clampf(adaptive_scale * unit_visual_scale_multiplier, 0.20, 1.10)
 	_apply_visual_to_all_units()
 
 func _calculate_fit_hex_size(available_w: float, available_h: float) -> float:
+	if hex_grid != null and hex_grid.has_method("get_layout_fit_hex_size"):
+		var layout_fit: Variant = hex_grid.call("get_layout_fit_hex_size", available_w, available_h)
+		return clampf(float(layout_fit), min_hex_size, max_hex_size)
 	var grid_w: int = maxi(int(hex_grid.grid_width), 1)
 	var grid_h: int = maxi(int(hex_grid.grid_height), 1)
 	var width_coeff: float = HexGrid.SQRT3 * (float(grid_w - 1) + float(grid_h - 1) * 0.5) + 1.7320508
@@ -823,6 +830,10 @@ func _calculate_fit_hex_size(available_w: float, available_h: float) -> float:
 	return clampf(minf(available_w / maxf(width_coeff, 1.0), available_h / maxf(height_coeff, 1.0)), min_hex_size, max_hex_size)
 
 func _calculate_board_pixel_size(hex_size: float) -> Vector2:
+	if hex_grid != null and hex_grid.has_method("get_layout_board_size"):
+		var layout_size: Variant = hex_grid.call("get_layout_board_size", hex_size)
+		if layout_size is Vector2:
+			return layout_size
 	var grid_w: int = maxi(int(hex_grid.grid_width), 1)
 	var grid_h: int = maxi(int(hex_grid.grid_height), 1)
 	var x_radius: float = hex_size * 0.8660254
@@ -858,8 +869,19 @@ func _on_unit_died(dead_unit: Node, _killer: Node, team_id: int) -> void:
 	_ui_dirty = true
 
 func _on_battle_ended(winner_team: int, _summary: Dictionary) -> void:
-	_set_stage(Stage.RESULT)
-	_flush_pending_runtime_refreshes(true)
+	# M4 规则：结算 = 暂停。这里只切阶段标记与最小 HUD，不触发棋盘重排。
+	# 注意：不能走 _set_stage(Stage.RESULT)，否则会调用：
+	# _apply_visual_to_all_units() / _refit_hex_grid() / _refresh_deployed_positions()
+	# 从而导致单位缩放重算、位置重排和结算瞬间闪跳。
+	_stage = Stage.RESULT
+	phase_label.text = "结算期"
+	phase_label.modulate = Color(1.0, 0.86, 0.5, 1.0)
+	bench_ui.set_interactable(false)
+	deploy_overlay.visible = false
+	_set_shop_action_enabled(false)
+	_play_phase_transition("战斗结束")
+	# 仅刷新 HUD 文案/数值，不触发任何布局与单位视觉重算。
+	_refresh_dynamic_ui()
 	if winner_team == 1:
 		debug_label.text = "战斗结束：己方胜利。F7 重开"
 	elif winner_team == 2:

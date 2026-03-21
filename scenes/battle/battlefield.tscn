@@ -25,9 +25,10 @@ color = Color(0.23, 0.23, 0.24, 1)
 [node name="HexGrid" type="Node2D" parent="WorldContainer"]
 script = ExtResource("2_hexg")
 grid_width = 32
-grid_height = 16
+grid_height = 32
 hex_size = 16.0
 origin_offset = Vector2(140, 90)
+use_staggered_square_layout = true
 draw_coordinates = false
 fill_color = Color(0.17, 0.2, 0.26, 0.28)
 line_color = Color(0.73, 0.82, 0.88, 0.9)
@@ -605,5 +606,3 @@ offset_right = 760.0
 offset_bottom = 110.0
 autowrap_mode = 2
 text = "战斗调试信息"
-
-

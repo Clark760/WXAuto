@@ -224,8 +224,17 @@ func _is_connected_by_hex_adjacency(units: Array, hex_grid: Node) -> bool:
 	while head < queue.size():
 		var current: Vector2i = queue[head]
 		head += 1
-		for d in AXIAL_DIRS:
-			var next_cell: Vector2i = current + d
+		var neighbors: Array[Vector2i] = []
+		if hex_grid != null and hex_grid.has_method("get_neighbor_cells"):
+			var neighbors_value: Variant = hex_grid.call("get_neighbor_cells", current)
+			if neighbors_value is Array:
+				for candidate in (neighbors_value as Array):
+					if candidate is Vector2i:
+						neighbors.append(candidate)
+		else:
+			for d in AXIAL_DIRS:
+				neighbors.append(current + d)
+		for next_cell in neighbors:
 			var key: String = _cell_key(next_cell)
 			if not cell_to_unit.has(key):
 				continue

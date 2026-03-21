@@ -51,6 +51,8 @@ var _shop_manager: Node = null
 var _shop_layer: CanvasLayer = null
 var _shop_panel: PanelContainer = null
 var _shop_open_button: Button = null
+var _start_battle_button: Button = null
+var _reset_battle_button: Button = null
 var _shop_title_label: Label = null
 var _shop_status_label: Label = null
 var _shop_close_button: Button = null
@@ -67,6 +69,7 @@ var _shop_test_add_exp_button: Button = null
 var _shop_current_tab: String = SHOP_TAB_RECRUIT
 var _shop_open_in_preparation: bool = true
 var _battle_scene_initialized: bool = false
+var _scene_reload_requested: bool = false
 
 var _owned_gongfa_stock: Dictionary = {}    # gongfa_id -> count
 var _owned_equipment_stock: Dictionary = {} # equip_id -> count
@@ -125,9 +128,7 @@ func _input(event: InputEvent) -> void:
 func _handle_key_input(event: InputEventKey) -> void:
 	# 战斗场景内按 F7 直接重开正式战场，便于反复调试完整局内循环。
 	if event.pressed and not event.echo and event.keycode == KEY_F7:
-		var event_bus: Node = _get_root_node("EventBus")
-		if event_bus != null:
-			event_bus.call("emit_scene_change_requested", "res://scenes/battle/battlefield.tscn")
+		_request_battlefield_reload()
 		return
 	if event.pressed and not event.echo and event.keycode == KEY_B and _stage == Stage.PREPARATION:
 		_shop_open_in_preparation = not (_shop_panel != null and _shop_panel.visible)
@@ -910,15 +911,36 @@ func _ensure_shop_open_button() -> void:
 		_shop_open_button.toggle_mode = true
 		_shop_open_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		_shop_open_button.pressed.connect(Callable(self, "_on_shop_open_button_pressed"))
+	if _start_battle_button == null or not is_instance_valid(_start_battle_button):
+		_start_battle_button = Button.new()
+		_start_battle_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		_start_battle_button.pressed.connect(Callable(self, "_on_start_battle_button_pressed"))
+	if _reset_battle_button == null or not is_instance_valid(_reset_battle_button):
+		_reset_battle_button = Button.new()
+		_reset_battle_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		_reset_battle_button.pressed.connect(Callable(self, "_on_reset_battle_button_pressed"))
 	if _shop_open_button.get_parent() != top_bar_row:
 		if _shop_open_button.get_parent() != null:
 			_shop_open_button.get_parent().remove_child(_shop_open_button)
 		top_bar_row.add_child(_shop_open_button)
+	if _start_battle_button.get_parent() != top_bar_row:
+		if _start_battle_button.get_parent() != null:
+			_start_battle_button.get_parent().remove_child(_start_battle_button)
+		top_bar_row.add_child(_start_battle_button)
+	if _reset_battle_button.get_parent() != top_bar_row:
+		if _reset_battle_button.get_parent() != null:
+			_reset_battle_button.get_parent().remove_child(_reset_battle_button)
+		top_bar_row.add_child(_reset_battle_button)
 	var timer_index: int = top_bar_row.get_children().find(timer_label)
 	if timer_index >= 0:
 		top_bar_row.move_child(_shop_open_button, timer_index + 1)
+		top_bar_row.move_child(_start_battle_button, timer_index + 2)
+		top_bar_row.move_child(_reset_battle_button, timer_index + 3)
 	_shop_open_button.text = "商店(B)"
 	_shop_open_button.button_pressed = _shop_panel != null and _shop_panel.visible
+	_start_battle_button.text = "开始战斗(F6)"
+	_reset_battle_button.text = "重置战场(F7)"
+	_refresh_top_quick_action_buttons()
 
 
 func _ensure_shop_panel_created() -> void:
@@ -1070,6 +1092,7 @@ func _set_shop_panel_visible(panel_visible: bool) -> void:
 	_shop_panel.visible = panel_visible
 	if _shop_open_button != null and is_instance_valid(_shop_open_button):
 		_shop_open_button.button_pressed = panel_visible
+	_refresh_top_quick_action_buttons()
 	_sync_linkage_panel_visibility()
 
 
@@ -1079,6 +1102,39 @@ func _on_shop_open_button_pressed() -> void:
 	_shop_open_in_preparation = not (_shop_panel != null and _shop_panel.visible)
 	_set_shop_panel_visible(_shop_open_in_preparation)
 	_update_shop_ui()
+
+
+func _on_start_battle_button_pressed() -> void:
+	# 顶部按钮与 F6 行为保持一致，统一走战斗启动入口。
+	if _stage != Stage.PREPARATION:
+		return
+	_start_combat()
+	_refresh_top_quick_action_buttons()
+
+
+func _on_reset_battle_button_pressed() -> void:
+	# 顶部“重置”与 F7 统一走同一安全入口。
+	_request_battlefield_reload()
+
+
+func _request_battlefield_reload() -> void:
+	# 防抖：避免连点按钮/按键导致多次切场景并发。
+	if _scene_reload_requested:
+		return
+	_scene_reload_requested = true
+	# 战斗中先停逻辑，再延迟一帧切场景，规避释放顺序导致的崩溃。
+	if combat_manager != null and combat_manager.has_method("is_battle_running") and bool(combat_manager.call("is_battle_running")):
+		if combat_manager.has_method("stop_battle"):
+			combat_manager.call("stop_battle", "manual_reload", 0)
+	call_deferred("_emit_battlefield_reload_requested")
+
+
+func _emit_battlefield_reload_requested() -> void:
+	var event_bus: Node = _get_root_node("EventBus")
+	if event_bus != null:
+		event_bus.call("emit_scene_change_requested", "res://scenes/battle/battlefield.tscn")
+	else:
+		_scene_reload_requested = false
 
 
 func _on_shop_close_pressed() -> void:
@@ -1147,6 +1203,25 @@ func _update_shop_ui() -> void:
 	_rebuild_shop_cards()
 
 
+func _refresh_top_quick_action_buttons() -> void:
+	var editable_stage: bool = _stage == Stage.PREPARATION
+	if _shop_open_button != null and is_instance_valid(_shop_open_button):
+		_shop_open_button.text = "商店(B)"
+		_shop_open_button.disabled = not editable_stage
+		_shop_open_button.tooltip_text = "快捷键：B"
+	if _start_battle_button != null and is_instance_valid(_start_battle_button):
+		_start_battle_button.text = "开始战斗(F6)"
+		var battle_running: bool = false
+		if combat_manager != null and combat_manager.has_method("is_battle_running"):
+			battle_running = bool(combat_manager.call("is_battle_running"))
+		_start_battle_button.disabled = (not editable_stage) or battle_running
+		_start_battle_button.tooltip_text = "快捷键：F6"
+	if _reset_battle_button != null and is_instance_valid(_reset_battle_button):
+		_reset_battle_button.text = "重置战场(F7)"
+		_reset_battle_button.disabled = false
+		_reset_battle_button.tooltip_text = "快捷键：F7"
+
+
 func _update_shop_operation_labels() -> void:
 	if _economy_manager == null:
 		return
@@ -1178,6 +1253,7 @@ func _update_shop_operation_labels() -> void:
 			_shop_status_label.text = "商店已锁定，下回合保留商品" if locked else "布阵期可购买"
 	if _shop_open_button != null and is_instance_valid(_shop_open_button):
 		_shop_open_button.disabled = _stage != Stage.PREPARATION
+	_refresh_top_quick_action_buttons()
 
 
 func _rebuild_shop_cards() -> void:

@@ -12,6 +12,9 @@ signal attacked(attacker: Node, target: Node, event: Dictionary)
 signal damaged(target: Node, source: Node, event: Dictionary)
 signal died(unit: Node, killer: Node)
 
+@export var attack_range_min_cells: int = 1
+@export var attack_range_max_cells: int = 2
+
 var owner_unit: Node = null
 var is_alive: bool = true
 
@@ -213,6 +216,15 @@ func get_attack_range_world(hex_size: float = 26.0) -> float:
 	# 把“格子攻击范围”换算为世界半径，便于 CombatManager 做距离判断。
 	var range_cells: float = maxf(_get_owner_stat("rng") + float(_external_modifiers.get("range_add", 0.0)), 1.0)
 	return maxf(range_cells * hex_size * 1.2, hex_size * 0.85)
+
+
+func get_attack_range_cells() -> int:
+	# 严格六角格战斗：攻击距离统一按“格子数”判定。
+	# 为避免“全员超远射程”造成观感失真，默认对最终射程做上限约束。
+	var range_cells: float = _get_owner_stat("rng") + float(_external_modifiers.get("range_add", 0.0))
+	var min_cells: int = maxi(attack_range_min_cells, 1)
+	var max_cells: int = maxi(attack_range_max_cells, min_cells)
+	return clampi(int(range_cells), min_cells, max_cells)
 
 
 func refresh_runtime_stats(runtime_stats: Dictionary, preserve_ratio: bool = true) -> void:

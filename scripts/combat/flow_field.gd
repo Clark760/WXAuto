@@ -52,8 +52,7 @@ func build(hex_grid: Node, target_cells: Array[Vector2i], blocked_cells: Diction
 		var current_key: int = _cell_key_int(current)
 		var current_cost: int = int(_cost_map.get(current_key, 0))
 
-		for direction in AXIAL_DIRS:
-			var next_cell: Vector2i = current + direction
+		for next_cell in _get_neighbors(hex_grid, current):
 			if not _is_walkable(hex_grid, next_cell, blocked_cells):
 				continue
 			var next_key: int = _cell_key_int(next_cell)
@@ -92,8 +91,7 @@ func _rebuild_direction_map(hex_grid: Node) -> void:
 
 		var best_neighbor: Vector2i = cell
 		var best_cost: int = self_cost
-		for direction in AXIAL_DIRS:
-			var neighbor: Vector2i = cell + direction
+		for neighbor in _get_neighbors(hex_grid, cell):
 			var neighbor_key: int = _cell_key_int(neighbor)
 			if not _cost_map.has(neighbor_key):
 				continue
@@ -109,6 +107,21 @@ func _rebuild_direction_map(hex_grid: Node) -> void:
 		var from_world: Vector2 = hex_grid.call("axial_to_world", cell)
 		var to_world: Vector2 = hex_grid.call("axial_to_world", best_neighbor)
 		_direction_map[cell_key] = (to_world - from_world).normalized()
+
+
+func _get_neighbors(hex_grid: Node, cell: Vector2i) -> Array[Vector2i]:
+	if hex_grid != null and hex_grid.has_method("get_neighbor_cells"):
+		var neighbors_value: Variant = hex_grid.call("get_neighbor_cells", cell)
+		if neighbors_value is Array:
+			var neighbors_typed: Array[Vector2i] = []
+			for candidate in (neighbors_value as Array):
+				if candidate is Vector2i:
+					neighbors_typed.append(candidate)
+			return neighbors_typed
+	var fallback: Array[Vector2i] = []
+	for direction in AXIAL_DIRS:
+		fallback.append(cell + direction)
+	return fallback
 
 
 func _is_walkable(hex_grid: Node, cell: Vector2i, blocked_cells: Dictionary) -> bool:

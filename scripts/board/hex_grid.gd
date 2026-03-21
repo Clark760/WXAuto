@@ -1,20 +1,41 @@
 extends Node2D
 class_name HexGrid
 
-# ===========================
-# 六边形网格系统（Pointy-Top）
-# ===========================
-# 功能：
-# 1. 提供轴坐标(q, r) <-> 世界坐标转换。
-# 2. 提供世界坐标拾取到最近六边形格子的能力。
-# 3. 通过 _draw() 可视化网格，便于 M0 原型验证。
-
+# Pointy-top hex grid.
+# Supports two coordinate layouts:
+# 1) axial rectangle window (rhombus-shaped board),
+# 2) odd-r offset rectangle (staggered 32x32 style board).
 const SQRT3 := 1.7320508
+const AXIAL_DIRS: Array[Vector2i] = [
+	Vector2i(1, 0),
+	Vector2i(1, -1),
+	Vector2i(0, -1),
+	Vector2i(-1, 0),
+	Vector2i(-1, 1),
+	Vector2i(0, 1)
+]
+const OFFSET_DIRS_EVEN_ROW: Array[Vector2i] = [
+	Vector2i(1, 0),
+	Vector2i(0, -1),
+	Vector2i(-1, -1),
+	Vector2i(-1, 0),
+	Vector2i(-1, 1),
+	Vector2i(0, 1)
+]
+const OFFSET_DIRS_ODD_ROW: Array[Vector2i] = [
+	Vector2i(1, 0),
+	Vector2i(1, -1),
+	Vector2i(0, -1),
+	Vector2i(-1, 0),
+	Vector2i(0, 1),
+	Vector2i(1, 1)
+]
 
 @export var grid_width: int = 16
 @export var grid_height: int = 8
 @export var hex_size: float = 28.0
 @export var origin_offset: Vector2 = Vector2(220.0, 120.0)
+@export var use_staggered_square_layout: bool = true
 @export var draw_coordinates: bool = true
 @export var fill_color: Color = Color(0.18, 0.22, 0.28, 0.35)
 @export var line_color: Color = Color(0.75, 0.82, 0.88, 0.85)
@@ -28,57 +49,46 @@ func _ready() -> void:
 func _draw() -> void:
 	var font: Font = ThemeDB.fallback_font
 	var font_size: int = ThemeDB.fallback_font_size
-
 	for r in range(grid_height):
 		for q in range(grid_width):
-			var axial: Vector2i = Vector2i(q, r)
-			var center: Vector2 = axial_to_local(axial)
+			var cell: Vector2i = Vector2i(q, r)
+			var center: Vector2 = axial_to_local(cell)
 			var points: PackedVector2Array = _build_hex_points(center)
-
-			# 先填充再描边，确保格子轮廓清晰可见。
 			draw_colored_polygon(points, fill_color)
 			var outline: PackedVector2Array = points.duplicate()
 			outline.append(points[0])
 			draw_polyline(outline, line_color, 1.2, true)
-
-			# 绘制坐标文本（可关闭），用于调试部署与寻路坐标映射。
 			if draw_coordinates and font != null:
 				var text: String = "%d,%d" % [q, r]
 				draw_string(font, center + Vector2(-14, 4), text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, coordinate_color)
 
 
-func axial_to_world(axial: Vector2i) -> Vector2:
-	# “世界坐标”统一定义为 WorldContainer 内本地坐标。
-	# 因此这里返回 HexGrid 变换后的父空间坐标，而不是全局屏幕坐标。
-	return transform * axial_to_local(axial)
+func axial_to_world(cell: Vector2i) -> Vector2:
+	return transform * axial_to_local(cell)
 
 
-func axial_to_local(axial: Vector2i) -> Vector2:
-	# Pointy-Top 轴坐标换算公式：
-	# x = size * sqrt(3) * (q + r/2)
-	# y = size * 3/2 * r
-	var x: float = hex_size * SQRT3 * (float(axial.x) + float(axial.y) * 0.5)
-	var y: float = hex_size * 1.5 * float(axial.y)
+func axial_to_local(cell: Vector2i) -> Vector2:
+	var axial_cell: Vector2i = _to_axial_cell(cell)
+	var x: float = hex_size * SQRT3 * (float(axial_cell.x) + float(axial_cell.y) * 0.5)
+	var y: float = hex_size * 1.5 * float(axial_cell.y)
 	return Vector2(x, y) + origin_offset
 
 
 func world_to_axial(world_pos: Vector2) -> Vector2i:
-	# 将世界坐标逆变换为分数轴坐标，再做 cube-round 得到最近格子。
-	# 注意：world_pos 来自 WorldContainer 本地坐标，需要先用当前局部变换逆变换。
 	var local_world: Vector2 = transform.affine_inverse() * world_pos
 	var local: Vector2 = local_world - origin_offset
-	var q: float = ((SQRT3 / 3.0) * local.x - (1.0 / 3.0) * local.y) / hex_size
-	var r: float = ((2.0 / 3.0) * local.y) / hex_size
-	return _axial_round(Vector2(q, r))
+	var q: float = ((SQRT3 / 3.0) * local.x - (1.0 / 3.0) * local.y) / maxf(hex_size, 0.001)
+	var r: float = ((2.0 / 3.0) * local.y) / maxf(hex_size, 0.001)
+	var axial_cell: Vector2i = _axial_round(Vector2(q, r))
+	return _from_axial_cell(axial_cell)
 
 
-func get_hex_points_local(axial: Vector2i) -> PackedVector2Array:
-	# 对外暴露本地六边形顶点，供部署区高亮等叠加绘制层复用。
-	return _build_hex_points(axial_to_local(axial))
+func get_hex_points_local(cell: Vector2i) -> PackedVector2Array:
+	return _build_hex_points(axial_to_local(cell))
 
 
-func is_inside_grid(axial: Vector2i) -> bool:
-	return axial.x >= 0 and axial.x < grid_width and axial.y >= 0 and axial.y < grid_height
+func is_inside_grid(cell: Vector2i) -> bool:
+	return cell.x >= 0 and cell.x < grid_width and cell.y >= 0 and cell.y < grid_height
 
 
 func get_all_cells() -> Array[Vector2i]:
@@ -89,10 +99,75 @@ func get_all_cells() -> Array[Vector2i]:
 	return cells
 
 
+func get_neighbor_cells(cell: Vector2i) -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+	if use_staggered_square_layout:
+		var dirs: Array[Vector2i] = OFFSET_DIRS_ODD_ROW if ((cell.y & 1) == 1) else OFFSET_DIRS_EVEN_ROW
+		for d in dirs:
+			var next: Vector2i = cell + d
+			if is_inside_grid(next):
+				result.append(next)
+		return result
+	for d in AXIAL_DIRS:
+		var next_axial: Vector2i = cell + d
+		if is_inside_grid(next_axial):
+			result.append(next_axial)
+	return result
+
+
+func get_layout_fit_hex_size(available_w: float, available_h: float) -> float:
+	var grid_w: int = maxi(grid_width, 1)
+	var grid_h: int = maxi(grid_height, 1)
+	var width_coeff: float
+	var height_coeff: float
+	if use_staggered_square_layout:
+		width_coeff = SQRT3 * (float(grid_w) + 0.5)
+		height_coeff = 1.5 * float(grid_h - 1) + 2.0
+	else:
+		width_coeff = SQRT3 * (float(grid_w - 1) + float(grid_h - 1) * 0.5) + 1.7320508
+		height_coeff = 1.5 * float(grid_h - 1) + 2.0
+	return clampf(minf(available_w / maxf(width_coeff, 1.0), available_h / maxf(height_coeff, 1.0)), 1.0, 2048.0)
+
+
+func get_layout_board_size(target_hex_size: float = -1.0) -> Vector2:
+	var size_value: float = hex_size if target_hex_size <= 0.0 else target_hex_size
+	var grid_w: int = maxi(grid_width, 1)
+	var grid_h: int = maxi(grid_height, 1)
+	if use_staggered_square_layout:
+		var board_w_offset: float = size_value * SQRT3 * (float(grid_w) + 0.5)
+		var board_h_offset: float = size_value * 1.5 * float(grid_h - 1) + size_value * 2.0
+		return Vector2(board_w_offset, board_h_offset)
+	var x_radius: float = size_value * 0.8660254
+	var board_w: float = size_value * SQRT3 * (float(grid_w - 1) + float(grid_h - 1) * 0.5) + x_radius * 2.0
+	var board_h: float = size_value * 1.5 * float(grid_h - 1) + size_value * 2.0
+	return Vector2(board_w, board_h)
+
+
+func get_cell_distance(a: Vector2i, b: Vector2i) -> int:
+	var a_axial: Vector2i = _to_axial_cell(a)
+	var b_axial: Vector2i = _to_axial_cell(b)
+	var dq: int = b_axial.x - a_axial.x
+	var dr: int = b_axial.y - a_axial.y
+	return (absi(dq) + absi(dq + dr) + absi(dr)) / 2
+
+
+func _to_axial_cell(cell: Vector2i) -> Vector2i:
+	if not use_staggered_square_layout:
+		return cell
+	var q: int = cell.x - int((cell.y - (cell.y & 1)) / 2)
+	return Vector2i(q, cell.y)
+
+
+func _from_axial_cell(axial_cell: Vector2i) -> Vector2i:
+	if not use_staggered_square_layout:
+		return axial_cell
+	var col: int = axial_cell.x + int((axial_cell.y - (axial_cell.y & 1)) / 2)
+	return Vector2i(col, axial_cell.y)
+
+
 func _build_hex_points(center: Vector2) -> PackedVector2Array:
 	var points := PackedVector2Array()
 	for i in range(6):
-		# Pointy-Top 六边形每个顶点相差 60°，首顶点偏移 -30°。
 		var angle: float = deg_to_rad(float(i) * 60.0 - 30.0)
 		var point: Vector2 = center + Vector2(cos(angle), sin(angle)) * hex_size
 		points.append(point)
@@ -100,9 +175,6 @@ func _build_hex_points(center: Vector2) -> PackedVector2Array:
 
 
 func _axial_round(frac_axial: Vector2) -> Vector2i:
-	# 经典 cube-round：
-	# q -> x, r -> z, y = -x-z
-	# 对 xyz 分别四舍五入，再修正偏差最大轴。
 	var x: float = frac_axial.x
 	var z: float = frac_axial.y
 	var y: float = -x - z
