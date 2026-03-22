@@ -3,12 +3,8 @@ class_name StageData
 
 # ===========================
 # 关卡配置解析器（M5）
-# ===========================
-# 目标：
-# 1. 对 stages 分类里的原始 JSON 记录做最小校验与默认值补齐；
-# 2. 兼容“关卡记录”和“关卡序列记录”共存于 data/stages；
-# 3. 返回稳定结构，供 StageManager/战场层直接消费。
-
+# 1. 对 data/stages 的原始 JSON 做最小校验与默认值补齐；
+# 2. 输出稳定结构供 StageManager / Battlefield 直接消费。
 const STAGE_TYPES: Array[String] = ["normal", "elite", "boss", "rest", "event"]
 const ENEMY_DEPLOY_ZONES: Array[String] = ["front", "back", "center", "random", "fixed"]
 const DROP_TYPES: Array[String] = ["gongfa", "equipment", "unit"]
@@ -25,11 +21,6 @@ const DEFAULT_GRID: Dictionary = {
 	}
 }
 
-
-func is_stage_sequence_record(record: Dictionary) -> bool:
-	return record.has("chapters") and record.get("chapters", null) is Array
-
-
 func normalize_stage_record(raw: Dictionary) -> Dictionary:
 	var stage_id: String = str(raw.get("id", "")).strip_edges()
 	if stage_id.is_empty():
@@ -44,6 +35,9 @@ func normalize_stage_record(raw: Dictionary) -> Dictionary:
 	var grid: Dictionary = _normalize_grid(raw.get("grid", {}))
 	var enemies: Array[Dictionary] = _normalize_enemies(raw.get("enemies", []))
 	var obstacles: Array[Dictionary] = _normalize_obstacles(raw.get("obstacles", []))
+	var terrains: Array[Dictionary] = _normalize_terrains(raw.get("terrains", []))
+	if terrains.is_empty():
+		terrains.append_array(_legacy_obstacles_to_terrains(obstacles))
 	var rewards: Dictionary = _normalize_rewards(raw.get("rewards", {}))
 	var boss_gongfa_ids: Array[String] = _normalize_boss_gongfa_ids(raw.get("boss_gongfa_ids", []))
 	var boss_mechanics: Array[Dictionary] = _normalize_boss_mechanics(raw.get("boss_mechanics", null))
@@ -57,6 +51,7 @@ func normalize_stage_record(raw: Dictionary) -> Dictionary:
 		"description": str(raw.get("description", "")),
 		"grid": grid,
 		"enemies": enemies,
+		"terrains": terrains,
 		"obstacles": obstacles,
 		"rewards": rewards,
 		"boss_gongfa_ids": boss_gongfa_ids,
@@ -89,7 +84,7 @@ func normalize_stage_sequence_record(raw: Dictionary) -> Dictionary:
 				continue
 			chapters_out.append({
 				"chapter": chapter_no,
-				"name": str(chapter_data.get("name", "第%d章" % chapter_no)),
+				"name": str(chapter_data.get("name", "Chapter %d" % chapter_no)),
 				"stages": stages,
 				"rest_after": bool(chapter_data.get("rest_after", false))
 			})
@@ -210,7 +205,6 @@ func _normalize_boss_mechanics(raw_boss_mechanics: Variant) -> Array[Dictionary]
 
 
 func _normalize_boss_gongfa_ids(value: Variant) -> Array[String]:
-	# M5：Boss 机制改为“特殊功法”后，关卡只需要声明功法 ID 列表。
 	return _to_string_array(value)
 
 
@@ -231,6 +225,47 @@ func _normalize_obstacles(raw_obstacles: Variant) -> Array[Dictionary]:
 			"cells": cells
 		})
 	return obstacles
+
+
+func _normalize_terrains(raw_terrains: Variant) -> Array[Dictionary]:
+	var terrains: Array[Dictionary] = []
+	if not (raw_terrains is Array):
+		return terrains
+	for item in raw_terrains:
+		if not (item is Dictionary):
+			continue
+		var terrain: Dictionary = (item as Dictionary).duplicate(true)
+		var terrain_id: String = str(terrain.get("terrain_id", "")).strip_edges().to_lower()
+		if terrain_id.is_empty():
+			continue
+		var cells: Array[Vector2i] = _parse_cells(terrain.get("cells", []))
+		if cells.is_empty():
+			continue
+		var row: Dictionary = {
+			"terrain_id": terrain_id,
+			"cells": cells
+		}
+		for key in terrain.keys():
+			if key == "terrain_id" or key == "cells":
+				continue
+			row[key] = terrain[key]
+		terrains.append(row)
+	return terrains
+
+
+func _legacy_obstacles_to_terrains(obstacles: Array[Dictionary]) -> Array[Dictionary]:
+	var terrains: Array[Dictionary] = []
+	for obstacle in obstacles:
+		var obstacle_type: String = str(obstacle.get("type", "rock")).strip_edges().to_lower()
+		var cells_value: Variant = obstacle.get("cells", [])
+		if obstacle_type.is_empty() or not (cells_value is Array) or (cells_value as Array).is_empty():
+			continue
+		var terrain_id: String = "terrain_%s" % obstacle_type
+		terrains.append({
+			"terrain_id": terrain_id,
+			"cells": (cells_value as Array).duplicate(true)
+		})
+	return terrains
 
 
 func _normalize_rewards(raw_rewards: Variant) -> Dictionary:
@@ -295,3 +330,4 @@ func _parse_cells(value: Variant) -> Array[Vector2i]:
 			var d: Dictionary = item
 			cells.append(Vector2i(int(d.get("x", 0)), int(d.get("y", 0))))
 	return cells
+

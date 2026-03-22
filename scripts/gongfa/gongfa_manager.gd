@@ -360,10 +360,6 @@ func _extract_skill_entries_from_gongfa(gongfa_data: Dictionary) -> Array[Dictio
 		for skill_value in (skills_value as Array):
 			if skill_value is Dictionary:
 				output.append((skill_value as Dictionary).duplicate(false))
-	# 兼容旧版单技能字段 skill。
-	var single_skill_value: Variant = gongfa_data.get("skill", {})
-	if single_skill_value is Dictionary and not (single_skill_value as Dictionary).is_empty():
-		output.append((single_skill_value as Dictionary).duplicate(false))
 	return output
 
 

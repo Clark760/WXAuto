@@ -42,7 +42,6 @@ const SHOP_MANAGER_SCRIPT: Script = preload("res://scripts/economy/shop_manager.
 const RECYCLE_DROP_ZONE_SCRIPT: Script = preload("res://scripts/ui/recycle_drop_zone.gd")
 const BATTLE_FLOW_SCRIPT: Script = preload("res://scripts/combat/battle_flow.gd")
 const STAGE_MANAGER_SCRIPT: Script = preload("res://scripts/stage/stage_manager.gd")
-const OBSTACLE_MANAGER_SCRIPT: Script = preload("res://scripts/stage/obstacle_manager.gd")
 const SHOP_CONTROLLER_SCRIPT: Script = preload("res://scripts/board/shop_controller.gd")
 const STAGE_BRIDGE_SCRIPT: Script = preload("res://scripts/board/stage_bridge.gd")
 const INVENTORY_CONTROLLER_SCRIPT: Script = preload("res://scripts/board/inventory_controller.gd")
@@ -61,7 +60,6 @@ const DEFAULT_DEPLOY_ZONE: Dictionary = {
 var _economy_manager: Node = null
 var _shop_manager: Node = null
 var _stage_manager: Node = null
-var _obstacle_manager: Node = null
 
 var _shop_layer: CanvasLayer = null
 var _shop_panel: PanelContainer = null
@@ -102,7 +100,7 @@ var _recycle_controller: Node = null
 
 
 func _bootstrap_board_controllers() -> void:
-	# M5 ??????/??/??/????????????battlefield ?????
+	# M5：将商店、关卡桥接、库存、回收拆为独立控制器，降低 battlefield 职责耦合。
 	if _shop_controller == null:
 		_shop_controller = SHOP_CONTROLLER_SCRIPT.new() as Node
 		_shop_controller.name = "RuntimeShopController"
@@ -281,14 +279,14 @@ func _on_battle_ended(winner_team: int, summary: Dictionary) -> void:
 
 
 func reset_all_units_to_idle() -> void:
-	# ?? RESULT ??????????????????
+	# 离开 RESULT 阶段前，统一把仍存活单位恢复到待机状态，避免胜利动作残留。
 	var units: Array[Node] = []
 	units.append_array(_collect_units_from_map(_ally_deployed))
 	units.append_array(_collect_units_from_map(_enemy_deployed))
 	for unit in units:
 		if not _is_valid_unit(unit):
 			continue
-		# M5-FIX: ???????????????????????
+		# M5-FIX：死亡单位不做待机重置，保持死亡表现，避免出现“假复活”观感。
 		var combat: Node = unit.get_node_or_null("Components/UnitCombat")
 		if combat != null and not bool(combat.get("is_alive")):
 			continue
@@ -426,11 +424,11 @@ func _collect_enemy_spawn_cells() -> Array[Vector2i]:
 
 
 func _is_stage_cell_blocked(cell: Vector2i) -> bool:
-	if _obstacle_manager == null or not is_instance_valid(_obstacle_manager):
+	if combat_manager == null or not is_instance_valid(combat_manager):
 		return false
-	if not _obstacle_manager.has_method("is_cell_blocked"):
+	if not combat_manager.has_method("is_cell_blocked"):
 		return false
-	return bool(_obstacle_manager.call("is_cell_blocked", cell))
+	return bool(combat_manager.call("is_cell_blocked", cell))
 
 
 func _can_deploy_ally_to_cell(unit: Node, cell: Vector2i) -> bool:
@@ -993,10 +991,6 @@ func _bootstrap_battle_services() -> void:
 		_stage_manager = STAGE_MANAGER_SCRIPT.new() as Node
 		_stage_manager.name = "RuntimeStageManager"
 		add_child(_stage_manager)
-	if _obstacle_manager == null:
-		_obstacle_manager = OBSTACLE_MANAGER_SCRIPT.new() as Node
-		_obstacle_manager.name = "RuntimeObstacleManager"
-		add_child(_obstacle_manager)
 	_rebuild_battle_data_caches()
 
 	if _economy_manager != null:
@@ -1015,9 +1009,11 @@ func _bootstrap_battle_services() -> void:
 
 
 func _rebuild_battle_data_caches() -> void:
-	if _shop_manager == null:
-		return
-	_shop_manager.reload_pools(unit_factory, gongfa_manager)
+	if _shop_manager != null:
+		_shop_manager.reload_pools(unit_factory, gongfa_manager)
+	if combat_manager != null and is_instance_valid(combat_manager) and combat_manager.has_method("reload_terrain_registry"):
+		var data_manager: Node = _get_root_node("DataManager")
+		combat_manager.call("reload_terrain_registry", data_manager)
 
 
 func _connect_battle_ui_signals() -> void:
@@ -1125,7 +1121,7 @@ func _on_all_stages_cleared() -> void:
 
 func _apply_stage_runtime_config(config: Dictionary) -> void:
 	_apply_stage_grid_config(config.get("grid", {}))
-	_apply_stage_obstacles(config.get("obstacles", []))
+	_apply_stage_terrains(config.get("terrains", []), config.get("obstacles", []))
 	_clear_enemy_wave()
 	# 若仍残留战斗状态，强制停战并重置计时。
 	if combat_manager != null and combat_manager.has_method("is_battle_running") and bool(combat_manager.call("is_battle_running")):
@@ -1187,24 +1183,75 @@ func _calculate_fit_hex_size(available_w: float, available_h: float) -> float:
 	return super._calculate_fit_hex_size(available_w, available_h)
 
 
-func _apply_stage_obstacles(obstacles_value: Variant) -> void:
-	if _obstacle_manager == null or not is_instance_valid(_obstacle_manager):
-		if combat_manager != null and combat_manager.has_method("clear_static_blocked_cells"):
-			combat_manager.call("clear_static_blocked_cells")
+func _apply_stage_terrains(terrains_value: Variant, obstacles_value: Variant) -> void:
+	if combat_manager == null or not is_instance_valid(combat_manager):
 		return
-	var obstacles: Array = []
-	if obstacles_value is Array:
-		obstacles = obstacles_value
-	_obstacle_manager.call("spawn_obstacles", obstacles, hex_grid)
-	var blocked_cells: Array[Vector2i] = []
-	if _obstacle_manager.has_method("get_all_blocked_cells"):
-		var blocked_value: Variant = _obstacle_manager.call("get_all_blocked_cells")
-		if blocked_value is Array:
-			for cell_value in blocked_value:
-				if cell_value is Vector2i:
-					blocked_cells.append(cell_value as Vector2i)
-	if combat_manager != null and combat_manager.has_method("set_static_blocked_cells"):
-		combat_manager.call("set_static_blocked_cells", blocked_cells)
+	if combat_manager.has_method("clear_static_terrains"):
+		combat_manager.call("clear_static_terrains")
+
+	var terrain_rows: Array[Dictionary] = _normalize_stage_terrains(terrains_value, obstacles_value)
+	if terrain_rows.is_empty():
+		return
+	if not combat_manager.has_method("add_static_terrain"):
+		return
+	for row in terrain_rows:
+		var terrain_id: String = str(row.get("terrain_id", "")).strip_edges().to_lower()
+		if terrain_id.is_empty():
+			continue
+		var cells_value: Variant = row.get("cells", [])
+		if not (cells_value is Array):
+			continue
+		var normalized_cells: Array[Vector2i] = []
+		for cell_value in (cells_value as Array):
+			if cell_value is Vector2i:
+				normalized_cells.append(cell_value as Vector2i)
+			elif cell_value is Array:
+				var arr: Array = cell_value as Array
+				if arr.size() >= 2:
+					normalized_cells.append(Vector2i(int(arr[0]), int(arr[1])))
+			elif cell_value is Dictionary:
+				var cell_dict: Dictionary = cell_value as Dictionary
+				normalized_cells.append(Vector2i(int(cell_dict.get("x", -1)), int(cell_dict.get("y", -1))))
+		if normalized_cells.is_empty():
+			continue
+		var extra: Dictionary = {}
+		for key in row.keys():
+			if key == "terrain_id" or key == "cells":
+				continue
+			extra[key] = row[key]
+		combat_manager.call("add_static_terrain", terrain_id, normalized_cells, extra)
+
+
+func _normalize_stage_terrains(terrains_value: Variant, obstacles_value: Variant) -> Array[Dictionary]:
+	var rows: Array[Dictionary] = []
+	if terrains_value is Array:
+		for item in terrains_value:
+			if not (item is Dictionary):
+				continue
+			var row: Dictionary = (item as Dictionary).duplicate(true)
+			var terrain_id: String = str(row.get("terrain_id", "")).strip_edges().to_lower()
+			if terrain_id.is_empty():
+				continue
+			var cells_value: Variant = row.get("cells", [])
+			if not (cells_value is Array) or (cells_value as Array).is_empty():
+				continue
+			rows.append(row)
+	if rows.is_empty() and obstacles_value is Array:
+		for obstacle_value in obstacles_value:
+			if not (obstacle_value is Dictionary):
+				continue
+			var obstacle: Dictionary = obstacle_value as Dictionary
+			var obstacle_type: String = str(obstacle.get("type", "rock")).strip_edges().to_lower()
+			if obstacle_type.is_empty():
+				continue
+			var cells_value: Variant = obstacle.get("cells", [])
+			if not (cells_value is Array) or (cells_value as Array).is_empty():
+				continue
+			rows.append({
+				"terrain_id": "terrain_%s" % obstacle_type,
+				"cells": (cells_value as Array).duplicate(true)
+			})
+	return rows
 
 
 func _simplify_bottom_workspace_ui() -> void:
@@ -2308,18 +2355,20 @@ func _is_healing_gongfa_data(data: Dictionary) -> bool:
 			var tag_str: String = str(tag).to_lower()
 			if tag_str == "heal" or tag_str == "recovery" or tag_str == "support":
 				return true
-	var skill_value: Variant = data.get("skill", {})
-	if not (skill_value is Dictionary):
-		return false
-	var effects_value: Variant = (skill_value as Dictionary).get("effects", [])
-	if not (effects_value is Array):
-		return false
-	for effect_value in effects_value:
-		if not (effect_value is Dictionary):
-			continue
-		var op: String = str((effect_value as Dictionary).get("op", "")).strip_edges()
-		if op == "heal_self" or op == "heal_self_percent" or op == "heal_allies_aoe" or op == "buff_allies_aoe":
-			return true
+	var skills_value: Variant = data.get("skills", [])
+	if skills_value is Array:
+		for skill_value in (skills_value as Array):
+			if not (skill_value is Dictionary):
+				continue
+			var effects_value: Variant = (skill_value as Dictionary).get("effects", [])
+			if not (effects_value is Array):
+				continue
+			for effect_value in effects_value:
+				if not (effect_value is Dictionary):
+					continue
+				var op: String = str((effect_value as Dictionary).get("op", "")).strip_edges()
+				if op == "heal_self" or op == "heal_self_percent" or op == "heal_allies_aoe" or op == "buff_allies_aoe":
+					return true
 	return false
 
 

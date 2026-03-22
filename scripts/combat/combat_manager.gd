@@ -1,15 +1,9 @@
-extends Node
+﻿extends Node
 class_name CombatManager
 
 # ===========================
 # 战斗管理器
-# ===========================
-# 核心职责：
-# 1. 固定逻辑帧驱动战斗决策，与渲染帧解耦。
-# 2. 使用 SpatialHash 做近邻寻敌，避免 O(n^2) 全量遍历。
-# 3. 以“队伍焦点 + 流场方向”实现分组 AI。
-# 4. 当前实现重点优化：预扫描合并、组件缓存、减少重复遍历。
-
+# 负责逻辑帧驱动、寻路/占格、攻击结算与战斗生命周期管理。
 signal battle_started(ally_count: int, enemy_count: int)
 signal battle_ended(winner_team: int, summary: Dictionary)
 signal damage_resolved(event: Dictionary)
@@ -56,18 +50,18 @@ var _logic_time: float = 0.0
 var _next_attack_phase: bool = true
 
 var _all_units: Array[Node] = []
-var _unit_by_instance_id: Dictionary = {}  # instance_id -> Node
-var _dead_registry: Dictionary = {}         # instance_id -> true
-var _unit_position_cache: Dictionary = {}   # instance_id -> Vector2
+var _unit_by_instance_id: Dictionary = {} # instance_id -> 单位节点
+var _dead_registry: Dictionary = {} # instance_id -> 是否已处理死亡
+var _unit_position_cache: Dictionary = {} # instance_id -> 上一帧位置缓存
 
 var _alive_by_team: Dictionary = {
 	TEAM_ALLY: 0,
 	TEAM_ENEMY: 0
 }
-var _group_focus_target_id: Dictionary = {} # team_id -> target_instance_id
-var _group_center: Dictionary = {}          # team_id -> Vector2
+var _group_focus_target_id: Dictionary = {} # team_id -> 当前集火目标 instance_id
+var _group_center: Dictionary = {} # team_id -> 队伍中心点
 
-# 预扫描缓存：每逻辑帧只做一次全量遍历，后续步骤复用结果。
+# 预扫描缓存：每个逻辑帧只做一次全量遍历，后续步骤复用。
 var _team_alive_cache: Dictionary = {
 	TEAM_ALLY: [],
 	TEAM_ENEMY: []
@@ -77,11 +71,11 @@ var _team_cells_cache: Dictionary = {
 	TEAM_ENEMY: []
 }
 
-# 组件缓存：避免热路径 get_node_or_null("Components/... ")。
-var _combat_cache: Dictionary = {}   # instance_id -> Node
-var _movement_cache: Dictionary = {} # instance_id -> Node
+# 组件缓存：减少热路径中重复 get_node_or_null 的开销。
+var _combat_cache: Dictionary = {} # instance_id -> UnitCombat 组件
+var _movement_cache: Dictionary = {} # instance_id -> UnitMovement 组件
 
-# 压测指标：用于定位高密度战斗下的拥堵/卡格热点。
+# 压测指标：用于定位高密度战斗下的瓶颈与卡格热点。
 var _metric_tick_units: int = 0
 var _metric_tick_attack_checks: int = 0
 var _metric_tick_attacks_performed: int = 0
@@ -106,19 +100,19 @@ var _metric_total_tick_duration_us: int = 0
 
 var _metric_last_tick: Dictionary = {}
 
-# 严格六角格占用表：
-# - _cell_occupancy：格子 -> 单位
-# - _unit_cell：单位 -> 当前逻辑格子
+# 六角格占用表：
+# - _cell_occupancy: 格子 -> 单位
 var _cell_occupancy: Dictionary = {} # int(cell_key) -> int(unit_instance_id)
-var _unit_cell: Dictionary = {}      # int(unit_instance_id) -> Vector2i
-var _static_blocked_cells: Dictionary = {} # int(cell_key) -> true（关卡固定阻挡）
-var _terrain_blocked_cells: Dictionary = {} # int(cell_key) -> true（临时 barrier 阻挡）
+var _unit_cell: Dictionary = {} # int(unit_instance_id) -> Vector2i
+var _static_blocked_cells: Dictionary = {} # int(cell_key) -> true（关卡静态阻挡）
+var _terrain_blocked_cells: Dictionary = {} # int(cell_key) -> true（临时地形阻挡）
 var _flow_force_rebuild: bool = false
 var _terrain_manager = TERRAIN_MANAGER_SCRIPT.new()
+var _terrain_registry_loaded: bool = false
 
-# 拆分模块（M5 大文件精简）：
+# 拆分子模块（M5）：
 # - 占格系统
-# - 流场/寻路
+# - 路径与流场
 # - 目标选择
 # - 指标统计
 var _occupancy = CELL_OCCUPANCY_SCRIPT.new()
@@ -130,8 +124,7 @@ var _metrics = COMBAT_METRICS_SCRIPT.new()
 func _ready() -> void:
 	_logic_step = 1.0 / maxf(logic_fps, 1.0)
 	_spatial_hash = SpatialHash.new(spatial_cell_size)
-	# M5 拆分后这3个字段主要由 CombatMetrics 通过 owner.set/get 访问；
-	# 这里显式读写一次，避免编辑器提示“声明但未使用”。
+	reload_terrain_registry()
 	_metric_tick_duration_us = int(_metric_tick_duration_us)
 	_metric_total_tick_duration_us = int(_metric_total_tick_duration_us)
 	_metric_last_tick = (_metric_last_tick as Dictionary)
@@ -148,7 +141,7 @@ func _process(delta: float) -> void:
 		_logic_accumulator -= _logic_step
 		substeps += 1
 
-	# 防止极端卡顿造成“死亡螺旋”，超过上限后丢弃积压逻辑帧。
+	# 防止极端卡顿导致逻辑帧无限积压，超过上限后清空累计量。
 	if substeps >= logic_max_substeps and _logic_accumulator >= _logic_step:
 		_logic_accumulator = 0.0
 
@@ -157,6 +150,30 @@ func configure_dependencies(hex_grid: Node, vfx_factory: Node) -> void:
 	_hex_grid = hex_grid
 	_vfx_factory = vfx_factory
 	_flow_force_rebuild = true
+	_apply_terrain_visuals()
+
+
+func reload_terrain_registry(data_manager: Node = null) -> void:
+	if _terrain_manager == null:
+		return
+	var dm: Node = data_manager
+	if dm == null or not is_instance_valid(dm):
+		dm = _get_data_manager_node()
+	var terrain_records: Array = []
+	if dm != null and is_instance_valid(dm) and dm.has_method("get_all_records"):
+		var records_value: Variant = dm.call("get_all_records", "terrains")
+		if records_value is Array:
+			terrain_records = records_value as Array
+	_terrain_manager.call("set_terrain_registry", terrain_records)
+	_terrain_registry_loaded = not terrain_records.is_empty()
+	_apply_terrain_visuals()
+
+
+func _get_data_manager_node() -> Node:
+	var tree: SceneTree = get_tree()
+	if tree == null or tree.root == null:
+		return null
+	return tree.root.get_node_or_null("DataManager")
 
 
 func set_static_blocked_cells(cells: Array[Vector2i]) -> void:
@@ -223,24 +240,66 @@ func get_unit_cell_of(unit: Node) -> Vector2i:
 func add_temporary_terrain(config: Dictionary, source: Node = null) -> bool:
 	if _terrain_manager == null:
 		return false
+	if not _terrain_registry_loaded:
+		reload_terrain_registry()
 	var result: Dictionary = _terrain_manager.call("add_terrain", config, source, {
 		"hex_grid": _hex_grid
 	})
 	if bool(result.get("barrier_changed", false)):
-		var barrier_cells: Array[Vector2i] = _terrain_manager.call("get_barrier_cells")
+		var barrier_cells: Array[Vector2i] = _terrain_manager.call("get_barrier_cells", "dynamic")
 		set_terrain_blocked_cells(barrier_cells)
-	if bool(result.get("visual_changed", false)) and _hex_grid != null and _hex_grid.has_method("set_terrain_cells"):
-		var visual_cells: Dictionary = _terrain_manager.call("get_visual_cells", _hex_grid)
-		_hex_grid.call("set_terrain_cells", visual_cells)
+	if bool(result.get("visual_changed", false)):
+		_apply_terrain_visuals()
 	return bool(result.get("added", false))
 
 
 func clear_temporary_terrains() -> void:
 	if _terrain_manager != null:
-		_terrain_manager.call("clear_all")
+		_terrain_manager.call("clear_temporary_terrains")
 	clear_terrain_blocked_cells()
-	if _hex_grid != null and _hex_grid.has_method("clear_terrain_cells"):
-		_hex_grid.call("clear_terrain_cells")
+	_apply_terrain_visuals()
+
+
+func add_static_terrain(terrain_id: String, cells: Array, extra_config: Dictionary = {}) -> bool:
+	if _terrain_manager == null:
+		return false
+	if not _terrain_registry_loaded:
+		reload_terrain_registry()
+	var result: Dictionary = _terrain_manager.call(
+		"add_static_terrain",
+		terrain_id,
+		cells,
+		{"hex_grid": _hex_grid},
+		extra_config
+	)
+	if bool(result.get("barrier_changed", false)):
+		var static_cells: Array[Vector2i] = _terrain_manager.call("get_barrier_cells", "static")
+		set_static_blocked_cells(static_cells)
+	if bool(result.get("visual_changed", false)):
+		_apply_terrain_visuals()
+	return bool(result.get("added", false))
+
+
+func clear_static_terrains() -> void:
+	if _terrain_manager != null:
+		_terrain_manager.call("clear_static_terrains")
+	clear_static_blocked_cells()
+	_apply_terrain_visuals()
+
+
+func is_cell_blocked(cell: Vector2i) -> bool:
+	return _is_cell_blocked(cell)
+
+
+func _apply_terrain_visuals() -> void:
+	if _hex_grid == null or not is_instance_valid(_hex_grid):
+		return
+	if not _hex_grid.has_method("set_terrain_cells"):
+		return
+	var visual_cells: Dictionary = {}
+	if _terrain_manager != null:
+		visual_cells = _terrain_manager.call("get_visual_cells", _hex_grid)
+	_hex_grid.call("set_terrain_cells", visual_cells)
 
 
 func force_move_unit_to_cell(unit: Node, target_cell: Vector2i) -> bool:
@@ -475,16 +534,13 @@ func stop_battle(reason: String = "manual", winner_team: int = 0) -> void:
 	_battle_running = false
 	var summary: Dictionary = _build_battle_summary(reason, winner_team)
 
-	# M5 修复：战斗结束后统一走清理流程，避免残留 tween/倾斜与视觉重叠。
+	# 战斗结束统一清理单位状态，避免残留 tween/位移继续生效。
 	for unit in _all_units:
 		if not _is_live_unit(unit):
 			continue
 		_cleanup_unit_after_battle(unit, winner_team)
 	if _terrain_manager != null:
-		_terrain_manager.call("clear_all")
-	clear_terrain_blocked_cells()
-	if _hex_grid != null and _hex_grid.has_method("clear_terrain_cells"):
-		_hex_grid.call("clear_terrain_cells")
+		clear_temporary_terrains()
 
 	battle_ended.emit(winner_team, summary)
 
@@ -540,7 +596,7 @@ func _pre_tick_scan() -> void:
 
 
 func _trim_component_caches(valid_ids: Dictionary) -> void:
-	# 删除已失效单位对应缓存，避免字典持续膨胀。
+	# 移除已经失效单位的组件缓存，避免缓存字典持续膨胀。
 	for key in _combat_cache.keys():
 		var iid: int = int(key)
 		if not valid_ids.has(iid):
@@ -688,7 +744,7 @@ func _register_units(units: Array[Node], team_id: int) -> void:
 		_all_units.append(unit)
 		_unit_by_instance_id[instance_id] = unit
 
-		# 注册时将单位吸附到格心并登记占格，作为后续格子逻辑的唯一真值。
+		# 注册单位时同步吸附到逻辑格并登记占格，作为后续格子逻辑依据。
 		if _hex_grid != null:
 			_resolve_and_register_unit_cell(unit)
 
@@ -716,11 +772,10 @@ func _tick_terrain(delta: float) -> void:
 		"gongfa_manager": gongfa_manager
 	})
 	if bool(tick_result.get("barrier_changed", false)):
-		var barrier_cells: Array[Vector2i] = _terrain_manager.call("get_barrier_cells")
+		var barrier_cells: Array[Vector2i] = _terrain_manager.call("get_barrier_cells", "dynamic")
 		set_terrain_blocked_cells(barrier_cells)
-	if bool(tick_result.get("visual_changed", false)) and _hex_grid.has_method("set_terrain_cells"):
-		var visual_cells: Dictionary = _terrain_manager.call("get_visual_cells", _hex_grid)
-		_hex_grid.call("set_terrain_cells", visual_cells)
+	if bool(tick_result.get("visual_changed", false)):
+		_apply_terrain_visuals()
 
 
 func _get_gongfa_manager() -> Node:
@@ -753,7 +808,7 @@ func _clear_unit_move_and_idle(unit: Node) -> void:
 	var movement: Node = _get_movement(unit)
 	if movement != null:
 		movement.call("clear_target")
-	unit.call("play_anim_state", 0, {}) # IDLE
+	unit.call("play_anim_state", 0, {}) # 切换为待机动画
 
 
 func _run_feared_unit_logic(unit: Node, target: Node, enemy_team: int) -> void:
@@ -774,7 +829,7 @@ func _run_feared_unit_logic(unit: Node, target: Node, enemy_team: int) -> void:
 		return
 	var moved: bool = move_unit_steps_away(unit, target_cell, 1)
 	if moved:
-		unit.call("play_anim_state", 1, {}) # MOVE
+		unit.call("play_anim_state", 1, {}) # 恐惧状态下仍执行移动动画
 	else:
 		_clear_unit_move_and_idle(unit)
 	_metric_tick_move_checks += 1
@@ -849,15 +904,14 @@ func _run_unit_logic(unit: Node, delta: float, allow_attack: bool = true, allow_
 	if not allow_move:
 		return
 
-	# 关键修复（M5）：目标已经在射程内时，不再继续移动。
-	# 这条守卫要放在 move 分支最前面，才能覆盖：
-	# 1) 攻击帧中因 CD 未好而攻击失败；
-	# 2) split_attack_move_phase 下的纯移动帧。
+	# 关键守卫：目标已在射程内时，不再继续移动。
+	# 该逻辑可覆盖“攻击冷却未好”与“纯移动帧”两种情况，
+	# 避免单位在能打到目标时仍来回抖动。
 	if target != null and _is_target_in_attack_range(unit, target):
 		var idle_movement: Node = _get_movement(unit)
 		if idle_movement != null:
 			idle_movement.call("clear_target")
-		unit.call("play_anim_state", 0, {}) # IDLE
+		unit.call("play_anim_state", 0, {}) # 射程内停步待机
 		_metric_tick_move_checks += 1
 		_metric_total_move_checks += 1
 		_metric_tick_move_blocked += 1
@@ -871,7 +925,7 @@ func _run_unit_logic(unit: Node, delta: float, allow_attack: bool = true, allow_
 		var movement_invalid: Node = _get_movement(unit)
 		if movement_invalid != null:
 			movement_invalid.call("clear_target")
-		unit.call("play_anim_state", 0, {}) # IDLE
+		unit.call("play_anim_state", 0, {}) # 无有效格信息时待机
 		_metric_tick_idle_no_cell += 1
 		_metric_total_idle_no_cell += 1
 		return
@@ -883,7 +937,7 @@ func _run_unit_logic(unit: Node, delta: float, allow_attack: bool = true, allow_
 		_metric_total_flow_unreachable += 1
 	var best_next: Vector2i = _pick_best_adjacent_cell(unit, current_cell)
 	if best_next == current_cell:
-		# 被堵住时兜底：优先尝试攻击“射程内任意敌人”，避免双方僵持。
+		# 被卡住时兜底尝试一次“射程内任意目标”攻击，减少僵持。
 		if allow_attack:
 			var alt_target: Node = _pick_target_in_attack_range(unit, enemy_team)
 			if alt_target != null and _try_execute_attack(unit, combat, alt_target):
@@ -893,27 +947,27 @@ func _run_unit_logic(unit: Node, delta: float, allow_attack: bool = true, allow_
 		var movement_idle: Node = _get_movement(unit)
 		if movement_idle != null:
 			movement_idle.call("clear_target")
-		unit.call("play_anim_state", 0, {}) # IDLE
+		unit.call("play_anim_state", 0, {}) # 被阻挡时保持待机
 		_metric_tick_move_blocked += 1
 		_metric_total_move_blocked += 1
 		return
 
-	# 提交前再次检查，若目标格已被本帧其他单位占用则直接判定冲突。
+	# 提交移动前再次校验，防止同帧被其他单位抢占目标格。
 	if not _is_cell_free(best_next):
 		var conflict_movement: Node = _get_movement(unit)
 		if conflict_movement != null:
 			conflict_movement.call("clear_target")
-		unit.call("play_anim_state", 0, {}) # IDLE
+		unit.call("play_anim_state", 0, {}) # 冲突时待机
 		_metric_tick_move_conflicts += 1
 		_metric_total_move_conflicts += 1
 		return
 
-	# 关键修复：先占新格，旧格由 _occupy_cell 内部自动释放，避免“先释后占”竞态。
+	# 先占新格再移动，可避免“先释放旧格”导致的竞争态问题。
 	if not _occupy_cell(best_next, unit):
 		var rollback_movement: Node = _get_movement(unit)
 		if rollback_movement != null:
 			rollback_movement.call("clear_target")
-		unit.call("play_anim_state", 0, {}) # IDLE
+		unit.call("play_anim_state", 0, {}) # 占格失败时待机
 		_metric_tick_move_conflicts += 1
 		_metric_total_move_conflicts += 1
 		return
@@ -921,10 +975,10 @@ func _run_unit_logic(unit: Node, delta: float, allow_attack: bool = true, allow_
 	if movement != null and _hex_grid != null:
 		var target_world: Vector2 = _hex_grid.call("axial_to_world", best_next)
 		if strict_cell_snap_in_combat:
-			# 严格格子模式：逻辑先到位，再用短动画补视觉位移，避免“瞬移感”。
+			# 严格格子模式：逻辑先到位，再用短动画补视觉位移。
 			var did_visual_step: bool = false
 			if strict_snap_visual_step_enabled and unit.has_method("play_quick_cell_step"):
-				# 动画时长按逻辑步长比例计算，保证低帧逻辑下仍然利落。
+				# 动画时长按逻辑步长比例计算，兼顾低帧率观感。
 				var duration: float = clampf(_logic_step * strict_snap_visual_step_duration_ratio, 0.03, 0.14)
 				unit.call("play_quick_cell_step", target_world, duration)
 				did_visual_step = true
@@ -936,12 +990,12 @@ func _run_unit_logic(unit: Node, delta: float, allow_attack: bool = true, allow_
 		else:
 			movement.call("set_target", target_world)
 	else:
-		# 兜底：无移动组件时直接瞬移到格心，保证逻辑与画面一致。
+		# 兜底：无移动组件时直接瞬移到格心，保证逻辑与显示一致。
 		if _hex_grid != null:
 			var unit_node: Node2D = unit as Node2D
 			if unit_node != null:
 				unit_node.position = _hex_grid.call("axial_to_world", best_next)
-	unit.call("play_anim_state", 1, {}) # MOVE
+	unit.call("play_anim_state", 1, {}) # 播放移动动画
 	_metric_tick_move_started += 1
 	_metric_total_move_started += 1
 
@@ -968,15 +1022,15 @@ func _on_attack_resolved(source: Node, target: Node, event_dict: Dictionary) -> 
 		attack_dir = Vector2.RIGHT
 
 	if bool(event_dict.get("is_skill", false)):
-		source.call("play_anim_state", 3, {"direction": attack_dir}) # SKILL
+		source.call("play_anim_state", 3, {"direction": attack_dir}) # 技能施放动画
 	else:
-		source.call("play_anim_state", 2, {"direction": attack_dir}) # ATTACK
+		source.call("play_anim_state", 2, {"direction": attack_dir}) # 普通攻击动画
 
 	if bool(event_dict.get("is_dodged", false)):
 		if _vfx_factory != null:
 			_vfx_factory.call("spawn_damage_text", target.position, 0.0, false, true)
 	else:
-		target.call("play_anim_state", 4, {"direction": attack_dir}) # HIT
+		target.call("play_anim_state", 4, {"direction": attack_dir}) # 受击动画
 		if _vfx_factory != null:
 			_vfx_factory.call("play_attack_vfx", "vfx_sword_qi", source.position, target.position)
 			_vfx_factory.call(
@@ -1003,7 +1057,7 @@ func _handle_unit_death(dead_unit: Node, killer: Node) -> void:
 	_dead_registry[dead_id] = true
 	_vacate_unit(dead_unit)
 
-	dead_unit.call("play_anim_state", 5, {}) # DEATH
+	dead_unit.call("play_anim_state", 5, {}) # 死亡动画
 	var movement: Node = _get_movement(dead_unit)
 	if movement != null:
 		movement.call("clear_target")
@@ -1016,7 +1070,7 @@ func _handle_unit_death(dead_unit: Node, killer: Node) -> void:
 
 	unit_died.emit(dead_unit, killer, dead_team)
 
-	# 关键修复：任一方归零后立刻结算，阻断同帧残余行动。
+	# 任一方归零后立即结算，阻断同帧残余行为。
 	_finalize_if_needed()
 
 
@@ -1144,8 +1198,8 @@ func _hex_distance(a: Vector2i, b: Vector2i) -> int:
 
 
 func _reset_battle_runtime_state() -> void:
-	# 只在“整场战斗开始前”清空的运行态数据集中放在这里，
-	# 避免 start_battle 中散落大量 reset 代码。
+	# 仅在“整场战斗开始前”重置运行时状态，
+	# 集中维护 reset 逻辑，避免 start_battle 内散落清理代码。
 	_all_units.clear()
 	_unit_by_instance_id.clear()
 	_dead_registry.clear()
@@ -1166,9 +1220,7 @@ func _reset_battle_runtime_state() -> void:
 	_terrain_blocked_cells.clear()
 	_flow_force_rebuild = true
 	if _terrain_manager != null:
-		_terrain_manager.call("clear_all")
-	if _hex_grid != null and _hex_grid.has_method("clear_terrain_cells"):
-		_hex_grid.call("clear_terrain_cells")
+		clear_temporary_terrains()
 	_metrics.reset_all_metrics(self)
 
 
@@ -1201,16 +1253,16 @@ func _build_battle_summary(reason: String, winner_team: int) -> Dictionary:
 
 
 func _cleanup_unit_after_battle(unit: Node, winner_team: int) -> void:
-	# 结算时强制清空移动目标，避免胜负已出仍有残留位移。
+	# 战斗结束先清理移动目标，避免胜负已定后仍继续位移。
 	var movement: Node = _get_movement(unit)
 	if movement != null:
 		movement.call("clear_target")
 
-	# 杀掉严格格子模式的短 Tween，避免战后仍在位移导致视觉重叠。
+	# 终止快速格步进 tween，避免战后视觉重叠。
 	if unit.has_method("kill_quick_step_tween"):
 		unit.call("kill_quick_step_tween")
 
-	# 战后以逻辑占格为准强制吸附到格心，彻底消除“逻辑不同格但视觉同格”的情况。
+	# 战后按逻辑占格强制吸附回格心，消除位置偏差。
 	var iid: int = unit.get_instance_id()
 	if _hex_grid != null and _unit_cell.has(iid):
 		var cell: Vector2i = _unit_cell[iid]
@@ -1219,16 +1271,16 @@ func _cleanup_unit_after_battle(unit: Node, winner_team: int) -> void:
 		if unit_node != null:
 			unit_node.position = snap_pos
 
-	# 重置可视节点变换，清除 MOVE/VICTORY 残留倾斜与缩放偏移。
+	# 重置可视节点变换，清除 MOVE/VICTORY 残留倾斜和缩放。
 	if unit.has_method("reset_visual_transform"):
 		unit.call("reset_visual_transform")
 
 	if _is_unit_alive(unit):
 		var team_id: int = int(unit.get("team_id"))
 		if winner_team != 0 and team_id == winner_team:
-			unit.call("play_anim_state", 6, {}) # VICTORY
+			unit.call("play_anim_state", 6, {}) # 胜利动画
 		else:
-			unit.call("play_anim_state", 0, {}) # IDLE
+			unit.call("play_anim_state", 0, {}) # 战后待机动画
 	unit.set("is_in_combat", false)
 	unit.call("leave_combat")
 
@@ -1279,7 +1331,7 @@ func _prepare_unit_for_battle(unit: Node, team_id: int) -> void:
 	unit.call("set_team", team_id)
 	unit.call("enter_combat")
 	unit.call("set_on_bench_state", false, -1)
-	unit.call("play_anim_state", 0, {}) # IDLE
+	unit.call("play_anim_state", 0, {}) # 开战前统一进入待机动画
 
 
 func _try_execute_attack(unit: Node, combat: Node, target: Node) -> bool:
@@ -1321,3 +1373,4 @@ func _build_damage_event(source: Node, target: Node, event_dict: Dictionary) -> 
 		"shield_broken": bool(event_dict.get("shield_broken", false)),
 		"logic_frame": _logic_frame
 	}
+

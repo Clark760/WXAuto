@@ -8463,44 +8463,48 @@
         "name": "无相金身",
         "description": "濒危时激发护体金身，瞬时稳住战局。",
         "effects": [],
-        "skill": {
-          "trigger": "on_hp_below",
-          "threshold": 0.35,
-          "cooldown": 16.0,
-          "mp_cost": 0,
-          "effects": [
-            {
-              "op": "shield_self",
-              "value": 450,
-              "duration": 5.0
-            },
-            {
-              "op": "heal_self_percent",
-              "value": 0.18
-            }
-          ]
-        }
+        "skills": [
+          {
+            "trigger": "on_hp_below",
+            "threshold": 0.35,
+            "cooldown": 16,
+            "mp_cost": 0,
+            "effects": [
+              {
+                "op": "shield_self",
+                "value": 450,
+                "duration": 5
+              },
+              {
+                "op": "heal_self_percent",
+                "value": 0.18
+              }
+            ]
+          }
+        ]
       },
       {
         "id": "trait_sweeper_dust_crossing",
         "name": "扫尘渡厄",
         "description": "以慈悲真气定期普渡队友。",
         "effects": [],
-        "skill": {
-          "trigger": "periodic",
-          "interval": 6.0,
-          "mp_cost": 25,
-          "effects": [
-            {
-              "op": "heal_allies_aoe",
-              "value": 140,
-              "radius": 3
-            },
-            {
-              "op": "cleanse_ally"
-            }
-          ]
-        }
+        "skills": [
+          {
+            "trigger": "periodic",
+            "interval": 6,
+            "mp_cost": 25,
+            "effects": [
+              {
+                "op": "heal_allies_aoe",
+                "value": 140,
+                "radius": 3
+              },
+              {
+                "op": "cleanse_ally"
+              }
+            ]
+          }
+        ]
       }
     ],
     "sprite_path": "assets/sprites/units/unit_red_271.png",
@@ -8544,48 +8548,52 @@
         "name": "太极化劲",
         "description": "受击时借力卸劲并回转真气。",
         "effects": [],
-        "skill": {
-          "trigger": "on_attacked",
-          "chance": 0.3,
-          "cooldown": 8.0,
-          "mp_cost": 0,
-          "effects": [
-            {
-              "op": "shield_self",
-              "value": 260,
-              "duration": 4.0
-            },
-            {
-              "op": "heal_self_percent",
-              "value": 0.1
-            }
-          ]
-        }
+        "skills": [
+          {
+            "trigger": "on_attacked",
+            "chance": 0.3,
+            "cooldown": 8,
+            "mp_cost": 0,
+            "effects": [
+              {
+                "op": "shield_self",
+                "value": 260,
+                "duration": 4
+              },
+              {
+                "op": "heal_self_percent",
+                "value": 0.1
+              }
+            ]
+          }
+        ]
       },
       {
         "id": "trait_zhangsanfeng_founder",
         "name": "宗师道统",
         "description": "出手时引动太极劲，兼顾单体与溅射。",
         "effects": [],
-        "skill": {
-          "trigger": "on_attack_hit",
-          "chance": 0.25,
-          "cooldown": 5.0,
-          "mp_cost": 0,
-          "effects": [
-            {
-              "op": "damage_target",
-              "value": 180,
-              "damage_type": "internal"
-            },
-            {
-              "op": "damage_aoe",
-              "radius": 2,
-              "value": 90,
-              "damage_type": "internal"
-            }
-          ]
-        }
+        "skills": [
+          {
+            "trigger": "on_attack_hit",
+            "chance": 0.25,
+            "cooldown": 5,
+            "mp_cost": 0,
+            "effects": [
+              {
+                "op": "damage_target",
+                "value": 180,
+                "damage_type": "internal"
+              },
+              {
+                "op": "damage_aoe",
+                "radius": 2,
+                "value": 90,
+                "damage_type": "internal"
+              }
+            ]
+          }
+        ]
       }
     ],
     "sprite_path": "assets/sprites/units/unit_red_272.png",
@@ -8629,47 +8637,51 @@
         "name": "葵花残影",
         "description": "命中后残影追击并封其气机。",
         "effects": [],
-        "skill": {
-          "trigger": "on_attack_hit",
-          "chance": 0.35,
-          "cooldown": 4.0,
-          "mp_cost": 0,
-          "effects": [
-            {
-              "op": "damage_target",
-              "value": 160,
-              "damage_type": "external"
-            },
-            {
-              "op": "silence_target",
-              "duration": 1.5
-            }
-          ]
-        }
+        "skills": [
+          {
+            "trigger": "on_attack_hit",
+            "chance": 0.35,
+            "cooldown": 4,
+            "mp_cost": 0,
+            "effects": [
+              {
+                "op": "damage_target",
+                "value": 160,
+                "damage_type": "external"
+              },
+              {
+                "op": "silence_target",
+                "duration": 1.5
+              }
+            ]
+          }
+        ]
       },
       {
         "id": "trait_dongfang_needle_edge",
         "name": "绝世针芒",
         "description": "每次斩获后爆发针雨清场。",
         "effects": [],
-        "skill": {
-          "trigger": "on_kill",
-          "cooldown": 10.0,
-          "mp_cost": 0,
-          "effects": [
-            {
-              "op": "shield_self",
-              "value": 280,
-              "duration": 4.0
-            },
-            {
-              "op": "damage_aoe",
-              "radius": 2,
-              "value": 150,
-              "damage_type": "external"
-            }
-          ]
-        }
+        "skills": [
+          {
+            "trigger": "on_kill",
+            "cooldown": 10,
+            "mp_cost": 0,
+            "effects": [
+              {
+                "op": "shield_self",
+                "value": 280,
+                "duration": 4
+              },
+              {
+                "op": "damage_aoe",
+                "radius": 2,
+                "value": 150,
+                "damage_type": "external"
+              }
+            ]
+          }
+        ]
       }
     ],
     "sprite_path": "assets/sprites/units/unit_red_273.png",
@@ -8713,45 +8725,49 @@
         "name": "剑魔心证",
         "description": "命中即刻烙下剑印，追击加重。",
         "effects": [],
-        "skill": {
-          "trigger": "on_attack_hit",
-          "chance": 0.3,
-          "cooldown": 5.0,
-          "mp_cost": 0,
-          "effects": [
-            {
-              "op": "mark_target",
-              "mark_id": "debuff_mark_death",
-              "duration": 5.0
-            },
-            {
-              "op": "damage_if_marked",
-              "value": 170,
-              "damage_type": "external",
-              "mark_id": "debuff_mark_death",
-              "bonus_multiplier": 1.6
-            }
-          ]
-        }
+        "skills": [
+          {
+            "trigger": "on_attack_hit",
+            "chance": 0.3,
+            "cooldown": 5,
+            "mp_cost": 0,
+            "effects": [
+              {
+                "op": "mark_target",
+                "mark_id": "debuff_mark_death",
+                "duration": 5
+              },
+              {
+                "op": "damage_if_marked",
+                "value": 170,
+                "damage_type": "external",
+                "mark_id": "debuff_mark_death",
+                "bonus_multiplier": 1.6
+              }
+            ]
+          }
+        ]
       },
       {
         "id": "trait_dugu_finisher",
         "name": "求败斩决",
         "description": "窥得破绽时，斩决之剑直接重创目标。",
         "effects": [],
-        "skill": {
-          "trigger": "on_attack_hit",
-          "chance": 0.2,
-          "cooldown": 7.0,
-          "mp_cost": 0,
-          "effects": [
-            {
-              "op": "damage_target",
-              "value": 220,
-              "damage_type": "external"
-            }
-          ]
-        }
+        "skills": [
+          {
+            "trigger": "on_attack_hit",
+            "chance": 0.2,
+            "cooldown": 7,
+            "mp_cost": 0,
+            "effects": [
+              {
+                "op": "damage_target",
+                "value": 220,
+                "damage_type": "external"
+              }
+            ]
+          }
+        ]
       }
     ],
     "sprite_path": "assets/sprites/units/unit_red_274.png",
@@ -8795,40 +8811,44 @@
         "name": "先天护体",
         "description": "开战即布先天真罡庇护同门。",
         "effects": [],
-        "skill": {
-          "trigger": "on_combat_start",
-          "cooldown": 0,
-          "mp_cost": 0,
-          "effects": [
-            {
-              "op": "shield_allies_aoe",
-              "value": 260,
-              "duration": 6.0,
-              "radius": 3
-            }
-          ]
-        }
+        "skills": [
+          {
+            "trigger": "on_combat_start",
+            "cooldown": 0,
+            "mp_cost": 0,
+            "effects": [
+              {
+                "op": "shield_allies_aoe",
+                "value": 260,
+                "duration": 6,
+                "radius": 3
+              }
+            ]
+          }
+        ]
       },
       {
         "id": "trait_wangchongyang_zhongshentong",
         "name": "中神通脉",
         "description": "周天运转，周期回复真元与气血。",
         "effects": [],
-        "skill": {
-          "trigger": "periodic",
-          "interval": 7.0,
-          "mp_cost": 20,
-          "effects": [
-            {
-              "op": "mp_regen_add",
-              "value": 12
-            },
-            {
-              "op": "heal_self",
-              "value": 180
-            }
-          ]
-        }
+        "skills": [
+          {
+            "trigger": "periodic",
+            "interval": 7,
+            "mp_cost": 20,
+            "effects": [
+              {
+                "op": "mp_regen_add",
+                "value": 12
+              },
+              {
+                "op": "heal_self",
+                "value": 180
+              }
+            ]
+          }
+        ]
       }
     ],
     "sprite_path": "assets/sprites/units/unit_red_275.png",
@@ -8840,4 +8860,3 @@
     ]
   }
 ]
-

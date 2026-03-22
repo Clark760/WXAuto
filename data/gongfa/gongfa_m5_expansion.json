@@ -1,4 +1,4 @@
-﻿[
+[
   {
     "id": "gongfa_wudu_shou",
     "name": "Wudu Palm",
@@ -6,20 +6,44 @@
     "faction": "tangmen",
     "element": "wood",
     "quality": "purple",
-    "tags": ["poison", "debuff"],
-    "passive_effects": [
-      {"op": "stat_add", "stat": "iat", "value": 40},
-      {"op": "damage_amp_vs_debuffed", "value": 0.25, "require_debuff": "tangmen_poison"}
+    "tags": [
+      "poison",
+      "debuff"
     ],
-    "skill": {
-      "trigger": "auto_mp_full",
-      "mp_cost": 50,
-      "effects": [
-        {"op": "debuff_aoe", "buff_id": "tangmen_poison", "radius": 3, "duration": 5.0},
-        {"op": "damage_if_debuffed", "value": 150, "damage_type": "internal", "require_debuff": "tangmen_poison", "bonus_multiplier": 2.0}
-      ],
-      "vfx_id": "vfx_poison_cloud"
-    },
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 40
+      },
+      {
+        "op": "damage_amp_vs_debuffed",
+        "value": 0.25,
+        "require_debuff": "tangmen_poison"
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "auto_mp_full",
+        "mp_cost": 50,
+        "effects": [
+          {
+            "op": "debuff_aoe",
+            "buff_id": "tangmen_poison",
+            "radius": 3,
+            "duration": 5
+          },
+          {
+            "op": "damage_if_debuffed",
+            "value": 150,
+            "damage_type": "internal",
+            "require_debuff": "tangmen_poison",
+            "bonus_multiplier": 2
+          }
+        ],
+        "vfx_id": "vfx_poison_cloud"
+      }
+    ],
     "linkage_tags": []
   },
   {
@@ -29,20 +53,44 @@
     "faction": "mingjiao",
     "element": "fire",
     "quality": "purple",
-    "tags": ["palm", "burn"],
-    "passive_effects": [
-      {"op": "stat_add", "stat": "iat", "value": 50}
+    "tags": [
+      "palm",
+      "burn"
     ],
-    "skill": {
-      "trigger": "auto_mp_full",
-      "mp_cost": 55,
-      "effects": [
-        {"op": "damage_aoe", "radius": 2, "value": 120, "damage_type": "internal"},
-        {"op": "debuff_aoe", "buff_id": "debuff_burn", "radius": 2, "duration": 4.0},
-        {"op": "create_terrain", "terrain_type": "fire", "radius": 2, "duration": 6.0}
-      ],
-      "vfx_id": "vfx_fire_palm"
-    },
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 50
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "auto_mp_full",
+        "mp_cost": 55,
+        "effects": [
+          {
+            "op": "damage_aoe",
+            "radius": 2,
+            "value": 120,
+            "damage_type": "internal"
+          },
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_burn",
+            "radius": 2,
+            "duration": 4
+          },
+          {
+            "op": "create_terrain",
+            "terrain_type": "fire",
+            "radius": 2,
+            "duration": 6
+          }
+        ],
+        "vfx_id": "vfx_fire_palm"
+      }
+    ],
     "linkage_tags": []
   },
   {
@@ -52,20 +100,42 @@
     "faction": "xiaoyao",
     "element": "water",
     "quality": "orange",
-    "tags": ["ice", "control"],
-    "passive_effects": [
-      {"op": "stat_percent", "stat": "iat", "value": 0.15}
+    "tags": [
+      "ice",
+      "control"
     ],
-    "skill": {
-      "trigger": "auto_mp_full",
-      "mp_cost": 65,
-      "effects": [
-        {"op": "freeze_target", "duration": 2.5},
-        {"op": "create_terrain", "terrain_type": "ice", "radius": 3, "duration": 8.0},
-        {"op": "damage_aoe", "radius": 3, "value": 100, "damage_type": "internal"}
-      ],
-      "vfx_id": "vfx_ice_burst"
-    },
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "iat",
+        "value": 0.15
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "auto_mp_full",
+        "mp_cost": 65,
+        "effects": [
+          {
+            "op": "freeze_target",
+            "duration": 2.5
+          },
+          {
+            "op": "create_terrain",
+            "terrain_type": "ice",
+            "radius": 3,
+            "duration": 8
+          },
+          {
+            "op": "damage_aoe",
+            "radius": 3,
+            "value": 100,
+            "damage_type": "internal"
+          }
+        ],
+        "vfx_id": "vfx_ice_burst"
+      }
+    ],
     "linkage_tags": []
   },
   {
@@ -75,22 +145,47 @@
     "faction": "huashan",
     "element": "metal",
     "quality": "orange",
-    "tags": ["sword", "execute"],
-    "passive_effects": [
-      {"op": "stat_add", "stat": "atk", "value": 60},
-      {"op": "execute_threshold", "value": 0.25},
-      {"op": "crit_damage_bonus", "value": 0.30}
+    "tags": [
+      "sword",
+      "execute"
     ],
-    "skill": {
-      "trigger": "on_attack_hit",
-      "chance": 0.25,
-      "mp_cost": 0,
-      "effects": [
-        {"op": "mark_target", "mark_id": "debuff_mark_death", "duration": 6.0},
-        {"op": "damage_if_marked", "value": 200, "damage_type": "external", "mark_id": "debuff_mark_death", "bonus_multiplier": 1.5}
-      ],
-      "vfx_id": "vfx_shadow_blade"
-    },
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 60
+      },
+      {
+        "op": "execute_threshold",
+        "value": 0.25
+      },
+      {
+        "op": "crit_damage_bonus",
+        "value": 0.3
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "chance": 0.25,
+        "mp_cost": 0,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "debuff_mark_death",
+            "duration": 6
+          },
+          {
+            "op": "damage_if_marked",
+            "value": 200,
+            "damage_type": "external",
+            "mark_id": "debuff_mark_death",
+            "bonus_multiplier": 1.5
+          }
+        ],
+        "vfx_id": "vfx_shadow_blade"
+      }
+    ],
     "linkage_tags": []
   },
   {
@@ -100,22 +195,44 @@
     "faction": "emei",
     "element": "water",
     "quality": "orange",
-    "tags": ["heal", "cleanse"],
-    "passive_effects": [
-      {"op": "stat_percent", "stat": "hp", "value": 0.20},
-      {"op": "healing_amp", "value": 0.30}
+    "tags": [
+      "heal",
+      "cleanse"
     ],
-    "skill": {
-      "trigger": "periodic",
-      "interval": 5.0,
-      "mp_cost": 30,
-      "effects": [
-        {"op": "heal_lowest_ally", "value": 200},
-        {"op": "cleanse_ally"},
-        {"op": "shield_allies_aoe", "value": 150, "duration": 4.0, "radius": 3}
-      ],
-      "vfx_id": "vfx_holy_light"
-    },
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "hp",
+        "value": 0.2
+      },
+      {
+        "op": "healing_amp",
+        "value": 0.3
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic",
+        "interval": 5,
+        "mp_cost": 30,
+        "effects": [
+          {
+            "op": "heal_lowest_ally",
+            "value": 200
+          },
+          {
+            "op": "cleanse_ally"
+          },
+          {
+            "op": "shield_allies_aoe",
+            "value": 150,
+            "duration": 4,
+            "radius": 3
+          }
+        ],
+        "vfx_id": "vfx_holy_light"
+      }
+    ],
     "linkage_tags": []
   },
   {
@@ -125,23 +242,44 @@
     "faction": "wudang",
     "element": "earth",
     "quality": "purple",
-    "tags": ["defense", "regen"],
-    "passive_effects": [
-      {"op": "hp_regen", "value": 15},
-      {"op": "damage_reduce_percent", "value": 0.10},
-      {"op": "tenacity", "value": 0.25}
+    "tags": [
+      "defense",
+      "regen"
     ],
-    "skill": {
-      "trigger": "on_hp_below",
-      "threshold": 0.30,
-      "cooldown": 15.0,
-      "mp_cost": 0,
-      "effects": [
-        {"op": "buff_self", "buff_id": "buff_iron_skin", "duration": 5.0},
-        {"op": "heal_self_percent", "value": 0.20}
-      ],
-      "vfx_id": "vfx_turtle_shell"
-    },
+    "passive_effects": [
+      {
+        "op": "hp_regen_add",
+        "value": 15
+      },
+      {
+        "op": "damage_reduce_percent",
+        "value": 0.1
+      },
+      {
+        "op": "tenacity",
+        "value": 0.25
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_hp_below",
+        "threshold": 0.3,
+        "cooldown": 15,
+        "mp_cost": 0,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_iron_skin",
+            "duration": 5
+          },
+          {
+            "op": "heal_self_percent",
+            "value": 0.2
+          }
+        ],
+        "vfx_id": "vfx_turtle_shell"
+      }
+    ],
     "linkage_tags": []
   },
   {
@@ -151,18 +289,39 @@
     "faction": "xingxiu",
     "element": "wood",
     "quality": "purple",
-    "tags": ["poison", "aoe", "control"],
+    "tags": [
+      "poison",
+      "aoe",
+      "control"
+    ],
     "passive_effects": [],
-    "skill": {
-      "trigger": "auto_mp_full",
-      "mp_cost": 60,
-      "effects": [
-        {"op": "debuff_aoe", "buff_id": "debuff_slow", "radius": 4, "duration": 4.0},
-        {"op": "debuff_aoe", "buff_id": "debuff_armor_break", "radius": 4, "duration": 5.0},
-        {"op": "create_terrain", "terrain_type": "poison", "radius": 4, "duration": 8.0}
-      ],
-      "vfx_id": "vfx_miasma"
-    },
+    "skills": [
+      {
+        "trigger": "auto_mp_full",
+        "mp_cost": 60,
+        "effects": [
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_slow",
+            "radius": 4,
+            "duration": 4
+          },
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_armor_break",
+            "radius": 4,
+            "duration": 5
+          },
+          {
+            "op": "create_terrain",
+            "terrain_type": "poison",
+            "radius": 4,
+            "duration": 8
+          }
+        ],
+        "vfx_id": "vfx_miasma"
+      }
+    ],
     "linkage_tags": []
   },
   {
@@ -172,20 +331,44 @@
     "faction": "gaibang",
     "element": "metal",
     "quality": "purple",
-    "tags": ["palm", "knockback", "aoe"],
-    "passive_effects": [
-      {"op": "stat_add", "stat": "atk", "value": 50}
+    "tags": [
+      "palm",
+      "knockback",
+      "aoe"
     ],
-    "skill": {
-      "trigger": "auto_mp_full",
-      "mp_cost": 55,
-      "effects": [
-        {"op": "damage_aoe", "radius": 2, "value": 130, "damage_type": "external"},
-        {"op": "knockback_aoe", "radius": 2, "distance": 3},
-        {"op": "debuff_aoe", "buff_id": "debuff_exhaust", "radius": 2, "duration": 4.0}
-      ],
-      "vfx_id": "vfx_thunder_palm"
-    },
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 50
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "auto_mp_full",
+        "mp_cost": 55,
+        "effects": [
+          {
+            "op": "damage_aoe",
+            "radius": 2,
+            "value": 130,
+            "damage_type": "external"
+          },
+          {
+            "op": "knockback_aoe",
+            "radius": 2,
+            "distance": 3
+          },
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_exhaust",
+            "radius": 2,
+            "duration": 4
+          }
+        ],
+        "vfx_id": "vfx_thunder_palm"
+      }
+    ],
     "linkage_tags": []
   },
   {
@@ -195,21 +378,48 @@
     "faction": "mingjiao",
     "element": "water",
     "quality": "orange",
-    "tags": ["palm", "ice", "debuff_synergy"],
-    "passive_effects": [
-      {"op": "stat_add", "stat": "iat", "value": 70},
-      {"op": "damage_amp_vs_debuffed", "value": 0.50, "require_debuff": "debuff_freeze"}
+    "tags": [
+      "palm",
+      "ice",
+      "debuff_synergy"
     ],
-    "skill": {
-      "trigger": "auto_mp_full",
-      "mp_cost": 70,
-      "effects": [
-        {"op": "damage_target_scaling", "value": 0, "damage_type": "internal", "scale_stat": "max_hp", "scale_ratio": 0.08},
-        {"op": "freeze_target", "duration": 2.0},
-        {"op": "debuff_target", "buff_id": "debuff_vulnerable", "duration": 5.0}
-      ],
-      "vfx_id": "vfx_ice_palm"
-    },
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 70
+      },
+      {
+        "op": "damage_amp_vs_debuffed",
+        "value": 0.5,
+        "require_debuff": "debuff_freeze"
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "auto_mp_full",
+        "mp_cost": 70,
+        "effects": [
+          {
+            "op": "damage_target_scaling",
+            "value": 0,
+            "damage_type": "internal",
+            "scale_stat": "max_hp",
+            "scale_ratio": 0.08
+          },
+          {
+            "op": "freeze_target",
+            "duration": 2
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_vulnerable",
+            "duration": 5
+          }
+        ],
+        "vfx_id": "vfx_ice_palm"
+      }
+    ],
     "linkage_tags": []
   }
 ]

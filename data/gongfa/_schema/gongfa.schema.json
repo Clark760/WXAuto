@@ -10,7 +10,7 @@
     "element",
     "quality",
     "passive_effects",
-    "skill",
+    "skills",
     "linkage_tags"
   ],
   "properties": {
@@ -75,22 +75,25 @@
         ]
       }
     },
-    "skill": {
-      "type": "object",
-      "required": [
-        "trigger",
-        "effects"
-      ],
-      "properties": {
-        "trigger": {
-          "type": "string"
-        },
-        "effects": {
-          "type": "array"
-        },
-        "range": {
-          "type": "number",
-          "minimum": 0
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "trigger",
+          "effects"
+        ],
+        "properties": {
+          "trigger": {
+            "type": "string"
+          },
+          "effects": {
+            "type": "array"
+          },
+          "range": {
+            "type": "number",
+            "minimum": 0
+          }
         }
       }
     },

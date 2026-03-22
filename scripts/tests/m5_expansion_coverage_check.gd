@@ -3,7 +3,7 @@ extends SceneTree
 const ROOT := "res://"
 
 const EXPECTED_PASSIVE_OPS: Array[String] = [
-	"hp_regen",
+	"hp_regen_add",
 	"vampire",
 	"damage_amp_percent",
 	"damage_amp_vs_debuffed",

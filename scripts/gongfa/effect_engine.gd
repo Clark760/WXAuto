@@ -103,8 +103,8 @@ func _apply_passive_op(runtime_stats: Dictionary, modifier_bundle: Dictionary, e
 		"mp_regen_add":
 			_add_modifier(modifier_bundle, "mp_regen_add", float(effect.get("value", 0.0)) * stack_multiplier)
 
-		# 兼容旧数据：hp_regen / hp_regen_add 都归一到每秒生命回复外部修正。
-		"hp_regen", "hp_regen_add":
+		# 每秒生命回复外部修正（仅支持 hp_regen_add）。
+		"hp_regen_add":
 			_add_modifier(modifier_bundle, "hp_regen_add", float(effect.get("value", 0.0)) * stack_multiplier)
 
 		"damage_reduce_flat":
@@ -174,14 +174,6 @@ func _apply_passive_op(runtime_stats: Dictionary, modifier_bundle: Dictionary, e
 				"threshold": float(effect.get("threshold", 0.0))
 			})
 			modifier_bundle["conditional_stats"] = conditional_entries
-
-		# 兼容旧版被动写法：直接用属性名作为 op（如 atk、iat、hp）。
-		# 语义规则：
-		# 1) mode=add/percent 可显式指定。
-		# 2) mode=auto（默认）时，|value|<=1 且属于常见百分比属性，则按百分比处理；
-		#    否则按平加处理。这样可同时兼容「iat=0.3」和「iat=150」两类老数据。
-		"hp", "mp", "atk", "def", "iat", "idr", "spd", "wis", "rng", "mov":
-			_apply_legacy_stat_alias(runtime_stats, effect, op, stack_multiplier)
 
 		_:
 			push_warning("EffectEngine: 未实现的被动 op=%s" % op)
@@ -737,10 +729,6 @@ func _apply_shield_self_op(source: Node, effect: Dictionary, context: Dictionary
 		return
 	if combat.has_method("add_shield"):
 		combat.call("add_shield", shield_value)
-	else:
-		# 旧战斗组件兜底：仍兼容 stage_shield_hp 元数据。
-		var old_shield: float = float(source.get_meta("stage_shield_hp", 0.0))
-		source.set_meta("stage_shield_hp", maxf(old_shield + shield_value, 0.0))
 
 	var buff_manager: Variant = context.get("buff_manager", null)
 	var shield_buff_id: String = str(effect.get("shield_buff_id", effect.get("buff_id", "boss_shield"))).strip_edges()
@@ -927,42 +915,6 @@ func _hex_distance_by_cell(a: Vector2i, b: Vector2i, hex_grid: Node) -> int:
 
 func _add_modifier(modifier_bundle: Dictionary, key: String, value: float) -> void:
 	modifier_bundle[key] = float(modifier_bundle.get(key, 0.0)) + value
-
-
-func _apply_legacy_stat_alias(
-	runtime_stats: Dictionary,
-	effect: Dictionary,
-	default_stat_key: String,
-	stack_multiplier: float
-) -> void:
-	var stat_key: String = str(effect.get("stat", default_stat_key)).strip_edges()
-	if stat_key.is_empty():
-		stat_key = default_stat_key
-
-	var value: float = float(effect.get("value", 0.0)) * stack_multiplier
-	var mode: String = str(effect.get("mode", "auto")).strip_edges().to_lower()
-	var use_percent: bool = false
-	match mode:
-		"percent":
-			use_percent = true
-		"add":
-			use_percent = false
-		_:
-			use_percent = absf(value) <= 1.0 and _is_legacy_ratio_friendly_stat(stat_key)
-
-	if use_percent:
-		runtime_stats[stat_key] = float(runtime_stats.get(stat_key, 0.0)) * (1.0 + value)
-		return
-
-	runtime_stats[stat_key] = float(runtime_stats.get(stat_key, 0.0)) + value
-
-
-func _is_legacy_ratio_friendly_stat(stat_key: String) -> bool:
-	match stat_key:
-		"hp", "mp", "atk", "def", "iat", "idr", "spd", "wis", "mov":
-			return true
-		_:
-			return false
 
 
 func _append_damage_event(

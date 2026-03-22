@@ -41,7 +41,7 @@ var skill_mp_cost: float = 60.0
 var mp_gain_on_attack: float = 15.0
 var mp_gain_on_hit: float = 10.0
 var passive_mp_regen: float = 2.0
-# 生命自然回复（基础值）。旧被动兼容值走 external_modifiers["hp_regen_add"]。
+# 生命自然回复（基础值），外部修正统一走 external_modifiers["hp_regen_add"]。
 var passive_hp_regen: float = 0.0
 
 # 外部修正层（功法/Buff/地形汇总）：
@@ -237,7 +237,7 @@ func receive_damage(
 			"immune_absorbed": 0.0
 		}
 
-	# M5：护盾优先吸收伤害，保留旧 stage_shield_hp 元数据兼容。
+	# M5：护盾优先吸收伤害。
 	var total_shield_before: float = get_current_shield()
 	var shield_absorbed: float = 0.0
 	var shield_broken: bool = false
@@ -343,8 +343,7 @@ func clear_shield() -> void:
 
 
 func get_current_shield() -> float:
-	var legacy_meta: float = _get_stage_meta_float("stage_shield_hp", 0.0)
-	return maxf(maxf(shield_hp, legacy_meta), 0.0)
+	return maxf(shield_hp, 0.0)
 
 
 func get_attack_range_world(hex_size: float = 26.0) -> float:
@@ -679,6 +678,3 @@ func _set_shield_value(value: float) -> void:
 	max_shield_hp = maxf(max_shield_hp, next_value)
 	if next_value <= 0.0:
 		max_shield_hp = 0.0
-	if owner_unit != null and is_instance_valid(owner_unit):
-		# 保留旧字段兼容，避免仍在读取 meta 的老逻辑失效。
-		owner_unit.set_meta("stage_shield_hp", next_value)

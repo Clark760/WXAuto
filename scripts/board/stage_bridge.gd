@@ -1,9 +1,11 @@
 extends Node
 
-# M5 ?????????
-# ???????????????????????????? battlefield.gd ??????
+# M5 关卡桥接器
+# 负责根据关卡配置生成敌方波次，把关卡数据转换为 battlefield 的部署调用。
 
 
+# 根据当前关卡配置批量生成敌人并部署到棋盘。
+# 返回：成功进入解析流程即为 true；缺少上下文或配置为空时返回 false。
 func spawn_enemies_from_stage_config(ctx: Node) -> bool:
 	if ctx == null:
 		return false
@@ -43,6 +45,7 @@ func spawn_enemies_from_stage_config(ctx: Node) -> bool:
 	return true
 
 
+# 判断关卡是否为非战斗类型（休整/事件）。
 func is_non_combat_stage(config: Dictionary) -> bool:
 	if config.is_empty():
 		return false

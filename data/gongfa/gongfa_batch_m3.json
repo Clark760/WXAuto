@@ -25,27 +25,29 @@
       },
       {
         "op": "mp_regen_add",
-        "value": 5.0
+        "value": 5
       }
     ],
-    "skill": {
-      "trigger": "auto_mp_full",
-      "mp_cost": 60,
-      "cooldown": 6.0,
-      "effects": [
-        {
-          "op": "heal_self_percent",
-          "value": 0.25
-        },
-        {
-          "op": "buff_self",
-          "buff_id": "jiuyang_shield",
-          "duration": 5.0
-        }
-      ],
-      "vfx_id": "vfx_golden_aura",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "auto_mp_full",
+        "mp_cost": 60,
+        "cooldown": 6,
+        "effects": [
+          {
+            "op": "heal_self_percent",
+            "value": 0.25
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "jiuyang_shield",
+            "duration": 5
+          }
+        ],
+        "vfx_id": "vfx_golden_aura",
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "jiuyang",
       "yang_gong",
@@ -75,26 +77,28 @@
         "value": 0.1
       }
     ],
-    "skill": {
-      "trigger": "auto_mp_full",
-      "mp_cost": 50,
-      "cooldown": 7.0,
-      "effects": [
-        {
-          "op": "damage_aoe",
-          "radius": 3,
-          "value": 120,
-          "damage_type": "internal"
-        },
-        {
-          "op": "spawn_vfx",
-          "vfx_id": "vfx_purple_wave",
-          "at": "self"
-        }
-      ],
-      "vfx_id": "vfx_purple_glow",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "auto_mp_full",
+        "mp_cost": 50,
+        "cooldown": 7,
+        "effects": [
+          {
+            "op": "damage_aoe",
+            "radius": 3,
+            "value": 120,
+            "damage_type": "internal"
+          },
+          {
+            "op": "spawn_vfx",
+            "vfx_id": "vfx_purple_wave",
+            "at": "self"
+          }
+        ],
+        "vfx_id": "vfx_purple_glow",
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "zixia",
       "yang_gong",
@@ -120,26 +124,28 @@
         "value": 60
       }
     ],
-    "skill": {
-      "trigger": "auto_mp_full",
-      "mp_cost": 70,
-      "cooldown": 8.0,
-      "effects": [
-        {
-          "op": "damage_aoe",
-          "radius": 2,
-          "value": 200,
-          "damage_type": "external"
-        },
-        {
-          "op": "spawn_vfx",
-          "vfx_id": "vfx_dragon_palm",
-          "at": "target"
-        }
-      ],
-      "vfx_id": "vfx_golden_dragon",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "auto_mp_full",
+        "mp_cost": 70,
+        "cooldown": 8,
+        "effects": [
+          {
+            "op": "damage_aoe",
+            "radius": 2,
+            "value": 200,
+            "damage_type": "external"
+          },
+          {
+            "op": "spawn_vfx",
+            "vfx_id": "vfx_dragon_palm",
+            "at": "target"
+          }
+        ],
+        "vfx_id": "vfx_golden_dragon",
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "xianglong",
       "palm_art",
@@ -168,27 +174,29 @@
         "value": 0.15
       }
     ],
-    "skill": {
-      "trigger": "on_attacked",
-      "chance": 0.3,
-      "mp_cost": 0,
-      "cooldown": 4.0,
-      "effects": [
-        {
-          "op": "damage_target",
-          "value": 180,
-          "damage_type": "external",
-          "multiplier": 1.5
-        },
-        {
-          "op": "spawn_vfx",
-          "vfx_id": "vfx_sword_flash",
-          "at": "target"
-        }
-      ],
-      "vfx_id": "vfx_counter_stance",
-      "range": 2.0
-    },
+    "skills": [
+      {
+        "trigger": "on_attacked",
+        "chance": 0.3,
+        "mp_cost": 0,
+        "cooldown": 4,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 180,
+            "damage_type": "external",
+            "multiplier": 1.5
+          },
+          {
+            "op": "spawn_vfx",
+            "vfx_id": "vfx_sword_flash",
+            "at": "target"
+          }
+        ],
+        "vfx_id": "vfx_counter_stance",
+        "range": 2
+      }
+    ],
     "linkage_tags": [
       "dugu",
       "sword_art"
@@ -217,26 +225,28 @@
         "value": 0.2
       }
     ],
-    "skill": {
-      "trigger": "on_attacked",
-      "chance": 0.25,
-      "mp_cost": 20,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "buff_self",
-          "buff_id": "lingbo_evasion",
-          "duration": 2.0
-        },
-        {
-          "op": "spawn_vfx",
-          "vfx_id": "vfx_water_ripple",
-          "at": "self"
-        }
-      ],
-      "vfx_id": "vfx_water_ripple",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "on_attacked",
+        "chance": 0.25,
+        "mp_cost": 20,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "lingbo_evasion",
+            "duration": 2
+          },
+          {
+            "op": "spawn_vfx",
+            "vfx_id": "vfx_water_ripple",
+            "at": "self"
+          }
+        ],
+        "vfx_id": "vfx_water_ripple",
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "lingbo",
       "xiaoyao_qinggong"
@@ -255,21 +265,23 @@
       "defense"
     ],
     "passive_effects": [],
-    "skill": {
-      "trigger": "passive_aura",
-      "mp_cost": 0,
-      "cooldown": 1.5,
-      "effects": [
-        {
-          "op": "buff_allies_aoe",
-          "buff_id": "tiangang_ward",
-          "radius": 4,
-          "duration": 1.8
-        }
-      ],
-      "vfx_id": "vfx_star_circle",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "passive_aura",
+        "mp_cost": 0,
+        "cooldown": 1.5,
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "buff_id": "tiangang_ward",
+            "radius": 4,
+            "duration": 1.8
+          }
+        ],
+        "vfx_id": "vfx_star_circle",
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "tiangang",
       "wudang_zhenfa",
@@ -294,26 +306,28 @@
         "value": 0.15
       }
     ],
-    "skill": {
-      "trigger": "on_attacked",
-      "chance": 0.2,
-      "mp_cost": 40,
-      "cooldown": 6.0,
-      "effects": [
-        {
-          "op": "buff_self",
-          "buff_id": "qiankun_redirect",
-          "duration": 2.5
-        },
-        {
-          "op": "spawn_vfx",
-          "vfx_id": "vfx_redirect_swirl",
-          "at": "self"
-        }
-      ],
-      "vfx_id": "vfx_yin_yang_sphere",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "on_attacked",
+        "chance": 0.2,
+        "mp_cost": 40,
+        "cooldown": 6,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "qiankun_redirect",
+            "duration": 2.5
+          },
+          {
+            "op": "spawn_vfx",
+            "vfx_id": "vfx_redirect_swirl",
+            "at": "self"
+          }
+        ],
+        "vfx_id": "vfx_yin_yang_sphere",
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "qiankun",
       "mingjiao_qishu"
@@ -332,25 +346,27 @@
       "debuff"
     ],
     "passive_effects": [],
-    "skill": {
-      "trigger": "on_attack_hit",
-      "chance": 0.3,
-      "mp_cost": 30,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "debuff_target",
-          "buff_id": "huagong_drain",
-          "duration": 4.0
-        },
-        {
-          "op": "heal_self",
-          "value": 50
-        }
-      ],
-      "vfx_id": "vfx_dark_mist",
-      "range": 4.5
-    },
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "chance": 0.3,
+        "mp_cost": 30,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "debuff_target",
+            "buff_id": "huagong_drain",
+            "duration": 4
+          },
+          {
+            "op": "heal_self",
+            "value": 50
+          }
+        ],
+        "vfx_id": "vfx_dark_mist",
+        "range": 4.5
+      }
+    ],
     "linkage_tags": [
       "huagong",
       "drain_art",
@@ -382,28 +398,30 @@
       },
       {
         "op": "mp_regen_add",
-        "value": 2.0
+        "value": 2
       }
     ],
-    "skill": {
-      "trigger": "auto_hp_below",
-      "threshold": 0.35,
-      "mp_cost": 40,
-      "cooldown": 8.0,
-      "effects": [
-        {
-          "op": "heal_self_percent",
-          "value": 0.18
-        },
-        {
-          "op": "buff_self",
-          "buff_id": "taiji_guard",
-          "duration": 4.0
-        }
-      ],
-      "vfx_id": "vfx_taiji_ring",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "auto_hp_below",
+        "threshold": 0.35,
+        "mp_cost": 40,
+        "cooldown": 8,
+        "effects": [
+          {
+            "op": "heal_self_percent",
+            "value": 0.18
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "taiji_guard",
+            "duration": 4
+          }
+        ],
+        "vfx_id": "vfx_taiji_ring",
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "taiji",
       "wudang_neigong",
@@ -433,27 +451,29 @@
         "value": 0.12
       }
     ],
-    "skill": {
-      "trigger": "on_attack_hit",
-      "chance": 0.25,
-      "mp_cost": 20,
-      "cooldown": 3.5,
-      "effects": [
-        {
-          "op": "damage_target",
-          "value": 95,
-          "damage_type": "external",
-          "multiplier": 1.2
-        },
-        {
-          "op": "spawn_vfx",
-          "vfx_id": "vfx_sword_qi",
-          "at": "target"
-        }
-      ],
-      "vfx_id": "vfx_sword_qi",
-      "range": 2.0
-    },
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "chance": 0.25,
+        "mp_cost": 20,
+        "cooldown": 3.5,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 95,
+            "damage_type": "external",
+            "multiplier": 1.2
+          },
+          {
+            "op": "spawn_vfx",
+            "vfx_id": "vfx_sword_qi",
+            "at": "target"
+          }
+        ],
+        "vfx_id": "vfx_sword_qi",
+        "range": 2
+      }
+    ],
     "linkage_tags": [
       "quanzhen_sword",
       "sword_art",
@@ -484,20 +504,22 @@
         "value": 50
       }
     ],
-    "skill": {
-      "trigger": "auto_hp_below",
-      "mp_cost": 0,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "heal_self_percent",
-          "value": 0.3
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "threshold": 0.3,
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "auto_hp_below",
+        "mp_cost": 0,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "heal_self_percent",
+            "value": 0.3
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "threshold": 0.3,
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "易筋经",
       "shaolin_neigong"
@@ -526,22 +548,24 @@
         "value": 0.15
       }
     ],
-    "skill": {
-      "trigger": "on_attack_hit",
-      "mp_cost": 0,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "damage_target",
-          "value": 150,
-          "damage_type": "external",
-          "multiplier": 1.5
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "chance": 0.25,
-      "range": 1.5
-    },
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "mp_cost": 0,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 150,
+            "damage_type": "external",
+            "multiplier": 1.5
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "chance": 0.25,
+        "range": 1.5
+      }
+    ],
     "linkage_tags": [
       "少林七十二绝技",
       "shaolin_waigong"
@@ -571,20 +595,22 @@
         "value": 0.1
       }
     ],
-    "skill": {
-      "trigger": "auto_mp_full",
-      "mp_cost": 50,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "buff_self",
-          "buff_id": "buff_wudang",
-          "duration": 5.0
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "auto_mp_full",
+        "mp_cost": 50,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_wudang",
+            "duration": 5
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "纯阳无极功",
       "wudang_neigong"
@@ -608,21 +634,23 @@
         "value": 0.1
       }
     ],
-    "skill": {
-      "trigger": "passive_aura",
-      "mp_cost": 0,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "buff_allies_aoe",
-          "buff_id": "buff_wudang",
-          "radius": 4,
-          "duration": 2.0
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "passive_aura",
+        "mp_cost": 0,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "buff_id": "buff_wudang",
+            "radius": 4,
+            "duration": 2
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "真武七截阵",
       "wudang_zhenfa"
@@ -652,20 +680,22 @@
         "value": 0.15
       }
     ],
-    "skill": {
-      "trigger": "auto_mp_full",
-      "mp_cost": 60,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "buff_self",
-          "buff_id": "buff_jiuyin",
-          "duration": 5.0
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "auto_mp_full",
+        "mp_cost": 60,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_jiuyin",
+            "duration": 5
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "九阴真经",
       "none_neigong"
@@ -690,21 +720,23 @@
         "value": 0.25
       }
     ],
-    "skill": {
-      "trigger": "on_attacked",
-      "mp_cost": 0,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "debuff_target",
-          "buff_id": "debuff_yufeng",
-          "duration": 4.0
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "chance": 0.25,
-      "range": 2.0
-    },
+    "skills": [
+      {
+        "trigger": "on_attacked",
+        "mp_cost": 0,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_yufeng",
+            "duration": 4
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "chance": 0.25,
+        "range": 2
+      }
+    ],
     "linkage_tags": [
       "蛤蟆功",
       "none_qishu"
@@ -734,22 +766,24 @@
         "value": 0.1
       }
     ],
-    "skill": {
-      "trigger": "auto_hp_below",
-      "mp_cost": 0,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "damage_aoe",
-          "radius": 3,
-          "value": 200,
-          "damage_type": "internal"
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "threshold": 0.3,
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "auto_hp_below",
+        "mp_cost": 0,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "damage_aoe",
+            "radius": 3,
+            "value": 200,
+            "damage_type": "internal"
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "threshold": 0.3,
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "黯然销魂掌",
       "gumu_waigong"
@@ -779,20 +813,22 @@
         "value": 0.1
       }
     ],
-    "skill": {
-      "trigger": "auto_mp_full",
-      "mp_cost": 40,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "buff_self",
-          "buff_id": "buff_gudumu",
-          "duration": 5.0
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "auto_mp_full",
+        "mp_cost": 40,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_gudumu",
+            "duration": 5
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "玉女心经",
       "gumu_neigong"
@@ -817,22 +853,24 @@
         "value": 0.2
       }
     ],
-    "skill": {
-      "trigger": "on_attack_hit",
-      "mp_cost": 0,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "damage_target",
-          "value": 120,
-          "damage_type": "external",
-          "multiplier": 1.2
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "chance": 0.25,
-      "range": 2.0
-    },
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "mp_cost": 0,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 120,
+            "damage_type": "external",
+            "multiplier": 1.2
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "chance": 0.25,
+        "range": 2
+      }
+    ],
     "linkage_tags": [
       "玉女素心剑法",
       "gumu_waigong"
@@ -862,21 +900,23 @@
         "value": 0.3
       }
     ],
-    "skill": {
-      "trigger": "on_attacked",
-      "mp_cost": 0,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "buff_self",
-          "buff_id": "buff_dugu",
-          "duration": 5.0
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "chance": 0.25,
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "on_attacked",
+        "mp_cost": 0,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_dugu",
+            "duration": 5
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "chance": 0.25,
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "独孤九剑",
       "huashan_waigong"
@@ -901,20 +941,22 @@
         "value": 0.25
       }
     ],
-    "skill": {
-      "trigger": "auto_mp_full",
-      "mp_cost": 50,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "buff_self",
-          "buff_id": "buff_huashan",
-          "duration": 5.0
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "auto_mp_full",
+        "mp_cost": 50,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_huashan",
+            "duration": 5
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "紫霞神功",
       "huashan_neigong"
@@ -938,22 +980,24 @@
         "value": 40
       }
     ],
-    "skill": {
-      "trigger": "on_attack_hit",
-      "mp_cost": 0,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "damage_target",
-          "value": 110,
-          "damage_type": "external",
-          "multiplier": 1.1
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "chance": 0.25,
-      "range": 2.0
-    },
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "mp_cost": 0,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 110,
+            "damage_type": "external",
+            "multiplier": 1.1
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "chance": 0.25,
+        "range": 2
+      }
+    ],
     "linkage_tags": [
       "华山剑法",
       "huashan_waigong"
@@ -983,20 +1027,22 @@
         "value": 0.4
       }
     ],
-    "skill": {
-      "trigger": "auto_mp_full",
-      "mp_cost": 30,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "buff_self",
-          "buff_id": "buff_bixie",
-          "duration": 5.0
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "auto_mp_full",
+        "mp_cost": 30,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_bixie",
+            "duration": 5
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "辟邪剑法",
       "none_waigong"
@@ -1026,21 +1072,23 @@
         "value": 0.4
       }
     ],
-    "skill": {
-      "trigger": "auto_mp_full",
-      "mp_cost": 40,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "damage_aoe",
-          "radius": 3,
-          "value": 150,
-          "damage_type": "internal"
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "auto_mp_full",
+        "mp_cost": 40,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "damage_aoe",
+            "radius": 3,
+            "value": 150,
+            "damage_type": "internal"
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "葵花宝典",
       "none_neigong"
@@ -1064,20 +1112,22 @@
         "value": 0.2
       }
     ],
-    "skill": {
-      "trigger": "on_attack_hit",
-      "mp_cost": 0,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "heal_self_percent",
-          "value": 0.1
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "chance": 0.25,
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "mp_cost": 0,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "heal_self_percent",
+            "value": 0.1
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "chance": 0.25,
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "吸星大法",
       "none_qishu"
@@ -1102,20 +1152,22 @@
         "value": 200
       }
     ],
-    "skill": {
-      "trigger": "auto_mp_full",
-      "mp_cost": 80,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "buff_self",
-          "buff_id": "buff_beiming",
-          "duration": 5.0
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "auto_mp_full",
+        "mp_cost": 80,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_beiming",
+            "duration": 5
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "北冥神功",
       "xiaoyao_neigong"
@@ -1140,21 +1192,23 @@
         "value": 0.4
       }
     ],
-    "skill": {
-      "trigger": "auto_hp_below",
-      "mp_cost": 0,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "buff_self",
-          "buff_id": "buff_shenzhao",
-          "duration": 5.0
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "threshold": 0.3,
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "auto_hp_below",
+        "mp_cost": 0,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_shenzhao",
+            "duration": 5
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "threshold": 0.3,
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "八荒六合",
       "xiaoyao_neigong"
@@ -1184,22 +1238,24 @@
         "value": 0.15
       }
     ],
-    "skill": {
-      "trigger": "on_attacked",
-      "mp_cost": 0,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "damage_target",
-          "value": 130,
-          "damage_type": "external",
-          "multiplier": 1.3
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "chance": 0.25,
-      "range": 2.0
-    },
+    "skills": [
+      {
+        "trigger": "on_attacked",
+        "mp_cost": 0,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 130,
+            "damage_type": "external",
+            "multiplier": 1.3
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "chance": 0.25,
+        "range": 2
+      }
+    ],
     "linkage_tags": [
       "天山折梅手",
       "xiaoyao_waigong"
@@ -1229,21 +1285,23 @@
         "value": 0.1
       }
     ],
-    "skill": {
-      "trigger": "auto_mp_full",
-      "mp_cost": 50,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "damage_aoe",
-          "radius": 3,
-          "value": 150,
-          "damage_type": "internal"
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "auto_mp_full",
+        "mp_cost": 50,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "damage_aoe",
+            "radius": 3,
+            "value": 150,
+            "damage_type": "internal"
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "天山六阳掌",
       "xiaoyao_waigong"
@@ -1268,21 +1326,23 @@
         "value": 0.2
       }
     ],
-    "skill": {
-      "trigger": "on_attack_hit",
-      "mp_cost": 0,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "debuff_target",
-          "buff_id": "debuff_bingcan",
-          "duration": 4.0
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "chance": 0.25,
-      "range": 5.0
-    },
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "mp_cost": 0,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_bingcan",
+            "duration": 4
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "chance": 0.25,
+        "range": 5
+      }
+    ],
     "linkage_tags": [
       "生死符",
       "xiaoyao_qishu"
@@ -1312,20 +1372,22 @@
         "value": 0.3
       }
     ],
-    "skill": {
-      "trigger": "auto_mp_full",
-      "mp_cost": 60,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "debuff_target",
-          "buff_id": "debuff_liumai",
-          "duration": 4.0
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "range": 5.0
-    },
+    "skills": [
+      {
+        "trigger": "auto_mp_full",
+        "mp_cost": 60,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_liumai",
+            "duration": 4
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "range": 5
+      }
+    ],
     "linkage_tags": [
       "六脉神剑",
       "none_waigong"
@@ -1350,20 +1412,22 @@
         "value": 120
       }
     ],
-    "skill": {
-      "trigger": "auto_mp_full",
-      "mp_cost": 40,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "debuff_target",
-          "buff_id": "debuff_yiyang",
-          "duration": 4.0
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "range": 5.0
-    },
+    "skills": [
+      {
+        "trigger": "auto_mp_full",
+        "mp_cost": 40,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_yiyang",
+            "duration": 4
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "range": 5
+      }
+    ],
     "linkage_tags": [
       "一阳指",
       "none_qishu"
@@ -1387,22 +1451,24 @@
         "value": 0.2
       }
     ],
-    "skill": {
-      "trigger": "on_attacked",
-      "mp_cost": 0,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "damage_target",
-          "value": 100,
-          "damage_type": "external",
-          "multiplier": 1.0
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "chance": 0.25,
-      "range": 2.0
-    },
+    "skills": [
+      {
+        "trigger": "on_attacked",
+        "mp_cost": 0,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 100,
+            "damage_type": "external",
+            "multiplier": 1
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "chance": 0.25,
+        "range": 2
+      }
+    ],
     "linkage_tags": [
       "斗转星移",
       "none_qishu"
@@ -1427,21 +1493,23 @@
         "value": 0.3
       }
     ],
-    "skill": {
-      "trigger": "on_attacked",
-      "mp_cost": 0,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "buff_self",
-          "buff_id": "buff_qiankun",
-          "duration": 5.0
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "chance": 0.25,
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "on_attacked",
+        "mp_cost": 0,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_qiankun",
+            "duration": 5
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "chance": 0.25,
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "乾坤大挪移",
       "mingjiao_qishu"
@@ -1471,20 +1539,22 @@
         "value": 0.2
       }
     ],
-    "skill": {
-      "trigger": "auto_mp_full",
-      "mp_cost": 50,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "buff_self",
-          "buff_id": "buff_mingjiao",
-          "duration": 5.0
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "auto_mp_full",
+        "mp_cost": 50,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_mingjiao",
+            "duration": 5
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "圣火令神功",
       "mingjiao_waigong"
@@ -1514,21 +1584,23 @@
         "value": 0.2
       }
     ],
-    "skill": {
-      "trigger": "on_attack_hit",
-      "mp_cost": 0,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "buff_self",
-          "buff_id": "buff_dagou",
-          "duration": 5.0
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "chance": 0.25,
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "mp_cost": 0,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_dagou",
+            "duration": 5
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "chance": 0.25,
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "打狗棒法",
       "gaibang_waigong"
@@ -1557,21 +1629,23 @@
         "value": 0.1
       }
     ],
-    "skill": {
-      "trigger": "on_attacked",
-      "mp_cost": 0,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "buff_self",
-          "buff_id": "buff_lingbo",
-          "duration": 5.0
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "chance": 0.25,
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "on_attacked",
+        "mp_cost": 0,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_lingbo",
+            "duration": 5
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "chance": 0.25,
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "逍遥游",
       "gaibang_qinggong"
@@ -1595,21 +1669,23 @@
         "value": 0.25
       }
     ],
-    "skill": {
-      "trigger": "auto_hp_below",
-      "mp_cost": 0,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "buff_self",
-          "buff_id": "buff_lingbo",
-          "duration": 5.0
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "threshold": 0.3,
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "auto_hp_below",
+        "mp_cost": 0,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_lingbo",
+            "duration": 5
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "threshold": 0.3,
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "神行百变",
       "none_qinggong"
@@ -1638,21 +1714,23 @@
         "value": 0.1
       }
     ],
-    "skill": {
-      "trigger": "on_attacked",
-      "mp_cost": 0,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "buff_self",
-          "buff_id": "buff_taiji",
-          "duration": 5.0
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "chance": 0.25,
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "on_attacked",
+        "mp_cost": 0,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_taiji",
+            "duration": 5
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "chance": 0.25,
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "梯云纵",
       "wudang_qinggong"
@@ -1681,21 +1759,23 @@
         "value": 0.1
       }
     ],
-    "skill": {
-      "trigger": "auto_hp_below",
-      "mp_cost": 0,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "buff_self",
-          "buff_id": "buff_shaolin",
-          "duration": 5.0
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "threshold": 0.3,
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "auto_hp_below",
+        "mp_cost": 0,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_shaolin",
+            "duration": 5
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "threshold": 0.3,
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "一苇渡江",
       "shaolin_qinggong"
@@ -1720,21 +1800,23 @@
         "value": 0.1
       }
     ],
-    "skill": {
-      "trigger": "passive_aura",
-      "mp_cost": 0,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "buff_allies_aoe",
-          "buff_id": "buff_shaolin",
-          "radius": 4,
-          "duration": 2.0
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "passive_aura",
+        "mp_cost": 0,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "buff_id": "buff_shaolin",
+            "radius": 4,
+            "duration": 2
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "十八罗汉阵",
       "shaolin_zhenfa"
@@ -1758,21 +1840,23 @@
         "value": 0.15
       }
     ],
-    "skill": {
-      "trigger": "passive_aura",
-      "mp_cost": 0,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "buff_allies_aoe",
-          "buff_id": "buff_taiji",
-          "radius": 4,
-          "duration": 2.0
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "passive_aura",
+        "mp_cost": 0,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "buff_id": "buff_taiji",
+            "radius": 4,
+            "duration": 2
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "五行八卦阵",
       "none_zhenfa"
@@ -1797,21 +1881,23 @@
         "value": 90
       }
     ],
-    "skill": {
-      "trigger": "on_attack_hit",
-      "mp_cost": 0,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "debuff_target",
-          "buff_id": "debuff_xuedao",
-          "duration": 4.0
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "chance": 0.25,
-      "range": 2.0
-    },
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "mp_cost": 0,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_xuedao",
+            "duration": 4
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "chance": 0.25,
+        "range": 2
+      }
+    ],
     "linkage_tags": [
       "血刀经",
       "none_waigong"
@@ -1836,25 +1922,27 @@
       },
       {
         "op": "hp_regen_add",
-        "stat": "hp_regen",
+        "stat": "hp_regen_add",
         "value": 20
       }
     ],
-    "skill": {
-      "trigger": "auto_hp_below",
-      "mp_cost": 0,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "buff_self",
-          "buff_id": "buff_shenzhao",
-          "duration": 5.0
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "threshold": 0.3,
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "auto_hp_below",
+        "mp_cost": 0,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_shenzhao",
+            "duration": 5
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "threshold": 0.3,
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "神照经",
       "none_neigong"
@@ -1884,20 +1972,22 @@
         "value": 0.2
       }
     ],
-    "skill": {
-      "trigger": "auto_mp_full",
-      "mp_cost": 70,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "buff_self",
-          "buff_id": "buff_dalun",
-          "duration": 5.0
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "auto_mp_full",
+        "mp_cost": 70,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_dalun",
+            "duration": 5
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "龙象般若功",
       "dalun_neigong"
@@ -1922,21 +2012,23 @@
         "value": 180
       }
     ],
-    "skill": {
-      "trigger": "auto_mp_full",
-      "mp_cost": 50,
-      "cooldown": 5.0,
-      "effects": [
-        {
-          "op": "damage_aoe",
-          "radius": 3,
-          "value": 180,
-          "damage_type": "internal"
-        }
-      ],
-      "vfx_id": "vfx_generic",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "auto_mp_full",
+        "mp_cost": 50,
+        "cooldown": 5,
+        "effects": [
+          {
+            "op": "damage_aoe",
+            "radius": 3,
+            "value": 180,
+            "damage_type": "internal"
+          }
+        ],
+        "vfx_id": "vfx_generic",
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "火焰刀",
       "dalun_qishu"
@@ -1956,18 +2048,20 @@
     "passive_effects": [
       {
         "op": "hp_regen_add",
-        "stat": "hp",
+        "stat": "hp_regen_add",
         "value": 50
       }
     ],
-    "skill": {
-      "trigger": "auto_hp_below",
-      "mp_cost": 0,
-      "cooldown": 5,
-      "effects": [],
-      "vfx_id": "",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "auto_hp_below",
+        "mp_cost": 0,
+        "cooldown": 5,
+        "effects": [],
+        "vfx_id": "",
+        "range": 0
+      }
+    ],
     "linkage_tags": []
   },
   {
@@ -1988,14 +2082,16 @@
         "value": 0.3
       }
     ],
-    "skill": {
-      "trigger": "on_attacked",
-      "mp_cost": 0,
-      "cooldown": 3,
-      "effects": [],
-      "vfx_id": "",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "on_attacked",
+        "mp_cost": 0,
+        "cooldown": 3,
+        "effects": [],
+        "vfx_id": "",
+        "range": 0
+      }
+    ],
     "linkage_tags": []
   },
   {
@@ -2011,19 +2107,21 @@
     ],
     "passive_effects": [
       {
-        "op": "spd",
+        "op": "stat_percent",
         "stat": "spd",
         "value": 0.5
       }
     ],
-    "skill": {
-      "trigger": "on_attack_hit",
-      "mp_cost": 0,
-      "cooldown": 2,
-      "effects": [],
-      "vfx_id": "",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "mp_cost": 0,
+        "cooldown": 2,
+        "effects": [],
+        "vfx_id": "",
+        "range": 0
+      }
+    ],
     "linkage_tags": []
   },
   {
@@ -2039,19 +2137,21 @@
     ],
     "passive_effects": [
       {
-        "op": "atk",
+        "op": "stat_add",
         "stat": "atk",
         "value": 200
       }
     ],
-    "skill": {
-      "trigger": "on_attack_hit",
-      "mp_cost": 0,
-      "cooldown": 5,
-      "effects": [],
-      "vfx_id": "",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "mp_cost": 0,
+        "cooldown": 5,
+        "effects": [],
+        "vfx_id": "",
+        "range": 0
+      }
+    ],
     "linkage_tags": []
   },
   {
@@ -2066,14 +2166,16 @@
       "counter"
     ],
     "passive_effects": [],
-    "skill": {
-      "trigger": "on_attacked",
-      "mp_cost": 0,
-      "cooldown": 3,
-      "effects": [],
-      "vfx_id": "",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "on_attacked",
+        "mp_cost": 0,
+        "cooldown": 3,
+        "effects": [],
+        "vfx_id": "",
+        "range": 0
+      }
+    ],
     "linkage_tags": []
   },
   {
@@ -2089,19 +2191,21 @@
     ],
     "passive_effects": [
       {
-        "op": "hp",
+        "op": "stat_percent",
         "stat": "hp",
         "value": 0.4
       }
     ],
-    "skill": {
-      "trigger": "auto_mp_full",
-      "mp_cost": 100,
-      "cooldown": 8,
-      "effects": [],
-      "vfx_id": "",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "auto_mp_full",
+        "mp_cost": 100,
+        "cooldown": 8,
+        "effects": [],
+        "vfx_id": "",
+        "range": 0
+      }
+    ],
     "linkage_tags": []
   },
   {
@@ -2115,14 +2219,16 @@
       "formation"
     ],
     "passive_effects": [],
-    "skill": {
-      "trigger": "passive_aura",
-      "mp_cost": 0,
-      "cooldown": 1,
-      "effects": [],
-      "vfx_id": "",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "passive_aura",
+        "mp_cost": 0,
+        "cooldown": 1,
+        "effects": [],
+        "vfx_id": "",
+        "range": 0
+      }
+    ],
     "linkage_tags": []
   },
   {
@@ -2137,14 +2243,16 @@
       "poison"
     ],
     "passive_effects": [],
-    "skill": {
-      "trigger": "on_attack_hit",
-      "mp_cost": 0,
-      "cooldown": 4,
-      "effects": [],
-      "vfx_id": "",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "mp_cost": 0,
+        "cooldown": 4,
+        "effects": [],
+        "vfx_id": "",
+        "range": 0
+      }
+    ],
     "linkage_tags": []
   },
   {
@@ -2159,14 +2267,16 @@
       "ranged"
     ],
     "passive_effects": [],
-    "skill": {
-      "trigger": "auto_mp_full",
-      "mp_cost": 50,
-      "cooldown": 5,
-      "effects": [],
-      "vfx_id": "",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "auto_mp_full",
+        "mp_cost": 50,
+        "cooldown": 5,
+        "effects": [],
+        "vfx_id": "",
+        "range": 0
+      }
+    ],
     "linkage_tags": []
   },
   {
@@ -2184,17 +2294,19 @@
       {
         "op": "attack_speed_bonus",
         "stat": "attack_speed_bonus",
-        "value": 1.0
+        "value": 1
       }
     ],
-    "skill": {
-      "trigger": "none",
-      "mp_cost": 0,
-      "cooldown": 0,
-      "effects": [],
-      "vfx_id": "",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "none",
+        "mp_cost": 0,
+        "cooldown": 0,
+        "effects": [],
+        "vfx_id": "",
+        "range": 0
+      }
+    ],
     "linkage_tags": []
   },
   {
@@ -2214,14 +2326,16 @@
         "value": 0.2
       }
     ],
-    "skill": {
-      "trigger": "on_attack_hit",
-      "mp_cost": 0,
-      "cooldown": 4,
-      "effects": [],
-      "vfx_id": "",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "mp_cost": 0,
+        "cooldown": 4,
+        "effects": [],
+        "vfx_id": "",
+        "range": 0
+      }
+    ],
     "linkage_tags": []
   },
   {
@@ -2236,19 +2350,21 @@
     ],
     "passive_effects": [
       {
-        "op": "iat",
+        "op": "stat_percent",
         "stat": "iat",
         "value": 0.3
       }
     ],
-    "skill": {
-      "trigger": "on_attacked",
-      "mp_cost": 0,
-      "cooldown": 6,
-      "effects": [],
-      "vfx_id": "",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "on_attacked",
+        "mp_cost": 0,
+        "cooldown": 6,
+        "effects": [],
+        "vfx_id": "",
+        "range": 0
+      }
+    ],
     "linkage_tags": []
   },
   {
@@ -2263,14 +2379,16 @@
       "ranged"
     ],
     "passive_effects": [],
-    "skill": {
-      "trigger": "on_attack_hit",
-      "mp_cost": 0,
-      "cooldown": 4,
-      "effects": [],
-      "vfx_id": "",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "mp_cost": 0,
+        "cooldown": 4,
+        "effects": [],
+        "vfx_id": "",
+        "range": 0
+      }
+    ],
     "linkage_tags": []
   },
   {
@@ -2293,21 +2411,23 @@
         "value": 0.1
       }
     ],
-    "skill": {
-      "trigger": "auto_hp_below",
-      "threshold": 0.5,
-      "mp_cost": 40,
-      "cooldown": 8.0,
-      "effects": [
-        {
-          "op": "buff_self",
-          "buff_id": "buff_jiuyang_heal",
-          "duration": 6.0
-        }
-      ],
-      "vfx_id": "vfx_golden_heal",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "auto_hp_below",
+        "threshold": 0.5,
+        "mp_cost": 40,
+        "cooldown": 8,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_jiuyang_heal",
+            "duration": 6
+          }
+        ],
+        "vfx_id": "vfx_golden_heal",
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "heal_art",
       "shaolin_heal"
@@ -2332,21 +2452,23 @@
         "value": 50
       }
     ],
-    "skill": {
-      "trigger": "auto_hp_below",
-      "threshold": 0.4,
-      "mp_cost": 50,
-      "cooldown": 10.0,
-      "effects": [
-        {
-          "op": "heal_allies_aoe",
-          "radius": 3,
-          "value": 120
-        }
-      ],
-      "vfx_id": "vfx_green_heal",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "auto_hp_below",
+        "threshold": 0.4,
+        "mp_cost": 50,
+        "cooldown": 10,
+        "effects": [
+          {
+            "op": "heal_allies_aoe",
+            "radius": 3,
+            "value": 120
+          }
+        ],
+        "vfx_id": "vfx_green_heal",
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "heal_art",
       "emei_heal"
@@ -2365,21 +2487,23 @@
       "aoe"
     ],
     "passive_effects": [],
-    "skill": {
-      "trigger": "auto_mp_full",
-      "mp_cost": 60,
-      "cooldown": 12.0,
-      "effects": [
-        {
-          "op": "buff_allies_aoe",
-          "buff_id": "buff_huqingniu_heal",
-          "radius": 5,
-          "duration": 8.0
-        }
-      ],
-      "vfx_id": "vfx_butterfly_heal",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "auto_mp_full",
+        "mp_cost": 60,
+        "cooldown": 12,
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "buff_id": "buff_huqingniu_heal",
+            "radius": 5,
+            "duration": 8
+          }
+        ],
+        "vfx_id": "vfx_butterfly_heal",
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "heal_art",
       "divine_doctor"
@@ -2405,20 +2529,22 @@
         "value": 0.1
       }
     ],
-    "skill": {
-      "trigger": "auto_hp_below",
-      "threshold": 0.3,
-      "mp_cost": 70,
-      "cooldown": 15.0,
-      "effects": [
-        {
-          "op": "heal_self_percent",
-          "value": 0.4
-        }
-      ],
-      "vfx_id": "vfx_golden_finger",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "auto_hp_below",
+        "threshold": 0.3,
+        "mp_cost": 70,
+        "cooldown": 15,
+        "effects": [
+          {
+            "op": "heal_self_percent",
+            "value": 0.4
+          }
+        ],
+        "vfx_id": "vfx_golden_finger",
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "heal_art",
       "yiyang_heal"
@@ -2449,25 +2575,27 @@
         "value": 0.1
       }
     ],
-    "skill": {
-      "trigger": "auto_hp_below",
-      "threshold": 0.45,
-      "mp_cost": 45,
-      "cooldown": 9.0,
-      "effects": [
-        {
-          "op": "buff_self",
-          "buff_id": "buff_tianshan_heal",
-          "duration": 5.0
-        },
-        {
-          "op": "heal_self_percent",
-          "value": 0.15
-        }
-      ],
-      "vfx_id": "vfx_yang_heal",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "auto_hp_below",
+        "threshold": 0.45,
+        "mp_cost": 45,
+        "cooldown": 9,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_tianshan_heal",
+            "duration": 5
+          },
+          {
+            "op": "heal_self_percent",
+            "value": 0.15
+          }
+        ],
+        "vfx_id": "vfx_yang_heal",
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "heal_art",
       "wudang_heal"
@@ -2493,20 +2621,22 @@
         "value": 0.15
       }
     ],
-    "skill": {
-      "trigger": "auto_mp_full",
-      "mp_cost": 80,
-      "cooldown": 18.0,
-      "effects": [
-        {
-          "op": "heal_allies_aoe",
-          "radius": 6,
-          "value": 250
-        }
-      ],
-      "vfx_id": "vfx_herbal_bloom",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "auto_mp_full",
+        "mp_cost": 80,
+        "cooldown": 18,
+        "effects": [
+          {
+            "op": "heal_allies_aoe",
+            "radius": 6,
+            "value": 250
+          }
+        ],
+        "vfx_id": "vfx_herbal_bloom",
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "heal_art",
       "divine_doctor",
@@ -2533,20 +2663,22 @@
         "value": 20
       }
     ],
-    "skill": {
-      "trigger": "auto_hp_below",
-      "threshold": 0.35,
-      "mp_cost": 20,
-      "cooldown": 12.0,
-      "effects": [
-        {
-          "op": "heal_self_percent",
-          "value": 0.12
-        }
-      ],
-      "vfx_id": "vfx_green_heal",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "auto_hp_below",
+        "threshold": 0.35,
+        "mp_cost": 20,
+        "cooldown": 12,
+        "effects": [
+          {
+            "op": "heal_self_percent",
+            "value": 0.12
+          }
+        ],
+        "vfx_id": "vfx_green_heal",
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "heal_art",
       "herbal_entry"
@@ -2572,21 +2704,23 @@
         "value": 0.08
       }
     ],
-    "skill": {
-      "trigger": "auto_hp_below",
-      "threshold": 0.45,
-      "mp_cost": 30,
-      "cooldown": 10.0,
-      "effects": [
-        {
-          "op": "heal_allies_aoe",
-          "radius": 2,
-          "value": 70
-        }
-      ],
-      "vfx_id": "vfx_green_heal",
-      "range": 0.0
-    },
+    "skills": [
+      {
+        "trigger": "auto_hp_below",
+        "threshold": 0.45,
+        "mp_cost": 30,
+        "cooldown": 10,
+        "effects": [
+          {
+            "op": "heal_allies_aoe",
+            "radius": 2,
+            "value": 70
+          }
+        ],
+        "vfx_id": "vfx_green_heal",
+        "range": 0
+      }
+    ],
     "linkage_tags": [
       "heal_art",
       "herbal"

@@ -136,11 +136,7 @@ func _blocked_has_cell(blocked_cells: Dictionary, cell: Vector2i) -> bool:
 	if blocked_cells.is_empty():
 		return false
 	var int_key: int = _cell_key_int(cell)
-	if blocked_cells.has(int_key):
-		return true
-	# 兼容旧调用方仍传 "q,r" 字符串 key 的情况。
-	var str_key: String = "%d,%d" % [cell.x, cell.y]
-	return blocked_cells.has(str_key)
+	return blocked_cells.has(int_key)
 
 
 func _cell_key_int(cell: Vector2i) -> int:

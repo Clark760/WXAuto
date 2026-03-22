@@ -33,11 +33,6 @@ func reload_from_data_manager(data_manager: Node) -> Dictionary:
 	_load_category_into_map(data_manager, "buffs", _buff_map)
 	_load_category_into_map(data_manager, "equipment", _equipment_map)
 
-	# 装备旧格式兼容：将 stats/passive 文本迁移为可执行的 effects/description。
-	for equip_id in _equipment_map.keys():
-		var raw_record: Dictionary = _equipment_map[equip_id]
-		_equipment_map[equip_id] = _migrate_equipment_stats(raw_record)
-
 	return {
 		"gongfa_count": _gongfa_map.size(),
 		"buff_count": _buff_map.size(),
@@ -112,26 +107,3 @@ func _get_all_from_map(source_map: Dictionary) -> Array[Dictionary]:
 		if item is Dictionary:
 			output.append((item as Dictionary).duplicate(true))
 	return output
-
-
-func _migrate_equipment_stats(record: Dictionary) -> Dictionary:
-	var migrated: Dictionary = record.duplicate(true)
-	if migrated.has("effects") and migrated.get("effects", []) is Array:
-		return migrated
-
-	var stats_value: Variant = migrated.get("stats", {})
-	var effects: Array[Dictionary] = []
-	if stats_value is Dictionary:
-		var stats_dict: Dictionary = stats_value
-		for key in stats_dict.keys():
-			effects.append({
-				"op": "stat_add",
-				"stat": str(key),
-				"value": float(stats_dict[key])
-			})
-	migrated["effects"] = effects
-
-	# 旧 passive 是描述性文本，这里保留到 description 供 UI 展示。
-	if migrated.has("passive") and not migrated.has("description"):
-		migrated["description"] = str(migrated.get("passive", ""))
-	return migrated

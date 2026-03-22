@@ -1,0 +1,47 @@
+[
+  {
+    "id": "terrain_mud",
+    "name": "Mud",
+    "type": "hazard",
+    "aliases": ["mud"],
+    "color": "#8A6A4C70",
+    "is_barrier": false,
+    "tick_interval": 0.5,
+    "target_mode": "enemies",
+    "base_dps": 0.0,
+    "base_hps": 0.0,
+    "damage_type": "internal",
+    "apply_buff_id": "debuff_slow",
+    "buff_duration": 1.0
+  },
+  {
+    "id": "terrain_spirit_spring",
+    "name": "Spirit Spring",
+    "type": "beneficial",
+    "aliases": ["spirit_spring"],
+    "color": "#57D6C15F",
+    "is_barrier": false,
+    "tick_interval": 0.5,
+    "target_mode": "allies",
+    "base_dps": 0.0,
+    "base_hps": 30.0,
+    "damage_type": "internal",
+    "apply_buff_id": "",
+    "buff_duration": 0.0
+  },
+  {
+    "id": "terrain_kill_array",
+    "name": "Kill Array",
+    "type": "hazard",
+    "aliases": ["kill_array"],
+    "color": "#B52A2A6E",
+    "is_barrier": false,
+    "tick_interval": 0.5,
+    "target_mode": "enemies",
+    "base_dps": 32.0,
+    "base_hps": 0.0,
+    "damage_type": "internal",
+    "apply_buff_id": "",
+    "buff_duration": 0.0
+  }
+]

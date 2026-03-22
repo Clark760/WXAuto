@@ -55,39 +55,25 @@ func load_stage_sequence(data_manager: Node) -> void:
 	_current_stage_order_index = -1
 	if data_manager == null or not is_instance_valid(data_manager):
 		return
-	if not data_manager.has_method("get_all_records"):
+	if not data_manager.has_method("get_record"):
 		return
 
-	var all_stage_records_value: Variant = data_manager.call("get_all_records", "stages")
-	if not (all_stage_records_value is Array):
+	var sequence_raw: Variant = data_manager.call("get_record", "stages", "stage_sequence")
+	if not (sequence_raw is Dictionary):
 		return
-	var all_stage_records: Array = all_stage_records_value
-
-	var sequence_record: Dictionary = {}
-	for record_value in all_stage_records:
-		if not (record_value is Dictionary):
+	var sequence_record: Dictionary = _stage_data.normalize_stage_sequence_record(sequence_raw as Dictionary)
+	var sequence_ids: Array[String] = _stage_data.flatten_sequence_stage_ids(sequence_record)
+	for stage_id in sequence_ids:
+		if _stage_map.has(stage_id):
 			continue
-		var record: Dictionary = record_value
-		if _stage_data.is_stage_sequence_record(record):
-			# 优先使用 id=stage_sequence 的序列配置；其余作为兜底候选。
-			if sequence_record.is_empty() or str(record.get("id", "")).strip_edges() == "stage_sequence":
-				sequence_record = _stage_data.normalize_stage_sequence_record(record)
+		var stage_raw: Variant = data_manager.call("get_record", "stages", stage_id)
+		if not (stage_raw is Dictionary):
 			continue
-		var stage_config: Dictionary = _stage_data.normalize_stage_record(record)
+		var stage_config: Dictionary = _stage_data.normalize_stage_record(stage_raw as Dictionary)
 		if stage_config.is_empty():
 			continue
-		_stage_map[str(stage_config.get("id", ""))] = stage_config
-
-	if _stage_map.is_empty():
-		return
-
-	if not sequence_record.is_empty():
-		var sequence_ids: Array[String] = _stage_data.flatten_sequence_stage_ids(sequence_record)
-		for stage_id in sequence_ids:
-			if _stage_map.has(stage_id):
-				_ordered_stage_ids.append(stage_id)
-	if _ordered_stage_ids.is_empty():
-		_ordered_stage_ids = _build_fallback_stage_order()
+		_stage_map[stage_id] = stage_config
+		_ordered_stage_ids.append(stage_id)
 
 
 func start_first_stage() -> bool:
@@ -194,32 +180,6 @@ func _apply_rewards_for_current_stage(config: Dictionary) -> Dictionary:
 		_battlefield,
 		_unit_factory
 	)
-
-
-func _build_fallback_stage_order() -> Array[String]:
-	var rows: Array[Dictionary] = []
-	for stage_id in _stage_map.keys():
-		var config: Dictionary = _stage_map[stage_id]
-		rows.append({
-			"id": str(config.get("id", stage_id)),
-			"chapter": int(config.get("chapter", 1)),
-			"index": int(config.get("index", 1))
-		})
-	rows.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		var chapter_a: int = int(a.get("chapter", 0))
-		var chapter_b: int = int(b.get("chapter", 0))
-		if chapter_a != chapter_b:
-			return chapter_a < chapter_b
-		var index_a: int = int(a.get("index", 0))
-		var index_b: int = int(b.get("index", 0))
-		if index_a != index_b:
-			return index_a < index_b
-		return str(a.get("id", "")) < str(b.get("id", ""))
-	)
-	var ids: Array[String] = []
-	for row in rows:
-		ids.append(str(row.get("id", "")))
-	return ids
 
 
 func _emit_stage_event_to_bus(method_name: String, args: Array) -> void:

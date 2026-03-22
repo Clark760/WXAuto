@@ -95,6 +95,37 @@
         }
       }
     },
+    "terrains": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["terrain_id", "cells"],
+        "properties": {
+          "terrain_id": { "type": "string", "minLength": 1 },
+          "cells": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2,
+              "items": { "type": "integer" }
+            }
+          },
+          "duration": { "type": "number" },
+          "radius": { "type": "integer", "minimum": 0 },
+          "target_mode": {
+            "type": "string",
+            "enum": ["enemies", "allies", "all", "none"]
+          },
+          "damage_per_second": { "type": "number", "minimum": 0.0 },
+          "heal_per_second": { "type": "number", "minimum": 0.0 },
+          "apply_buff_id": { "type": "string" },
+          "buff_duration": { "type": "number", "minimum": 0.0 },
+          "damage_type": { "type": "string" },
+          "is_barrier": { "type": "boolean" }
+        }
+      }
+    },
     "rewards": {
       "type": "object",
       "required": ["silver", "exp"],

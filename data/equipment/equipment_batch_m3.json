@@ -407,8 +407,8 @@
     "description": "武林绝版黑玉断续膏。",
     "effects": [
       {
-        "op": "hp_regen",
-        "stat": "hp_regen",
+        "op": "hp_regen_add",
+        "stat": "hp_regen_add",
         "value": 20
       },
       {
@@ -659,8 +659,8 @@
     "description": "武林绝版神照经残页。",
     "effects": [
       {
-        "op": "hp_regen",
-        "stat": "hp_regen",
+        "op": "hp_regen_add",
+        "stat": "hp_regen_add",
         "value": 30
       },
       {
@@ -677,9 +677,10 @@
     "type": "armor",
     "element": "metal",
     "rarity": "red",
+    "description": "高阶护甲，提供强力内功防御。",
     "effects": [
       {
-        "op": "idr",
+        "op": "stat_add",
         "stat": "idr",
         "value": 200
       }
@@ -692,9 +693,10 @@
     "type": "weapon",
     "element": "metal",
     "rarity": "red",
+    "description": "真武名剑，显著提升外功攻击。",
     "effects": [
       {
-        "op": "atk",
+        "op": "stat_add",
         "stat": "atk",
         "value": 180
       }
@@ -707,6 +709,7 @@
     "type": "weapon",
     "element": "metal",
     "rarity": "red",
+    "description": "细针入骨，强化暴击伤害。",
     "effects": [
       {
         "op": "crit_damage_bonus",
@@ -722,9 +725,10 @@
     "type": "weapon",
     "element": "metal",
     "rarity": "orange",
+    "description": "七星宝剑，提升稳定攻击输出。",
     "effects": [
       {
-        "op": "atk",
+        "op": "stat_add",
         "stat": "atk",
         "value": 120
       }
@@ -737,9 +741,10 @@
     "type": "weapon",
     "element": "wood",
     "rarity": "orange",
+    "description": "玉箫清音，增强内功攻击。",
     "effects": [
       {
-        "op": "iat",
+        "op": "stat_add",
         "stat": "iat",
         "value": 150
       }
@@ -752,9 +757,10 @@
     "type": "accessory",
     "element": "metal",
     "rarity": "red",
+    "description": "七宝指环，提升最大内力。",
     "effects": [
       {
-        "op": "mp",
+        "op": "stat_add",
         "stat": "mp",
         "value": 500
       }

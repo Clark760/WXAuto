@@ -1396,6 +1396,16 @@ func _build_gongfa_bonus_lines(unit: Node) -> Array[String]:
 	return lines
 
 
+func _extract_skill_entries(data: Dictionary) -> Array[Dictionary]:
+	var output: Array[Dictionary] = []
+	var skills_value: Variant = data.get("skills", [])
+	if skills_value is Array:
+		for skill_value in (skills_value as Array):
+			if skill_value is Dictionary:
+				output.append((skill_value as Dictionary).duplicate(false))
+	return output
+
+
 func _build_unit_trait_lines(unit: Node) -> Array[String]:
 	var lines: Array[String] = []
 	if unit == null or not _is_valid_unit(unit):
@@ -1420,9 +1430,8 @@ func _build_unit_trait_lines(unit: Node) -> Array[String]:
 				if effect_value is Dictionary:
 					lines.append("特性·%s：%s" % [trait_name, _format_effect_op(effect_value as Dictionary)])
 
-		var skill_value: Variant = trait_data.get("skill", {})
-		if skill_value is Dictionary and not (skill_value as Dictionary).is_empty():
-			var skill_data: Dictionary = skill_value as Dictionary
+		var trait_skills: Array[Dictionary] = _extract_skill_entries(trait_data)
+		for skill_data in trait_skills:
 			lines.append("特性·%s：触发 %s" % [trait_name, _trigger_to_cn(str(skill_data.get("trigger", "")))])
 			var skill_effects: Variant = skill_data.get("effects", [])
 			if skill_effects is Array:
@@ -1929,18 +1938,24 @@ func _build_trait_item_tooltip_data(trait_data: Dictionary) -> Dictionary:
 	var has_skill: bool = false
 	var skill_trigger: String = ""
 	var skill_effects: Array[String] = []
-	var skill_value: Variant = trait_data.get("skill", {})
-	if skill_value is Dictionary and not (skill_value as Dictionary).is_empty():
+	var trait_skills: Array[Dictionary] = _extract_skill_entries(trait_data)
+	if not trait_skills.is_empty():
 		has_skill = true
-		var skill: Dictionary = skill_value
-		skill_trigger = "触发：%s" % _trigger_to_cn(str(skill.get("trigger", "")))
-		var mp_cost: float = float(skill.get("mp_cost", 0.0))
-		skill_effects.append("消耗：%d 内力" % int(round(mp_cost)))
-		var skill_effect_list: Variant = skill.get("effects", [])
-		if skill_effect_list is Array:
-			for effect_value in skill_effect_list:
-				if effect_value is Dictionary:
-					skill_effects.append(_format_effect_op(effect_value as Dictionary))
+		var first_skill: Dictionary = trait_skills[0]
+		skill_trigger = "触发：%s" % _trigger_to_cn(str(first_skill.get("trigger", "")))
+		if trait_skills.size() > 1:
+			skill_trigger += "（共 %d 段）" % trait_skills.size()
+		for skill_index in range(trait_skills.size()):
+			var skill: Dictionary = trait_skills[skill_index]
+			if trait_skills.size() > 1:
+				skill_effects.append("第 %d 段：触发 %s" % [skill_index + 1, _trigger_to_cn(str(skill.get("trigger", "")))])
+			var mp_cost: float = float(skill.get("mp_cost", 0.0))
+			skill_effects.append("消耗：%d 内力" % int(round(mp_cost)))
+			var skill_effect_list: Variant = skill.get("effects", [])
+			if skill_effect_list is Array:
+				for effect_value in skill_effect_list:
+					if effect_value is Dictionary:
+						skill_effects.append(_format_effect_op(effect_value as Dictionary))
 
 	return {
 		"name": "特性·%s" % trait_name,
@@ -1977,25 +1992,31 @@ func _build_gongfa_item_tooltip_data(gongfa_id: String) -> Dictionary:
 	var has_skill: bool = false
 	var skill_trigger: String = ""
 	var skill_effects: Array[String] = []
-	var skill_value: Variant = data.get("skill", {})
-	if skill_value is Dictionary and not (skill_value as Dictionary).is_empty():
+	var gongfa_skills: Array[Dictionary] = _extract_skill_entries(data)
+	if not gongfa_skills.is_empty():
 		has_skill = true
-		var skill: Dictionary = skill_value
-		var trigger_text: String = "触发：%s" % _trigger_to_cn(str(skill.get("trigger", "")))
-		if skill.has("range"):
-			var range_cells: float = maxf(float(skill.get("range", 0.0)), 0.0)
+		var first_skill: Dictionary = gongfa_skills[0]
+		var trigger_text: String = "触发：%s" % _trigger_to_cn(str(first_skill.get("trigger", "")))
+		if first_skill.has("range"):
+			var range_cells: float = maxf(float(first_skill.get("range", 0.0)), 0.0)
 			if range_cells <= 0.0:
 				trigger_text += " · 无需锁敌"
 			else:
 				trigger_text += " · 射程 %.1f 格" % range_cells
+		if gongfa_skills.size() > 1:
+			trigger_text += "（共 %d 段）" % gongfa_skills.size()
 		skill_trigger = trigger_text
-		var mp_cost: float = float(skill.get("mp_cost", 0.0))
-		skill_effects.append("消耗：%d 内力" % int(round(mp_cost)))
-		var skill_effect_list: Variant = skill.get("effects", [])
-		if skill_effect_list is Array:
-			for effect_value in skill_effect_list:
-				if effect_value is Dictionary:
-					skill_effects.append(_format_effect_op(effect_value as Dictionary))
+		for skill_index in range(gongfa_skills.size()):
+			var skill: Dictionary = gongfa_skills[skill_index]
+			if gongfa_skills.size() > 1:
+				skill_effects.append("第 %d 段：触发 %s" % [skill_index + 1, _trigger_to_cn(str(skill.get("trigger", "")))])
+			var mp_cost: float = float(skill.get("mp_cost", 0.0))
+			skill_effects.append("消耗：%d 内力" % int(round(mp_cost)))
+			var skill_effect_list: Variant = skill.get("effects", [])
+			if skill_effect_list is Array:
+				for effect_value in skill_effect_list:
+					if effect_value is Dictionary:
+						skill_effects.append(_format_effect_op(effect_value as Dictionary))
 
 	return {
 		"name": "%s [%s]" % [str(data.get("name", gongfa_id)), _quality_to_cn(str(data.get("quality", "white")))],

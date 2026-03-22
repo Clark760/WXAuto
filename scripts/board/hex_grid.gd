@@ -1,10 +1,9 @@
 extends Node2D
 class_name HexGrid
 
-# Pointy-top hex grid.
-# Supports two coordinate layouts:
-# 1) axial rectangle window (rhombus-shaped board),
-# 2) odd-r offset rectangle (staggered 32x32 style board).
+# 支持两种坐标布局：
+# 1) 轴向矩形窗口（菱形棋盘）
+# 2) 奇行偏移矩形（交错式 32x32 风格棋盘）
 const SQRT3 := 1.7320508
 const AXIAL_DIRS: Array[Vector2i] = [
 	Vector2i(1, 0),
@@ -42,8 +41,7 @@ const OFFSET_DIRS_ODD_ROW: Array[Vector2i] = [
 @export var coordinate_color: Color = Color(0.95, 0.95, 0.98, 0.9)
 
 # 障碍物格渲染缓存：key 为打包后的坐标 int，value 为对应填充颜色。
-var _obstacle_cells: Dictionary = {} # int(cell_key) -> Color
-var _terrain_cells: Dictionary = {} # int(cell_key) -> Color
+var _overlay_cells: Dictionary = {} # int(cell_key) -> Color
 
 
 func _ready() -> void:
@@ -61,11 +59,9 @@ func _draw() -> void:
 			# 统一在 HexGrid 内绘制障碍颜色，避免外部 Polygon2D 因坐标系/hex_size 变化产生错位。
 			var cell_key: int = ((q & 0xFFFF) << 16) | (r & 0xFFFF)
 			var cell_fill: Color = fill_color
-			if _obstacle_cells.has(cell_key):
-				cell_fill = _obstacle_cells[cell_key] as Color
-			if _terrain_cells.has(cell_key):
-				var terrain_color: Color = _terrain_cells[cell_key] as Color
-				cell_fill = cell_fill.lerp(terrain_color, clampf(terrain_color.a, 0.2, 0.8))
+			if _overlay_cells.has(cell_key):
+				var overlay_color: Color = _overlay_cells[cell_key] as Color
+				cell_fill = cell_fill.lerp(overlay_color, clampf(overlay_color.a, 0.2, 0.85))
 			draw_colored_polygon(points, cell_fill)
 			var outline: PackedVector2Array = points.duplicate()
 			outline.append(points[0])
@@ -76,24 +72,33 @@ func _draw() -> void:
 
 
 func set_obstacle_cells(cells: Dictionary) -> void:
-	# cells: { packed_cell_key_int: Color }
-	_obstacle_cells = cells.duplicate(true)
+	set_overlay_cells(cells)
 	queue_redraw()
 
 
 func clear_obstacle_cells() -> void:
-	_obstacle_cells.clear()
+	clear_overlay_cells()
 	queue_redraw()
 
 
 func set_terrain_cells(cells: Dictionary) -> void:
-	# cells: { packed_cell_key_int: Color }
-	_terrain_cells = cells.duplicate(true)
+	set_overlay_cells(cells)
 	queue_redraw()
 
 
 func clear_terrain_cells() -> void:
-	_terrain_cells.clear()
+	clear_overlay_cells()
+	queue_redraw()
+
+
+func set_overlay_cells(cells: Dictionary) -> void:
+	# cells: { packed_cell_key_int: Color }
+	_overlay_cells = cells.duplicate(true)
+	queue_redraw()
+
+
+func clear_overlay_cells() -> void:
+	_overlay_cells.clear()
 	queue_redraw()
 
 
