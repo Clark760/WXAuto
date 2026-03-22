@@ -36,6 +36,8 @@ func apply_buff(target: Node, buff_id: String, duration: float, source: Node = n
 	var iid: int = target.get_instance_id()
 	var unit_entries: Array = _active_by_unit.get(iid, [])
 	var buff_data: Dictionary = (_buff_defs[buff_id] as Dictionary).duplicate(true)
+	var source_meta: Dictionary = _build_source_meta(source)
+	var source_id: int = int(source_meta.get("source_id", -1))
 
 	var stackable: bool = bool(buff_data.get("stackable", false))
 	var max_stacks: int = maxi(int(buff_data.get("max_stacks", 1)), 1)
@@ -50,17 +52,25 @@ func apply_buff(target: Node, buff_id: String, duration: float, source: Node = n
 		var entry: Dictionary = unit_entries[i]
 		if str(entry.get("buff_id", "")) != buff_id:
 			continue
+		if int(entry.get("source_id", -1)) != source_id:
+			continue
 
 		if stackable:
 			entry["stacks"] = mini(int(entry.get("stacks", 1)) + 1, max_stacks)
 		else:
 			entry["stacks"] = 1
 
+		if str(buff_data.get("type", "buff")).strip_edges().to_lower() == "debuff" and final_duration > 0.0:
+			final_duration = _apply_tenacity_duration_scale(target, final_duration)
 		entry["remaining"] = final_duration
 		entry["tick_accum"] = 0.0
-		entry["source_id"] = source.get_instance_id() if source != null and is_instance_valid(source) else -1
+		entry["source_id"] = int(source_meta.get("source_id", -1))
+		entry["source_unit_id"] = str(source_meta.get("source_unit_id", "")).strip_edges()
+		entry["source_name"] = str(source_meta.get("source_name", "")).strip_edges()
+		entry["source_team"] = int(source_meta.get("source_team", 0))
 		unit_entries[i] = entry
 		_active_by_unit[iid] = unit_entries
+		_sync_unit_runtime_meta(target, unit_entries)
 		return true
 
 	var new_entry: Dictionary = {
@@ -69,10 +79,16 @@ func apply_buff(target: Node, buff_id: String, duration: float, source: Node = n
 		"stacks": 1,
 		"remaining": final_duration,
 		"tick_accum": 0.0,
-		"source_id": source.get_instance_id() if source != null and is_instance_valid(source) else -1
+		"source_id": int(source_meta.get("source_id", -1)),
+		"source_unit_id": str(source_meta.get("source_unit_id", "")).strip_edges(),
+		"source_name": str(source_meta.get("source_name", "")).strip_edges(),
+		"source_team": int(source_meta.get("source_team", 0))
 	}
+	if str(buff_data.get("type", "buff")).strip_edges().to_lower() == "debuff" and final_duration > 0.0:
+		new_entry["remaining"] = _apply_tenacity_duration_scale(target, final_duration)
 	unit_entries.append(new_entry)
 	_active_by_unit[iid] = unit_entries
+	_sync_unit_runtime_meta(target, unit_entries)
 	return true
 
 
@@ -101,6 +117,7 @@ func remove_buff(target: Node, buff_id: String, reason: String = "manual") -> in
 		_active_by_unit.erase(iid)
 	else:
 		_active_by_unit[iid] = next_entries
+	_sync_unit_runtime_meta(target, next_entries)
 	return removed_count
 
 
@@ -118,6 +135,7 @@ func remove_all_for_unit(target: Node) -> void:
 			continue
 		_emit_buff_removed(iid, buff_id, int(entry.get("source_id", -1)), "unit_removed")
 	_active_by_unit.erase(iid)
+	_clear_unit_runtime_meta(target)
 
 
 func collect_passive_effects_for_unit(target: Node) -> Array[Dictionary]:
@@ -154,12 +172,182 @@ func get_active_buff_ids_for_unit(target: Node) -> Array[String]:
 		return ids
 	var iid: int = target.get_instance_id()
 	var entries: Array = _active_by_unit.get(iid, [])
+	var seen: Dictionary = {}
+	for entry_value in entries:
+		if not (entry_value is Dictionary):
+			continue
+		var buff_id: String = str((entry_value as Dictionary).get("buff_id", "")).strip_edges()
+		if buff_id.is_empty():
+			continue
+		if seen.has(buff_id):
+			continue
+		seen[buff_id] = true
+		ids.append(buff_id)
+	return ids
+
+
+func has_buff(target: Node, buff_id: String) -> bool:
+	if target == null or not is_instance_valid(target):
+		return false
+	var normalized: String = buff_id.strip_edges()
+	if normalized.is_empty():
+		return false
+	var iid: int = target.get_instance_id()
+	var entries: Array = _active_by_unit.get(iid, [])
+	for entry_value in entries:
+		if not (entry_value is Dictionary):
+			continue
+		if str((entry_value as Dictionary).get("buff_id", "")).strip_edges() == normalized:
+			return true
+	return false
+
+
+func has_debuff(target: Node, debuff_id: String = "") -> bool:
+	if target == null or not is_instance_valid(target):
+		return false
+	var normalized: String = debuff_id.strip_edges()
+	var iid: int = target.get_instance_id()
+	var entries: Array = _active_by_unit.get(iid, [])
 	for entry_value in entries:
 		if not (entry_value is Dictionary):
 			continue
 		var entry: Dictionary = entry_value
-		ids.append(str(entry.get("buff_id", "")))
-	return ids
+		var buff_data: Dictionary = entry.get("data", {})
+		if str(buff_data.get("type", "buff")).strip_edges().to_lower() != "debuff":
+			continue
+		if normalized.is_empty():
+			return true
+		if str(entry.get("buff_id", "")).strip_edges() == normalized:
+			return true
+	return false
+
+
+func cleanse_debuffs(target: Node) -> int:
+	if target == null or not is_instance_valid(target):
+		return 0
+	var iid: int = target.get_instance_id()
+	if not _active_by_unit.has(iid):
+		return 0
+	var entries: Array = _active_by_unit.get(iid, [])
+	var next_entries: Array = []
+	var removed: int = 0
+	for entry_value in entries:
+		if not (entry_value is Dictionary):
+			continue
+		var entry: Dictionary = entry_value
+		var buff_data: Dictionary = entry.get("data", {})
+		var buff_type: String = str(buff_data.get("type", "buff")).strip_edges().to_lower()
+		if buff_type != "debuff":
+			next_entries.append(entry)
+			continue
+		removed += 1
+		_emit_buff_removed(iid, str(entry.get("buff_id", "")).strip_edges(), int(entry.get("source_id", -1)), "cleanse")
+	if next_entries.is_empty():
+		_active_by_unit.erase(iid)
+	else:
+		_active_by_unit[iid] = next_entries
+	_sync_unit_runtime_meta(target, next_entries)
+	if next_entries.is_empty():
+		_clear_unit_runtime_meta(target)
+	return removed
+
+
+func dispel_buffs(target: Node, count: int) -> int:
+	if target == null or not is_instance_valid(target):
+		return 0
+	var max_remove: int = maxi(count, 0)
+	if max_remove <= 0:
+		return 0
+	var iid: int = target.get_instance_id()
+	var entries: Array = _active_by_unit.get(iid, [])
+	if entries.is_empty():
+		return 0
+	var buff_candidates: Array[int] = []
+	for idx in range(entries.size()):
+		if not (entries[idx] is Dictionary):
+			continue
+		var entry: Dictionary = entries[idx]
+		var buff_data: Dictionary = entry.get("data", {})
+		if str(buff_data.get("type", "buff")).strip_edges().to_lower() == "buff":
+			buff_candidates.append(idx)
+	if buff_candidates.is_empty():
+		return 0
+	buff_candidates.shuffle()
+	var remove_index_set: Dictionary = {}
+	for pick in range(mini(max_remove, buff_candidates.size())):
+		remove_index_set[int(buff_candidates[pick])] = true
+	var next_entries: Array = []
+	var removed: int = 0
+	for idx2 in range(entries.size()):
+		var entry_value2: Variant = entries[idx2]
+		if not (entry_value2 is Dictionary):
+			continue
+		var entry2: Dictionary = entry_value2
+		if not remove_index_set.has(idx2):
+			next_entries.append(entry2)
+			continue
+		removed += 1
+		_emit_buff_removed(iid, str(entry2.get("buff_id", "")).strip_edges(), int(entry2.get("source_id", -1)), "dispel")
+	if next_entries.is_empty():
+		_active_by_unit.erase(iid)
+	else:
+		_active_by_unit[iid] = next_entries
+	_sync_unit_runtime_meta(target, next_entries)
+	if next_entries.is_empty():
+		_clear_unit_runtime_meta(target)
+	return removed
+
+
+func steal_buffs(source_target: Node, receiver: Node, count: int, source: Node = null) -> int:
+	if source_target == null or not is_instance_valid(source_target):
+		return 0
+	if receiver == null or not is_instance_valid(receiver):
+		return 0
+	var max_steal: int = maxi(count, 0)
+	if max_steal <= 0:
+		return 0
+	var source_iid: int = source_target.get_instance_id()
+	var entries: Array = _active_by_unit.get(source_iid, [])
+	if entries.is_empty():
+		return 0
+	var candidate_indices: Array[int] = []
+	for idx in range(entries.size()):
+		if not (entries[idx] is Dictionary):
+			continue
+		var entry: Dictionary = entries[idx]
+		var buff_data: Dictionary = entry.get("data", {})
+		if str(buff_data.get("type", "buff")).strip_edges().to_lower() == "buff":
+			candidate_indices.append(idx)
+	if candidate_indices.is_empty():
+		return 0
+	candidate_indices.shuffle()
+	var selected_index_set: Dictionary = {}
+	for pick in range(mini(max_steal, candidate_indices.size())):
+		selected_index_set[int(candidate_indices[pick])] = true
+	var next_entries: Array = []
+	var stolen_count: int = 0
+	for idx2 in range(entries.size()):
+		var entry_value2: Variant = entries[idx2]
+		if not (entry_value2 is Dictionary):
+			continue
+		var entry2: Dictionary = entry_value2
+		if not selected_index_set.has(idx2):
+			next_entries.append(entry2)
+			continue
+		stolen_count += 1
+		var buff_id: String = str(entry2.get("buff_id", "")).strip_edges()
+		var remaining: float = float(entry2.get("remaining", 0.0))
+		var duration: float = remaining if remaining != 0.0 else float((entry2.get("data", {}) as Dictionary).get("default_duration", 3.0))
+		apply_buff(receiver, buff_id, duration, source)
+		_emit_buff_removed(source_iid, buff_id, int(entry2.get("source_id", -1)), "stolen")
+	if next_entries.is_empty():
+		_active_by_unit.erase(source_iid)
+	else:
+		_active_by_unit[source_iid] = next_entries
+	_sync_unit_runtime_meta(source_target, next_entries)
+	if next_entries.is_empty():
+		_clear_unit_runtime_meta(source_target)
+	return stolen_count
 
 
 func add_battlefield_effect(effect_config: Dictionary, source: Node = null) -> bool:
@@ -177,6 +365,12 @@ func add_battlefield_effect(effect_config: Dictionary, source: Node = null) -> b
 	var source_id: int = int(effect_config.get("source_id", -1))
 	if source_id <= 0 and source != null and is_instance_valid(source):
 		source_id = source.get_instance_id()
+	var source_unit_id: String = str(effect_config.get("source_unit_id", "")).strip_edges()
+	if source_unit_id.is_empty() and source != null and is_instance_valid(source):
+		source_unit_id = str(source.get("unit_id"))
+	var source_name: String = str(effect_config.get("source_name", "")).strip_edges()
+	if source_name.is_empty() and source != null and is_instance_valid(source):
+		source_name = str(source.get("unit_name"))
 	var source_team: int = int(effect_config.get("source_team", 0))
 	if source_team == 0 and source != null and is_instance_valid(source):
 		source_team = int(source.get("team_id"))
@@ -188,6 +382,8 @@ func add_battlefield_effect(effect_config: Dictionary, source: Node = null) -> b
 	_battlefield_effects.append({
 		"effect_id": str(effect_config.get("effect_id", "battlefield_effect")).strip_edges(),
 		"source_id": source_id,
+		"source_unit_id": source_unit_id,
+		"source_name": source_name,
 		"source_team": source_team,
 		"center_cell": center_cell,
 		"radius_cells": maxi(int(effect_config.get("radius_cells", 1)), 0),
@@ -233,6 +429,9 @@ func tick(delta: float, context: Dictionary = {}) -> Dictionary:
 					tick_accum -= tick_interval
 					tick_requests.append({
 						"source_id": int(entry.get("source_id", -1)),
+						"source_unit_id": str(entry.get("source_unit_id", "")).strip_edges(),
+						"source_name": str(entry.get("source_name", "")).strip_edges(),
+						"source_team": int(entry.get("source_team", 0)),
 						"target_id": iid,
 						"buff_id": str(entry.get("buff_id", "")).strip_edges(),
 						"effects": (tick_effects as Array).duplicate(true)
@@ -252,10 +451,15 @@ func tick(delta: float, context: Dictionary = {}) -> Dictionary:
 
 			next_entries.append(entry)
 		_active_by_unit[iid] = next_entries
+		var unit_node: Node = _find_unit_in_context(iid, context)
+		if unit_node != null and is_instance_valid(unit_node):
+			_sync_unit_runtime_meta(unit_node, next_entries)
 		if next_entries.size() != entries.size():
 			changed_units[iid] = true
 		if next_entries.is_empty():
 			_active_by_unit.erase(iid)
+			if unit_node != null and is_instance_valid(unit_node):
+				_clear_unit_runtime_meta(unit_node)
 
 	var next_battlefield_effects: Array[Dictionary] = []
 	for effect_value in _battlefield_effects:
@@ -287,6 +491,9 @@ func tick(delta: float, context: Dictionary = {}) -> Dictionary:
 				for target_iid in target_ids:
 					tick_requests.append({
 						"source_id": int(effect_entry.get("source_id", -1)),
+						"source_unit_id": str(effect_entry.get("source_unit_id", "")).strip_edges(),
+						"source_name": str(effect_entry.get("source_name", "")).strip_edges(),
+						"source_team": int(effect_entry.get("source_team", 0)),
 						"target_id": int(target_iid),
 						"buff_id": str(effect_entry.get("effect_id", "battlefield_effect")).strip_edges(),
 						"effects": tick_effects.duplicate(true),
@@ -304,6 +511,75 @@ func tick(delta: float, context: Dictionary = {}) -> Dictionary:
 		"changed_unit_ids": changed_unit_ids,
 		"tick_requests": tick_requests
 	}
+
+
+func _find_unit_in_context(iid: int, context: Dictionary) -> Node:
+	var all_units_value: Variant = context.get("all_units", [])
+	if not (all_units_value is Array):
+		return null
+	for unit_value in (all_units_value as Array):
+		if not (unit_value is Node):
+			continue
+		var unit: Node = unit_value as Node
+		if unit == null or not is_instance_valid(unit):
+			continue
+		if unit.get_instance_id() == iid:
+			return unit
+	return null
+
+
+func _sync_unit_runtime_meta(target: Node, entries: Array) -> void:
+	if target == null or not is_instance_valid(target):
+		return
+	var buff_ids: Array[String] = []
+	var debuff_ids: Array[String] = []
+	var buff_seen: Dictionary = {}
+	var debuff_seen: Dictionary = {}
+	for entry_value in entries:
+		if not (entry_value is Dictionary):
+			continue
+		var entry: Dictionary = entry_value
+		var buff_id: String = str(entry.get("buff_id", "")).strip_edges()
+		if buff_id.is_empty():
+			continue
+		var buff_data: Dictionary = entry.get("data", {})
+		var buff_type: String = str(buff_data.get("type", "buff")).strip_edges().to_lower()
+		if buff_type == "debuff":
+			if debuff_seen.has(buff_id):
+				continue
+			debuff_seen[buff_id] = true
+			debuff_ids.append(buff_id)
+		else:
+			if buff_seen.has(buff_id):
+				continue
+			buff_seen[buff_id] = true
+			buff_ids.append(buff_id)
+	target.set_meta("active_buff_ids", buff_ids)
+	target.set_meta("active_debuff_ids", debuff_ids)
+	target.set_meta("has_debuff", not debuff_ids.is_empty())
+	target.set_meta("has_buff", not buff_ids.is_empty())
+
+
+func _clear_unit_runtime_meta(target: Node) -> void:
+	if target == null or not is_instance_valid(target):
+		return
+	target.remove_meta("active_buff_ids")
+	target.remove_meta("active_debuff_ids")
+	target.remove_meta("has_debuff")
+	target.remove_meta("has_buff")
+
+
+func _apply_tenacity_duration_scale(target: Node, duration: float) -> float:
+	if target == null or not is_instance_valid(target):
+		return duration
+	var combat: Node = target.get_node_or_null("Components/UnitCombat")
+	if combat == null or not combat.has_method("get_external_modifiers"):
+		return duration
+	var modifiers_value: Variant = combat.call("get_external_modifiers")
+	if not (modifiers_value is Dictionary):
+		return duration
+	var tenacity: float = clampf(float((modifiers_value as Dictionary).get("tenacity", 0.0)), 0.0, 0.9)
+	return maxf(duration * (1.0 - tenacity), 0.1)
 
 
 func _emit_buff_removed(target_id: int, buff_id: String, source_id: int, reason: String) -> void:
@@ -368,7 +644,8 @@ func _hex_distance_cells(a: Vector2i, b: Vector2i, hex_grid: Node) -> int:
 		return int(hex_grid.call("get_cell_distance", a, b))
 	var dq: int = b.x - a.x
 	var dr: int = b.y - a.y
-	return (absi(dq) + absi(dq + dr) + absi(dr)) / 2
+	var distance_sum: int = absi(dq) + absi(dq + dr) + absi(dr)
+	return int(distance_sum / 2.0)
 
 
 func _is_unit_alive_node(unit: Node) -> bool:
@@ -376,3 +653,12 @@ func _is_unit_alive_node(unit: Node) -> bool:
 	if combat == null:
 		return false
 	return bool(combat.get("is_alive"))
+
+
+func _build_source_meta(source: Node) -> Dictionary:
+	return {
+		"source_id": source.get_instance_id() if source != null and is_instance_valid(source) else -1,
+		"source_unit_id": str(source.get("unit_id")) if source != null and is_instance_valid(source) else "",
+		"source_name": str(source.get("unit_name")) if source != null and is_instance_valid(source) else "",
+		"source_team": int(source.get("team_id")) if source != null and is_instance_valid(source) else 0
+	}

@@ -39,7 +39,6 @@ const BATTLEFIELD_RENDERER_SCRIPT: Script = preload("res://scripts/battle/battle
 @onready var round_label: Label = $HUDLayer/TopBar/TopBarContent/RoundLabel
 @onready var power_bar: ProgressBar = $HUDLayer/TopBar/TopBarContent/PowerBar
 @onready var timer_label: Label = $HUDLayer/TopBar/TopBarContent/TimerLabel
-@onready var linkage_info: Label = $HUDLayer/LinkagePanel/LinkageVBox/LinkageInfo
 @onready var minimap_info: Label = $HUDLayer/MiniMap/MiniMapInfo
 @onready var unit_tooltip: PanelContainer = $HUDLayer/UnitTooltip
 @onready var tooltip_name: Label = $HUDLayer/UnitTooltip/TooltipVBox/NameLabel
@@ -753,16 +752,6 @@ func _refresh_dynamic_ui_incremental() -> void:
 	_set_progress_value_if_changed(power_bar, "power_bar_value", float(ally_alive) / float(total_power) * 100.0)
 	_set_control_tooltip_if_changed(power_bar, "power_bar_tooltip", "己方 %d / 敌方 %d" % [ally_alive, enemy_alive])
 	_set_label_text_if_changed(resource_label, "resource_label", "门派LV7  |  银两328  |  备战席%d / %d" % [bench_count, bench_ui.get_slot_count()])
-	if gongfa_manager != null:
-		var linkage_summary: String = ""
-		if gongfa_manager.has_method("get_active_linkage_summary_text"):
-			linkage_summary = str(gongfa_manager.call("get_active_linkage_summary_text"))
-		if linkage_summary.is_empty():
-			var linkage_names: Array = gongfa_manager.call("get_active_linkage_names")
-			linkage_summary = "当前联动：无" if linkage_names.is_empty() else "当前联动：%s" % "、".join(linkage_names)
-		_set_label_text_if_changed(linkage_info, "linkage_info", linkage_summary)
-	else:
-		_set_label_text_if_changed(linkage_info, "linkage_info", "当前联动：未连接 GongfaManager")
 	_set_label_text_if_changed(minimap_info, "minimap_info", "小地图：己 %d / 敌 %d" % [ally_alive, enemy_alive])
 	var stage_name: String = "PREPARATION"
 	if _stage == Stage.COMBAT:

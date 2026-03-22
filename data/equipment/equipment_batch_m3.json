@@ -6,7 +6,7 @@
     "element": "metal",
     "rarity": "red",
     "description": "武林绝版倚天剑。",
-    "passive_effects": [
+    "effects": [
       {
         "op": "stat_add",
         "stat": "atk",
@@ -27,7 +27,7 @@
     "element": "fire",
     "rarity": "red",
     "description": "武林绝版屠龙刀。",
-    "passive_effects": [
+    "effects": [
       {
         "op": "stat_add",
         "stat": "atk",
@@ -48,7 +48,7 @@
     "element": "wood",
     "rarity": "orange",
     "description": "武林绝版打狗棒。",
-    "passive_effects": [
+    "effects": [
       {
         "op": "stat_add",
         "stat": "atk",
@@ -69,7 +69,7 @@
     "element": "earth",
     "rarity": "red",
     "description": "武林绝版玄铁重剑。",
-    "passive_effects": [
+    "effects": [
       {
         "op": "stat_add",
         "stat": "atk",
@@ -90,7 +90,7 @@
     "element": "metal",
     "rarity": "purple",
     "description": "武林绝版君子剑。",
-    "passive_effects": [
+    "effects": [
       {
         "op": "stat_add",
         "stat": "atk",
@@ -111,7 +111,7 @@
     "element": "water",
     "rarity": "purple",
     "description": "武林绝版淑女剑。",
-    "passive_effects": [
+    "effects": [
       {
         "op": "stat_add",
         "stat": "atk",
@@ -132,7 +132,7 @@
     "element": "metal",
     "rarity": "orange",
     "description": "武林绝版金蛇剑。",
-    "passive_effects": [
+    "effects": [
       {
         "op": "stat_add",
         "stat": "atk",
@@ -153,7 +153,7 @@
     "element": "water",
     "rarity": "blue",
     "description": "武林绝版凝碧剑。",
-    "passive_effects": [
+    "effects": [
       {
         "op": "stat_add",
         "stat": "atk",
@@ -174,7 +174,7 @@
     "element": "fire",
     "rarity": "orange",
     "description": "武林绝版血刀。",
-    "passive_effects": [
+    "effects": [
       {
         "op": "stat_add",
         "stat": "atk",
@@ -195,7 +195,7 @@
     "element": "metal",
     "rarity": "blue",
     "description": "武林绝版银龙鞭。",
-    "passive_effects": [
+    "effects": [
       {
         "op": "stat_add",
         "stat": "atk",
@@ -216,7 +216,7 @@
     "element": "metal",
     "rarity": "green",
     "description": "武林绝版判官笔。",
-    "passive_effects": [
+    "effects": [
       {
         "op": "stat_add",
         "stat": "atk",
@@ -237,7 +237,7 @@
     "element": "wood",
     "rarity": "red",
     "description": "武林绝版软猬甲。",
-    "passive_effects": [
+    "effects": [
       {
         "op": "stat_add",
         "stat": "def",
@@ -258,7 +258,7 @@
     "element": "earth",
     "rarity": "orange",
     "description": "武林绝版乌蚕衣。",
-    "passive_effects": [
+    "effects": [
       {
         "op": "stat_add",
         "stat": "def",
@@ -279,7 +279,7 @@
     "element": "metal",
     "rarity": "purple",
     "description": "武林绝版金丝软甲。",
-    "passive_effects": [
+    "effects": [
       {
         "op": "stat_add",
         "stat": "def",
@@ -300,7 +300,7 @@
     "element": "water",
     "rarity": "blue",
     "description": "武林绝版鳄皮护甲。",
-    "passive_effects": [
+    "effects": [
       {
         "op": "stat_add",
         "stat": "def",
@@ -321,7 +321,7 @@
     "element": "metal",
     "rarity": "orange",
     "description": "武林绝版锁子黄金甲。",
-    "passive_effects": [
+    "effects": [
       {
         "op": "stat_add",
         "stat": "def",
@@ -342,7 +342,7 @@
     "element": "wood",
     "rarity": "red",
     "description": "武林绝版天蚕宝甲。",
-    "passive_effects": [
+    "effects": [
       {
         "op": "stat_add",
         "stat": "idr",
@@ -363,7 +363,7 @@
     "element": "metal",
     "rarity": "green",
     "description": "武林绝版铁布衫。",
-    "passive_effects": [
+    "effects": [
       {
         "op": "stat_add",
         "stat": "def",
@@ -384,7 +384,7 @@
     "element": "wood",
     "rarity": "orange",
     "description": "武林绝版九花玉露丸。",
-    "passive_effects": [
+    "effects": [
       {
         "op": "mp_regen_add",
         "stat": "mp_regen_add",
@@ -405,7 +405,7 @@
     "element": "earth",
     "rarity": "red",
     "description": "武林绝版黑玉断续膏。",
-    "passive_effects": [
+    "effects": [
       {
         "op": "hp_regen",
         "stat": "hp_regen",
@@ -426,7 +426,7 @@
     "element": "fire",
     "rarity": "red",
     "description": "武林绝版莽牯朱蛤。",
-    "passive_effects": [
+    "effects": [
       {
         "op": "stat_percent",
         "stat": "iat",
@@ -447,7 +447,7 @@
     "element": "water",
     "rarity": "orange",
     "description": "武林绝版冰蚕。",
-    "passive_effects": [
+    "effects": [
       {
         "op": "stat_percent",
         "stat": "iat",
@@ -468,7 +468,7 @@
     "element": "fire",
     "rarity": "red",
     "description": "武林绝版腊八粥。",
-    "passive_effects": [
+    "effects": [
       {
         "op": "stat_add",
         "stat": "hp",
@@ -489,7 +489,7 @@
     "element": "wood",
     "rarity": "purple",
     "description": "武林绝版菩提子。",
-    "passive_effects": [
+    "effects": [
       {
         "op": "stat_add",
         "stat": "mp",
@@ -510,7 +510,7 @@
     "element": "earth",
     "rarity": "orange",
     "description": "武林绝版通犀地龙丸。",
-    "passive_effects": [
+    "effects": [
       {
         "op": "stat_add",
         "stat": "idr",
@@ -531,7 +531,7 @@
     "element": "metal",
     "rarity": "blue",
     "description": "武林绝版白虹剑。",
-    "passive_effects": [
+    "effects": [
       {
         "op": "stat_add",
         "stat": "atk",
@@ -552,7 +552,7 @@
     "element": "water",
     "rarity": "orange",
     "description": "武林绝版紫薇软剑。",
-    "passive_effects": [
+    "effects": [
       {
         "op": "stat_add",
         "stat": "atk",
@@ -573,7 +573,7 @@
     "element": "wood",
     "rarity": "purple",
     "description": "武林绝版绿波香露刀。",
-    "passive_effects": [
+    "effects": [
       {
         "op": "stat_add",
         "stat": "atk",
@@ -594,7 +594,7 @@
     "element": "fire",
     "rarity": "blue",
     "description": "武林绝版软红蛛索。",
-    "passive_effects": [
+    "effects": [
       {
         "op": "stat_add",
         "stat": "atk",
@@ -615,7 +615,7 @@
     "element": "wood",
     "rarity": "orange",
     "description": "武林绝版神木王鼎。",
-    "passive_effects": [
+    "effects": [
       {
         "op": "stat_percent",
         "stat": "iat",
@@ -636,7 +636,7 @@
     "element": "earth",
     "rarity": "purple",
     "description": "武林绝版五毒神砂。",
-    "passive_effects": [
+    "effects": [
       {
         "op": "stat_percent",
         "stat": "iat",
@@ -657,7 +657,7 @@
     "element": "water",
     "rarity": "red",
     "description": "武林绝版神照经残页。",
-    "passive_effects": [
+    "effects": [
       {
         "op": "hp_regen",
         "stat": "hp_regen",
@@ -677,7 +677,7 @@
     "type": "armor",
     "element": "metal",
     "rarity": "red",
-    "passive_effects": [
+    "effects": [
       {
         "op": "idr",
         "stat": "idr",
@@ -692,7 +692,7 @@
     "type": "weapon",
     "element": "metal",
     "rarity": "red",
-    "passive_effects": [
+    "effects": [
       {
         "op": "atk",
         "stat": "atk",
@@ -707,7 +707,7 @@
     "type": "weapon",
     "element": "metal",
     "rarity": "red",
-    "passive_effects": [
+    "effects": [
       {
         "op": "crit_damage_bonus",
         "stat": "crit_damage_bonus",
@@ -722,7 +722,7 @@
     "type": "weapon",
     "element": "metal",
     "rarity": "orange",
-    "passive_effects": [
+    "effects": [
       {
         "op": "atk",
         "stat": "atk",
@@ -737,7 +737,7 @@
     "type": "weapon",
     "element": "wood",
     "rarity": "orange",
-    "passive_effects": [
+    "effects": [
       {
         "op": "iat",
         "stat": "iat",
@@ -752,7 +752,7 @@
     "type": "accessory",
     "element": "metal",
     "rarity": "red",
-    "passive_effects": [
+    "effects": [
       {
         "op": "mp",
         "stat": "mp",

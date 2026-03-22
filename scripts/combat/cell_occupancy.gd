@@ -17,8 +17,7 @@ func occupy_cell(owner: Node, cell: Vector2i, unit: Node) -> bool:
 	var hex_grid: Node = owner.get("_hex_grid")
 	if hex_grid != null and not bool(hex_grid.call("is_inside_grid", cell)):
 		return false
-	var static_blocked_cells: Dictionary = owner.get("_static_blocked_cells")
-	if static_blocked_cells.has(cell_key_int(cell)):
+	if bool(owner.call("_is_cell_blocked", cell)):
 		return false
 
 	var cell_occupancy: Dictionary = owner.get("_cell_occupancy")
@@ -73,8 +72,7 @@ func is_cell_free(owner: Node, cell: Vector2i) -> bool:
 	var hex_grid: Node = owner.get("_hex_grid")
 	if hex_grid != null and not bool(hex_grid.call("is_inside_grid", cell)):
 		return false
-	var static_blocked_cells: Dictionary = owner.get("_static_blocked_cells")
-	if static_blocked_cells.has(cell_key_int(cell)):
+	if bool(owner.call("_is_cell_blocked", cell)):
 		return false
 	var cell_occupancy: Dictionary = owner.get("_cell_occupancy")
 	return not cell_occupancy.has(cell_key_int(cell))

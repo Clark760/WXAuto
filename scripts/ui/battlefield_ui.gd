@@ -51,7 +51,6 @@ const DETAIL_REFRESH_INTERVAL_COMBAT: float = 0.05
 @onready var detail_bonus_value_label: Label = $DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/StatsSection/BonusValueLabel
 @onready var detail_slot_list: VBoxContainer = $DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/GongfaSection/SlotList
 @onready var detail_equip_slot_list: VBoxContainer = $DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/GongfaSection/EquipSlotList
-@onready var detail_linkage_list: VBoxContainer = $DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/GongfaSection/LinkagePreviewList
 @onready var item_tooltip: PanelContainer = $DetailLayer/ItemTooltip
 @onready var item_tooltip_name: Label = $DetailLayer/ItemTooltip/TooltipMargin/TooltipRoot/ItemName
 @onready var item_tooltip_type: Label = $DetailLayer/ItemTooltip/TooltipMargin/TooltipRoot/ItemType
@@ -60,7 +59,6 @@ const DETAIL_REFRESH_INTERVAL_COMBAT: float = 0.05
 @onready var item_tooltip_skill_section: VBoxContainer = $DetailLayer/ItemTooltip/TooltipMargin/TooltipRoot/SkillSection
 @onready var item_tooltip_skill_trigger: Label = $DetailLayer/ItemTooltip/TooltipMargin/TooltipRoot/SkillSection/SkillTrigger
 @onready var item_tooltip_skill_effects: VBoxContainer = $DetailLayer/ItemTooltip/TooltipMargin/TooltipRoot/SkillSection/SkillEffects
-@onready var item_tooltip_linkage_tags: Label = $DetailLayer/ItemTooltip/TooltipMargin/TooltipRoot/LinkageTags
 
 var _inventory_card_script: Script = load("res://scripts/ui/battle_inventory_item_card.gd")
 var _slot_drop_target_script: Script = load("res://scripts/ui/battle_slot_drop_target.gd")
@@ -471,10 +469,6 @@ func _apply_stage_ui_state() -> void:
 			_rebuild_inventory_items()
 	if _battle_log_panel != null and is_instance_valid(_battle_log_panel):
 		_battle_log_panel.visible = _stage == Stage.COMBAT or _stage == Stage.RESULT
-	if linkage_info != null:
-		var linkage_parent: Control = linkage_info.get_parent().get_parent() as Control
-		if linkage_parent != null:
-			linkage_parent.visible = _stage != Stage.RESULT
 	if _stage == Stage.RESULT:
 		_close_detail_panel(false)
 		if unit_tooltip != null:
@@ -796,15 +790,8 @@ func _layout_left_side_panels() -> void:
 	if _battle_log_panel != null and is_instance_valid(_battle_log_panel):
 		var bottom_top: float = bottom_panel.position.y if bottom_panel != null else viewport_size.y - 230.0
 		var log_top: float = top + minimap_h + 10.0
-		var linkage_height: float = 96.0
 		_battle_log_panel.position = Vector2(x, log_top)
-		_battle_log_panel.size = Vector2(LEFT_PANEL_WIDTH, maxf(bottom_top - log_top - linkage_height - 12.0, 120.0))
-		var linkage_panel: Control = null
-		if linkage_info != null:
-			linkage_panel = linkage_info.get_parent().get_parent() as Control
-		if linkage_panel != null:
-			linkage_panel.position = Vector2(x, bottom_top - linkage_height - 8.0)
-			linkage_panel.size = Vector2(LEFT_PANEL_WIDTH, linkage_height)
+		_battle_log_panel.size = Vector2(LEFT_PANEL_WIDTH, maxf(bottom_top - log_top - 12.0, 120.0))
 
 
 func _refit_hex_grid() -> void:
@@ -1348,11 +1335,10 @@ func _update_detail_panel(unit: Node) -> void:
 
 	_rebuild_detail_slot_rows(unit)
 	_rebuild_equip_slot_rows(unit)
-	_rebuild_linkage_preview()
 
 
 func _build_gongfa_bonus_lines(unit: Node) -> Array[String]:
-	var lines: Array[String] = []
+	var lines: Array[String] = _build_unit_trait_lines(unit)
 	if gongfa_manager == null:
 		return lines
 	var equipped_ids: Array = unit.get("runtime_equipped_gongfa_ids")
@@ -1389,7 +1375,7 @@ func _build_gongfa_bonus_lines(unit: Node) -> Array[String]:
 		if equip_data.is_empty():
 			continue
 		var equip_name: String = str(equip_data.get("name", equip_id))
-		var equip_passive: Variant = equip_data.get("passive_effects", [])
+		var equip_passive: Variant = equip_data.get("effects", [])
 		if not (equip_passive is Array):
 			continue
 		for fx in equip_passive:
@@ -1407,6 +1393,42 @@ func _build_gongfa_bonus_lines(unit: Node) -> Array[String]:
 					lines.append("%s: 内力回复 +%s" % [equip_name, str(effect.get("value", 0))])
 				_:
 					lines.append("%s: %s" % [equip_name, op])
+	return lines
+
+
+func _build_unit_trait_lines(unit: Node) -> Array[String]:
+	var lines: Array[String] = []
+	if unit == null or not _is_valid_unit(unit):
+		return lines
+	var trait_values: Variant = _safe_node_prop(unit, "traits", [])
+	if not (trait_values is Array):
+		return lines
+	for trait_value in trait_values:
+		if not (trait_value is Dictionary):
+			continue
+		var trait_data: Dictionary = trait_value as Dictionary
+		var trait_name: String = str(trait_data.get("name", trait_data.get("id", "未命名特性")))
+		var trait_desc: String = str(trait_data.get("description", "")).strip_edges()
+		if trait_desc.is_empty():
+			lines.append("特性·%s" % trait_name)
+		else:
+			lines.append("特性·%s：%s" % [trait_name, trait_desc])
+
+		var trait_effects: Variant = trait_data.get("effects", [])
+		if trait_effects is Array:
+			for effect_value in trait_effects:
+				if effect_value is Dictionary:
+					lines.append("特性·%s：%s" % [trait_name, _format_effect_op(effect_value as Dictionary)])
+
+		var skill_value: Variant = trait_data.get("skill", {})
+		if skill_value is Dictionary and not (skill_value as Dictionary).is_empty():
+			var skill_data: Dictionary = skill_value as Dictionary
+			lines.append("特性·%s：触发 %s" % [trait_name, _trigger_to_cn(str(skill_data.get("trigger", "")))])
+			var skill_effects: Variant = skill_data.get("effects", [])
+			if skill_effects is Array:
+				for effect_value in skill_effects:
+					if effect_value is Dictionary:
+						lines.append("特性·%s：%s" % [trait_name, _format_effect_op(effect_value as Dictionary)])
 	return lines
 
 
@@ -1611,26 +1633,6 @@ func _on_slot_item_dropped(slot_category: String, slot_key: String, item_id: Str
 	_refresh_all_ui()
 
 
-func _rebuild_linkage_preview() -> void:
-	for child in detail_linkage_list.get_children():
-		child.queue_free()
-	if gongfa_manager == null:
-		var empty_label := Label.new()
-		empty_label.text = "未连接 GongfaManager"
-		detail_linkage_list.add_child(empty_label)
-		return
-	var names: Array = gongfa_manager.call("get_active_linkage_names")
-	if names.is_empty():
-		var none_label := Label.new()
-		none_label.text = "暂无已激活联动"
-		detail_linkage_list.add_child(none_label)
-		return
-	for item in names:
-		var row := Label.new()
-		row.text = "✅ %s" % str(item)
-		detail_linkage_list.add_child(row)
-
-
 func _ensure_tooltip_gongfa_rows_created(required_count: int) -> void:
 	# UnitTooltip 功法列表也改为增量更新，避免周期刷新时频繁销毁 hover 源。
 	var needed: int = maxi(required_count, 1)
@@ -1665,13 +1667,43 @@ func _ensure_tooltip_gongfa_rows_created(required_count: int) -> void:
 
 
 func _refresh_tooltip_gongfa_list(unit: Node) -> void:
+	var entries: Array[Dictionary] = []
+	var trait_values: Variant = _safe_node_prop(unit, "traits", [])
+	if trait_values is Array:
+		for trait_value in trait_values:
+			if not (trait_value is Dictionary):
+				continue
+			var trait_data: Dictionary = trait_value as Dictionary
+			var trait_name: String = str(trait_data.get("name", trait_data.get("id", "未命名特性")))
+			entries.append({
+				"text": "特性·%s" % trait_name,
+				"payload": _build_trait_item_tooltip_data(trait_data)
+			})
+
 	var runtime_ids: Array = unit.get("runtime_equipped_gongfa_ids")
-	var row_count: int = runtime_ids.size()
+	for gid_value in runtime_ids:
+		var gid: String = str(gid_value)
+		var data: Dictionary = {}
+		if gongfa_manager != null:
+			data = gongfa_manager.call("get_gongfa_data", gid)
+		var text: String = gid
+		if not data.is_empty():
+			text = "%s（%s/%s）" % [
+				str(data.get("name", gid)),
+				_slot_to_cn(str(data.get("type", ""))),
+				_element_to_cn(str(data.get("element", "none")))
+			]
+		entries.append({
+			"text": text,
+			"payload": _build_gongfa_item_tooltip_data(gid)
+		})
+
+	var row_count: int = entries.size()
 	_ensure_tooltip_gongfa_rows_created(row_count)
 	if row_count == 0:
 		var only_row: PanelContainer = _tooltip_gongfa_rows[0]
 		var only_link: LinkButton = _tooltip_gongfa_links[0]
-		only_link.text = "功法: 无"
+		only_link.text = "功法/特性: 无"
 		only_link.disabled = true
 		only_row.set_meta("item_data", {})
 		only_row.visible = true
@@ -1683,21 +1715,11 @@ func _refresh_tooltip_gongfa_list(unit: Node) -> void:
 		_tooltip_gongfa_rows[i].visible = i < row_count
 		if i >= row_count:
 			continue
-		var gid: String = str(runtime_ids[i])
-		var data: Dictionary = {}
-		if gongfa_manager != null:
-			data = gongfa_manager.call("get_gongfa_data", gid)
 		var link: LinkButton = _tooltip_gongfa_links[i]
-		if data.is_empty():
-			link.text = gid
-		else:
-			link.text = "%s（%s/%s）" % [
-				str(data.get("name", gid)),
-				_slot_to_cn(str(data.get("type", ""))),
-				_element_to_cn(str(data.get("element", "none")))
-			]
+		var entry: Dictionary = entries[i]
+		link.text = str(entry.get("text", "-"))
 		link.disabled = false
-		_tooltip_gongfa_rows[i].set_meta("item_data", _build_gongfa_item_tooltip_data(gid))
+		_tooltip_gongfa_rows[i].set_meta("item_data", entry.get("payload", {}))
 		if _item_hover_source == _tooltip_gongfa_rows[i]:
 			var refreshed_tip_payload: Variant = _tooltip_gongfa_rows[i].get_meta("item_data", {})
 			if refreshed_tip_payload is Dictionary:
@@ -1850,7 +1872,6 @@ func _show_item_tooltip(payload: Dictionary, source: Control) -> void:
 	item_tooltip_name.text = str(payload.get("name", "未知条目"))
 	item_tooltip_type.text = str(payload.get("type_line", ""))
 	item_tooltip_desc.text = str(payload.get("desc", ""))
-	item_tooltip_linkage_tags.text = str(payload.get("linkage_tags", "联动标签：无"))
 
 	for child in item_tooltip_effects.get_children():
 		child.queue_free()
@@ -1896,6 +1917,42 @@ func _position_item_tooltip(source: Control) -> void:
 	item_tooltip.position = desired
 
 
+func _build_trait_item_tooltip_data(trait_data: Dictionary) -> Dictionary:
+	var trait_name: String = str(trait_data.get("name", trait_data.get("id", "未命名特性")))
+	var effects: Array[String] = []
+	var trait_effects: Variant = trait_data.get("effects", [])
+	if trait_effects is Array:
+		for effect_value in trait_effects:
+			if effect_value is Dictionary:
+				effects.append(_format_effect_op(effect_value as Dictionary))
+
+	var has_skill: bool = false
+	var skill_trigger: String = ""
+	var skill_effects: Array[String] = []
+	var skill_value: Variant = trait_data.get("skill", {})
+	if skill_value is Dictionary and not (skill_value as Dictionary).is_empty():
+		has_skill = true
+		var skill: Dictionary = skill_value
+		skill_trigger = "触发：%s" % _trigger_to_cn(str(skill.get("trigger", "")))
+		var mp_cost: float = float(skill.get("mp_cost", 0.0))
+		skill_effects.append("消耗：%d 内力" % int(round(mp_cost)))
+		var skill_effect_list: Variant = skill.get("effects", [])
+		if skill_effect_list is Array:
+			for effect_value in skill_effect_list:
+				if effect_value is Dictionary:
+					skill_effects.append(_format_effect_op(effect_value as Dictionary))
+
+	return {
+		"name": "特性·%s" % trait_name,
+		"type_line": "内置特性 · 不可装卸",
+		"desc": str(trait_data.get("description", "无描述")),
+		"effects": effects,
+		"has_skill": has_skill,
+		"skill_trigger": skill_trigger,
+		"skill_effects": skill_effects
+	}
+
+
 func _build_gongfa_item_tooltip_data(gongfa_id: String) -> Dictionary:
 	var data: Dictionary = {}
 	if gongfa_manager != null:
@@ -1908,8 +1965,7 @@ func _build_gongfa_item_tooltip_data(gongfa_id: String) -> Dictionary:
 			"effects": [],
 			"has_skill": false,
 			"skill_trigger": "",
-			"skill_effects": [],
-			"linkage_tags": "联动标签：无"
+			"skill_effects": []
 		}
 	var effects: Array[String] = []
 	var passive_effects: Variant = data.get("passive_effects", [])
@@ -1941,14 +1997,6 @@ func _build_gongfa_item_tooltip_data(gongfa_id: String) -> Dictionary:
 				if effect_value is Dictionary:
 					skill_effects.append(_format_effect_op(effect_value as Dictionary))
 
-	var linkage_tags: String = "联动标签：无"
-	var tags_raw: Variant = data.get("linkage_tags", [])
-	if tags_raw is Array and not (tags_raw as Array).is_empty():
-		var tags_text: Array[String] = []
-		for tag in tags_raw:
-			tags_text.append(str(tag))
-		linkage_tags = "联动标签：%s" % " · ".join(tags_text)
-
 	return {
 		"name": "%s [%s]" % [str(data.get("name", gongfa_id)), _quality_to_cn(str(data.get("quality", "white")))],
 		"type_line": "%s · %s · %s" % [
@@ -1960,8 +2008,7 @@ func _build_gongfa_item_tooltip_data(gongfa_id: String) -> Dictionary:
 		"effects": effects,
 		"has_skill": has_skill,
 		"skill_trigger": skill_trigger,
-		"skill_effects": skill_effects,
-		"linkage_tags": linkage_tags
+		"skill_effects": skill_effects
 	}
 
 
@@ -1977,13 +2024,12 @@ func _build_equip_item_tooltip_data(equip_id: String) -> Dictionary:
 			"effects": [],
 			"has_skill": false,
 			"skill_trigger": "",
-			"skill_effects": [],
-			"linkage_tags": "联动标签：无"
+			"skill_effects": []
 		}
 	var effect_lines: Array[String] = []
-	var passive_effects: Variant = data.get("passive_effects", [])
-	if passive_effects is Array:
-		for effect_value in passive_effects:
+	var effect_values: Variant = data.get("effects", [])
+	if effect_values is Array:
+		for effect_value in effect_values:
 			if effect_value is Dictionary:
 				effect_lines.append(_format_effect_op(effect_value as Dictionary))
 
@@ -2007,14 +2053,6 @@ func _build_equip_item_tooltip_data(equip_id: String) -> Dictionary:
 				if effect_value is Dictionary:
 					trigger_effect_lines.append(_format_effect_op(effect_value as Dictionary))
 
-	var linkage_tags: String = "联动标签：无"
-	var tags_raw: Variant = data.get("linkage_tags", [])
-	if tags_raw is Array and not (tags_raw as Array).is_empty():
-		var tags_text: Array[String] = []
-		for tag in tags_raw:
-			tags_text.append(str(tag))
-		linkage_tags = "联动标签：%s" % " · ".join(tags_text)
-
 	return {
 		"name": "%s [%s]" % [str(data.get("name", equip_id)), _quality_to_cn(str(data.get("rarity", "white")))],
 		"type_line": "%s · %s" % [_equip_type_to_cn(str(data.get("type", "weapon"))), _element_to_cn(str(data.get("element", "none")))],
@@ -2022,8 +2060,7 @@ func _build_equip_item_tooltip_data(equip_id: String) -> Dictionary:
 		"effects": effect_lines,
 		"has_skill": has_trigger,
 		"skill_trigger": trigger_line,
-		"skill_effects": trigger_effect_lines,
-		"linkage_tags": linkage_tags
+		"skill_effects": trigger_effect_lines
 	}
 
 
@@ -2042,12 +2079,51 @@ func _format_effect_op(effect: Dictionary) -> String:
 			return "暴击率 +%d%%" % int(round(float(effect.get("value", 0.0)) * 100.0))
 		"crit_damage_bonus":
 			return "暴击伤害 +%d%%" % int(round(float(effect.get("value", 0.0)) * 100.0))
+		"attack_speed_bonus":
+			return "攻速 +%d%%" % int(round(float(effect.get("value", 0.0)) * 100.0))
+		"range_add":
+			return "射程 +%s" % str(effect.get("value", 0))
 		"damage_reduce_percent":
 			return "受伤减免 %d%%" % int(round(float(effect.get("value", 0.0)) * 100.0))
+		"damage_amp_percent":
+			return "造成伤害 +%d%%" % int(round(float(effect.get("value", 0.0)) * 100.0))
+		"damage_amp_vs_debuffed":
+			var required_debuff: String = str(effect.get("require_debuff", "")).strip_edges()
+			var amp_percent: int = int(round(float(effect.get("value", 0.0)) * 100.0))
+			if required_debuff.is_empty():
+				return "对受减益目标伤害 +%d%%" % amp_percent
+			return "对带「%s」目标伤害 +%d%%" % [_buff_name_from_id(required_debuff), amp_percent]
+		"vampire":
+			return "生命偷取 +%d%%" % int(round(float(effect.get("value", 0.0)) * 100.0))
+		"tenacity":
+			return "韧性 +%d%%" % int(round(float(effect.get("value", 0.0)) * 100.0))
+		"thorns_percent":
+			return "反伤比例 +%d%%" % int(round(float(effect.get("value", 0.0)) * 100.0))
+		"thorns_flat":
+			return "反伤固定值 +%d" % int(round(float(effect.get("value", 0.0))))
+		"shield_on_combat_start":
+			return "开战获得护盾 %d" % int(round(float(effect.get("value", 0.0))))
+		"execute_threshold":
+			return "斩杀线 %d%%" % int(round(float(effect.get("value", 0.0)) * 100.0))
+		"healing_amp":
+			return "治疗效果 +%d%%" % int(round(float(effect.get("value", 0.0)) * 100.0))
+		"conditional_stat":
+			var c_stat: String = _stat_key_to_cn(str(effect.get("stat", "")))
+			var c_value: float = float(effect.get("value", 0.0))
+			var threshold: int = int(round(float(effect.get("threshold", 0.0)) * 100.0))
+			var condition: String = str(effect.get("condition", "")).strip_edges().to_lower()
+			if condition == "hp_below":
+				return "生命低于 %d%% 时，%s %+d" % [threshold, c_stat, int(round(c_value))]
+			return "条件加成：%s %+d" % [c_stat, int(round(c_value))]
 		"heal_self_percent":
 			return "回复自身 %d%% 最大生命" % int(round(float(effect.get("value", 0.0)) * 100.0))
 		"heal_self":
 			return "回复生命 %d" % int(round(float(effect.get("value", 0.0))))
+		"heal_allies_aoe":
+			return "范围友方回复 %d（半径%d格）" % [
+				int(round(float(effect.get("value", 0.0)))),
+				int(effect.get("radius", 0))
+			]
 		"damage_target":
 			return "对目标造成 %d 点%s伤害" % [
 				int(round(float(effect.get("value", 0.0)))),
@@ -2067,6 +2143,29 @@ func _format_effect_op(effect: Dictionary) -> String:
 			return "为范围友方施加「%s」" % _buff_name_from_id(str(effect.get("buff_id", "")))
 		"debuff_target":
 			return "施加减益「%s」(%.1f秒)" % [_buff_name_from_id(str(effect.get("buff_id", ""))), float(effect.get("duration", 0.0))]
+		"shield_self":
+			return "获得护盾 %d（%.1f秒）" % [
+				int(round(float(effect.get("value", 0.0)))),
+				float(effect.get("duration", 0.0))
+			]
+		"shield_allies_aoe":
+			return "范围友方获得护盾 %d（%.1f秒，半径%d格）" % [
+				int(round(float(effect.get("value", 0.0)))),
+				float(effect.get("duration", 0.0)),
+				int(effect.get("radius", 0))
+			]
+		"cleanse_ally":
+			return "净化友方负面状态"
+		"silence_target":
+			return "沉默目标 %.1f秒" % float(effect.get("duration", 0.0))
+		"mark_target":
+			return "标记目标「%s」(%.1f秒)" % [str(effect.get("mark_id", "")), float(effect.get("duration", 0.0))]
+		"damage_if_marked":
+			return "对被标记目标造成 %d 点%s伤害（倍率x%.1f）" % [
+				int(round(float(effect.get("value", 0.0)))),
+				_damage_type_to_cn(str(effect.get("damage_type", "external"))),
+				float(effect.get("bonus_multiplier", 1.0))
+			]
 		"spawn_vfx":
 			return "触发特效 %s" % str(effect.get("vfx_id", ""))
 		_:
@@ -2372,6 +2471,16 @@ func _stat_key_to_cn(stat_key: String) -> String:
 			return "速度"
 		"rng":
 			return "射程"
+		"mov":
+			return "移速"
+		"wis":
+			return "悟性"
+		"crit_bonus":
+			return "暴击率"
+		"crit_damage_bonus":
+			return "暴击伤害"
+		"dodge_bonus":
+			return "闪避率"
 		_:
 			return stat_key
 

@@ -1,6 +1,6 @@
 extends Node
 
-# M5 ??????????MultiMesh + ???????
+# M5 渲染职责拆分：MultiMesh 与棋盘自适应缩放
 
 const SQRT3: float = 1.7320508
 
@@ -54,7 +54,7 @@ func refit_hex_grid() -> void:
 	var deploy_overlay: Node = _owner.get("deploy_overlay")
 	if deploy_overlay != null:
 		deploy_overlay.call("queue_redraw")
-	# ????????? * ??????????????????
+	# 角色缩放 = 棋格自适应比例 * 配置倍率，兼顾不同分辨率显示效果。
 	var unit_visual_scale_multiplier: float = float(_owner.get("unit_visual_scale_multiplier"))
 	var adaptive_scale: float = clampf((fit_hex * 1.52) / 32.0, 0.42, 1.10)
 	_owner.set("_unit_scale_factor", clampf(adaptive_scale * unit_visual_scale_multiplier, 0.20, 1.10))

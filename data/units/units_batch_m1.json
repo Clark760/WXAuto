@@ -7884,6 +7884,30 @@
       "gongfa_xianglong",
       "eq_dagou"
     ],
+    "traits": [
+      {
+        "id": "trait_hong_qigong_dragon",
+        "name": "降龙掌宗师",
+        "description": "刚猛掌劲层层叠进，越战越勇。",
+        "effects": [
+          {
+            "op": "damage_amp_percent",
+            "value": 0.12
+          }
+        ]
+      },
+      {
+        "id": "trait_hong_qigong_beggar_staff",
+        "name": "打狗棒节律",
+        "description": "棒法连绵，攻势节奏更快。",
+        "effects": [
+          {
+            "op": "attack_speed_bonus",
+            "value": 0.12
+          }
+        ]
+      }
+    ],
     "sprite_path": "assets/sprites/units/unit_orange_261.png",
     "portrait_path": "assets/sprites/portraits/unit_orange_261.png",
     "tags": [
@@ -7916,6 +7940,31 @@
     "initial_gongfa": [
       "gf_hama",
       "gf_lingshe"
+    ],
+    "traits": [
+      {
+        "id": "trait_ouyangfeng_toad_body",
+        "name": "蛤蟆真形",
+        "description": "逆练护体，受击可反噬来敌。",
+        "effects": [
+          {
+            "op": "thorns_percent",
+            "value": 0.1
+          }
+        ]
+      },
+      {
+        "id": "trait_ouyangfeng_poison_force",
+        "name": "逆练毒劲",
+        "description": "对中毒目标出手更狠。",
+        "effects": [
+          {
+            "op": "damage_amp_vs_debuffed",
+            "value": 0.2,
+            "require_debuff": "tangmen_poison"
+          }
+        ]
+      }
     ],
     "sprite_path": "assets/sprites/units/unit_orange_262.png",
     "portrait_path": "assets/sprites/portraits/unit_orange_262.png",
@@ -7950,6 +7999,30 @@
       "gf_tanzhi",
       "eq_yuxiao"
     ],
+    "traits": [
+      {
+        "id": "trait_huangyaoshi_peach_blossom",
+        "name": "桃花奇阵",
+        "description": "奇门布势，压制战场距离。",
+        "effects": [
+          {
+            "op": "range_add",
+            "value": 1
+          }
+        ]
+      },
+      {
+        "id": "trait_huangyaoshi_finger_strike",
+        "name": "弹指神通",
+        "description": "指劲凝练，命中后爆发更强。",
+        "effects": [
+          {
+            "op": "crit_damage_bonus",
+            "value": 0.25
+          }
+        ]
+      }
+    ],
     "sprite_path": "assets/sprites/units/unit_orange_263.png",
     "portrait_path": "assets/sprites/portraits/unit_orange_263.png",
     "tags": [
@@ -7982,6 +8055,30 @@
     "initial_gongfa": [
       "gf_yiyang",
       "eq_jinlan"
+    ],
+    "traits": [
+      {
+        "id": "trait_duanzhixing_yiyang_recovery",
+        "name": "一阳回春",
+        "description": "疗脉稳固，治疗效果更高。",
+        "effects": [
+          {
+            "op": "healing_amp",
+            "value": 0.22
+          }
+        ]
+      },
+      {
+        "id": "trait_duanzhixing_emperor_pulse",
+        "name": "皇脉真元",
+        "description": "内息绵长，内力回复提升。",
+        "effects": [
+          {
+            "op": "mp_regen_add",
+            "value": 5
+          }
+        ]
+      }
     ],
     "sprite_path": "assets/sprites/units/unit_orange_264.png",
     "portrait_path": "assets/sprites/portraits/unit_orange_264.png",
@@ -8016,6 +8113,30 @@
       "gf_zuoyou",
       "gf_kongming"
     ],
+    "traits": [
+      {
+        "id": "trait_zhoubotong_dual_hands",
+        "name": "双手互搏",
+        "description": "左右开弓，出手频率大幅提升。",
+        "effects": [
+          {
+            "op": "attack_speed_bonus",
+            "value": 0.22
+          }
+        ]
+      },
+      {
+        "id": "trait_zhoubotong_childlike_heart",
+        "name": "童心无相",
+        "description": "机变难测，更易闪避要害。",
+        "effects": [
+          {
+            "op": "dodge_bonus",
+            "value": 0.12
+          }
+        ]
+      }
+    ],
     "sprite_path": "assets/sprites/units/unit_orange_265.png",
     "portrait_path": "assets/sprites/portraits/unit_orange_265.png",
     "tags": [
@@ -8048,6 +8169,30 @@
     "initial_gongfa": [
       "gf_dugu",
       "eq_junzi"
+    ],
+    "traits": [
+      {
+        "id": "trait_fengqingyang_sword_heart",
+        "name": "独孤剑意",
+        "description": "见招拆招，剑势更易命中破绽。",
+        "effects": [
+          {
+            "op": "crit_bonus",
+            "value": 0.12
+          }
+        ]
+      },
+      {
+        "id": "trait_fengqingyang_breaking_point",
+        "name": "破绽洞察",
+        "description": "精准斩击，压低敌方斩杀线。",
+        "effects": [
+          {
+            "op": "execute_threshold",
+            "value": 0.16
+          }
+        ]
+      }
     ],
     "sprite_path": "assets/sprites/units/unit_orange_266.png",
     "portrait_path": "assets/sprites/portraits/unit_orange_266.png",
@@ -8082,6 +8227,30 @@
       "gf_beiming",
       "eq_qibao"
     ],
+    "traits": [
+      {
+        "id": "trait_wuyazi_beiming_absorb",
+        "name": "北冥化功",
+        "description": "攻守之间可吸纳敌势反哺己身。",
+        "effects": [
+          {
+            "op": "vampire",
+            "value": 0.14
+          }
+        ]
+      },
+      {
+        "id": "trait_wuyazi_xiaoyao_breath",
+        "name": "逍遥真息",
+        "description": "真息循环不绝，内力恢复更快。",
+        "effects": [
+          {
+            "op": "mp_regen_add",
+            "value": 6
+          }
+        ]
+      }
+    ],
     "sprite_path": "assets/sprites/units/unit_orange_267.png",
     "portrait_path": "assets/sprites/portraits/unit_orange_267.png",
     "tags": [
@@ -8114,6 +8283,30 @@
     "initial_gongfa": [
       "gf_bahuang",
       "gf_shengsi"
+    ],
+    "traits": [
+      {
+        "id": "trait_tianshan_shield",
+        "name": "八荒护体",
+        "description": "开战先立护身真气。",
+        "effects": [
+          {
+            "op": "shield_on_combat_start",
+            "value": 260
+          }
+        ]
+      },
+      {
+        "id": "trait_tianshan_rebirth",
+        "name": "返老归真",
+        "description": "心志坚凝，控制抗性更强。",
+        "effects": [
+          {
+            "op": "tenacity",
+            "value": 0.25
+          }
+        ]
+      }
     ],
     "sprite_path": "assets/sprites/units/unit_orange_268.png",
     "portrait_path": "assets/sprites/portraits/unit_orange_268.png",
@@ -8148,6 +8341,30 @@
       "gf_xiaowuxiang",
       "gf_baihongzhang"
     ],
+    "traits": [
+      {
+        "id": "trait_liqiushui_xiaowuxiang",
+        "name": "小无相神功",
+        "description": "以无相化万法，攻势更凌厉。",
+        "effects": [
+          {
+            "op": "damage_amp_percent",
+            "value": 0.12
+          }
+        ]
+      },
+      {
+        "id": "trait_liqiushui_baihong",
+        "name": "白虹错影",
+        "description": "身法飘忽，闪避能力提升。",
+        "effects": [
+          {
+            "op": "dodge_bonus",
+            "value": 0.12
+          }
+        ]
+      }
+    ],
     "sprite_path": "assets/sprites/units/unit_orange_269.png",
     "portrait_path": "assets/sprites/portraits/unit_orange_269.png",
     "tags": [
@@ -8180,6 +8397,30 @@
     "initial_gongfa": [
       "gf_yunv",
       "eq_shunv"
+    ],
+    "traits": [
+      {
+        "id": "trait_linchaoying_jade_sword",
+        "name": "玉女剑心",
+        "description": "剑意清绝，暴击威力更强。",
+        "effects": [
+          {
+            "op": "crit_damage_bonus",
+            "value": 0.24
+          }
+        ]
+      },
+      {
+        "id": "trait_linchaoying_tomb_guard",
+        "name": "古墓清守",
+        "description": "守中见奇，承伤更稳。",
+        "effects": [
+          {
+            "op": "damage_reduce_percent",
+            "value": 0.1
+          }
+        ]
+      }
     ],
     "sprite_path": "assets/sprites/units/unit_orange_270.png",
     "portrait_path": "assets/sprites/portraits/unit_orange_270.png",
@@ -8216,6 +8457,52 @@
       "gf_xisui",
       "eq_jinlan"
     ],
+    "traits": [
+      {
+        "id": "trait_sweeper_gold_body",
+        "name": "无相金身",
+        "description": "濒危时激发护体金身，瞬时稳住战局。",
+        "effects": [],
+        "skill": {
+          "trigger": "on_hp_below",
+          "threshold": 0.35,
+          "cooldown": 16.0,
+          "mp_cost": 0,
+          "effects": [
+            {
+              "op": "shield_self",
+              "value": 450,
+              "duration": 5.0
+            },
+            {
+              "op": "heal_self_percent",
+              "value": 0.18
+            }
+          ]
+        }
+      },
+      {
+        "id": "trait_sweeper_dust_crossing",
+        "name": "扫尘渡厄",
+        "description": "以慈悲真气定期普渡队友。",
+        "effects": [],
+        "skill": {
+          "trigger": "periodic",
+          "interval": 6.0,
+          "mp_cost": 25,
+          "effects": [
+            {
+              "op": "heal_allies_aoe",
+              "value": 140,
+              "radius": 3
+            },
+            {
+              "op": "cleanse_ally"
+            }
+          ]
+        }
+      }
+    ],
     "sprite_path": "assets/sprites/units/unit_red_271.png",
     "portrait_path": "assets/sprites/portraits/unit_red_271.png",
     "tags": [
@@ -8250,6 +8537,56 @@
       "gongfa_taiji_jian",
       "gf_taijiquan",
       "eq_zhenwu"
+    ],
+    "traits": [
+      {
+        "id": "trait_zhangsanfeng_taiji_shift",
+        "name": "太极化劲",
+        "description": "受击时借力卸劲并回转真气。",
+        "effects": [],
+        "skill": {
+          "trigger": "on_attacked",
+          "chance": 0.3,
+          "cooldown": 8.0,
+          "mp_cost": 0,
+          "effects": [
+            {
+              "op": "shield_self",
+              "value": 260,
+              "duration": 4.0
+            },
+            {
+              "op": "heal_self_percent",
+              "value": 0.1
+            }
+          ]
+        }
+      },
+      {
+        "id": "trait_zhangsanfeng_founder",
+        "name": "宗师道统",
+        "description": "出手时引动太极劲，兼顾单体与溅射。",
+        "effects": [],
+        "skill": {
+          "trigger": "on_attack_hit",
+          "chance": 0.25,
+          "cooldown": 5.0,
+          "mp_cost": 0,
+          "effects": [
+            {
+              "op": "damage_target",
+              "value": 180,
+              "damage_type": "internal"
+            },
+            {
+              "op": "damage_aoe",
+              "radius": 2,
+              "value": 90,
+              "damage_type": "internal"
+            }
+          ]
+        }
+      }
     ],
     "sprite_path": "assets/sprites/units/unit_red_272.png",
     "portrait_path": "assets/sprites/portraits/unit_red_272.png",
@@ -8286,6 +8623,55 @@
       "gf_xiuhua",
       "eq_xiuhuazhen"
     ],
+    "traits": [
+      {
+        "id": "trait_dongfang_sunflower_shadow",
+        "name": "葵花残影",
+        "description": "命中后残影追击并封其气机。",
+        "effects": [],
+        "skill": {
+          "trigger": "on_attack_hit",
+          "chance": 0.35,
+          "cooldown": 4.0,
+          "mp_cost": 0,
+          "effects": [
+            {
+              "op": "damage_target",
+              "value": 160,
+              "damage_type": "external"
+            },
+            {
+              "op": "silence_target",
+              "duration": 1.5
+            }
+          ]
+        }
+      },
+      {
+        "id": "trait_dongfang_needle_edge",
+        "name": "绝世针芒",
+        "description": "每次斩获后爆发针雨清场。",
+        "effects": [],
+        "skill": {
+          "trigger": "on_kill",
+          "cooldown": 10.0,
+          "mp_cost": 0,
+          "effects": [
+            {
+              "op": "shield_self",
+              "value": 280,
+              "duration": 4.0
+            },
+            {
+              "op": "damage_aoe",
+              "radius": 2,
+              "value": 150,
+              "damage_type": "external"
+            }
+          ]
+        }
+      }
+    ],
     "sprite_path": "assets/sprites/units/unit_red_273.png",
     "portrait_path": "assets/sprites/portraits/unit_red_273.png",
     "tags": [
@@ -8320,6 +8706,53 @@
       "gf_xuantiejian",
       "gf_pojian",
       "eq_xuantie"
+    ],
+    "traits": [
+      {
+        "id": "trait_dugu_sword_demon",
+        "name": "剑魔心证",
+        "description": "命中即刻烙下剑印，追击加重。",
+        "effects": [],
+        "skill": {
+          "trigger": "on_attack_hit",
+          "chance": 0.3,
+          "cooldown": 5.0,
+          "mp_cost": 0,
+          "effects": [
+            {
+              "op": "mark_target",
+              "mark_id": "debuff_mark_death",
+              "duration": 5.0
+            },
+            {
+              "op": "damage_if_marked",
+              "value": 170,
+              "damage_type": "external",
+              "mark_id": "debuff_mark_death",
+              "bonus_multiplier": 1.6
+            }
+          ]
+        }
+      },
+      {
+        "id": "trait_dugu_finisher",
+        "name": "求败斩决",
+        "description": "窥得破绽时，斩决之剑直接重创目标。",
+        "effects": [],
+        "skill": {
+          "trigger": "on_attack_hit",
+          "chance": 0.2,
+          "cooldown": 7.0,
+          "mp_cost": 0,
+          "effects": [
+            {
+              "op": "damage_target",
+              "value": 220,
+              "damage_type": "external"
+            }
+          ]
+        }
+      }
     ],
     "sprite_path": "assets/sprites/units/unit_red_274.png",
     "portrait_path": "assets/sprites/portraits/unit_red_274.png",
@@ -8356,6 +8789,48 @@
       "gf_yiti",
       "eq_qixing"
     ],
+    "traits": [
+      {
+        "id": "trait_wangchongyang_xiantian_guard",
+        "name": "先天护体",
+        "description": "开战即布先天真罡庇护同门。",
+        "effects": [],
+        "skill": {
+          "trigger": "on_combat_start",
+          "cooldown": 0,
+          "mp_cost": 0,
+          "effects": [
+            {
+              "op": "shield_allies_aoe",
+              "value": 260,
+              "duration": 6.0,
+              "radius": 3
+            }
+          ]
+        }
+      },
+      {
+        "id": "trait_wangchongyang_zhongshentong",
+        "name": "中神通脉",
+        "description": "周天运转，周期回复真元与气血。",
+        "effects": [],
+        "skill": {
+          "trigger": "periodic",
+          "interval": 7.0,
+          "mp_cost": 20,
+          "effects": [
+            {
+              "op": "mp_regen_add",
+              "value": 12
+            },
+            {
+              "op": "heal_self",
+              "value": 180
+            }
+          ]
+        }
+      }
+    ],
     "sprite_path": "assets/sprites/units/unit_red_275.png",
     "portrait_path": "assets/sprites/portraits/unit_red_275.png",
     "tags": [
@@ -8365,3 +8840,4 @@
     ]
   }
 ]
+

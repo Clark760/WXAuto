@@ -1,0 +1,459 @@
+[
+    {
+        "id":  "eq_bixie_sword",
+        "name":  "Swift Evil Sword",
+        "type":  "weapon",
+        "element":  "fire",
+        "rarity":  "orange",
+        "description":  "Crits grant a short berserk buff.",
+        "effects":  [
+                                {
+                                    "op":  "stat_add",
+                                    "stat":  "atk",
+                                    "value":  110
+                                },
+                                {
+                                    "op":  "attack_speed_bonus",
+                                    "value":  0.15
+                                }
+                            ],
+        "trigger":  {
+                        "type":  "on_crit",
+                        "chance":  1.0,
+                        "cooldown":  0,
+                        "effects":  [
+                                        {
+                                            "op":  "buff_self",
+                                            "buff_id":  "buff_berserk",
+                                            "duration":  6.0
+                                        }
+                                    ]
+                    },
+        "linkage_tags":  [
+
+                         ]
+    },
+    {
+        "id":  "eq_duchangjian",
+        "name":  "Poison Blade",
+        "type":  "weapon",
+        "element":  "wood",
+        "rarity":  "purple",
+        "description":  "Hits may apply poison and deal extra damage to poisoned targets.",
+        "effects":  [
+                                {
+                                    "op":  "stat_add",
+                                    "stat":  "atk",
+                                    "value":  85
+                                },
+                                {
+                                    "op":  "damage_amp_vs_debuffed",
+                                    "value":  0.20,
+                                    "require_debuff":  "tangmen_poison"
+                                }
+                            ],
+        "trigger":  {
+                        "type":  "on_attack_hit",
+                        "chance":  0.25,
+                        "cooldown":  2.0,
+                        "effects":  [
+                                        {
+                                            "op":  "debuff_target",
+                                            "buff_id":  "tangmen_poison",
+                                            "duration":  4.0
+                                        }
+                                    ]
+                    },
+        "linkage_tags":  [
+
+                         ]
+    },
+    {
+        "id":  "eq_hanbingmian",
+        "name":  "Frostmail",
+        "type":  "armor",
+        "element":  "water",
+        "rarity":  "orange",
+        "description":  "Can freeze attackers and create ice terrain.",
+        "effects":  [
+                                {
+                                    "op":  "stat_add",
+                                    "stat":  "def",
+                                    "value":  100
+                                },
+                                {
+                                    "op":  "stat_add",
+                                    "stat":  "idr",
+                                    "value":  60
+                                }
+                            ],
+        "trigger":  {
+                        "type":  "on_attacked",
+                        "chance":  0.15,
+                        "cooldown":  8.0,
+                        "effects":  [
+                                        {
+                                            "op":  "freeze_target",
+                                            "duration":  2.0
+                                        },
+                                        {
+                                            "op":  "create_terrain",
+                                            "terrain_type":  "ice",
+                                            "radius":  2,
+                                            "duration":  8.0
+                                        }
+                                    ]
+                    },
+        "linkage_tags":  [
+
+                         ]
+    },
+    {
+        "id":  "eq_liuhuoyi",
+        "name":  "Flame Armor",
+        "type":  "armor",
+        "element":  "fire",
+        "rarity":  "orange",
+        "description":  "Reflects damage and burns nearby enemies.",
+        "effects":  [
+                                {
+                                    "op":  "stat_add",
+                                    "stat":  "def",
+                                    "value":  90
+                                },
+                                {
+                                    "op":  "thorns_percent",
+                                    "value":  0.20
+                                }
+                            ],
+        "trigger":  {
+                        "type":  "on_attacked",
+                        "chance":  0.20,
+                        "cooldown":  5.0,
+                        "effects":  [
+                                        {
+                                            "op":  "debuff_aoe",
+                                            "buff_id":  "debuff_burn",
+                                            "radius":  2,
+                                            "duration":  4.0
+                                        },
+                                        {
+                                            "op":  "burn_ground",
+                                            "radius":  2,
+                                            "damage_per_second":  15,
+                                            "duration":  5.0
+                                        }
+                                    ]
+                    },
+        "linkage_tags":  [
+
+                         ]
+    },
+    {
+        "id":  "eq_pojia_chuizi",
+        "name":  "Armor Break Hammer",
+        "type":  "weapon",
+        "element":  "earth",
+        "rarity":  "purple",
+        "description":  "Hits can apply armor break.",
+        "effects":  [
+                                {
+                                    "op":  "stat_add",
+                                    "stat":  "atk",
+                                    "value":  90
+                                }
+                            ],
+        "trigger":  {
+                        "type":  "on_attack_hit",
+                        "chance":  0.30,
+                        "cooldown":  0,
+                        "effects":  [
+                                        {
+                                            "op":  "debuff_target",
+                                            "buff_id":  "debuff_armor_break",
+                                            "duration":  6.0
+                                        }
+                                    ]
+                    },
+        "linkage_tags":  [
+
+                         ]
+    },
+    {
+        "id":  "eq_xixue_jie",
+        "name":  "Blood Ring",
+        "type":  "accessory",
+        "element":  "fire",
+        "rarity":  "purple",
+        "description":  "Grants life steal and MP on kill.",
+        "effects":  [
+                                {
+                                    "op":  "vampire",
+                                    "value":  0.15
+                                },
+                                {
+                                    "op":  "mp_on_kill",
+                                    "value":  30
+                                }
+                            ],
+        "trigger":  {
+                        "type":  "on_attack_hit",
+                        "chance":  0.2,
+                        "cooldown":  4,
+                        "effects":  [
+                                        {
+                                            "op":  "buff_self",
+                                            "buff_id":  "buff_bloodthirst",
+                                            "duration":  5
+                                        }
+                                    ]
+                    },
+        "linkage_tags":  [
+
+                         ]
+    },
+    {
+        "id":  "eq_huiqi_zhu",
+        "name":  "Qi Pearl",
+        "type":  "accessory",
+        "element":  "wood",
+        "rarity":  "blue",
+        "description":  "Can cleanse self and heal after being attacked.",
+        "effects":  [
+                                {
+                                    "op":  "mp_regen_add",
+                                    "value":  4.0
+                                },
+                                {
+                                    "op":  "tenacity",
+                                    "value":  0.20
+                                }
+                            ],
+        "trigger":  {
+                        "type":  "on_attacked",
+                        "chance":  0.30,
+                        "cooldown":  10.0,
+                        "effects":  [
+                                        {
+                                            "op":  "cleanse_self"
+                                        },
+                                        {
+                                            "op":  "heal_self_percent",
+                                            "value":  0.10
+                                        }
+                                    ]
+                    },
+        "linkage_tags":  [
+
+                         ]
+    },
+    {
+        "id":  "eq_zhanshen_kai",
+        "name":  "War God Armor",
+        "type":  "armor",
+        "element":  "metal",
+        "rarity":  "red",
+        "description":  "Start with shield and gain undying at low HP.",
+        "effects":  [
+                                {
+                                    "op":  "stat_add",
+                                    "stat":  "def",
+                                    "value":  200
+                                },
+                                {
+                                    "op":  "shield_on_combat_start",
+                                    "value":  800
+                                }
+                            ],
+        "trigger":  {
+                        "type":  "on_hp_below",
+                        "threshold":  0.20,
+                        "cooldown":  99.0,
+                        "effects":  [
+                                        {
+                                            "op":  "buff_self",
+                                            "buff_id":  "buff_undying",
+                                            "duration":  3.0
+                                        }
+                                    ]
+                    },
+        "linkage_tags":  [
+
+                         ]
+    },
+    {
+        "id":  "eq_zhanshazhui",
+        "name":  "Execution Cone",
+        "type":  "weapon",
+        "element":  "metal",
+        "rarity":  "orange",
+        "description":  "Execution damage against low HP targets.",
+        "effects":  [
+                                {
+                                    "op":  "stat_add",
+                                    "stat":  "atk",
+                                    "value":  100
+                                },
+                                {
+                                    "op":  "execute_threshold",
+                                    "value":  0.20
+                                }
+                            ],
+        "trigger":  {
+                        "type":  "on_attack_hit",
+                        "chance":  1.0,
+                        "cooldown":  3.0,
+                        "effects":  [
+                                        {
+                                            "op":  "execute_target",
+                                            "hp_threshold":  0.20,
+                                            "damage_type":  "external",
+                                            "value":  300
+                                        }
+                                    ]
+                    },
+        "linkage_tags":  [
+
+                         ]
+    },
+    {
+        "id":  "eq_guiyuan_zhen",
+        "name":  "Guiyuan Needle",
+        "type":  "weapon",
+        "element":  "water",
+        "rarity":  "purple",
+        "description":  "Hits can silence and drain MP.",
+        "effects":  [
+                                {
+                                    "op":  "stat_add",
+                                    "stat":  "iat",
+                                    "value":  80
+                                }
+                            ],
+        "trigger":  {
+                        "type":  "on_attack_hit",
+                        "chance":  0.20,
+                        "cooldown":  6.0,
+                        "effects":  [
+                                        {
+                                            "op":  "silence_target",
+                                            "duration":  2.5
+                                        },
+                                        {
+                                            "op":  "drain_mp",
+                                            "value":  30
+                                        }
+                                    ]
+                    },
+        "linkage_tags":  [
+
+                         ]
+    },
+    {
+        "id":  "eq_fenglei_huan",
+        "name":  "Wind Thunder Ring",
+        "type":  "accessory",
+        "element":  "metal",
+        "rarity":  "orange",
+        "description":  "Crit can trigger chain damage.",
+        "effects":  [
+                                {
+                                    "op":  "stat_add",
+                                    "stat":  "iat",
+                                    "value":  60
+                                },
+                                {
+                                    "op":  "crit_bonus",
+                                    "value":  0.10
+                                }
+                            ],
+        "trigger":  {
+                        "type":  "on_crit",
+                        "chance":  0.50,
+                        "cooldown":  4.0,
+                        "effects":  [
+                                        {
+                                            "op":  "damage_chain",
+                                            "value":  80,
+                                            "damage_type":  "internal",
+                                            "chain_count":  3,
+                                            "decay":  0.25
+                                        }
+                                    ]
+                    },
+        "linkage_tags":  [
+
+                         ]
+    },
+    {
+        "id":  "eq_dihuo_jia",
+        "name":  "Earthfire Armor",
+        "type":  "armor",
+        "element":  "fire",
+        "rarity":  "purple",
+        "description":  "Can create burning ground when attacked.",
+        "effects":  [
+                                {
+                                    "op":  "stat_add",
+                                    "stat":  "def",
+                                    "value":  70
+                                },
+                                {
+                                    "op":  "stat_add",
+                                    "stat":  "hp",
+                                    "value":  300
+                                }
+                            ],
+        "trigger":  {
+                        "type":  "on_attacked",
+                        "chance":  0.25,
+                        "cooldown":  8.0,
+                        "effects":  [
+                                        {
+                                            "op":  "burn_ground",
+                                            "radius":  2,
+                                            "damage_per_second":  20,
+                                            "duration":  6.0
+                                        }
+                                    ]
+                    },
+        "linkage_tags":  [
+
+                         ]
+    },
+    {
+        "id":  "eq_fenix_yu",
+        "name":  "Phoenix Feather",
+        "type":  "accessory",
+        "element":  "fire",
+        "rarity":  "red",
+        "description":  "Can resurrect once at near death.",
+        "effects":  [
+                                {
+                                    "op":  "stat_add",
+                                    "stat":  "hp",
+                                    "value":  500
+                                },
+                                {
+                                    "op":  "stat_add",
+                                    "stat":  "mp",
+                                    "value":  200
+                                }
+                            ],
+        "trigger":  {
+                        "type":  "on_hp_below",
+                        "threshold":  0.01,
+                        "cooldown":  999.0,
+                        "effects":  [
+                                        {
+                                            "op":  "resurrect_self",
+                                            "hp_percent":  0.30
+                                        }
+                                    ]
+                    },
+        "linkage_tags":  [
+
+                         ]
+    }
+]
+

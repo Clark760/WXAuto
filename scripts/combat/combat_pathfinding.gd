@@ -40,7 +40,7 @@ func rebuild_flow_fields(owner: Node) -> void:
 
 
 func build_blocked_cells_for_team(owner: Node, self_team: int) -> Dictionary:
-	var blocked: Dictionary = (owner.get("_static_blocked_cells") as Dictionary).duplicate()
+	var blocked: Dictionary = owner.call("_get_blocked_cells_snapshot")
 	var cell_occupancy: Dictionary = owner.get("_cell_occupancy")
 	var unit_by_id: Dictionary = owner.get("_unit_by_instance_id")
 	for raw_key in cell_occupancy.keys():

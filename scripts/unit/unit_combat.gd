@@ -11,6 +11,8 @@ extends Node
 signal attacked(attacker: Node, target: Node, event: Dictionary)
 signal damaged(target: Node, source: Node, event: Dictionary)
 signal died(unit: Node, killer: Node)
+signal healing_performed(source: Node, target: Node, amount: float, heal_type: String)
+signal thorns_damage_dealt(source: Node, target: Node, event: Dictionary)
 
 @export var attack_range_min_cells: int = 1
 @export var attack_range_max_cells: int = 2
@@ -28,6 +30,9 @@ var max_shield_hp: float = 0.0
 
 var attack_interval: float = 0.8
 var _attack_cd: float = 0.0
+var _regen_heal_pending: float = 0.0
+var _regen_emit_accum: float = 0.0
+const REGEN_HEAL_EMIT_INTERVAL: float = 0.5
 
 var normal_multiplier: float = 1.0
 var skill_multiplier: float = 1.6
@@ -39,16 +44,28 @@ var passive_mp_regen: float = 2.0
 # 生命自然回复（基础值）。旧被动兼容值走 external_modifiers["hp_regen_add"]。
 var passive_hp_regen: float = 0.0
 
-# 外部修正层（功法/联动/Buff 汇总）：
+# 外部修正层（功法/Buff/地形汇总）：
 # 由 GongfaManager 注入，避免把功法逻辑耦合进基础战斗流程。
 const DEFAULT_EXTERNAL_MODIFIERS: Dictionary = {
 	"mp_regen_add": 0.0,
 	"hp_regen_add": 0.0,
 	"damage_reduce_flat": 0.0,
 	"damage_reduce_percent": 0.0,
+	"damage_amp_percent": 0.0,
+	"damage_amp_vs_any_debuff": 0.0,
+	"damage_amp_vs_debuff_map": {},
 	"dodge_bonus": 0.0,
 	"crit_bonus": 0.0,
 	"crit_damage_bonus": 0.0,
+	"vampire": 0.0,
+	"tenacity": 0.0,
+	"thorns_percent": 0.0,
+	"thorns_flat": 0.0,
+	"shield_on_combat_start": 0.0,
+	"execute_threshold": 0.0,
+	"healing_amp": 0.0,
+	"mp_on_kill": 0.0,
+	"conditional_stats": [],
 	"attack_speed_bonus": 0.0,
 	"range_add": 0.0
 }
@@ -63,6 +80,8 @@ func reset_from_stats(runtime_stats: Dictionary) -> void:
 	_external_modifiers = DEFAULT_EXTERNAL_MODIFIERS.duplicate(true)
 	refresh_runtime_stats(runtime_stats, false)
 	_attack_cd = 0.0
+	_regen_heal_pending = 0.0
+	_regen_emit_accum = 0.0
 	clear_shield()
 
 	# 技能蓝耗按最大内力比例估算，保证不同角色可自然触发技能。
@@ -73,6 +92,8 @@ func reset_from_stats(runtime_stats: Dictionary) -> void:
 func prepare_for_battle() -> void:
 	# 进入战斗时重置冷却，不清空 HP/MP（预留未来“战前状态继承”扩展点）。
 	_attack_cd = 0.0
+	_regen_heal_pending = 0.0
+	_regen_emit_accum = 0.0
 
 
 func tick_logic(delta: float) -> void:
@@ -82,12 +103,23 @@ func tick_logic(delta: float) -> void:
 	# 生命回复在逻辑帧按秒结算；只处理正值，避免负回复绕过伤害流程。
 	var hp_regen_per_sec: float = passive_hp_regen + float(_external_modifiers.get("hp_regen_add", 0.0))
 	if hp_regen_per_sec > 0.0:
-		restore_hp(hp_regen_per_sec * delta)
+		var regen_healed: float = restore_hp(hp_regen_per_sec * delta)
+		if regen_healed > 0.0:
+			_regen_heal_pending += regen_healed
+	if _regen_heal_pending > 0.0:
+		_regen_emit_accum += delta
+		if _regen_emit_accum >= REGEN_HEAL_EMIT_INTERVAL:
+			if owner_unit != null and is_instance_valid(owner_unit):
+				healing_performed.emit(owner_unit, owner_unit, _regen_heal_pending, "regen")
+			_regen_heal_pending = 0.0
+			_regen_emit_accum = 0.0
+	else:
+		_regen_emit_accum = 0.0
 	add_mp((passive_mp_regen + float(_external_modifiers.get("mp_regen_add", 0.0))) * delta)
 
 
 func can_attack() -> bool:
-	return is_alive and _attack_cd <= 0.0
+	return is_alive and _attack_cd <= 0.0 and not _is_stunned()
 
 
 func try_attack_target(target: Node, rng_source: Variant = null) -> Dictionary:
@@ -95,6 +127,8 @@ func try_attack_target(target: Node, rng_source: Variant = null) -> Dictionary:
 		return {}
 	if not is_alive:
 		return {"performed": false, "reason": "dead"}
+	if _is_stunned():
+		return {"performed": false, "reason": "stunned"}
 	if not can_attack():
 		return {"performed": false, "reason": "cooldown"}
 	if target == null or not is_instance_valid(target):
@@ -106,7 +140,7 @@ func try_attack_target(target: Node, rng_source: Variant = null) -> Dictionary:
 	if not bool(target_combat.get("is_alive")):
 		return {"performed": false, "reason": "target_dead"}
 
-	var use_skill: bool = current_mp >= skill_mp_cost and max_mp > 0.0
+	var use_skill: bool = current_mp >= skill_mp_cost and max_mp > 0.0 and not _is_silenced()
 	var attack_stats: Dictionary = _select_attack_profile(use_skill)
 	var offense: float = float(attack_stats.get("offense", 1.0))
 	var damage_type: String = str(attack_stats.get("damage_type", "external"))
@@ -129,15 +163,31 @@ func try_attack_target(target: Node, rng_source: Variant = null) -> Dictionary:
 	var is_dodged: bool = rng_value_dodge < dodge_rate
 	var is_crit: bool = false
 	var raw_damage: float = 0.0
+	var target_hp_before: float = float(target_combat.get("current_hp"))
+	var target_max_hp: float = maxf(float(target_combat.get("max_hp")), 1.0)
+	var target_debuff_ids: Array = _get_target_debuff_ids(target)
 
 	if not is_dodged:
 		var random_factor: float = lerpf(0.9, 1.1, _randf(rng_source))
 		raw_damage = offense * multiplier * (100.0 / (100.0 + maxf(defense, 0.0))) * random_factor
 
-		var crit_rate: float = _calc_crit_rate()
-		is_crit = _randf(rng_source) < crit_rate
+		is_crit = _consume_force_crit_on_target(target)
+		if not is_crit:
+			var crit_rate: float = _calc_crit_rate()
+			is_crit = _randf(rng_source) < crit_rate
 		if is_crit:
 			raw_damage *= _calc_crit_multiplier()
+
+		var amp_ratio: float = float(_external_modifiers.get("damage_amp_percent", 0.0))
+		if amp_ratio != 0.0:
+			raw_damage *= maxf(1.0 + amp_ratio, 0.0)
+
+		raw_damage *= _calc_debuff_damage_amp_ratio(target_debuff_ids)
+
+		var execute_threshold: float = clampf(float(_external_modifiers.get("execute_threshold", 0.0)), 0.0, 0.95)
+		if execute_threshold > 0.0 and target_hp_before / target_max_hp <= execute_threshold:
+			raw_damage *= 2.0
+
 		# M5-Boss 机制扩展：允许关卡机制给特定单位施加“额外输出系数”。
 		var stage_outgoing_bonus: float = _get_stage_meta_float("stage_outgoing_damage_bonus", 0.0)
 		raw_damage *= maxf(1.0 + stage_outgoing_bonus, 0.0)
@@ -156,6 +206,9 @@ func try_attack_target(target: Node, rng_source: Variant = null) -> Dictionary:
 	# - 技能：消耗内力。
 	# - 普攻命中：回内力。
 	_apply_attack_resource_changes(use_skill, is_dodged)
+	var dealt_damage: float = float(receive_result.get("damage", 0.0))
+	if not is_dodged and dealt_damage > 0.0:
+		_apply_vampire_lifesteal(dealt_damage, use_skill)
 
 	_attack_cd = attack_interval
 	var event: Dictionary = _build_attack_event(receive_result, use_skill, is_dodged, is_crit, damage_type)
@@ -169,7 +222,8 @@ func receive_damage(
 	_damage_type: String = "external",
 	_is_skill: bool = false,
 	_is_crit: bool = false,
-	_is_dodged: bool = false
+	_is_dodged: bool = false,
+	_can_trigger_thorns: bool = true
 ) -> Dictionary:
 	if not is_alive:
 		return {
@@ -177,7 +231,10 @@ func receive_damage(
 			"target_died": true,
 			"target_hp_after": current_hp,
 			"target_mp_after": current_mp,
-			"shield_hp_after": shield_hp
+			"shield_absorbed": 0.0,
+			"shield_hp_after": shield_hp,
+			"shield_broken": false,
+			"immune_absorbed": 0.0
 		}
 
 	# M5：护盾优先吸收伤害，保留旧 stage_shield_hp 元数据兼容。
@@ -200,13 +257,15 @@ func receive_damage(
 				"target_mp_after": current_mp,
 				"shield_absorbed": shield_absorbed,
 				"shield_hp_after": get_current_shield(),
-				"shield_broken": shield_broken
+				"shield_broken": shield_broken,
+				"immune_absorbed": 0.0
 			}
 			damaged.emit(owner_unit, source, shield_event)
 			return shield_event
 
 	# M5-Boss 机制扩展：免伤开关（例如部分 Boss 相位）。
 	if _get_stage_meta_bool("stage_damage_immune", false):
+		var immune_absorbed: float = maxf(amount, 0.0)
 		var immune_event: Dictionary = {
 			"damage": 0.0,
 			"target_died": false,
@@ -214,7 +273,8 @@ func receive_damage(
 			"target_mp_after": current_mp,
 			"shield_absorbed": shield_absorbed,
 			"shield_hp_after": get_current_shield(),
-			"shield_broken": shield_broken
+			"shield_broken": shield_broken,
+			"immune_absorbed": immune_absorbed
 		}
 		damaged.emit(owner_unit, source, immune_event)
 		return immune_event
@@ -223,12 +283,15 @@ func receive_damage(
 	if not _is_dodged:
 		final_damage = maxf(amount, 0.0)
 		final_damage = maxf(final_damage - float(_external_modifiers.get("damage_reduce_flat", 0.0)), 0.0)
-		var reduce_ratio: float = clampf(float(_external_modifiers.get("damage_reduce_percent", 0.0)), 0.0, 0.95)
+		var reduce_ratio: float = clampf(float(_external_modifiers.get("damage_reduce_percent", 0.0)), -0.95, 0.95)
 		final_damage *= (1.0 - reduce_ratio)
 		# M5-Boss 机制扩展：易伤/减伤倍率（默认 1.0）。
 		final_damage *= maxf(_get_stage_meta_float("stage_damage_taken_multiplier", 1.0), 0.0)
 		current_hp = maxf(current_hp - final_damage, 0.0)
 		add_mp(mp_gain_on_hit)
+
+		if _can_trigger_thorns and _damage_type == "external" and final_damage > 0.0 and source != null and is_instance_valid(source):
+			_apply_thorns_reflect(source, final_damage)
 
 	var dead_now: bool = false
 	if current_hp <= 0.0:
@@ -243,7 +306,8 @@ func receive_damage(
 		"target_mp_after": current_mp,
 		"shield_absorbed": shield_absorbed,
 		"shield_hp_after": get_current_shield(),
-		"shield_broken": shield_broken
+		"shield_broken": shield_broken,
+		"immune_absorbed": 0.0
 	}
 	damaged.emit(owner_unit, source, event)
 	return event
@@ -254,10 +318,12 @@ func apply_damage(amount: float) -> float:
 	return float(result.get("damage", 0.0))
 
 
-func restore_hp(amount: float) -> void:
+func restore_hp(amount: float) -> float:
+	var before: float = current_hp
 	current_hp = minf(current_hp + maxf(amount, 0.0), max_hp)
 	if current_hp > 0.0:
 		is_alive = true
+	return maxf(current_hp - before, 0.0)
 
 
 func add_mp(amount: float) -> void:
@@ -325,7 +391,9 @@ func refresh_runtime_stats(runtime_stats: Dictionary, preserve_ratio: bool = tru
 
 
 func set_external_modifiers(modifiers: Dictionary) -> void:
-	_external_modifiers = modifiers.duplicate(true)
+	_external_modifiers = DEFAULT_EXTERNAL_MODIFIERS.duplicate(true)
+	for key in modifiers.keys():
+		_external_modifiers[key] = modifiers[key]
 	if owner_unit != null and is_instance_valid(owner_unit):
 		refresh_runtime_stats(owner_unit.get("runtime_stats"), true)
 
@@ -434,7 +502,148 @@ func _get_owner_stat(stat_key: String) -> float:
 	if owner_unit == null or not is_instance_valid(owner_unit):
 		return 0.0
 	var stats: Dictionary = owner_unit.get("runtime_stats")
-	return maxf(float(stats.get(stat_key, 0.0)), 0.0)
+	var base_value: float = maxf(float(stats.get(stat_key, 0.0)), 0.0)
+	return maxf(base_value + _get_conditional_stat_bonus(stat_key), 0.0)
+
+
+func _get_conditional_stat_bonus(stat_key: String) -> float:
+	var bonus: float = 0.0
+	var entries_value: Variant = _external_modifiers.get("conditional_stats", [])
+	if not (entries_value is Array):
+		return 0.0
+	for entry_value in (entries_value as Array):
+		if not (entry_value is Dictionary):
+			continue
+		var entry: Dictionary = entry_value
+		if str(entry.get("stat", "")).strip_edges() != stat_key:
+			continue
+		if not _is_condition_met(entry):
+			continue
+		bonus += float(entry.get("value", 0.0))
+	return bonus
+
+
+func _is_condition_met(entry: Dictionary) -> bool:
+	var condition: String = str(entry.get("condition", "")).strip_edges().to_lower()
+	var threshold: float = float(entry.get("threshold", 0.0))
+	match condition:
+		"hp_below":
+			return max_hp > 0.0 and current_hp / max_hp <= threshold
+		"hp_above":
+			return max_hp > 0.0 and current_hp / max_hp >= threshold
+		"mp_below":
+			return max_mp > 0.0 and current_mp / max_mp <= threshold
+		"mp_above":
+			return max_mp > 0.0 and current_mp / max_mp >= threshold
+		_:
+			return false
+
+
+func _get_target_debuff_ids(target: Node) -> Array:
+	if target == null or not is_instance_valid(target):
+		return []
+	var debuffs_value: Variant = target.get_meta("active_debuff_ids", [])
+	if debuffs_value is Array:
+		return (debuffs_value as Array).duplicate()
+	return []
+
+
+func _calc_debuff_damage_amp_ratio(target_debuff_ids: Array) -> float:
+	var ratio: float = 1.0
+	var any_bonus: float = float(_external_modifiers.get("damage_amp_vs_any_debuff", 0.0))
+	var debuff_count: int = target_debuff_ids.size()
+	if any_bonus != 0.0 and debuff_count > 0:
+		ratio *= maxf(1.0 + any_bonus, 0.0)
+
+	var map_value: Variant = _external_modifiers.get("damage_amp_vs_debuff_map", {})
+	if map_value is Dictionary and debuff_count > 0:
+		var amp_map: Dictionary = map_value
+		for debuff_id in target_debuff_ids:
+			var id_str: String = str(debuff_id).strip_edges()
+			if id_str.is_empty():
+				continue
+			if not amp_map.has(id_str):
+				continue
+			ratio *= maxf(1.0 + float(amp_map.get(id_str, 0.0)), 0.0)
+	return ratio
+
+
+func _apply_vampire_lifesteal(dealt_damage: float, used_skill: bool) -> void:
+	if used_skill:
+		return
+	var vampire_ratio: float = clampf(float(_external_modifiers.get("vampire", 0.0)), 0.0, 5.0)
+	if vampire_ratio <= 0.0:
+		return
+	var healed: float = restore_hp(dealt_damage * vampire_ratio)
+	if healed > 0.0 and owner_unit != null and is_instance_valid(owner_unit):
+		healing_performed.emit(owner_unit, owner_unit, healed, "vampire")
+
+
+func _apply_thorns_reflect(source: Node, taken_damage: float) -> void:
+	if source == null or not is_instance_valid(source):
+		return
+	var source_combat: Node = source.get_node_or_null("Components/UnitCombat")
+	if source_combat == null or not bool(source_combat.get("is_alive")):
+		return
+	var thorns_percent: float = maxf(float(_external_modifiers.get("thorns_percent", 0.0)), 0.0)
+	var thorns_flat: float = maxf(float(_external_modifiers.get("thorns_flat", 0.0)), 0.0)
+	var reflect_damage: float = taken_damage * thorns_percent + thorns_flat
+	if reflect_damage <= 0.0:
+		return
+	var reflect_result_value: Variant = source_combat.call(
+		"receive_damage",
+		reflect_damage,
+		owner_unit,
+		"external",
+		false,
+		false,
+		false,
+		false
+	)
+	var reflect_event: Dictionary = {
+		"damage": reflect_damage,
+		"shield_absorbed": 0.0,
+		"immune_absorbed": 0.0
+	}
+	if reflect_result_value is Dictionary:
+		reflect_event["damage"] = float((reflect_result_value as Dictionary).get("damage", 0.0))
+		reflect_event["shield_absorbed"] = float((reflect_result_value as Dictionary).get("shield_absorbed", 0.0))
+		reflect_event["immune_absorbed"] = float((reflect_result_value as Dictionary).get("immune_absorbed", 0.0))
+	if owner_unit != null and is_instance_valid(owner_unit):
+		thorns_damage_dealt.emit(owner_unit, source, reflect_event)
+
+
+func _is_silenced() -> bool:
+	if owner_unit == null or not is_instance_valid(owner_unit):
+		return false
+	if bool(owner_unit.get_meta("status_silenced", false)):
+		return true
+	var until_time: float = float(owner_unit.get_meta("status_silence_until", 0.0))
+	var now_sec: float = float(Time.get_ticks_msec()) * 0.001
+	if until_time > now_sec:
+		return true
+	if until_time > 0.0:
+		owner_unit.remove_meta("status_silence_until")
+	var debuffs: Array = _get_target_debuff_ids(owner_unit)
+	return debuffs.has("debuff_silence")
+
+
+func _is_stunned() -> bool:
+	if owner_unit == null or not is_instance_valid(owner_unit):
+		return false
+	if bool(owner_unit.get_meta("status_stunned", false)):
+		return true
+	var debuffs: Array = _get_target_debuff_ids(owner_unit)
+	return debuffs.has("debuff_freeze") or debuffs.has("debuff_stun")
+
+
+func _consume_force_crit_on_target(target: Node) -> bool:
+	if target == null or not is_instance_valid(target):
+		return false
+	if bool(target.get_meta("status_frozen_force_crit", false)):
+		target.remove_meta("status_frozen_force_crit")
+		return true
+	return false
 
 
 func _get_target_stat(target: Node, stat_key: String) -> float:

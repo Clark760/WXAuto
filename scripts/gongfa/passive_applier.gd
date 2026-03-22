@@ -1,7 +1,7 @@
 extends RefCounted
 
-# M5 ?????/??????
-# ??? unit_state ?????????????????????
+# M5 被动属性应用模块
+# 统一按 unit_state 的三层来源重算运行时属性。
 
 
 func apply_state_to_unit(ctx: Node, unit_id: int, preserve_health_ratio: bool) -> void:
@@ -22,10 +22,9 @@ func apply_state_to_unit(ctx: Node, unit_id: int, preserve_health_ratio: bool) -
 		return
 	var modifiers: Dictionary = effect_engine.call("create_empty_modifier_bundle")
 
-	# ??????????????????????
+	# 三层叠加：功法/特性被动、装备被动、Buff 被动。
 	effect_engine.call("apply_passive_effects", runtime_stats, modifiers, state.get("passive_effects", []))
 	effect_engine.call("apply_passive_effects", runtime_stats, modifiers, state.get("equipment_effects", []))
-	effect_engine.call("apply_passive_effects", runtime_stats, modifiers, state.get("linkage_effects", []))
 	effect_engine.call(
 		"apply_passive_effects",
 		runtime_stats,
@@ -35,8 +34,6 @@ func apply_state_to_unit(ctx: Node, unit_id: int, preserve_health_ratio: bool) -
 	ctx.call("_clamp_runtime_stats", runtime_stats)
 
 	unit.set("runtime_stats", runtime_stats)
-	unit.set("runtime_linkage_tags", state.get("runtime_linkage_tags", []))
-	unit.set("runtime_gongfa_elements", state.get("runtime_elements", []))
 	unit.set("runtime_equipped_gongfa_ids", state.get("equipped_gongfa_ids", []))
 	unit.set("runtime_equipped_equip_ids", state.get("equipped_equip_ids", []))
 

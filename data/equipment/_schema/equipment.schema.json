@@ -3,7 +3,7 @@
   "title": "EquipmentSchema",
   "description": "装备数据结构定义（M3 统一效果系统格式）",
   "type": "object",
-  "required": ["id", "name", "type", "rarity", "passive_effects"],
+  "required": ["id", "name", "type", "rarity", "effects"],
   "properties": {
     "id": {
       "type": "string",
@@ -27,7 +27,7 @@
       "type": "string",
       "enum": ["white", "green", "blue", "purple", "orange", "red"]
     },
-    "passive_effects": {
+    "effects": {
       "type": "array",
       "items": {
         "type": "object",

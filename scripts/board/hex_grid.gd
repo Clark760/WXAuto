@@ -43,6 +43,7 @@ const OFFSET_DIRS_ODD_ROW: Array[Vector2i] = [
 
 # 障碍物格渲染缓存：key 为打包后的坐标 int，value 为对应填充颜色。
 var _obstacle_cells: Dictionary = {} # int(cell_key) -> Color
+var _terrain_cells: Dictionary = {} # int(cell_key) -> Color
 
 
 func _ready() -> void:
@@ -62,6 +63,9 @@ func _draw() -> void:
 			var cell_fill: Color = fill_color
 			if _obstacle_cells.has(cell_key):
 				cell_fill = _obstacle_cells[cell_key] as Color
+			if _terrain_cells.has(cell_key):
+				var terrain_color: Color = _terrain_cells[cell_key] as Color
+				cell_fill = cell_fill.lerp(terrain_color, clampf(terrain_color.a, 0.2, 0.8))
 			draw_colored_polygon(points, cell_fill)
 			var outline: PackedVector2Array = points.duplicate()
 			outline.append(points[0])
@@ -79,6 +83,17 @@ func set_obstacle_cells(cells: Dictionary) -> void:
 
 func clear_obstacle_cells() -> void:
 	_obstacle_cells.clear()
+	queue_redraw()
+
+
+func set_terrain_cells(cells: Dictionary) -> void:
+	# cells: { packed_cell_key_int: Color }
+	_terrain_cells = cells.duplicate(true)
+	queue_redraw()
+
+
+func clear_terrain_cells() -> void:
+	_terrain_cells.clear()
 	queue_redraw()
 
 
@@ -167,20 +182,21 @@ func get_cell_distance(a: Vector2i, b: Vector2i) -> int:
 	var b_axial: Vector2i = _to_axial_cell(b)
 	var dq: int = b_axial.x - a_axial.x
 	var dr: int = b_axial.y - a_axial.y
-	return (absi(dq) + absi(dq + dr) + absi(dr)) / 2
+	var distance_sum: int = absi(dq) + absi(dq + dr) + absi(dr)
+	return int(distance_sum / 2.0)
 
 
 func _to_axial_cell(cell: Vector2i) -> Vector2i:
 	if not use_staggered_square_layout:
 		return cell
-	var q: int = cell.x - int((cell.y - (cell.y & 1)) / 2)
+	var q: int = cell.x - int((cell.y - (cell.y & 1)) / 2.0)
 	return Vector2i(q, cell.y)
 
 
 func _from_axial_cell(axial_cell: Vector2i) -> Vector2i:
 	if not use_staggered_square_layout:
 		return axial_cell
-	var col: int = axial_cell.x + int((axial_cell.y - (axial_cell.y & 1)) / 2)
+	var col: int = axial_cell.x + int((axial_cell.y - (axial_cell.y & 1)) / 2.0)
 	return Vector2i(col, axial_cell.y)
 
 

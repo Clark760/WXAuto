@@ -60,6 +60,38 @@
       "type": "array",
       "items": {"type": "string"}
     },
+    "traits": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": {"type": "string"},
+          "name": {"type": "string"},
+          "description": {"type": "string"},
+          "effects": {
+            "type": "array",
+            "items": {"type": "object"}
+          },
+          "skill": {
+            "type": "object",
+            "properties": {
+              "trigger": {"type": "string"},
+              "chance": {"type": "number"},
+              "cooldown": {"type": "number"},
+              "mp_cost": {"type": "number"},
+              "effects": {"type": "array"}
+            },
+            "additionalProperties": true
+          },
+          "skills": {
+            "type": "array",
+            "items": {"type": "object"}
+          }
+        },
+        "additionalProperties": true
+      }
+    },
     "gongfa_slots": {
       "type": "object",
       "properties": {
@@ -108,3 +140,4 @@
   },
   "additionalProperties": true
 }
+

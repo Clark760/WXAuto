@@ -49,6 +49,7 @@ static func normalize_unit_record(raw_record: Dictionary) -> Dictionary:
 	result["role"] = str(raw_record.get("role", "vanguard"))
 
 	result["base_stats"] = _normalize_stats(raw_record.get("base_stats", {}))
+	result["traits"] = _normalize_traits(raw_record.get("traits", []))
 
 	var initial_gongfa: Array[String] = []
 	if raw_record.get("initial_gongfa", []) is Array:
@@ -125,6 +126,15 @@ static func _normalize_tags(value: Variant) -> Array[String]:
 		for tag in value:
 			tags.append(str(tag))
 	return tags
+
+
+static func _normalize_traits(value: Variant) -> Array[Dictionary]:
+	var traits: Array[Dictionary] = []
+	if value is Array:
+		for trait_value in value:
+			if trait_value is Dictionary:
+				traits.append((trait_value as Dictionary).duplicate(true))
+	return traits
 
 
 static func _normalize_quality(quality: String) -> String:

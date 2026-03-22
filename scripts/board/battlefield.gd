@@ -140,8 +140,6 @@ func _ready() -> void:
 	_battle_scene_initialized = true
 	_refresh_all_ui()
 	_apply_stage_ui_state()
-	_prepare_linkage_panel()
-	_sync_linkage_panel_visibility()
 
 
 func _input(event: InputEvent) -> void:
@@ -225,7 +223,6 @@ func _apply_stage_ui_state() -> void:
 			_recycle_drop_zone.call("clear_external_preview")
 	if _battle_flow != null and is_instance_valid(_battle_flow):
 		_battle_flow.call("sync_stage", _stage, Stage.RESULT)
-	_sync_linkage_panel_visibility()
 	_update_shop_ui()
 
 
@@ -266,7 +263,6 @@ func _refresh_dynamic_ui() -> void:
 			bench_count,
 			bench_slots
 		]
-	_refresh_linkage_info_for_deployed_only()
 	_update_shop_operation_labels()
 
 
@@ -1477,7 +1473,7 @@ func _ensure_shop_open_button() -> void:
 	if top_bar_row == null:
 		return
 	if _shop_label != null:
-		_shop_label.text = "综合商店"
+		_shop_label.text = "商店"
 	if _shop_open_button == null or not is_instance_valid(_shop_open_button):
 		_shop_open_button = Button.new()
 		_shop_open_button.toggle_mode = true
@@ -1665,7 +1661,6 @@ func _set_shop_panel_visible(panel_visible: bool) -> void:
 	if _shop_open_button != null and is_instance_valid(_shop_open_button):
 		_shop_open_button.button_pressed = panel_visible
 	_refresh_top_quick_action_buttons()
-	_sync_linkage_panel_visibility()
 
 
 func _on_shop_open_button_pressed() -> void:
@@ -2111,110 +2106,6 @@ func _count_equipped_instances(mode: String, item_id: String) -> int:
 				if str(equip_slots.get(equip_slot, "")).strip_edges() == item_id:
 					count += 1
 	return count
-
-
-func _prepare_linkage_panel() -> void:
-	var linkage_panel: Control = _get_linkage_panel_control()
-	if linkage_panel == null:
-		return
-	# 联动面板作为信息层，不应拦截底下备战区/拖拽的输入。
-	linkage_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	if linkage_info != null:
-		linkage_info.mouse_filter = Control.MOUSE_FILTER_IGNORE
-
-
-func _sync_linkage_panel_visibility() -> void:
-	var linkage_panel: Control = _get_linkage_panel_control()
-	if linkage_panel == null:
-		return
-	var hidden_by_shop: bool = _shop_panel != null and is_instance_valid(_shop_panel) and _shop_panel.visible
-	linkage_panel.visible = _stage != Stage.RESULT and not hidden_by_shop
-
-
-func _refresh_linkage_info_for_deployed_only() -> void:
-	if linkage_info == null:
-		return
-	if gongfa_manager == null:
-		linkage_info.text = "当前联动：未连接 GongfaManager"
-		return
-	var names: Array[String] = _build_deployed_linkage_names()
-	if names.is_empty():
-		linkage_info.text = "当前联动：无"
-		linkage_info.tooltip_text = linkage_info.text
-		return
-	# 长文本会遮挡下方 UI，这里只展示前几项，完整内容放到 tooltip。
-	var preview_names: Array[String] = names
-	if names.size() > 6:
-		preview_names = names.slice(0, 6)
-		linkage_info.text = "当前联动：%s 等%d项" % ["、".join(preview_names), names.size()]
-	else:
-		linkage_info.text = "当前联动：%s" % "、".join(preview_names)
-	linkage_info.tooltip_text = "当前联动（仅统计上场）：%s" % "、".join(names)
-
-
-func _build_deployed_linkage_names() -> Array[String]:
-	# 联动面板只统计“当前已上场”的己方角色，过滤备战席与历史战斗残留。
-	var names: Array[String] = []
-	if gongfa_manager == null or not gongfa_manager.has_method("get_active_linkages"):
-		return names
-	var deployed_map: Dictionary = _collect_current_deployed_ally_ids()
-	if deployed_map.is_empty():
-		return names
-	var name_seen: Dictionary = {}
-	var active_value: Variant = gongfa_manager.call("get_active_linkages")
-	if not (active_value is Array):
-		return names
-	for result_value in active_value:
-		if not (result_value is Dictionary):
-			continue
-		var result: Dictionary = result_value as Dictionary
-		if int(result.get("team_id", 0)) != TEAM_ALLY:
-			continue
-		var participants_value: Variant = result.get("participants", [])
-		if not (participants_value is Array):
-			continue
-		var participants: Array = participants_value as Array
-		if participants.is_empty():
-			continue
-		var all_on_field: bool = true
-		for unit_value in participants:
-			if not is_instance_valid(unit_value):
-				all_on_field = false
-				break
-			var unit: Node = unit_value as Node
-			if unit == null or not _is_valid_unit(unit):
-				all_on_field = false
-				break
-			if not deployed_map.has(unit.get_instance_id()):
-				all_on_field = false
-				break
-		if not all_on_field:
-			continue
-		var linkage_data: Dictionary = result.get("linkage_data", {})
-		var linkage_name: String = str(linkage_data.get("name", "")).strip_edges()
-		if linkage_name.is_empty() or name_seen.has(linkage_name):
-			continue
-		name_seen[linkage_name] = true
-		names.append(linkage_name)
-	return names
-
-
-func _collect_current_deployed_ally_ids() -> Dictionary:
-	var out: Dictionary = {}
-	for unit in _ally_deployed.values():
-		if not _is_valid_unit(unit):
-			continue
-		out[unit.get_instance_id()] = true
-	return out
-
-
-func _get_linkage_panel_control() -> Control:
-	if linkage_info == null:
-		return null
-	var linkage_vbox: Control = linkage_info.get_parent() as Control
-	if linkage_vbox == null:
-		return null
-	return linkage_vbox.get_parent() as Control
 
 
 func _layout_bench_recycle_wrap() -> void:

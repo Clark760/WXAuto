@@ -12,30 +12,40 @@ signal battle_stat_updated(unit_instance_id: int, stat_type: String, value: int)
 
 const STAT_KEYS: Array[String] = [
 	"damage_dealt",
+	"damage_dealt_total",
 	"damage_taken",
+	"damage_taken_total",
+	"shield_absorbed",
+	"damage_immune_blocked",
 	"healing_done",
 	"kills",
 	"deaths"
 ]
 
 var _unit_stats: Dictionary = {} # unit_instance_id -> Dictionary
+var _fallback_key_to_iid: Dictionary = {} # fallback key -> pseudo iid(negative)
+var _next_fallback_iid: int = -1
 var _sort_stat_key: String = "damage_dealt"
 
 
 func clear_stats() -> void:
 	_unit_stats.clear()
+	_fallback_key_to_iid.clear()
+	_next_fallback_iid = -1
 
 
 func start_battle(units: Array[Node]) -> void:
 	# 每场战斗开始时清空统计，保证不会串场累计。
 	_unit_stats.clear()
+	_fallback_key_to_iid.clear()
+	_next_fallback_iid = -1
 	for unit in units:
 		register_unit(unit)
 
 
 func register_unit(unit: Node) -> int:
 	if not _is_valid_unit(unit):
-		return -1
+		return 0
 	var iid: int = unit.get_instance_id()
 	if _unit_stats.has(iid):
 		return iid
@@ -44,7 +54,11 @@ func register_unit(unit: Node) -> int:
 		"unit_id": str(unit.get("unit_id")),
 		"team_id": int(unit.get("team_id")),
 		"damage_dealt": 0,
+		"damage_dealt_total": 0,
 		"damage_taken": 0,
+		"damage_taken_total": 0,
+		"shield_absorbed": 0,
+		"damage_immune_blocked": 0,
 		"healing_done": 0,
 		"kills": 0,
 		"deaths": 0
@@ -52,28 +66,66 @@ func register_unit(unit: Node) -> int:
 	return iid
 
 
-func record_damage(source: Node, target: Node, amount: float) -> void:
+func record_damage(
+	source: Node,
+	target: Node,
+	amount: float,
+	source_fallback: Dictionary = {},
+	target_fallback: Dictionary = {}
+) -> void:
 	var value: int = maxi(int(round(amount)), 0)
 	if value <= 0:
 		return
 	var source_iid: int = register_unit(source)
+	if source_iid <= 0 and not source_fallback.is_empty():
+		source_iid = _register_fallback_unit(source_fallback)
 	if source_iid > 0:
 		_add_stat_value(source_iid, "damage_dealt", value)
+	elif source_iid < 0:
+		_add_stat_value(source_iid, "damage_dealt", value)
 	var target_iid: int = register_unit(target)
+	if target_iid <= 0 and not target_fallback.is_empty():
+		target_iid = _register_fallback_unit(target_fallback)
 	if target_iid > 0:
+		_add_stat_value(target_iid, "damage_taken", value)
+	elif target_iid < 0:
 		_add_stat_value(target_iid, "damage_taken", value)
 
 
-func record_healing(source: Node, target: Node, amount: float) -> void:
+func record_healing(
+	source: Node,
+	target: Node,
+	amount: float,
+	source_fallback: Dictionary = {},
+	target_fallback: Dictionary = {}
+) -> void:
 	var value: int = maxi(int(round(amount)), 0)
 	if value <= 0:
 		return
 	# 优先记在施法者名下；若来源缺失，则退化为记在受治疗单位名下。
 	var source_iid: int = register_unit(source)
+	if source_iid <= 0 and not source_fallback.is_empty():
+		source_iid = _register_fallback_unit(source_fallback)
 	if source_iid <= 0:
 		source_iid = register_unit(target)
+	if source_iid <= 0 and not target_fallback.is_empty():
+		source_iid = _register_fallback_unit(target_fallback)
 	if source_iid > 0:
 		_add_stat_value(source_iid, "healing_done", value)
+	elif source_iid < 0:
+		_add_stat_value(source_iid, "healing_done", value)
+
+
+func record_stat(unit: Node, stat_key: String, delta: float, fallback: Dictionary = {}) -> void:
+	var value: int = int(round(delta))
+	if value == 0:
+		return
+	var unit_iid: int = register_unit(unit)
+	if unit_iid <= 0 and not fallback.is_empty():
+		unit_iid = _register_fallback_unit(fallback)
+	if unit_iid == 0:
+		return
+	_add_stat_value(unit_iid, stat_key, value)
 
 
 func record_kill(killer: Node, dead_unit: Node) -> void:
@@ -150,3 +202,51 @@ func _is_valid_unit(unit: Variant) -> bool:
 	if not is_instance_valid(unit):
 		return false
 	return (unit as Node) != null
+
+
+func _register_fallback_unit(fallback: Dictionary) -> int:
+	var normalized: Dictionary = _normalize_fallback(fallback)
+	if normalized.is_empty():
+		return 0
+	var key: String = "%s|%s|%d" % [
+		str(normalized.get("unit_id", "")),
+		str(normalized.get("unit_name", "")),
+		int(normalized.get("team_id", 0))
+	]
+	if _fallback_key_to_iid.has(key):
+		return int(_fallback_key_to_iid[key])
+	var iid: int = _next_fallback_iid
+	_next_fallback_iid -= 1
+	_fallback_key_to_iid[key] = iid
+	_unit_stats[iid] = {
+		"unit_name": str(normalized.get("unit_name", "遗留效果")),
+		"unit_id": str(normalized.get("unit_id", "")),
+		"team_id": int(normalized.get("team_id", 0)),
+		"damage_dealt": 0,
+		"damage_dealt_total": 0,
+		"damage_taken": 0,
+		"damage_taken_total": 0,
+		"shield_absorbed": 0,
+		"damage_immune_blocked": 0,
+		"healing_done": 0,
+		"kills": 0,
+		"deaths": 0
+	}
+	return iid
+
+
+func _normalize_fallback(fallback: Dictionary) -> Dictionary:
+	if fallback.is_empty():
+		return {}
+	var unit_id: String = str(fallback.get("unit_id", fallback.get("source_unit_id", ""))).strip_edges()
+	var unit_name: String = str(fallback.get("unit_name", fallback.get("source_name", ""))).strip_edges()
+	var team_id: int = int(fallback.get("team_id", fallback.get("source_team", 0)))
+	if unit_name.is_empty() and not unit_id.is_empty():
+		unit_name = unit_id
+	if unit_id.is_empty() and unit_name.is_empty():
+		return {}
+	return {
+		"unit_id": unit_id,
+		"unit_name": unit_name,
+		"team_id": team_id
+	}

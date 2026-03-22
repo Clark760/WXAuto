@@ -34,6 +34,7 @@ var role: String = "vanguard"
 var cost: int = 1
 
 var initial_gongfa: Array[String] = []
+var traits: Array[Dictionary] = []
 var gongfa_slots: Dictionary = {
 	"neigong": "",
 	"waigong": "",
@@ -52,8 +53,6 @@ var animation_overrides: Dictionary = {}
 
 var base_stats: Dictionary = {}
 var runtime_stats: Dictionary = {}
-var runtime_linkage_tags: Array[String] = []
-var runtime_gongfa_elements: Array[String] = []
 var runtime_equipped_gongfa_ids: Array[String] = []
 var runtime_equipped_equip_ids: Array[String] = []
 
@@ -119,6 +118,11 @@ func setup_from_unit_record(unit_record: Dictionary, forced_star: int = -1) -> v
 	if unit_record.get("initial_gongfa", []) is Array:
 		for gongfa_id in unit_record["initial_gongfa"]:
 			initial_gongfa.append(str(gongfa_id))
+	traits.clear()
+	if unit_record.get("traits", []) is Array:
+		for trait_value in unit_record["traits"]:
+			if trait_value is Dictionary:
+				traits.append((trait_value as Dictionary).duplicate(true))
 
 	gongfa_slots = {
 		"neigong": "",
@@ -188,8 +192,6 @@ func setup_from_unit_record(unit_record: Dictionary, forced_star: int = -1) -> v
 	team_id = 1
 	battle_uid = -1
 	is_in_combat = false
-	runtime_linkage_tags.clear()
-	runtime_gongfa_elements.clear()
 	runtime_equipped_gongfa_ids = get_equipped_gongfa_ids()
 	runtime_equipped_equip_ids = get_equipped_equip_ids()
 

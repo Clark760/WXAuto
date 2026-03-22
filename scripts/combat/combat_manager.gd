@@ -21,6 +21,7 @@ const CELL_OCCUPANCY_SCRIPT: Script = preload("res://scripts/combat/cell_occupan
 const COMBAT_PATHFINDING_SCRIPT: Script = preload("res://scripts/combat/combat_pathfinding.gd")
 const COMBAT_TARGETING_SCRIPT: Script = preload("res://scripts/combat/combat_targeting.gd")
 const COMBAT_METRICS_SCRIPT: Script = preload("res://scripts/combat/combat_metrics.gd")
+const TERRAIN_MANAGER_SCRIPT: Script = preload("res://scripts/board/terrain_manager.gd")
 
 @export var logic_fps: float = 10.0
 @export var logic_max_substeps: int = 6
@@ -110,7 +111,10 @@ var _metric_last_tick: Dictionary = {}
 # - _unit_cell：单位 -> 当前逻辑格子
 var _cell_occupancy: Dictionary = {} # int(cell_key) -> int(unit_instance_id)
 var _unit_cell: Dictionary = {}      # int(unit_instance_id) -> Vector2i
-var _static_blocked_cells: Dictionary = {} # int(cell_key) -> true（地形障碍等固定阻挡）
+var _static_blocked_cells: Dictionary = {} # int(cell_key) -> true（关卡固定阻挡）
+var _terrain_blocked_cells: Dictionary = {} # int(cell_key) -> true（临时 barrier 阻挡）
+var _flow_force_rebuild: bool = false
+var _terrain_manager = TERRAIN_MANAGER_SCRIPT.new()
 
 # 拆分模块（M5 大文件精简）：
 # - 占格系统
@@ -152,6 +156,7 @@ func _process(delta: float) -> void:
 func configure_dependencies(hex_grid: Node, vfx_factory: Node) -> void:
 	_hex_grid = hex_grid
 	_vfx_factory = vfx_factory
+	_flow_force_rebuild = true
 
 
 func set_static_blocked_cells(cells: Array[Vector2i]) -> void:
@@ -159,10 +164,24 @@ func set_static_blocked_cells(cells: Array[Vector2i]) -> void:
 	for cell in cells:
 		var key: int = _cell_key_int(cell)
 		_static_blocked_cells[key] = true
+	_flow_force_rebuild = true
 
 
 func clear_static_blocked_cells() -> void:
 	_static_blocked_cells.clear()
+	_flow_force_rebuild = true
+
+
+func set_terrain_blocked_cells(cells: Array[Vector2i]) -> void:
+	_terrain_blocked_cells.clear()
+	for cell in cells:
+		_terrain_blocked_cells[_cell_key_int(cell)] = true
+	_flow_force_rebuild = true
+
+
+func clear_terrain_blocked_cells() -> void:
+	_terrain_blocked_cells.clear()
+	_flow_force_rebuild = true
 
 
 func is_battle_running() -> bool:
@@ -171,6 +190,16 @@ func is_battle_running() -> bool:
 
 func get_logic_time() -> float:
 	return _logic_time
+
+
+func get_unit_by_instance_id(iid: int) -> Node:
+	if _unit_by_instance_id.has(iid):
+		return _unit_by_instance_id[iid]
+	return null
+
+
+func request_flow_rebuild() -> void:
+	_flow_force_rebuild = true
 
 
 func get_alive_units(team_id: int = 0) -> Array[Node]:
@@ -189,6 +218,132 @@ func get_alive_units(team_id: int = 0) -> Array[Node]:
 
 func get_unit_cell_of(unit: Node) -> Vector2i:
 	return _get_unit_cell(unit)
+
+
+func add_temporary_terrain(config: Dictionary, source: Node = null) -> bool:
+	if _terrain_manager == null:
+		return false
+	var result: Dictionary = _terrain_manager.call("add_terrain", config, source, {
+		"hex_grid": _hex_grid
+	})
+	if bool(result.get("barrier_changed", false)):
+		var barrier_cells: Array[Vector2i] = _terrain_manager.call("get_barrier_cells")
+		set_terrain_blocked_cells(barrier_cells)
+	if bool(result.get("visual_changed", false)) and _hex_grid != null and _hex_grid.has_method("set_terrain_cells"):
+		var visual_cells: Dictionary = _terrain_manager.call("get_visual_cells", _hex_grid)
+		_hex_grid.call("set_terrain_cells", visual_cells)
+	return bool(result.get("added", false))
+
+
+func clear_temporary_terrains() -> void:
+	if _terrain_manager != null:
+		_terrain_manager.call("clear_all")
+	clear_terrain_blocked_cells()
+	if _hex_grid != null and _hex_grid.has_method("clear_terrain_cells"):
+		_hex_grid.call("clear_terrain_cells")
+
+
+func force_move_unit_to_cell(unit: Node, target_cell: Vector2i) -> bool:
+	if not _battle_running:
+		return false
+	if not _is_live_unit(unit) or not _is_unit_alive(unit):
+		return false
+	if _hex_grid == null:
+		return false
+	if not bool(_hex_grid.call("is_inside_grid", target_cell)):
+		return false
+	var current_cell: Vector2i = _get_unit_cell(unit)
+	if current_cell == target_cell:
+		return true
+	if not _is_cell_free(target_cell):
+		return false
+	if not _occupy_cell(target_cell, unit):
+		return false
+	var movement: Node = _get_movement(unit)
+	if movement != null:
+		movement.call("clear_target")
+	var unit_node: Node2D = unit as Node2D
+	if unit_node != null:
+		unit_node.position = _hex_grid.call("axial_to_world", target_cell)
+	_flow_force_rebuild = true
+	return true
+
+
+func move_unit_steps_towards(unit: Node, anchor_cell: Vector2i, max_steps: int) -> bool:
+	if not _battle_running or max_steps <= 0:
+		return false
+	var current: Vector2i = _get_unit_cell(unit)
+	if current.x < 0:
+		return false
+	var moved: bool = false
+	var steps: int = maxi(max_steps, 0)
+	while steps > 0:
+		steps -= 1
+		var next_cell: Vector2i = _pick_step_towards(current, anchor_cell)
+		if next_cell == current:
+			break
+		if not force_move_unit_to_cell(unit, next_cell):
+			break
+		current = next_cell
+		moved = true
+	return moved
+
+
+func move_unit_steps_away(unit: Node, threat_cell: Vector2i, max_steps: int) -> bool:
+	if not _battle_running or max_steps <= 0:
+		return false
+	var current: Vector2i = _get_unit_cell(unit)
+	if current.x < 0:
+		return false
+	var moved: bool = false
+	var steps: int = maxi(max_steps, 0)
+	while steps > 0:
+		steps -= 1
+		var next_cell: Vector2i = _pick_step_away(current, threat_cell)
+		if next_cell == current:
+			break
+		if not force_move_unit_to_cell(unit, next_cell):
+			break
+		current = next_cell
+		moved = true
+	return moved
+
+
+func swap_unit_cells(unit_a: Node, unit_b: Node) -> bool:
+	if not _battle_running:
+		return false
+	if not _is_live_unit(unit_a) or not _is_live_unit(unit_b):
+		return false
+	if not _is_unit_alive(unit_a) or not _is_unit_alive(unit_b):
+		return false
+	var cell_a: Vector2i = _get_unit_cell(unit_a)
+	var cell_b: Vector2i = _get_unit_cell(unit_b)
+	if cell_a.x < 0 or cell_b.x < 0:
+		return false
+	var id_a: int = unit_a.get_instance_id()
+	var id_b: int = unit_b.get_instance_id()
+	var key_a: int = _cell_key_int(cell_a)
+	var key_b: int = _cell_key_int(cell_b)
+	if _is_cell_blocked(cell_a) or _is_cell_blocked(cell_b):
+		return false
+	_cell_occupancy[key_a] = id_b
+	_cell_occupancy[key_b] = id_a
+	_unit_cell[id_a] = cell_b
+	_unit_cell[id_b] = cell_a
+	var n2d_a: Node2D = unit_a as Node2D
+	var n2d_b: Node2D = unit_b as Node2D
+	if n2d_a != null and _hex_grid != null:
+		n2d_a.position = _hex_grid.call("axial_to_world", cell_b)
+	if n2d_b != null and _hex_grid != null:
+		n2d_b.position = _hex_grid.call("axial_to_world", cell_a)
+	var move_a: Node = _get_movement(unit_a)
+	if move_a != null:
+		move_a.call("clear_target")
+	var move_b: Node = _get_movement(unit_b)
+	if move_b != null:
+		move_b.call("clear_target")
+	_flow_force_rebuild = true
+	return true
 
 
 func add_unit_mid_battle(unit: Node) -> bool:
@@ -234,7 +389,8 @@ func apply_environment_damage(
 	target: Node,
 	damage_amount: float,
 	source: Node = null,
-	damage_type: String = "internal"
+	damage_type: String = "internal",
+	source_fallback: Dictionary = {}
 ) -> Dictionary:
 	if not _battle_running:
 		return {}
@@ -257,11 +413,23 @@ func apply_environment_damage(
 	if not (result_value is Dictionary):
 		return {}
 	var result: Dictionary = result_value
+	var fallback_source_id: int = int(source_fallback.get("source_id", -1))
+	var fallback_source_team: int = int(source_fallback.get("source_team", 0))
+	var fallback_source_unit_id: String = str(source_fallback.get("source_unit_id", "")).strip_edges()
+	var fallback_source_name: String = str(source_fallback.get("source_name", "")).strip_edges()
+	var source_id: int = source.get_instance_id() if _is_live_unit(source) else fallback_source_id
+	var source_team: int = int(source.get("team_id")) if _is_live_unit(source) else fallback_source_team
+	var source_unit_id: String = str(source.get("unit_id")) if _is_live_unit(source) else fallback_source_unit_id
+	var source_name: String = str(source.get("unit_name")) if _is_live_unit(source) else fallback_source_name
 	var event_dict: Dictionary = {
-		"source_id": source.get_instance_id() if _is_live_unit(source) else -1,
+		"source_id": source_id,
 		"target_id": target.get_instance_id(),
-		"source_team": int(source.get("team_id")) if _is_live_unit(source) else 0,
+		"source_team": source_team,
+		"source_unit_id": source_unit_id,
+		"source_name": source_name,
 		"target_team": int(target.get("team_id")),
+		"target_unit_id": str(target.get("unit_id")),
+		"target_name": str(target.get("unit_name")),
 		"is_skill": true,
 		"is_dodged": false,
 		"is_crit": false,
@@ -270,6 +438,7 @@ func apply_environment_damage(
 		"target_hp_after": float(result.get("target_hp_after", 0.0)),
 		"target_mp_after": float(result.get("target_mp_after", 0.0)),
 		"shield_absorbed": float(result.get("shield_absorbed", 0.0)),
+		"immune_absorbed": float(result.get("immune_absorbed", 0.0)),
 		"shield_hp_after": float(result.get("shield_hp_after", 0.0)),
 		"shield_broken": bool(result.get("shield_broken", false)),
 		"logic_frame": _logic_frame,
@@ -311,6 +480,11 @@ func stop_battle(reason: String = "manual", winner_team: int = 0) -> void:
 		if not _is_live_unit(unit):
 			continue
 		_cleanup_unit_after_battle(unit, winner_team)
+	if _terrain_manager != null:
+		_terrain_manager.call("clear_all")
+	clear_terrain_blocked_cells()
+	if _hex_grid != null and _hex_grid.has_method("clear_terrain_cells"):
+		_hex_grid.call("clear_terrain_cells")
 
 	battle_ended.emit(winner_team, summary)
 
@@ -337,14 +511,17 @@ func _logic_tick(delta: float) -> void:
 
 	_pre_tick_scan()
 	if _all_units.is_empty():
+		_tick_terrain(delta)
 		_finalize_if_needed()
 		_metrics.finalize_tick(self, tick_begin_us, allow_attack_phase, allow_move_phase)
 		return
 
+	_tick_terrain(delta)
 	_update_group_ai_focus()
 	var effective_flow_refresh_interval: int = _get_effective_flow_refresh_interval()
-	if effective_flow_refresh_interval <= 1 or (_logic_frame % effective_flow_refresh_interval == 0):
+	if _flow_force_rebuild or effective_flow_refresh_interval <= 1 or (_logic_frame % effective_flow_refresh_interval == 0):
 		_rebuild_flow_fields()
+		_flow_force_rebuild = false
 
 	if shuffle_unit_order_each_tick and _all_units.size() > 1:
 		_all_units.shuffle()
@@ -528,6 +705,114 @@ func _rebuild_flow_fields() -> void:
 	_pathfinding.rebuild_flow_fields(self)
 
 
+func _tick_terrain(delta: float) -> void:
+	if _terrain_manager == null or _hex_grid == null:
+		return
+	var gongfa_manager: Node = _get_gongfa_manager()
+	var tick_result: Dictionary = _terrain_manager.call("tick", delta, {
+		"combat_manager": self,
+		"hex_grid": _hex_grid,
+		"all_units": _all_units,
+		"gongfa_manager": gongfa_manager
+	})
+	if bool(tick_result.get("barrier_changed", false)):
+		var barrier_cells: Array[Vector2i] = _terrain_manager.call("get_barrier_cells")
+		set_terrain_blocked_cells(barrier_cells)
+	if bool(tick_result.get("visual_changed", false)) and _hex_grid.has_method("set_terrain_cells"):
+		var visual_cells: Dictionary = _terrain_manager.call("get_visual_cells", _hex_grid)
+		_hex_grid.call("set_terrain_cells", visual_cells)
+
+
+func _get_gongfa_manager() -> Node:
+	var tree: SceneTree = get_tree()
+	if tree == null or tree.root == null:
+		return null
+	return tree.root.get_node_or_null("GongfaManager")
+
+
+func _is_unit_stunned(unit: Node) -> bool:
+	return _is_control_active(unit, "status_stun_until")
+
+
+func _is_unit_feared(unit: Node) -> bool:
+	return _is_control_active(unit, "status_fear_until")
+
+
+func _is_control_active(unit: Node, meta_key: String) -> bool:
+	if unit == null or not is_instance_valid(unit):
+		return false
+	var until_time: float = float(unit.get_meta(meta_key, 0.0))
+	if until_time > _logic_time:
+		return true
+	if until_time > 0.0:
+		unit.remove_meta(meta_key)
+	return false
+
+
+func _clear_unit_move_and_idle(unit: Node) -> void:
+	var movement: Node = _get_movement(unit)
+	if movement != null:
+		movement.call("clear_target")
+	unit.call("play_anim_state", 0, {}) # IDLE
+
+
+func _run_feared_unit_logic(unit: Node, target: Node, enemy_team: int) -> void:
+	var current_cell: Vector2i = _get_unit_cell(unit)
+	if current_cell.x < 0:
+		_clear_unit_move_and_idle(unit)
+		return
+	if target == null or not _is_live_unit(target) or not _is_unit_alive(target):
+		target = _pick_target_in_attack_range(unit, enemy_team)
+		if target == null:
+			target = _pick_target_for_unit(unit)
+	if target == null:
+		_clear_unit_move_and_idle(unit)
+		return
+	var target_cell: Vector2i = _get_unit_cell(target)
+	if target_cell.x < 0:
+		_clear_unit_move_and_idle(unit)
+		return
+	var moved: bool = move_unit_steps_away(unit, target_cell, 1)
+	if moved:
+		unit.call("play_anim_state", 1, {}) # MOVE
+	else:
+		_clear_unit_move_and_idle(unit)
+	_metric_tick_move_checks += 1
+	_metric_total_move_checks += 1
+	if moved:
+		_metric_tick_move_started += 1
+		_metric_total_move_started += 1
+	else:
+		_metric_tick_move_blocked += 1
+		_metric_total_move_blocked += 1
+
+
+func _pick_step_towards(from_cell: Vector2i, target_cell: Vector2i) -> Vector2i:
+	var best: Vector2i = from_cell
+	var best_dist: int = _hex_distance(from_cell, target_cell)
+	for neighbor in _neighbors_of(from_cell):
+		if not _is_cell_free(neighbor):
+			continue
+		var dist: int = _hex_distance(neighbor, target_cell)
+		if dist < best_dist:
+			best_dist = dist
+			best = neighbor
+	return best
+
+
+func _pick_step_away(from_cell: Vector2i, threat_cell: Vector2i) -> Vector2i:
+	var best: Vector2i = from_cell
+	var best_dist: int = _hex_distance(from_cell, threat_cell)
+	for neighbor in _neighbors_of(from_cell):
+		if not _is_cell_free(neighbor):
+			continue
+		var dist: int = _hex_distance(neighbor, threat_cell)
+		if dist > best_dist:
+			best_dist = dist
+			best = neighbor
+	return best
+
+
 func _run_unit_logic(unit: Node, delta: float, allow_attack: bool = true, allow_move: bool = true) -> void:
 	if not _battle_running:
 		return
@@ -543,9 +828,15 @@ func _run_unit_logic(unit: Node, delta: float, allow_attack: bool = true, allow_
 		return
 
 	combat.call("tick_logic", delta)
+	if _is_unit_stunned(unit):
+		_clear_unit_move_and_idle(unit)
+		return
 	var self_team: int = int(unit.get("team_id"))
 	var enemy_team: int = TEAM_ENEMY if self_team == TEAM_ALLY else TEAM_ALLY
 	var target: Node = _pick_target_for_unit(unit)
+	if _is_unit_feared(unit):
+		_run_feared_unit_logic(unit, target, enemy_team)
+		return
 
 	if allow_attack:
 		_metric_tick_attack_checks += 1
@@ -808,6 +1099,18 @@ func _is_cell_free(cell: Vector2i) -> bool:
 	return _occupancy.is_cell_free(self, cell)
 
 
+func _is_cell_blocked(cell: Vector2i) -> bool:
+	var key: int = _cell_key_int(cell)
+	return _static_blocked_cells.has(key) or _terrain_blocked_cells.has(key)
+
+
+func _get_blocked_cells_snapshot() -> Dictionary:
+	var blocked: Dictionary = _static_blocked_cells.duplicate(true)
+	for key in _terrain_blocked_cells.keys():
+		blocked[int(key)] = true
+	return blocked
+
+
 func _get_unit_cell(unit: Node) -> Vector2i:
 	return _occupancy.get_unit_cell(self, unit)
 
@@ -860,6 +1163,12 @@ func _reset_battle_runtime_state() -> void:
 	_team_cells_cache[TEAM_ENEMY] = []
 	_cell_occupancy.clear()
 	_unit_cell.clear()
+	_terrain_blocked_cells.clear()
+	_flow_force_rebuild = true
+	if _terrain_manager != null:
+		_terrain_manager.call("clear_all")
+	if _hex_grid != null and _hex_grid.has_method("clear_terrain_cells"):
+		_hex_grid.call("clear_terrain_cells")
 	_metrics.reset_all_metrics(self)
 
 
@@ -876,6 +1185,7 @@ func _begin_battle_loop() -> void:
 	_logic_frame = 0
 	_logic_time = 0.0
 	_next_attack_phase = true
+	_flow_force_rebuild = true
 	_battle_running = true
 
 
@@ -1006,6 +1316,7 @@ func _build_damage_event(source: Node, target: Node, event_dict: Dictionary) -> 
 		"target_hp_after": float(event_dict.get("target_hp_after", 0.0)),
 		"target_mp_after": float(event_dict.get("target_mp_after", 0.0)),
 		"shield_absorbed": float(event_dict.get("shield_absorbed", 0.0)),
+		"immune_absorbed": float(event_dict.get("immune_absorbed", 0.0)),
 		"shield_hp_after": float(event_dict.get("shield_hp_after", 0.0)),
 		"shield_broken": bool(event_dict.get("shield_broken", false)),
 		"logic_frame": _logic_frame

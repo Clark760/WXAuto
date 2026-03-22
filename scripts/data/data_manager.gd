@@ -14,7 +14,6 @@ const CATEGORY_ORDER: Array[String] = [
 	"gongfa",
 	"buffs",
 	"equipment",
-	"linkages",
 	"levels",
 	"stages",
 	"vfx"
@@ -25,7 +24,6 @@ const CATEGORY_PATHS: Dictionary = {
 	"gongfa": "res://data/gongfa",
 	"buffs": "res://data/buffs",
 	"equipment": "res://data/equipment",
-	"linkages": "res://data/linkages",
 	"levels": "res://data/levels",
 	"stages": "res://data/stages",
 	"vfx": "res://data/vfx"

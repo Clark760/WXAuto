@@ -79,8 +79,8 @@ func refresh_content() -> void:
 		)
 	if _tank_rank != null:
 		_tank_rank.text = _format_rank_text(
-			_statistics.call("get_ranked_stats", "damage_taken", 8, 0, _current_team_tab),
-			"damage_taken"
+			_statistics.call("get_ranked_stats", "damage_taken_total", 8, 0, _current_team_tab),
+			"damage_taken_total"
 		)
 	if _heal_rank != null:
 		_heal_rank.text = _format_rank_text(

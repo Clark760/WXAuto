@@ -50,9 +50,11 @@ func start_battle_capture(ally_units: Array[Node], enemy_units: Array[Node]) -> 
 	_unit_lookup.clear()
 	for unit in ally_units:
 		_remember_unit(unit)
+		_bind_unit_runtime_signals(unit)
 		all_units.append(unit)
 	for unit in enemy_units:
 		_remember_unit(unit)
+		_bind_unit_runtime_signals(unit)
 		all_units.append(unit)
 	_statistics.call("start_battle", all_units)
 	_capture_running = true
@@ -146,25 +148,37 @@ func _connect_signals() -> void:
 func _on_damage_resolved(event_dict: Dictionary) -> void:
 	if not _capture_running or _statistics == null:
 		return
-	var damage_value: int = int(round(float(event_dict.get("damage", 0.0))))
-	if damage_value <= 0:
-		return
 	var source_unit: Node = _find_unit_by_instance_id(int(event_dict.get("source_id", -1)))
 	var target_unit: Node = _find_unit_by_instance_id(int(event_dict.get("target_id", -1)))
-	_statistics.call("record_damage", source_unit, target_unit, damage_value)
+	_remember_unit(source_unit)
+	_remember_unit(target_unit)
+	_record_damage_with_breakdown(
+		source_unit,
+		target_unit,
+		float(event_dict.get("damage", 0.0)),
+		float(event_dict.get("shield_absorbed", 0.0)),
+		float(event_dict.get("immune_absorbed", 0.0)),
+		_build_fallback_from_event(event_dict, "source"),
+		_build_fallback_from_event(event_dict, "target")
+	)
 
 
 func _on_skill_effect_damage(event_dict: Dictionary) -> void:
 	if not _capture_running or _statistics == null:
 		return
-	var damage_value: int = int(round(float(event_dict.get("damage", 0.0))))
-	if damage_value <= 0:
-		return
 	var source_unit: Node = event_dict.get("source", null)
 	var target_unit: Node = event_dict.get("target", null)
 	_remember_unit(source_unit)
 	_remember_unit(target_unit)
-	_statistics.call("record_damage", source_unit, target_unit, damage_value)
+	_record_damage_with_breakdown(
+		source_unit,
+		target_unit,
+		float(event_dict.get("damage", 0.0)),
+		float(event_dict.get("shield_absorbed", 0.0)),
+		float(event_dict.get("immune_absorbed", 0.0)),
+		_build_fallback_from_event(event_dict, "source"),
+		_build_fallback_from_event(event_dict, "target")
+	)
 
 
 func _on_skill_effect_heal(event_dict: Dictionary) -> void:
@@ -177,7 +191,39 @@ func _on_skill_effect_heal(event_dict: Dictionary) -> void:
 	var target_unit: Node = event_dict.get("target", null)
 	_remember_unit(source_unit)
 	_remember_unit(target_unit)
-	_statistics.call("record_healing", source_unit, target_unit, heal_value)
+	_statistics.call(
+		"record_healing",
+		source_unit,
+		target_unit,
+		heal_value,
+		_build_fallback_from_event(event_dict, "source"),
+		_build_fallback_from_event(event_dict, "target")
+	)
+
+
+func _on_unit_healing_performed(source: Node, target: Node, amount: float, _heal_type: String) -> void:
+	if not _capture_running or _statistics == null:
+		return
+	var heal_value: int = int(round(amount))
+	if heal_value <= 0:
+		return
+	_remember_unit(source)
+	_remember_unit(target)
+	_statistics.call("record_healing", source, target, heal_value)
+
+
+func _on_thorns_damage_dealt(source: Node, target: Node, event_dict: Dictionary) -> void:
+	if not _capture_running or _statistics == null:
+		return
+	_remember_unit(source)
+	_remember_unit(target)
+	_record_damage_with_breakdown(
+		source,
+		target,
+		float(event_dict.get("damage", 0.0)),
+		float(event_dict.get("shield_absorbed", 0.0)),
+		float(event_dict.get("immune_absorbed", 0.0))
+	)
 
 
 func _on_unit_died(dead_unit: Node, killer: Node, _team_id: int) -> void:
@@ -208,6 +254,65 @@ func _remember_unit(unit: Variant) -> void:
 		return
 	var node: Node = unit as Node
 	_unit_lookup[node.get_instance_id()] = node
+
+
+func _bind_unit_runtime_signals(unit: Variant) -> void:
+	if not _is_valid_unit(unit):
+		return
+	var node: Node = unit as Node
+	var combat: Node = node.get_node_or_null("Components/UnitCombat")
+	if combat == null:
+		return
+	var heal_cb: Callable = Callable(self, "_on_unit_healing_performed")
+	if combat.has_signal("healing_performed") and not combat.is_connected("healing_performed", heal_cb):
+		combat.connect("healing_performed", heal_cb)
+	var thorns_cb: Callable = Callable(self, "_on_thorns_damage_dealt")
+	if combat.has_signal("thorns_damage_dealt") and not combat.is_connected("thorns_damage_dealt", thorns_cb):
+		combat.connect("thorns_damage_dealt", thorns_cb)
+
+
+func _record_damage_with_breakdown(
+	source_unit: Node,
+	target_unit: Node,
+	damage: float,
+	shield_absorbed: float = 0.0,
+	immune_absorbed: float = 0.0,
+	source_fallback: Dictionary = {},
+	target_fallback: Dictionary = {}
+) -> void:
+	var dealt_value: int = maxi(int(round(damage)), 0)
+	var shield_value: int = maxi(int(round(shield_absorbed)), 0)
+	var immune_value: int = maxi(int(round(immune_absorbed)), 0)
+	var total_value: int = dealt_value + shield_value + immune_value
+	if dealt_value > 0:
+		_statistics.call("record_damage", source_unit, target_unit, dealt_value, source_fallback, target_fallback)
+	if total_value <= 0:
+		return
+	_statistics.call("record_stat", source_unit, "damage_dealt_total", total_value, source_fallback)
+	_statistics.call("record_stat", target_unit, "damage_taken_total", total_value, target_fallback)
+	if shield_value > 0:
+		_statistics.call("record_stat", target_unit, "shield_absorbed", shield_value, target_fallback)
+	if immune_value > 0:
+		_statistics.call("record_stat", target_unit, "damage_immune_blocked", immune_value, target_fallback)
+
+
+func _build_fallback_from_event(event_dict: Dictionary, side: String) -> Dictionary:
+	var prefix: String = side.strip_edges().to_lower()
+	var unit_id: String = str(event_dict.get("%s_unit_id" % prefix, "")).strip_edges()
+	var unit_name: String = str(event_dict.get("%s_name" % prefix, "")).strip_edges()
+	var team_id: int = int(event_dict.get("%s_team" % prefix, 0))
+	var iid_hint: int = int(event_dict.get("%s_id" % prefix, -1))
+	if unit_id.is_empty() and iid_hint > 0:
+		unit_id = "iid_%d" % iid_hint
+	if unit_name.is_empty() and not unit_id.is_empty():
+		unit_name = unit_id
+	if unit_id.is_empty() and unit_name.is_empty() and team_id == 0:
+		return {}
+	return {
+		"unit_id": unit_id,
+		"unit_name": unit_name,
+		"team_id": team_id
+	}
 
 
 func _find_unit_by_instance_id(instance_id: int) -> Node:

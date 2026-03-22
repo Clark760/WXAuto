@@ -101,27 +101,6 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "--"
 
-[node name="LinkagePanel" type="PanelContainer" parent="HUDLayer"]
-offset_left = 16.0
-offset_top = 470.0
-offset_right = 306.0
-offset_bottom = 620.0
-
-[node name="LinkageVBox" type="VBoxContainer" parent="HUDLayer/LinkagePanel"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="LinkageTitle" type="Label" parent="HUDLayer/LinkagePanel/LinkageVBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 16
-text = "联动面板"
-
-[node name="LinkageInfo" type="Label" parent="HUDLayer/LinkagePanel/LinkageVBox"]
-layout_mode = 2
-autowrap_mode = 2
-text = "当前联动：无"
-
 [node name="MiniMap" type="PanelContainer" parent="HUDLayer"]
 offset_left = 964.0
 offset_top = 66.0
@@ -403,15 +382,6 @@ text = "装备槽位"
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="LinkagePreviewTitle" type="Label" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/GongfaSection"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 16
-text = "联动预览"
-
-[node name="LinkagePreviewList" type="VBoxContainer" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/GongfaSection"]
-layout_mode = 2
-theme_override_constants/separation = 3
-
 [node name="ItemTooltip" type="PanelContainer" parent="DetailLayer"]
 visible = false
 z_index = 200
@@ -477,11 +447,6 @@ text = "触发：-"
 layout_mode = 2
 theme_override_constants/separation = 2
 
-[node name="LinkageTags" type="Label" parent="DetailLayer/ItemTooltip/TooltipMargin/TooltipRoot"]
-layout_mode = 2
-autowrap_mode = 2
-text = "联动标签：无"
-
 [node name="PhaseTransition" type="CenterContainer" parent="HUDLayer"]
 visible = false
 anchors_preset = 15
@@ -515,7 +480,7 @@ layout_mode = 2
 
 [node name="ShopLabel" type="Label" parent="BottomLayer/BottomPanel/RootVBox/ShopBar"]
 layout_mode = 2
-text = "侠馆（占位）"
+text = "商店"
 
 [node name="RefreshButton" type="Button" parent="BottomLayer/BottomPanel/RootVBox/ShopBar"]
 layout_mode = 2
