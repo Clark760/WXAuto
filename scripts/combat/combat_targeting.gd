@@ -41,6 +41,9 @@ func pick_target_for_unit(owner: Node, unit: Node) -> Node:
 	var team_ally: int = 1
 	var team_enemy: int = 2
 	var enemy_team: int = team_enemy if self_team == team_ally else team_ally
+	var taunt_target: Node = _pick_taunt_forced_target(owner, unit, enemy_team)
+	if taunt_target != null:
+		return taunt_target
 
 	if bool(owner.get("prioritize_targets_in_attack_range")):
 		var in_range_target: Node = pick_target_in_attack_range(owner, unit, enemy_team)
@@ -84,6 +87,36 @@ func pick_target_for_unit(owner: Node, unit: Node) -> Node:
 			best_dist_sq = d2
 			best_target = enemy
 	return best_target
+
+
+func _pick_taunt_forced_target(owner: Node, unit: Node, enemy_team: int) -> Node:
+	if unit == null or not is_instance_valid(unit):
+		return null
+	var until_time: float = float(unit.get_meta("status_taunt_until", 0.0))
+	if until_time <= 0.0:
+		return null
+	var now_time: float = 0.0
+	if owner != null and owner.has_method("get_logic_time"):
+		now_time = float(owner.call("get_logic_time"))
+	if until_time <= now_time:
+		unit.remove_meta("status_taunt_until")
+		unit.remove_meta("status_taunt_source_id")
+		unit.remove_meta("status_taunt_source_team")
+		return null
+	var source_id: int = int(unit.get_meta("status_taunt_source_id", -1))
+	if source_id <= 0:
+		return null
+	var unit_by_id: Dictionary = owner.get("_unit_by_instance_id")
+	if not unit_by_id.has(source_id):
+		return null
+	var forced_target: Node = unit_by_id[source_id]
+	if not bool(owner.call("_is_live_unit", forced_target)):
+		return null
+	if not bool(owner.call("_is_unit_alive", forced_target)):
+		return null
+	if int(forced_target.get("team_id")) != enemy_team:
+		return null
+	return forced_target
 
 
 func pick_target_in_attack_range(owner: Node, unit: Node, enemy_team: int) -> Node:

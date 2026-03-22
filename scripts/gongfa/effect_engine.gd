@@ -1,4 +1,4 @@
-extends RefCounted
+﻿extends RefCounted
 class_name GongfaEffectEngine
 
 # ===========================
@@ -524,12 +524,270 @@ func _execute_active_op(source: Node, target: Node, effect: Dictionary, context:
 		"spawn_vfx":
 			_spawn_vfx_by_effect(source, target, effect, context)
 
-		# 下列 op 先保留接口，后续再补完位移/召唤/嘲讽等行为细节。
-		"teleport_behind", "dash_forward", "knockback_target", "summon_clone", "revive_random_ally", "taunt_aoe":
-			push_warning("EffectEngine: op=%s 已预留，当前版本暂未实现。" % op)
+		"teleport_behind":
+			_execute_teleport_behind_op(source, target, effect, context)
+
+		"dash_forward":
+			_execute_dash_forward_op(source, target, effect, context)
+
+		"knockback_target":
+			_execute_knockback_target_op(source, target, effect, context)
+
+		"summon_clone":
+			var clone_count: int = _execute_summon_clone_op(source, effect, context)
+			summary["summon_total"] = int(summary.get("summon_total", 0)) + clone_count
+
+		"revive_random_ally":
+			var revive_result: Dictionary = _execute_revive_random_ally_op(source, effect, context)
+			var revived_heal: float = float(revive_result.get("healed", 0.0))
+			if revived_heal > 0.0:
+				summary["heal_total"] = float(summary.get("heal_total", 0.0)) + revived_heal
+				var revived_unit: Node = revive_result.get("unit", null)
+				_append_heal_event(summary, source, revived_unit, revived_heal, op)
+
+		"taunt_aoe":
+			_execute_taunt_aoe_op(source, effect, context, summary)
 
 		_:
-			push_warning("EffectEngine: 未实现的主动 op=%s" % op)
+			push_warning("EffectEngine: 閺堫亜鐤勯悳鎵畱娑撹濮?op=%s" % op)
+
+
+func _execute_teleport_behind_op(source: Node, target: Node, effect: Dictionary, context: Dictionary) -> bool:
+	if source == null or not is_instance_valid(source):
+		return false
+	if target == null or not is_instance_valid(target):
+		return false
+	var distance_steps: int = maxi(int(effect.get("distance", 1)), 1)
+	var combat_manager: Node = context.get("combat_manager", null)
+	var hex_grid: Node = context.get("hex_grid", null)
+	var has_grid_movement: bool = combat_manager != null and is_instance_valid(combat_manager) and combat_manager.has_method("get_unit_cell_of")
+	if has_grid_movement:
+		var source_cell_value: Variant = combat_manager.call("get_unit_cell_of", source)
+		var target_cell_value: Variant = combat_manager.call("get_unit_cell_of", target)
+		if source_cell_value is Vector2i and target_cell_value is Vector2i:
+			var source_cell: Vector2i = source_cell_value as Vector2i
+			var target_cell: Vector2i = target_cell_value as Vector2i
+			var target_cell_behind: Vector2i = _find_cell_behind_target(target_cell, source_cell, distance_steps, combat_manager, hex_grid)
+			if target_cell_behind.x >= 0 and combat_manager.has_method("force_move_unit_to_cell"):
+				if bool(combat_manager.call("force_move_unit_to_cell", source, target_cell_behind)):
+					return true
+		return false
+	# Fallback without grid context: move in world-space direction.
+	var source_pos: Vector2 = _node_pos(source)
+	var target_pos: Vector2 = _node_pos(target)
+	var dir: Vector2 = (target_pos - source_pos).normalized()
+	if dir.is_zero_approx():
+		dir = Vector2.RIGHT
+	var teleport_world_distance: float = _cells_to_world_distance(float(distance_steps), context)
+	var n2d_source: Node2D = source as Node2D
+	if n2d_source != null:
+		n2d_source.position = target_pos + dir * teleport_world_distance
+		return true
+	return false
+
+
+func _execute_dash_forward_op(source: Node, target: Node, effect: Dictionary, context: Dictionary) -> bool:
+	if source == null or not is_instance_valid(source):
+		return false
+	if target == null or not is_instance_valid(target):
+		return false
+	var distance_steps: int = maxi(int(effect.get("distance", 1)), 1)
+	var combat_manager: Node = context.get("combat_manager", null)
+	var has_grid_movement: bool = combat_manager != null and is_instance_valid(combat_manager) and combat_manager.has_method("get_unit_cell_of") and combat_manager.has_method("move_unit_steps_towards")
+	if has_grid_movement:
+		var target_cell_value: Variant = combat_manager.call("get_unit_cell_of", target)
+		if target_cell_value is Vector2i:
+			return bool(combat_manager.call("move_unit_steps_towards", source, target_cell_value as Vector2i, distance_steps))
+		return false
+	var source_node: Node2D = source as Node2D
+	var target_node: Node2D = target as Node2D
+	if source_node == null or target_node == null:
+		return false
+	var dir: Vector2 = (target_node.position - source_node.position).normalized()
+	if dir.is_zero_approx():
+		return false
+	source_node.position += dir * _cells_to_world_distance(float(distance_steps), context)
+	return true
+
+
+func _execute_knockback_target_op(source: Node, target: Node, effect: Dictionary, context: Dictionary) -> bool:
+	if source == null or not is_instance_valid(source):
+		return false
+	if target == null or not is_instance_valid(target):
+		return false
+	var distance_steps: int = maxi(int(effect.get("distance", 1)), 1)
+	var combat_manager: Node = context.get("combat_manager", null)
+	var has_grid_movement: bool = combat_manager != null and is_instance_valid(combat_manager) and combat_manager.has_method("get_unit_cell_of") and combat_manager.has_method("move_unit_steps_away")
+	if has_grid_movement:
+		var source_cell_value: Variant = combat_manager.call("get_unit_cell_of", source)
+		if source_cell_value is Vector2i:
+			return bool(combat_manager.call("move_unit_steps_away", target, source_cell_value as Vector2i, distance_steps))
+		return false
+	var source_node: Node2D = source as Node2D
+	var target_node: Node2D = target as Node2D
+	if source_node == null or target_node == null:
+		return false
+	var dir: Vector2 = (target_node.position - source_node.position).normalized()
+	if dir.is_zero_approx():
+		dir = Vector2.RIGHT
+	target_node.position += dir * _cells_to_world_distance(float(distance_steps), context)
+	return true
+
+
+func _execute_summon_clone_op(source: Node, effect: Dictionary, context: Dictionary) -> int:
+	if source == null or not is_instance_valid(source):
+		return 0
+	var clone_count: int = maxi(int(effect.get("count", 1)), 1)
+	var clone_star: int = clampi(int(effect.get("star", int(source.get("star_level")))), 1, 3)
+	var clone_row: Dictionary = {
+		"clone_source": "self",
+		"count": clone_count,
+		"star": clone_star
+	}
+	if effect.has("unit_id"):
+		var unit_id: String = str(effect.get("unit_id", "")).strip_edges()
+		if not unit_id.is_empty():
+			clone_row["unit_id"] = unit_id
+	if effect.has("hp_ratio"):
+		clone_row["hp_ratio"] = maxf(float(effect.get("hp_ratio", 1.0)), 0.01)
+	if effect.has("atk_ratio"):
+		clone_row["atk_ratio"] = maxf(float(effect.get("atk_ratio", 1.0)), 0.01)
+	var summon_effect: Dictionary = {
+		"units": [clone_row],
+		"deploy": str(effect.get("deploy", "around_self")).strip_edges().to_lower(),
+		"radius": maxi(int(effect.get("radius", 2)), 0)
+	}
+	return _execute_summon_units_op(source, summon_effect, context)
+
+
+func _execute_revive_random_ally_op(source: Node, effect: Dictionary, context: Dictionary) -> Dictionary:
+	var result: Dictionary = {
+		"unit": null,
+		"healed": 0.0
+	}
+	if source == null or not is_instance_valid(source):
+		return result
+	var source_team: int = int(source.get("team_id"))
+	var dead_allies: Array[Node] = []
+	for unit in _get_all_units(context):
+		if unit == null or not is_instance_valid(unit):
+			continue
+		if source_team != 0 and int(unit.get("team_id")) != source_team:
+			continue
+		var combat: Node = unit.get_node_or_null("Components/UnitCombat")
+		if combat == null:
+			continue
+		if bool(combat.get("is_alive")):
+			continue
+		dead_allies.append(unit)
+	if dead_allies.is_empty():
+		return result
+	var revive_index: int = randi() % dead_allies.size()
+	var revived_unit: Node = dead_allies[revive_index]
+	var revived_combat: Node = revived_unit.get_node_or_null("Components/UnitCombat")
+	if revived_combat == null:
+		return result
+	var max_hp: float = maxf(float(revived_combat.get("max_hp")), 1.0)
+	var revive_value: float = maxf(float(effect.get("value", 0.0)), 0.0)
+	var revive_percent: float = clampf(float(effect.get("hp_percent", 0.35)), 0.01, 1.0)
+	var restore_amount: float = revive_value if revive_value > 0.0 else max_hp * revive_percent
+	var before_hp: float = float(revived_combat.get("current_hp"))
+	revived_combat.call("restore_hp", restore_amount)
+	var healed: float = maxf(float(revived_combat.get("current_hp")) - before_hp, 0.0)
+	if healed <= 0.0:
+		return result
+	var combat_manager: Node = context.get("combat_manager", null)
+	if combat_manager != null and is_instance_valid(combat_manager) and combat_manager.has_method("add_unit_mid_battle"):
+		combat_manager.call("add_unit_mid_battle", revived_unit)
+	result["unit"] = revived_unit
+	result["healed"] = healed
+	return result
+
+
+func _execute_taunt_aoe_op(source: Node, effect: Dictionary, context: Dictionary, summary: Dictionary) -> int:
+	if source == null or not is_instance_valid(source):
+		return 0
+	var taunt_radius: float = _cells_to_world_distance(float(effect.get("radius", 2.0)), context)
+	var taunt_duration: float = maxf(float(effect.get("duration", 2.0)), 0.05)
+	var taunt_buff_id: String = str(effect.get("buff_id", "")).strip_edges()
+	var taunted_count: int = 0
+	for enemy in _collect_enemy_units_in_radius(source, _node_pos(source), taunt_radius, context):
+		_apply_taunt_state(enemy, source, taunt_duration, context)
+		taunted_count += 1
+		if not taunt_buff_id.is_empty():
+			if _apply_buff_op(source, enemy, {"buff_id": taunt_buff_id, "duration": taunt_duration}, context):
+				summary["debuff_applied"] = int(summary.get("debuff_applied", 0)) + 1
+				_append_buff_event(summary, source, enemy, taunt_buff_id, taunt_duration, "taunt_aoe")
+	return taunted_count
+
+
+func _apply_taunt_state(target: Node, source: Node, duration: float, context: Dictionary) -> void:
+	if target == null or not is_instance_valid(target):
+		return
+	var now_logic: float = float(context.get("battle_elapsed", 0.0))
+	var until_logic: float = now_logic + maxf(duration, 0.05)
+	target.set_meta("status_taunt_until", maxf(float(target.get_meta("status_taunt_until", 0.0)), until_logic))
+	if source != null and is_instance_valid(source):
+		target.set_meta("status_taunt_source_id", source.get_instance_id())
+		target.set_meta("status_taunt_source_team", int(source.get("team_id")))
+
+
+func _find_cell_behind_target(
+	target_cell: Vector2i,
+	source_cell: Vector2i,
+	distance_steps: int,
+	combat_manager: Node,
+	hex_grid: Node
+) -> Vector2i:
+	var current: Vector2i = target_cell
+	for _i in range(maxi(distance_steps, 1)):
+		var next: Vector2i = _pick_neighbor_away_from_anchor(current, source_cell, combat_manager, hex_grid)
+		if next == current:
+			break
+		current = next
+	return current
+
+
+func _pick_neighbor_away_from_anchor(current: Vector2i, anchor: Vector2i, combat_manager: Node, hex_grid: Node) -> Vector2i:
+	var neighbors: Array[Vector2i] = _get_neighbor_cells(current, hex_grid)
+	if neighbors.is_empty():
+		return current
+	var best: Vector2i = current
+	var best_dist: int = _hex_distance_by_cell(current, anchor, hex_grid)
+	for neighbor in neighbors:
+		if not _is_cell_walkable_for_effect(neighbor, combat_manager, hex_grid):
+			continue
+		var dist: int = _hex_distance_by_cell(neighbor, anchor, hex_grid)
+		if dist > best_dist:
+			best_dist = dist
+			best = neighbor
+	return best
+
+
+func _get_neighbor_cells(cell: Vector2i, hex_grid: Node) -> Array[Vector2i]:
+	var out: Array[Vector2i] = []
+	if hex_grid == null or not is_instance_valid(hex_grid):
+		return out
+	if not hex_grid.has_method("get_neighbor_cells"):
+		return out
+	var neighbors_value: Variant = hex_grid.call("get_neighbor_cells", cell)
+	if not (neighbors_value is Array):
+		return out
+	for neighbor_value in (neighbors_value as Array):
+		if neighbor_value is Vector2i:
+			out.append(neighbor_value as Vector2i)
+	return out
+
+
+func _is_cell_walkable_for_effect(cell: Vector2i, combat_manager: Node, hex_grid: Node) -> bool:
+	if hex_grid != null and is_instance_valid(hex_grid) and hex_grid.has_method("is_inside_grid"):
+		if not bool(hex_grid.call("is_inside_grid", cell)):
+			return false
+	if combat_manager != null and is_instance_valid(combat_manager) and combat_manager.has_method("is_cell_blocked"):
+		if bool(combat_manager.call("is_cell_blocked", cell)):
+			return false
+	return true
+
 
 
 func _resolve_scale_stat_value(node: Node, scale_stat: String) -> float:
@@ -760,7 +1018,7 @@ func _apply_immunity_self_op(source: Node, effect: Dictionary, context: Dictiona
 			summary["buff_applied"] = int(summary.get("buff_applied", 0)) + 1
 			_append_buff_event(summary, source, source, buff_id, duration, "immunity_self")
 		return
-	# 无 buff_id 时退化为元数据开关（持续到本场结束或外部手动关闭）。
+	source.set_meta("stage_damage_immune", true)
 	source.set_meta("stage_damage_immune", true)
 
 
