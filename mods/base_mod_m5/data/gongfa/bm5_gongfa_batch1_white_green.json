@@ -1,0 +1,3872 @@
+[
+  {
+    "id": "bm5_gf_white_001",
+    "name": "Guo Jing Gongfa",
+    "type": "waigong",
+    "description": "Exclusive gongfa of Guo Jing.",
+    "faction": "bm5_faction_jinyong",
+    "element": "metal",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.swordsman",
+      "bm5.source.jinyong",
+      "bm5.gongfa.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "crit_bonus",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 3.5,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 95,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_sword_momentum",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_002",
+    "name": "Huang Rong Gongfa",
+    "type": "qinggong",
+    "description": "Exclusive gongfa of Huang Rong.",
+    "faction": "bm5_faction_jinyong",
+    "element": "wood",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.assassin",
+      "bm5.source.jinyong",
+      "bm5.gongfa.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_crit",
+        "cooldown": 4.0,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "bm5_mark_shadow",
+            "duration": 5.0
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "bm5_mark_shadow",
+            "value": 80,
+            "bonus_multiplier": 1.8
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_003",
+    "name": "Yang Guo Gongfa",
+    "type": "qishu",
+    "description": "Exclusive gongfa of Yang Guo.",
+    "faction": "bm5_faction_jinyong",
+    "element": "water",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.archer",
+      "bm5.source.jinyong",
+      "bm5.gongfa.qishu"
+    ],
+    "passive_effects": [
+      {
+        "op": "range_add",
+        "value": 1
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 4.0,
+        "effects": [
+          {
+            "op": "damage_target_scaling",
+            "value": 70,
+            "scale_stat": "spd",
+            "scale_ratio": 0.4,
+            "scale_source": "self",
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "bm5_debuff_slow",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_004",
+    "name": "Xiao Longnu Gongfa",
+    "type": "neigong",
+    "description": "Exclusive gongfa of Xiao Longnu.",
+    "faction": "bm5_faction_jinyong",
+    "element": "fire",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.caster",
+      "bm5.source.jinyong",
+      "bm5.gongfa.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "damage_amp_percent",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 7.0
+        },
+        "effects": [
+          {
+            "op": "damage_aoe",
+            "radius": 2.0,
+            "value": 85,
+            "damage_type": "internal"
+          },
+          {
+            "op": "debuff_aoe",
+            "radius": 2.0,
+            "buff_id": "bm5_debuff_burn",
+            "duration": 2.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_005",
+    "name": "Zhang Wuji Gongfa",
+    "type": "neigong",
+    "description": "Exclusive gongfa of Zhang Wuji.",
+    "faction": "bm5_faction_jinyong",
+    "element": "earth",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.healer",
+      "bm5.source.jinyong",
+      "bm5.gongfa.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "healing_amp",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 6.0
+        },
+        "cooldown": 0.0,
+        "effects": [
+          {
+            "op": "heal_lowest_ally",
+            "value": 150
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_healer_bless",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_006",
+    "name": "Zhao Min Gongfa",
+    "type": "zhenfa",
+    "description": "Exclusive gongfa of Zhao Min.",
+    "faction": "bm5_faction_jinyong",
+    "element": "none",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.leader",
+      "bm5.source.jinyong",
+      "bm5.gongfa.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "atk",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_combat_start",
+        "max_trigger_count": 1,
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "radius": 3.0,
+            "buff_id": "bm5_buff_leader_aura",
+            "duration": 8.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_007",
+    "name": "Zhou Zhiruo Gongfa",
+    "type": "waigong",
+    "description": "Exclusive gongfa of Zhou Zhiruo.",
+    "faction": "bm5_faction_jinyong",
+    "element": "metal",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.vanguard",
+      "bm5.source.jinyong",
+      "bm5.gongfa.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "damage_reduce_percent",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attacked",
+        "cooldown": 5.0,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_vanguard_stance",
+            "duration": 3.0
+          },
+          {
+            "op": "damage_target",
+            "value": 60,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_008",
+    "name": "Linghu Chong Gongfa",
+    "type": "waigong",
+    "description": "Exclusive gongfa of Linghu Chong.",
+    "faction": "bm5_faction_jinyong",
+    "element": "wood",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.swordsman",
+      "bm5.source.jinyong",
+      "bm5.gongfa.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "crit_bonus",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 3.5,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 95,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_sword_momentum",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_009",
+    "name": "Ren Yingying Gongfa",
+    "type": "qinggong",
+    "description": "Exclusive gongfa of Ren Yingying.",
+    "faction": "bm5_faction_jinyong",
+    "element": "water",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.assassin",
+      "bm5.source.jinyong",
+      "bm5.gongfa.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_crit",
+        "cooldown": 4.0,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "bm5_mark_shadow",
+            "duration": 5.0
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "bm5_mark_shadow",
+            "value": 80,
+            "bonus_multiplier": 1.8
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_010",
+    "name": "Yue Buqun Gongfa",
+    "type": "qishu",
+    "description": "Exclusive gongfa of Yue Buqun.",
+    "faction": "bm5_faction_jinyong",
+    "element": "fire",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.archer",
+      "bm5.source.jinyong",
+      "bm5.gongfa.qishu"
+    ],
+    "passive_effects": [
+      {
+        "op": "range_add",
+        "value": 1
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 4.0,
+        "effects": [
+          {
+            "op": "damage_target_scaling",
+            "value": 70,
+            "scale_stat": "spd",
+            "scale_ratio": 0.4,
+            "scale_source": "self",
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "bm5_debuff_slow",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_011",
+    "name": "Lin Pingzhi Gongfa",
+    "type": "neigong",
+    "description": "Exclusive gongfa of Lin Pingzhi.",
+    "faction": "bm5_faction_jinyong",
+    "element": "earth",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.caster",
+      "bm5.source.jinyong",
+      "bm5.gongfa.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "damage_amp_percent",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 7.0
+        },
+        "effects": [
+          {
+            "op": "damage_aoe",
+            "radius": 2.0,
+            "value": 85,
+            "damage_type": "internal"
+          },
+          {
+            "op": "debuff_aoe",
+            "radius": 2.0,
+            "buff_id": "bm5_debuff_burn",
+            "duration": 2.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_012",
+    "name": "Dongfang Bubai Gongfa",
+    "type": "neigong",
+    "description": "Exclusive gongfa of Dongfang Bubai.",
+    "faction": "bm5_faction_jinyong",
+    "element": "none",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.healer",
+      "bm5.source.jinyong",
+      "bm5.gongfa.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "healing_amp",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 6.0
+        },
+        "cooldown": 0.0,
+        "effects": [
+          {
+            "op": "heal_lowest_ally",
+            "value": 150
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_healer_bless",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_013",
+    "name": "Wei Xiaobao Gongfa",
+    "type": "zhenfa",
+    "description": "Exclusive gongfa of Wei Xiaobao.",
+    "faction": "bm5_faction_jinyong",
+    "element": "metal",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.leader",
+      "bm5.source.jinyong",
+      "bm5.gongfa.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "atk",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_combat_start",
+        "max_trigger_count": 1,
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "radius": 3.0,
+            "buff_id": "bm5_buff_leader_aura",
+            "duration": 8.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_014",
+    "name": "Chen Jinnan Gongfa",
+    "type": "waigong",
+    "description": "Exclusive gongfa of Chen Jinnan.",
+    "faction": "bm5_faction_jinyong",
+    "element": "wood",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.vanguard",
+      "bm5.source.jinyong",
+      "bm5.gongfa.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "damage_reduce_percent",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attacked",
+        "cooldown": 5.0,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_vanguard_stance",
+            "duration": 3.0
+          },
+          {
+            "op": "damage_target",
+            "value": 60,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_015",
+    "name": "Qiao Feng Gongfa",
+    "type": "waigong",
+    "description": "Exclusive gongfa of Qiao Feng.",
+    "faction": "bm5_faction_jinyong",
+    "element": "water",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.swordsman",
+      "bm5.source.jinyong",
+      "bm5.gongfa.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "crit_bonus",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 3.5,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 95,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_sword_momentum",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_016",
+    "name": "Duan Yu Gongfa",
+    "type": "qinggong",
+    "description": "Exclusive gongfa of Duan Yu.",
+    "faction": "bm5_faction_jinyong",
+    "element": "fire",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.assassin",
+      "bm5.source.jinyong",
+      "bm5.gongfa.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_crit",
+        "cooldown": 4.0,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "bm5_mark_shadow",
+            "duration": 5.0
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "bm5_mark_shadow",
+            "value": 80,
+            "bonus_multiplier": 1.8
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_017",
+    "name": "Xu Zhu Gongfa",
+    "type": "qishu",
+    "description": "Exclusive gongfa of Xu Zhu.",
+    "faction": "bm5_faction_jinyong",
+    "element": "earth",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.archer",
+      "bm5.source.jinyong",
+      "bm5.gongfa.qishu"
+    ],
+    "passive_effects": [
+      {
+        "op": "range_add",
+        "value": 1
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 4.0,
+        "effects": [
+          {
+            "op": "damage_target_scaling",
+            "value": 70,
+            "scale_stat": "spd",
+            "scale_ratio": 0.4,
+            "scale_source": "self",
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "bm5_debuff_slow",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_018",
+    "name": "Wang Yuyan Gongfa",
+    "type": "neigong",
+    "description": "Exclusive gongfa of Wang Yuyan.",
+    "faction": "bm5_faction_jinyong",
+    "element": "none",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.caster",
+      "bm5.source.jinyong",
+      "bm5.gongfa.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "damage_amp_percent",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 7.0
+        },
+        "effects": [
+          {
+            "op": "damage_aoe",
+            "radius": 2.0,
+            "value": 85,
+            "damage_type": "internal"
+          },
+          {
+            "op": "debuff_aoe",
+            "radius": 2.0,
+            "buff_id": "bm5_debuff_burn",
+            "duration": 2.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_019",
+    "name": "Murong Fu Gongfa",
+    "type": "neigong",
+    "description": "Exclusive gongfa of Murong Fu.",
+    "faction": "bm5_faction_jinyong",
+    "element": "metal",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.healer",
+      "bm5.source.jinyong",
+      "bm5.gongfa.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "healing_amp",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 6.0
+        },
+        "cooldown": 0.0,
+        "effects": [
+          {
+            "op": "heal_lowest_ally",
+            "value": 150
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_healer_bless",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_020",
+    "name": "A Zhu Gongfa",
+    "type": "zhenfa",
+    "description": "Exclusive gongfa of A Zhu.",
+    "faction": "bm5_faction_jinyong",
+    "element": "wood",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.leader",
+      "bm5.source.jinyong",
+      "bm5.gongfa.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "atk",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_combat_start",
+        "max_trigger_count": 1,
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "radius": 3.0,
+            "buff_id": "bm5_buff_leader_aura",
+            "duration": 8.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_021",
+    "name": "A Zi Gongfa",
+    "type": "waigong",
+    "description": "Exclusive gongfa of A Zi.",
+    "faction": "bm5_faction_jinyong",
+    "element": "water",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.vanguard",
+      "bm5.source.jinyong",
+      "bm5.gongfa.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "damage_reduce_percent",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attacked",
+        "cooldown": 5.0,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_vanguard_stance",
+            "duration": 3.0
+          },
+          {
+            "op": "damage_target",
+            "value": 60,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_022",
+    "name": "Ding Chunqiu Gongfa",
+    "type": "waigong",
+    "description": "Exclusive gongfa of Ding Chunqiu.",
+    "faction": "bm5_faction_jinyong",
+    "element": "fire",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.swordsman",
+      "bm5.source.jinyong",
+      "bm5.gongfa.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "crit_bonus",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 3.5,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 95,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_sword_momentum",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_023",
+    "name": "You Tanzhi Gongfa",
+    "type": "qinggong",
+    "description": "Exclusive gongfa of You Tanzhi.",
+    "faction": "bm5_faction_jinyong",
+    "element": "earth",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.assassin",
+      "bm5.source.jinyong",
+      "bm5.gongfa.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_crit",
+        "cooldown": 4.0,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "bm5_mark_shadow",
+            "duration": 5.0
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "bm5_mark_shadow",
+            "value": 80,
+            "bonus_multiplier": 1.8
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_024",
+    "name": "Yuan Chengzhi Gongfa",
+    "type": "qishu",
+    "description": "Exclusive gongfa of Yuan Chengzhi.",
+    "faction": "bm5_faction_jinyong",
+    "element": "none",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.archer",
+      "bm5.source.jinyong",
+      "bm5.gongfa.qishu"
+    ],
+    "passive_effects": [
+      {
+        "op": "range_add",
+        "value": 1
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 4.0,
+        "effects": [
+          {
+            "op": "damage_target_scaling",
+            "value": 70,
+            "scale_stat": "spd",
+            "scale_ratio": 0.4,
+            "scale_source": "self",
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "bm5_debuff_slow",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_025",
+    "name": "Xia Xueyi Gongfa",
+    "type": "neigong",
+    "description": "Exclusive gongfa of Xia Xueyi.",
+    "faction": "bm5_faction_jinyong",
+    "element": "metal",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.caster",
+      "bm5.source.jinyong",
+      "bm5.gongfa.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "damage_amp_percent",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 7.0
+        },
+        "effects": [
+          {
+            "op": "damage_aoe",
+            "radius": 2.0,
+            "value": 85,
+            "damage_type": "internal"
+          },
+          {
+            "op": "debuff_aoe",
+            "radius": 2.0,
+            "buff_id": "bm5_debuff_burn",
+            "duration": 2.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_026",
+    "name": "Hu Fei Gongfa",
+    "type": "neigong",
+    "description": "Exclusive gongfa of Hu Fei.",
+    "faction": "bm5_faction_jinyong",
+    "element": "wood",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.healer",
+      "bm5.source.jinyong",
+      "bm5.gongfa.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "healing_amp",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 6.0
+        },
+        "cooldown": 0.0,
+        "effects": [
+          {
+            "op": "heal_lowest_ally",
+            "value": 150
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_healer_bless",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_027",
+    "name": "Cheng Lingsu Gongfa",
+    "type": "zhenfa",
+    "description": "Exclusive gongfa of Cheng Lingsu.",
+    "faction": "bm5_faction_jinyong",
+    "element": "water",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.leader",
+      "bm5.source.jinyong",
+      "bm5.gongfa.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "atk",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_combat_start",
+        "max_trigger_count": 1,
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "radius": 3.0,
+            "buff_id": "bm5_buff_leader_aura",
+            "duration": 8.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_028",
+    "name": "Miao Ruolan Gongfa",
+    "type": "waigong",
+    "description": "Exclusive gongfa of Miao Ruolan.",
+    "faction": "bm5_faction_jinyong",
+    "element": "fire",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.vanguard",
+      "bm5.source.jinyong",
+      "bm5.gongfa.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "damage_reduce_percent",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attacked",
+        "cooldown": 5.0,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_vanguard_stance",
+            "duration": 3.0
+          },
+          {
+            "op": "damage_target",
+            "value": 60,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_029",
+    "name": "Di Yun Gongfa",
+    "type": "waigong",
+    "description": "Exclusive gongfa of Di Yun.",
+    "faction": "bm5_faction_jinyong",
+    "element": "earth",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.swordsman",
+      "bm5.source.jinyong",
+      "bm5.gongfa.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "crit_bonus",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 3.5,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 95,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_sword_momentum",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_030",
+    "name": "Qi Fang Gongfa",
+    "type": "qinggong",
+    "description": "Exclusive gongfa of Qi Fang.",
+    "faction": "bm5_faction_jinyong",
+    "element": "none",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.assassin",
+      "bm5.source.jinyong",
+      "bm5.gongfa.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_crit",
+        "cooldown": 4.0,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "bm5_mark_shadow",
+            "duration": 5.0
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "bm5_mark_shadow",
+            "value": 80,
+            "bonus_multiplier": 1.8
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_031",
+    "name": "Xuedao Laozu Gongfa",
+    "type": "qishu",
+    "description": "Exclusive gongfa of Xuedao Laozu.",
+    "faction": "bm5_faction_jinyong",
+    "element": "metal",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.archer",
+      "bm5.source.jinyong",
+      "bm5.gongfa.qishu"
+    ],
+    "passive_effects": [
+      {
+        "op": "range_add",
+        "value": 1
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 4.0,
+        "effects": [
+          {
+            "op": "damage_target_scaling",
+            "value": 70,
+            "scale_stat": "spd",
+            "scale_ratio": 0.4,
+            "scale_source": "self",
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "bm5_debuff_slow",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_032",
+    "name": "Shi Potian Gongfa",
+    "type": "neigong",
+    "description": "Exclusive gongfa of Shi Potian.",
+    "faction": "bm5_faction_jinyong",
+    "element": "wood",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.caster",
+      "bm5.source.jinyong",
+      "bm5.gongfa.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "damage_amp_percent",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 7.0
+        },
+        "effects": [
+          {
+            "op": "damage_aoe",
+            "radius": 2.0,
+            "value": 85,
+            "damage_type": "internal"
+          },
+          {
+            "op": "debuff_aoe",
+            "radius": 2.0,
+            "buff_id": "bm5_debuff_burn",
+            "duration": 2.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_033",
+    "name": "Ding Dang Gongfa",
+    "type": "neigong",
+    "description": "Exclusive gongfa of Ding Dang.",
+    "faction": "bm5_faction_jinyong",
+    "element": "water",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.healer",
+      "bm5.source.jinyong",
+      "bm5.gongfa.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "healing_amp",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 6.0
+        },
+        "cooldown": 0.0,
+        "effects": [
+          {
+            "op": "heal_lowest_ally",
+            "value": 150
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_healer_bless",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_034",
+    "name": "Su Xinghe Gongfa",
+    "type": "zhenfa",
+    "description": "Exclusive gongfa of Su Xinghe.",
+    "faction": "bm5_faction_jinyong",
+    "element": "fire",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.leader",
+      "bm5.source.jinyong",
+      "bm5.gongfa.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "atk",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_combat_start",
+        "max_trigger_count": 1,
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "radius": 3.0,
+            "buff_id": "bm5_buff_leader_aura",
+            "duration": 8.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_035",
+    "name": "Tianshan Tonglao Gongfa",
+    "type": "waigong",
+    "description": "Exclusive gongfa of Tianshan Tonglao.",
+    "faction": "bm5_faction_jinyong",
+    "element": "earth",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.vanguard",
+      "bm5.source.jinyong",
+      "bm5.gongfa.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "damage_reduce_percent",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attacked",
+        "cooldown": 5.0,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_vanguard_stance",
+            "duration": 3.0
+          },
+          {
+            "op": "damage_target",
+            "value": 60,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_036",
+    "name": "Li Qiushui Gongfa",
+    "type": "waigong",
+    "description": "Exclusive gongfa of Li Qiushui.",
+    "faction": "bm5_faction_jinyong",
+    "element": "none",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.swordsman",
+      "bm5.source.jinyong",
+      "bm5.gongfa.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "crit_bonus",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 3.5,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 95,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_sword_momentum",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_037",
+    "name": "Wu Yazi Gongfa",
+    "type": "qinggong",
+    "description": "Exclusive gongfa of Wu Yazi.",
+    "faction": "bm5_faction_jinyong",
+    "element": "metal",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.assassin",
+      "bm5.source.jinyong",
+      "bm5.gongfa.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_crit",
+        "cooldown": 4.0,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "bm5_mark_shadow",
+            "duration": 5.0
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "bm5_mark_shadow",
+            "value": 80,
+            "bonus_multiplier": 1.8
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_038",
+    "name": "Huang Yaoshi Gongfa",
+    "type": "qishu",
+    "description": "Exclusive gongfa of Huang Yaoshi.",
+    "faction": "bm5_faction_jinyong",
+    "element": "wood",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.archer",
+      "bm5.source.jinyong",
+      "bm5.gongfa.qishu"
+    ],
+    "passive_effects": [
+      {
+        "op": "range_add",
+        "value": 1
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 4.0,
+        "effects": [
+          {
+            "op": "damage_target_scaling",
+            "value": 70,
+            "scale_stat": "spd",
+            "scale_ratio": 0.4,
+            "scale_source": "self",
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "bm5_debuff_slow",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_039",
+    "name": "Ouyang Feng Gongfa",
+    "type": "neigong",
+    "description": "Exclusive gongfa of Ouyang Feng.",
+    "faction": "bm5_faction_jinyong",
+    "element": "water",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.caster",
+      "bm5.source.jinyong",
+      "bm5.gongfa.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "damage_amp_percent",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 7.0
+        },
+        "effects": [
+          {
+            "op": "damage_aoe",
+            "radius": 2.0,
+            "value": 85,
+            "damage_type": "internal"
+          },
+          {
+            "op": "debuff_aoe",
+            "radius": 2.0,
+            "buff_id": "bm5_debuff_burn",
+            "duration": 2.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_040",
+    "name": "Hong Qigong Gongfa",
+    "type": "neigong",
+    "description": "Exclusive gongfa of Hong Qigong.",
+    "faction": "bm5_faction_jinyong",
+    "element": "fire",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.healer",
+      "bm5.source.jinyong",
+      "bm5.gongfa.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "healing_amp",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 6.0
+        },
+        "cooldown": 0.0,
+        "effects": [
+          {
+            "op": "heal_lowest_ally",
+            "value": 150
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_healer_bless",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_041",
+    "name": "Yideng Dashi Gongfa",
+    "type": "zhenfa",
+    "description": "Exclusive gongfa of Yideng Dashi.",
+    "faction": "bm5_faction_jinyong",
+    "element": "earth",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.leader",
+      "bm5.source.jinyong",
+      "bm5.gongfa.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "atk",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_combat_start",
+        "max_trigger_count": 1,
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "radius": 3.0,
+            "buff_id": "bm5_buff_leader_aura",
+            "duration": 8.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_042",
+    "name": "Zhou Botong Gongfa",
+    "type": "waigong",
+    "description": "Exclusive gongfa of Zhou Botong.",
+    "faction": "bm5_faction_jinyong",
+    "element": "none",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.vanguard",
+      "bm5.source.jinyong",
+      "bm5.gongfa.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "damage_reduce_percent",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attacked",
+        "cooldown": 5.0,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_vanguard_stance",
+            "duration": 3.0
+          },
+          {
+            "op": "damage_target",
+            "value": 60,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_043",
+    "name": "Qiu Qianren Gongfa",
+    "type": "waigong",
+    "description": "Exclusive gongfa of Qiu Qianren.",
+    "faction": "bm5_faction_jinyong",
+    "element": "metal",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.swordsman",
+      "bm5.source.jinyong",
+      "bm5.gongfa.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "crit_bonus",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 3.5,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 95,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_sword_momentum",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_044",
+    "name": "Mei Chaofeng Gongfa",
+    "type": "qinggong",
+    "description": "Exclusive gongfa of Mei Chaofeng.",
+    "faction": "bm5_faction_jinyong",
+    "element": "wood",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.assassin",
+      "bm5.source.jinyong",
+      "bm5.gongfa.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_crit",
+        "cooldown": 4.0,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "bm5_mark_shadow",
+            "duration": 5.0
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "bm5_mark_shadow",
+            "value": 80,
+            "bonus_multiplier": 1.8
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_045",
+    "name": "Li Mochou Gongfa",
+    "type": "qishu",
+    "description": "Exclusive gongfa of Li Mochou.",
+    "faction": "bm5_faction_jinyong",
+    "element": "water",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.archer",
+      "bm5.source.jinyong",
+      "bm5.gongfa.qishu"
+    ],
+    "passive_effects": [
+      {
+        "op": "range_add",
+        "value": 1
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 4.0,
+        "effects": [
+          {
+            "op": "damage_target_scaling",
+            "value": 70,
+            "scale_stat": "spd",
+            "scale_ratio": 0.4,
+            "scale_source": "self",
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "bm5_debuff_slow",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_046",
+    "name": "Gongsun Zhi Gongfa",
+    "type": "neigong",
+    "description": "Exclusive gongfa of Gongsun Zhi.",
+    "faction": "bm5_faction_jinyong",
+    "element": "fire",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.caster",
+      "bm5.source.jinyong",
+      "bm5.gongfa.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "damage_amp_percent",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 7.0
+        },
+        "effects": [
+          {
+            "op": "damage_aoe",
+            "radius": 2.0,
+            "value": 85,
+            "damage_type": "internal"
+          },
+          {
+            "op": "debuff_aoe",
+            "radius": 2.0,
+            "buff_id": "bm5_debuff_burn",
+            "duration": 2.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_047",
+    "name": "Huo Qingtong Gongfa",
+    "type": "neigong",
+    "description": "Exclusive gongfa of Huo Qingtong.",
+    "faction": "bm5_faction_jinyong",
+    "element": "earth",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.healer",
+      "bm5.source.jinyong",
+      "bm5.gongfa.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "healing_amp",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 6.0
+        },
+        "cooldown": 0.0,
+        "effects": [
+          {
+            "op": "heal_lowest_ally",
+            "value": 150
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_healer_bless",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_048",
+    "name": "Xiangxiang Gongzhu Gongfa",
+    "type": "zhenfa",
+    "description": "Exclusive gongfa of Xiangxiang Gongzhu.",
+    "faction": "bm5_faction_jinyong",
+    "element": "none",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.leader",
+      "bm5.source.jinyong",
+      "bm5.gongfa.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "atk",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_combat_start",
+        "max_trigger_count": 1,
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "radius": 3.0,
+            "buff_id": "bm5_buff_leader_aura",
+            "duration": 8.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_049",
+    "name": "Chen Jialuo Gongfa",
+    "type": "waigong",
+    "description": "Exclusive gongfa of Chen Jialuo.",
+    "faction": "bm5_faction_jinyong",
+    "element": "metal",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.vanguard",
+      "bm5.source.jinyong",
+      "bm5.gongfa.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "damage_reduce_percent",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attacked",
+        "cooldown": 5.0,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_vanguard_stance",
+            "duration": 3.0
+          },
+          {
+            "op": "damage_target",
+            "value": 60,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_white_050",
+    "name": "Mu Wanqing Gongfa",
+    "type": "waigong",
+    "description": "Exclusive gongfa of Mu Wanqing.",
+    "faction": "bm5_faction_jinyong",
+    "element": "wood",
+    "quality": "white",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.white",
+      "bm5.role.swordsman",
+      "bm5.source.jinyong",
+      "bm5.gongfa.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "crit_bonus",
+        "value": 0.06
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 3.5,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 95,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_sword_momentum",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_001",
+    "name": "Chu Liuxiang Gongfa",
+    "type": "qishu",
+    "description": "Exclusive gongfa of Chu Liuxiang.",
+    "faction": "bm5_faction_gulong",
+    "element": "earth",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.archer",
+      "bm5.source.gulong",
+      "bm5.gongfa.qishu"
+    ],
+    "passive_effects": [
+      {
+        "op": "range_add",
+        "value": 1
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 4.0,
+        "effects": [
+          {
+            "op": "damage_target_scaling",
+            "value": 85,
+            "scale_stat": "spd",
+            "scale_ratio": 0.4,
+            "scale_source": "self",
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "bm5_debuff_slow",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_002",
+    "name": "Hu Tiehua Gongfa",
+    "type": "neigong",
+    "description": "Exclusive gongfa of Hu Tiehua.",
+    "faction": "bm5_faction_gulong",
+    "element": "none",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.caster",
+      "bm5.source.gulong",
+      "bm5.gongfa.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "damage_amp_percent",
+        "value": 0.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 6.0
+        },
+        "effects": [
+          {
+            "op": "damage_aoe",
+            "radius": 2.0,
+            "value": 105,
+            "damage_type": "internal"
+          },
+          {
+            "op": "debuff_aoe",
+            "radius": 2.0,
+            "buff_id": "bm5_debuff_burn",
+            "duration": 2.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_003",
+    "name": "Ji Bingyan Gongfa",
+    "type": "neigong",
+    "description": "Exclusive gongfa of Ji Bingyan.",
+    "faction": "bm5_faction_gulong",
+    "element": "metal",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.healer",
+      "bm5.source.gulong",
+      "bm5.gongfa.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "healing_amp",
+        "value": 0.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 5.0
+        },
+        "cooldown": 0.0,
+        "effects": [
+          {
+            "op": "heal_lowest_ally",
+            "value": 190
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_healer_bless",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_004",
+    "name": "Su Rongrong Gongfa",
+    "type": "zhenfa",
+    "description": "Exclusive gongfa of Su Rongrong.",
+    "faction": "bm5_faction_gulong",
+    "element": "wood",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.leader",
+      "bm5.source.gulong",
+      "bm5.gongfa.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "atk",
+        "value": 0.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_combat_start",
+        "max_trigger_count": 1,
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "radius": 3.0,
+            "buff_id": "bm5_buff_leader_aura",
+            "duration": 8.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_005",
+    "name": "Lu Xiaofeng Gongfa",
+    "type": "waigong",
+    "description": "Exclusive gongfa of Lu Xiaofeng.",
+    "faction": "bm5_faction_gulong",
+    "element": "water",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.vanguard",
+      "bm5.source.gulong",
+      "bm5.gongfa.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "damage_reduce_percent",
+        "value": 0.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attacked",
+        "cooldown": 5.0,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_vanguard_stance",
+            "duration": 3.0
+          },
+          {
+            "op": "damage_target",
+            "value": 80,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_006",
+    "name": "Hua Manlou Gongfa",
+    "type": "waigong",
+    "description": "Exclusive gongfa of Hua Manlou.",
+    "faction": "bm5_faction_gulong",
+    "element": "fire",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.swordsman",
+      "bm5.source.gulong",
+      "bm5.gongfa.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "crit_bonus",
+        "value": 0.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 3.5,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 120,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_sword_momentum",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_007",
+    "name": "Ximen Chuixue Gongfa",
+    "type": "qinggong",
+    "description": "Exclusive gongfa of Ximen Chuixue.",
+    "faction": "bm5_faction_gulong",
+    "element": "earth",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.assassin",
+      "bm5.source.gulong",
+      "bm5.gongfa.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_crit",
+        "cooldown": 4.0,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "bm5_mark_shadow",
+            "duration": 5.0
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "bm5_mark_shadow",
+            "value": 100,
+            "bonus_multiplier": 1.8
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_008",
+    "name": "Ye Gucheng Gongfa",
+    "type": "qishu",
+    "description": "Exclusive gongfa of Ye Gucheng.",
+    "faction": "bm5_faction_gulong",
+    "element": "none",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.archer",
+      "bm5.source.gulong",
+      "bm5.gongfa.qishu"
+    ],
+    "passive_effects": [
+      {
+        "op": "range_add",
+        "value": 1
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 4.0,
+        "effects": [
+          {
+            "op": "damage_target_scaling",
+            "value": 85,
+            "scale_stat": "spd",
+            "scale_ratio": 0.4,
+            "scale_source": "self",
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "bm5_debuff_slow",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_009",
+    "name": "Sikong Zhaixing Gongfa",
+    "type": "neigong",
+    "description": "Exclusive gongfa of Sikong Zhaixing.",
+    "faction": "bm5_faction_gulong",
+    "element": "metal",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.caster",
+      "bm5.source.gulong",
+      "bm5.gongfa.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "damage_amp_percent",
+        "value": 0.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 6.0
+        },
+        "effects": [
+          {
+            "op": "damage_aoe",
+            "radius": 2.0,
+            "value": 105,
+            "damage_type": "internal"
+          },
+          {
+            "op": "debuff_aoe",
+            "radius": 2.0,
+            "buff_id": "bm5_debuff_burn",
+            "duration": 2.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_010",
+    "name": "Xue Bing Gongfa",
+    "type": "neigong",
+    "description": "Exclusive gongfa of Xue Bing.",
+    "faction": "bm5_faction_gulong",
+    "element": "wood",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.healer",
+      "bm5.source.gulong",
+      "bm5.gongfa.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "healing_amp",
+        "value": 0.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 5.0
+        },
+        "cooldown": 0.0,
+        "effects": [
+          {
+            "op": "heal_lowest_ally",
+            "value": 190
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_healer_bless",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_011",
+    "name": "Shen Lang Gongfa",
+    "type": "zhenfa",
+    "description": "Exclusive gongfa of Shen Lang.",
+    "faction": "bm5_faction_gulong",
+    "element": "water",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.leader",
+      "bm5.source.gulong",
+      "bm5.gongfa.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "atk",
+        "value": 0.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_combat_start",
+        "max_trigger_count": 1,
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "radius": 3.0,
+            "buff_id": "bm5_buff_leader_aura",
+            "duration": 8.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_012",
+    "name": "Wang Lianhua Gongfa",
+    "type": "waigong",
+    "description": "Exclusive gongfa of Wang Lianhua.",
+    "faction": "bm5_faction_gulong",
+    "element": "fire",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.vanguard",
+      "bm5.source.gulong",
+      "bm5.gongfa.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "damage_reduce_percent",
+        "value": 0.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attacked",
+        "cooldown": 5.0,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_vanguard_stance",
+            "duration": 3.0
+          },
+          {
+            "op": "damage_target",
+            "value": 80,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_013",
+    "name": "Zhu Qiqi Gongfa",
+    "type": "waigong",
+    "description": "Exclusive gongfa of Zhu Qiqi.",
+    "faction": "bm5_faction_gulong",
+    "element": "earth",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.swordsman",
+      "bm5.source.gulong",
+      "bm5.gongfa.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "crit_bonus",
+        "value": 0.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 3.5,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 120,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_sword_momentum",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_014",
+    "name": "Li Xunhuan Gongfa",
+    "type": "qinggong",
+    "description": "Exclusive gongfa of Li Xunhuan.",
+    "faction": "bm5_faction_gulong",
+    "element": "none",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.assassin",
+      "bm5.source.gulong",
+      "bm5.gongfa.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_crit",
+        "cooldown": 4.0,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "bm5_mark_shadow",
+            "duration": 5.0
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "bm5_mark_shadow",
+            "value": 100,
+            "bonus_multiplier": 1.8
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_015",
+    "name": "A Fei Gongfa",
+    "type": "qishu",
+    "description": "Exclusive gongfa of A Fei.",
+    "faction": "bm5_faction_gulong",
+    "element": "metal",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.archer",
+      "bm5.source.gulong",
+      "bm5.gongfa.qishu"
+    ],
+    "passive_effects": [
+      {
+        "op": "range_add",
+        "value": 1
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 4.0,
+        "effects": [
+          {
+            "op": "damage_target_scaling",
+            "value": 85,
+            "scale_stat": "spd",
+            "scale_ratio": 0.4,
+            "scale_source": "self",
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "bm5_debuff_slow",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_016",
+    "name": "Lin Shiyin Gongfa",
+    "type": "neigong",
+    "description": "Exclusive gongfa of Lin Shiyin.",
+    "faction": "bm5_faction_gulong",
+    "element": "wood",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.caster",
+      "bm5.source.gulong",
+      "bm5.gongfa.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "damage_amp_percent",
+        "value": 0.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 6.0
+        },
+        "effects": [
+          {
+            "op": "damage_aoe",
+            "radius": 2.0,
+            "value": 105,
+            "damage_type": "internal"
+          },
+          {
+            "op": "debuff_aoe",
+            "radius": 2.0,
+            "buff_id": "bm5_debuff_burn",
+            "duration": 2.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_017",
+    "name": "Shangguan Jinhong Gongfa",
+    "type": "neigong",
+    "description": "Exclusive gongfa of Shangguan Jinhong.",
+    "faction": "bm5_faction_gulong",
+    "element": "water",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.healer",
+      "bm5.source.gulong",
+      "bm5.gongfa.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "healing_amp",
+        "value": 0.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 5.0
+        },
+        "cooldown": 0.0,
+        "effects": [
+          {
+            "op": "heal_lowest_ally",
+            "value": 190
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_healer_bless",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_018",
+    "name": "Jing Wuming Gongfa",
+    "type": "zhenfa",
+    "description": "Exclusive gongfa of Jing Wuming.",
+    "faction": "bm5_faction_gulong",
+    "element": "fire",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.leader",
+      "bm5.source.gulong",
+      "bm5.gongfa.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "atk",
+        "value": 0.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_combat_start",
+        "max_trigger_count": 1,
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "radius": 3.0,
+            "buff_id": "bm5_buff_leader_aura",
+            "duration": 8.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_019",
+    "name": "Fu Hongxue Gongfa",
+    "type": "waigong",
+    "description": "Exclusive gongfa of Fu Hongxue.",
+    "faction": "bm5_faction_gulong",
+    "element": "earth",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.vanguard",
+      "bm5.source.gulong",
+      "bm5.gongfa.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "damage_reduce_percent",
+        "value": 0.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attacked",
+        "cooldown": 5.0,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_vanguard_stance",
+            "duration": 3.0
+          },
+          {
+            "op": "damage_target",
+            "value": 80,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_020",
+    "name": "Ye Kai Gongfa",
+    "type": "waigong",
+    "description": "Exclusive gongfa of Ye Kai.",
+    "faction": "bm5_faction_gulong",
+    "element": "none",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.swordsman",
+      "bm5.source.gulong",
+      "bm5.gongfa.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "crit_bonus",
+        "value": 0.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 3.5,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 120,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_sword_momentum",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_021",
+    "name": "Ding Linglin Gongfa",
+    "type": "qinggong",
+    "description": "Exclusive gongfa of Ding Linglin.",
+    "faction": "bm5_faction_gulong",
+    "element": "metal",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.assassin",
+      "bm5.source.gulong",
+      "bm5.gongfa.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_crit",
+        "cooldown": 4.0,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "bm5_mark_shadow",
+            "duration": 5.0
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "bm5_mark_shadow",
+            "value": 100,
+            "bonus_multiplier": 1.8
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_022",
+    "name": "Yan Nantian Gongfa",
+    "type": "qishu",
+    "description": "Exclusive gongfa of Yan Nantian.",
+    "faction": "bm5_faction_gulong",
+    "element": "wood",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.archer",
+      "bm5.source.gulong",
+      "bm5.gongfa.qishu"
+    ],
+    "passive_effects": [
+      {
+        "op": "range_add",
+        "value": 1
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 4.0,
+        "effects": [
+          {
+            "op": "damage_target_scaling",
+            "value": 85,
+            "scale_stat": "spd",
+            "scale_ratio": 0.4,
+            "scale_source": "self",
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "bm5_debuff_slow",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_023",
+    "name": "Hua Wuque Gongfa",
+    "type": "neigong",
+    "description": "Exclusive gongfa of Hua Wuque.",
+    "faction": "bm5_faction_gulong",
+    "element": "water",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.caster",
+      "bm5.source.gulong",
+      "bm5.gongfa.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "damage_amp_percent",
+        "value": 0.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 6.0
+        },
+        "effects": [
+          {
+            "op": "damage_aoe",
+            "radius": 2.0,
+            "value": 105,
+            "damage_type": "internal"
+          },
+          {
+            "op": "debuff_aoe",
+            "radius": 2.0,
+            "buff_id": "bm5_debuff_burn",
+            "duration": 2.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_024",
+    "name": "Xiao Yuer Gongfa",
+    "type": "neigong",
+    "description": "Exclusive gongfa of Xiao Yuer.",
+    "faction": "bm5_faction_gulong",
+    "element": "fire",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.healer",
+      "bm5.source.gulong",
+      "bm5.gongfa.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "healing_amp",
+        "value": 0.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 5.0
+        },
+        "cooldown": 0.0,
+        "effects": [
+          {
+            "op": "heal_lowest_ally",
+            "value": 190
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_healer_bless",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_025",
+    "name": "Su Ying Gongfa",
+    "type": "zhenfa",
+    "description": "Exclusive gongfa of Su Ying.",
+    "faction": "bm5_faction_gulong",
+    "element": "earth",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.leader",
+      "bm5.source.gulong",
+      "bm5.gongfa.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "atk",
+        "value": 0.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_combat_start",
+        "max_trigger_count": 1,
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "radius": 3.0,
+            "buff_id": "bm5_buff_leader_aura",
+            "duration": 8.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_026",
+    "name": "Xie Xiaofeng Gongfa",
+    "type": "waigong",
+    "description": "Exclusive gongfa of Xie Xiaofeng.",
+    "faction": "bm5_faction_gulong",
+    "element": "none",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.vanguard",
+      "bm5.source.gulong",
+      "bm5.gongfa.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "damage_reduce_percent",
+        "value": 0.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attacked",
+        "cooldown": 5.0,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_vanguard_stance",
+            "duration": 3.0
+          },
+          {
+            "op": "damage_target",
+            "value": 80,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_027",
+    "name": "Murong Qiudi Gongfa",
+    "type": "waigong",
+    "description": "Exclusive gongfa of Murong Qiudi.",
+    "faction": "bm5_faction_gulong",
+    "element": "metal",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.swordsman",
+      "bm5.source.gulong",
+      "bm5.gongfa.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "crit_bonus",
+        "value": 0.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 3.5,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 120,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_sword_momentum",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_028",
+    "name": "Xiao ShiyiLang Gongfa",
+    "type": "qinggong",
+    "description": "Exclusive gongfa of Xiao ShiyiLang.",
+    "faction": "bm5_faction_gulong",
+    "element": "wood",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.assassin",
+      "bm5.source.gulong",
+      "bm5.gongfa.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_crit",
+        "cooldown": 4.0,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "bm5_mark_shadow",
+            "duration": 5.0
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "bm5_mark_shadow",
+            "value": 100,
+            "bonus_multiplier": 1.8
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_029",
+    "name": "Feng Siniang Gongfa",
+    "type": "qishu",
+    "description": "Exclusive gongfa of Feng Siniang.",
+    "faction": "bm5_faction_gulong",
+    "element": "water",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.archer",
+      "bm5.source.gulong",
+      "bm5.gongfa.qishu"
+    ],
+    "passive_effects": [
+      {
+        "op": "range_add",
+        "value": 1
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 4.0,
+        "effects": [
+          {
+            "op": "damage_target_scaling",
+            "value": 85,
+            "scale_stat": "spd",
+            "scale_ratio": 0.4,
+            "scale_source": "self",
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "bm5_debuff_slow",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_030",
+    "name": "Lian Chengbi Gongfa",
+    "type": "neigong",
+    "description": "Exclusive gongfa of Lian Chengbi.",
+    "faction": "bm5_faction_gulong",
+    "element": "fire",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.caster",
+      "bm5.source.gulong",
+      "bm5.gongfa.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "damage_amp_percent",
+        "value": 0.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 6.0
+        },
+        "effects": [
+          {
+            "op": "damage_aoe",
+            "radius": 2.0,
+            "value": 105,
+            "damage_type": "internal"
+          },
+          {
+            "op": "debuff_aoe",
+            "radius": 2.0,
+            "buff_id": "bm5_debuff_burn",
+            "duration": 2.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_031",
+    "name": "Tie Zhongtang Gongfa",
+    "type": "neigong",
+    "description": "Exclusive gongfa of Tie Zhongtang.",
+    "faction": "bm5_faction_gulong",
+    "element": "earth",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.healer",
+      "bm5.source.gulong",
+      "bm5.gongfa.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "healing_amp",
+        "value": 0.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 5.0
+        },
+        "cooldown": 0.0,
+        "effects": [
+          {
+            "op": "heal_lowest_ally",
+            "value": 190
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_healer_bless",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_032",
+    "name": "Yun Zheng Gongfa",
+    "type": "zhenfa",
+    "description": "Exclusive gongfa of Yun Zheng.",
+    "faction": "bm5_faction_gulong",
+    "element": "none",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.leader",
+      "bm5.source.gulong",
+      "bm5.gongfa.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "atk",
+        "value": 0.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_combat_start",
+        "max_trigger_count": 1,
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "radius": 3.0,
+            "buff_id": "bm5_buff_leader_aura",
+            "duration": 8.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_033",
+    "name": "Shui Lingguang Gongfa",
+    "type": "waigong",
+    "description": "Exclusive gongfa of Shui Lingguang.",
+    "faction": "bm5_faction_gulong",
+    "element": "metal",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.vanguard",
+      "bm5.source.gulong",
+      "bm5.gongfa.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "damage_reduce_percent",
+        "value": 0.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attacked",
+        "cooldown": 5.0,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_vanguard_stance",
+            "duration": 3.0
+          },
+          {
+            "op": "damage_target",
+            "value": 80,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_034",
+    "name": "Fang Baoyu Gongfa",
+    "type": "waigong",
+    "description": "Exclusive gongfa of Fang Baoyu.",
+    "faction": "bm5_faction_gulong",
+    "element": "wood",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.swordsman",
+      "bm5.source.gulong",
+      "bm5.gongfa.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "crit_bonus",
+        "value": 0.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 3.5,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 120,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_sword_momentum",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_035",
+    "name": "Zhuge Shenhou Gongfa",
+    "type": "qinggong",
+    "description": "Exclusive gongfa of Zhuge Shenhou.",
+    "faction": "bm5_faction_gulong",
+    "element": "water",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.assassin",
+      "bm5.source.gulong",
+      "bm5.gongfa.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_crit",
+        "cooldown": 4.0,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "bm5_mark_shadow",
+            "duration": 5.0
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "bm5_mark_shadow",
+            "value": 100,
+            "bonus_multiplier": 1.8
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_036",
+    "name": "Wu Qing Gongfa",
+    "type": "qishu",
+    "description": "Exclusive gongfa of Wu Qing.",
+    "faction": "bm5_faction_gulong",
+    "element": "fire",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.archer",
+      "bm5.source.gulong",
+      "bm5.gongfa.qishu"
+    ],
+    "passive_effects": [
+      {
+        "op": "range_add",
+        "value": 1
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 4.0,
+        "effects": [
+          {
+            "op": "damage_target_scaling",
+            "value": 85,
+            "scale_stat": "spd",
+            "scale_ratio": 0.4,
+            "scale_source": "self",
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "bm5_debuff_slow",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_037",
+    "name": "Tie Shou Gongfa",
+    "type": "neigong",
+    "description": "Exclusive gongfa of Tie Shou.",
+    "faction": "bm5_faction_gulong",
+    "element": "earth",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.caster",
+      "bm5.source.gulong",
+      "bm5.gongfa.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "damage_amp_percent",
+        "value": 0.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 6.0
+        },
+        "effects": [
+          {
+            "op": "damage_aoe",
+            "radius": 2.0,
+            "value": 105,
+            "damage_type": "internal"
+          },
+          {
+            "op": "debuff_aoe",
+            "radius": 2.0,
+            "buff_id": "bm5_debuff_burn",
+            "duration": 2.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_038",
+    "name": "Zhui Ming Gongfa",
+    "type": "neigong",
+    "description": "Exclusive gongfa of Zhui Ming.",
+    "faction": "bm5_faction_gulong",
+    "element": "none",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.healer",
+      "bm5.source.gulong",
+      "bm5.gongfa.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "healing_amp",
+        "value": 0.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 5.0
+        },
+        "cooldown": 0.0,
+        "effects": [
+          {
+            "op": "heal_lowest_ally",
+            "value": 190
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_healer_bless",
+            "duration": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_039",
+    "name": "Leng Xue Gongfa",
+    "type": "zhenfa",
+    "description": "Exclusive gongfa of Leng Xue.",
+    "faction": "bm5_faction_gulong",
+    "element": "metal",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.leader",
+      "bm5.source.gulong",
+      "bm5.gongfa.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "atk",
+        "value": 0.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_combat_start",
+        "max_trigger_count": 1,
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "radius": 3.0,
+            "buff_id": "bm5_buff_leader_aura",
+            "duration": 8.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_green_040",
+    "name": "Tang Fang Gongfa",
+    "type": "waigong",
+    "description": "Exclusive gongfa of Tang Fang.",
+    "faction": "bm5_faction_gulong",
+    "element": "wood",
+    "quality": "green",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.one",
+      "bm5.gongfa",
+      "bm5.quality.green",
+      "bm5.role.vanguard",
+      "bm5.source.gulong",
+      "bm5.gongfa.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "damage_reduce_percent",
+        "value": 0.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attacked",
+        "cooldown": 5.0,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_vanguard_stance",
+            "duration": 3.0
+          },
+          {
+            "op": "damage_target",
+            "value": 80,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  }
+]

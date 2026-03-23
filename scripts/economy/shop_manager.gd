@@ -330,6 +330,8 @@ func _rebuild_unit_pool(unit_factory: Node) -> void:
 		if not (record_value is Dictionary):
 			continue
 		var record: Dictionary = (record_value as Dictionary).duplicate(true)
+		if not bool(record.get("shop_visible", true)):
+			continue
 		var quality: String = str(record.get("quality", "white")).strip_edges().to_lower()
 		if quality.is_empty():
 			quality = "white"
@@ -357,8 +359,12 @@ func _rebuild_gongfa_pool(gongfa_manager: Node) -> void:
 	if not (raw_data is Array):
 		return
 	for item in raw_data:
-		if item is Dictionary:
-			_gongfa_pool.append((item as Dictionary).duplicate(true))
+		if not (item is Dictionary):
+			continue
+		var row: Dictionary = (item as Dictionary).duplicate(true)
+		if not bool(row.get("shop_visible", true)):
+			continue
+		_gongfa_pool.append(row)
 
 
 func _rebuild_equipment_pool(gongfa_manager: Node) -> void:
@@ -369,8 +375,12 @@ func _rebuild_equipment_pool(gongfa_manager: Node) -> void:
 	if not (raw_data is Array):
 		return
 	for item in raw_data:
-		if item is Dictionary:
-			_equipment_pool.append((item as Dictionary).duplicate(true))
+		if not (item is Dictionary):
+			continue
+		var row: Dictionary = (item as Dictionary).duplicate(true)
+		if not bool(row.get("shop_visible", true)):
+			continue
+		_equipment_pool.append(row)
 
 
 func _price_from_quality(quality: String) -> int:

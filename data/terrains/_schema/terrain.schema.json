@@ -1,0 +1,112 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TerrainSchema",
+  "description": "M5 地形定义结构（Effect 化）",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "type",
+    "is_barrier",
+    "tick_interval",
+    "target_mode",
+    "effects_on_enter",
+    "effects_on_tick",
+    "effects_on_exit",
+    "effects_on_expire"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "hazard",
+        "beneficial",
+        "obstacle"
+      ]
+    },
+    "aliases": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "color": {
+      "type": "string"
+    },
+    "is_barrier": {
+      "type": "boolean"
+    },
+    "tick_interval": {
+      "type": "number",
+      "minimum": 0.05
+    },
+    "target_mode": {
+      "type": "string",
+      "enum": [
+        "enemies",
+        "allies",
+        "all",
+        "none"
+      ]
+    },
+    "damage_type": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "effects_on_enter": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/effectRow"
+      }
+    },
+    "effects_on_tick": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/effectRow"
+      }
+    },
+    "effects_on_exit": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/effectRow"
+      }
+    },
+    "effects_on_expire": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/effectRow"
+      }
+    }
+  },
+  "definitions": {
+    "effectRow": {
+      "type": "object",
+      "required": [
+        "op"
+      ],
+      "properties": {
+        "op": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

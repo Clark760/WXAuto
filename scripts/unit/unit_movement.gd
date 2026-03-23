@@ -11,6 +11,7 @@ extends Node
 var owner_unit: Node = null
 var move_target: Vector2 = Vector2.ZERO
 var has_target: bool = false
+@export var base_move_speed: float = 140.0
 var move_speed: float = 140.0
 
 
@@ -19,16 +20,17 @@ func bind_unit(unit: Node) -> void:
 	_notify_owner_process_state()
 
 
-func reset_from_stats(runtime_stats: Dictionary) -> void:
-	move_speed = maxf(float(runtime_stats.get("mov", 90.0)), 10.0)
+func reset_from_stats(_runtime_stats: Dictionary) -> void:
+	# M5: 移动速度统一由组件固定参数控制。
+	move_speed = maxf(base_move_speed, 10.0)
 	move_target = Vector2.ZERO
 	has_target = false
 	_notify_owner_process_state()
 
 
-func refresh_runtime_stats(runtime_stats: Dictionary) -> void:
-	# 动态属性更新时仅刷新移速，不重置当前移动目标，避免战斗中抽搐。
-	move_speed = maxf(float(runtime_stats.get("mov", move_speed)), 10.0)
+func refresh_runtime_stats(_runtime_stats: Dictionary) -> void:
+	# M5: 刷新时保持固定移速。
+	move_speed = maxf(base_move_speed, 10.0)
 
 
 func set_target(target_position: Vector2) -> void:

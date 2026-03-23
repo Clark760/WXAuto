@@ -30,24 +30,46 @@ class DummyUnit:
 
 class MockCombatManager:
 	extends Node
+	var _units: Dictionary = {}
+	var _cells: Dictionary = {}
+
+	func register(unit: Node, cell: Vector2i) -> void:
+		if unit == null:
+			return
+		var iid: int = unit.get_instance_id()
+		_units[iid] = unit
+		_cells[iid] = cell
+
+	func get_unit_cell_of(unit: Node) -> Vector2i:
+		if unit == null:
+			return Vector2i(-1, -1)
+		var iid: int = unit.get_instance_id()
+		if _cells.has(iid):
+			return _cells[iid]
+		return Vector2i(-1, -1)
+
+	func get_unit_by_instance_id(iid: int) -> Node:
+		if _units.has(iid):
+			return _units[iid]
+		return null
+
+
+class MockGongfaManager:
+	extends Node
 	var calls: Array[Dictionary] = []
 
-	func get_unit_cell_of(_unit: Node) -> Vector2i:
-		return Vector2i(1, 1)
-
-	func apply_environment_damage(
+	func execute_external_effects(
+		source: Node,
 		target: Node,
-		damage_amount: float,
-		source: Node = null,
-		damage_type: String = "internal",
-		source_fallback: Dictionary = {}
+		effects: Array,
+		_context: Dictionary,
+		meta: Dictionary = {}
 	) -> Dictionary:
 		calls.append({
-			"target": target,
-			"damage": damage_amount,
 			"source": source,
-			"damage_type": damage_type,
-			"source_fallback": source_fallback.duplicate(true)
+			"target": target,
+			"effects": effects.duplicate(true),
+			"meta": meta.duplicate(true)
 		})
 		return {}
 
@@ -68,27 +90,19 @@ func _init() -> void:
 func _run() -> void:
 	var manager = TERRAIN_MANAGER_SCRIPT.new()
 	var hex_grid: MockHexGrid = MockHexGrid.new()
+	var combat_manager: MockCombatManager = MockCombatManager.new()
+	var gongfa_manager: MockGongfaManager = MockGongfaManager.new()
+
 	var source: DummyUnit = DummyUnit.new()
 	source.team_id = 1
 	source.unit_id = "unit_caster_1"
 	source.unit_name = "Caster One"
-	source.position = Vector2.ZERO
 	var source_iid: int = source.get_instance_id()
-
-	var add_result: Dictionary = manager.call("add_terrain", {
-		"terrain_type": "fire",
-		"radius": 0,
-		"duration": 1.0,
-		"tick_interval": 0.1,
-		"damage_per_second": 12.0
-	}, source, {"hex_grid": hex_grid})
-	_assert_true(bool(add_result.get("added", false)), "terrain should be added")
 
 	var target: DummyUnit = DummyUnit.new()
 	target.team_id = 2
 	target.unit_id = "unit_target_1"
 	target.unit_name = "Target One"
-	target.position = Vector2.ZERO
 	var components: Node = Node.new()
 	components.name = "Components"
 	target.add_child(components)
@@ -96,28 +110,48 @@ func _run() -> void:
 	combat.name = "UnitCombat"
 	components.add_child(combat)
 
+	combat_manager.register(target, Vector2i(1, 1))
+
+	var add_result: Dictionary = manager.call("add_terrain", {
+		"terrain_type": "fire",
+		"cells": [Vector2i(1, 1)],
+		"duration": 1.0,
+		"tick_interval": 0.1,
+		"target_mode": "enemies",
+		"effects_on_tick": [
+			{
+				"op": "damage_target",
+				"value": 12.0,
+				"damage_type": "internal"
+			}
+		]
+	}, source, {"hex_grid": hex_grid})
+	_assert_true(bool(add_result.get("added", false)), "terrain should be added")
+
 	source.free() # 模拟来源节点已经失效/移除
 
-	var combat_manager: MockCombatManager = MockCombatManager.new()
 	manager.call("tick", 0.2, {
 		"all_units": [target],
 		"combat_manager": combat_manager,
-		"hex_grid": hex_grid
+		"hex_grid": hex_grid,
+		"gongfa_manager": gongfa_manager
 	})
 
-	_assert_true(not combat_manager.calls.is_empty(), "terrain tick should deal environment damage")
-	if not combat_manager.calls.is_empty():
-		var first_call: Dictionary = combat_manager.calls[0]
+	_assert_true(not gongfa_manager.calls.is_empty(), "terrain tick should execute external effects")
+	if not gongfa_manager.calls.is_empty():
+		var first_call: Dictionary = gongfa_manager.calls[0]
 		_assert_true(first_call.get("source", null) == null, "resolved source node should be null")
-		var fallback: Dictionary = first_call.get("source_fallback", {})
-		_assert_true(int(fallback.get("source_id", -1)) == source_iid, "fallback should keep source_id")
-		_assert_true(str(fallback.get("source_unit_id", "")) == "unit_caster_1", "fallback should keep source_unit_id")
-		_assert_true(str(fallback.get("source_name", "")) == "Caster One", "fallback should keep source_name")
-		_assert_true(int(fallback.get("source_team", 0)) == 1, "fallback should keep source_team")
+		var meta: Dictionary = first_call.get("meta", {})
+		var extra_fields: Dictionary = meta.get("extra_fields", {})
+		_assert_true(int(extra_fields.get("source_id", -1)) == source_iid, "fallback should keep source_id")
+		_assert_true(str(extra_fields.get("source_unit_id", "")) == "unit_caster_1", "fallback should keep source_unit_id")
+		_assert_true(str(extra_fields.get("source_name", "")) == "Caster One", "fallback should keep source_name")
+		_assert_true(int(extra_fields.get("source_team", 0)) == 1, "fallback should keep source_team")
 
 	target.free()
 	hex_grid.free()
 	combat_manager.free()
+	gongfa_manager.free()
 
 
 func _assert_true(condition: bool, message: String) -> void:

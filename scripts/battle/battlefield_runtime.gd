@@ -11,7 +11,6 @@ const BATTLEFIELD_RENDERER_SCRIPT: Script = preload("res://scripts/battle/battle
 
 @export var initial_bench_count: int = 30
 @export var enemy_wave_size: int = 200
-@export var ally_deploy_columns: int = 16
 @export var max_auto_deploy: int = 50
 @export var top_reserved_height: float = 64.0
 @export var bottom_reserved_preparation: float = 250.0
@@ -39,23 +38,12 @@ const BATTLEFIELD_RENDERER_SCRIPT: Script = preload("res://scripts/battle/battle
 @onready var round_label: Label = $HUDLayer/TopBar/TopBarContent/RoundLabel
 @onready var power_bar: ProgressBar = $HUDLayer/TopBar/TopBarContent/PowerBar
 @onready var timer_label: Label = $HUDLayer/TopBar/TopBarContent/TimerLabel
-@onready var minimap_info: Label = $HUDLayer/MiniMap/MiniMapInfo
 @onready var unit_tooltip: PanelContainer = $HUDLayer/UnitTooltip
-@onready var tooltip_name: Label = $HUDLayer/UnitTooltip/TooltipVBox/NameLabel
-@onready var tooltip_hp: ProgressBar = $HUDLayer/UnitTooltip/TooltipVBox/HPBar
-@onready var tooltip_mp: ProgressBar = $HUDLayer/UnitTooltip/TooltipVBox/MPBar
-@onready var tooltip_gongfa: Label = $HUDLayer/UnitTooltip/TooltipVBox/GongfaLabel
 @onready var phase_transition: Control = $HUDLayer/PhaseTransition
 @onready var phase_transition_text: Label = $HUDLayer/PhaseTransition/PhaseText
 
 @onready var bottom_panel: PanelContainer = $BottomLayer/BottomPanel
 @onready var bench_ui: Node = $BottomLayer/BottomPanel/RootVBox/BenchArea
-@onready var refresh_button: Button = $BottomLayer/BottomPanel/RootVBox/ShopBar/RefreshButton
-@onready var lock_button: Button = $BottomLayer/BottomPanel/RootVBox/ShopBar/LockButton
-@onready var upgrade_button: Button = $BottomLayer/BottomPanel/RootVBox/ActionBar/UpgradeButton
-@onready var gongfa_button: Button = $BottomLayer/BottomPanel/RootVBox/ActionBar/GongfaButton
-@onready var equip_button: Button = $BottomLayer/BottomPanel/RootVBox/ActionBar/EquipButton
-@onready var resource_label: Label = $BottomLayer/BottomPanel/RootVBox/ResourceBar/ResourceLabel
 @onready var toggle_button: Button = $BottomLayer/ToggleButton
 @onready var drag_preview: PanelContainer = $BottomLayer/DragPreview
 @onready var drag_preview_icon: ColorRect = $BottomLayer/DragPreview/PreviewVBox/Icon
@@ -358,6 +346,13 @@ func _restore_drag_origin() -> void:
 	if _drag_controller != null:
 		_drag_controller.call("restore_drag_origin")
 
+
+func _get_drag_origin_kind() -> String:
+	if _drag_controller != null:
+		return str(_drag_controller.call("get_drag_origin_kind"))
+	return ""
+
+
 func _pick_deployed_ally_unit_at(world_pos: Vector2) -> Node:
 	for unit in _ally_deployed.values():
 		if _is_valid_unit(unit) and _is_point_on_unit(unit, world_pos):
@@ -483,7 +478,12 @@ func _apply_unit_visual_presentation(unit: Node) -> void:
 		return
 	(unit as CanvasItem).visible = true
 	(unit as Node2D).scale = Vector2.ONE * _unit_scale_factor
-	unit.call("set_compact_visual_mode", _stage != Stage.PREPARATION)
+	unit.call("set_compact_visual_mode", _should_use_compact_unit_labels_for_stage(_stage))
+
+
+func _should_use_compact_unit_labels_for_stage(stage_value: int) -> bool:
+	# 仅交锋阶段使用紧凑标签；结算阶段需要显示姓名/星级用于胜利展示。
+	return stage_value == Stage.COMBAT
 
 func _apply_visual_to_all_units() -> void:
 	for unit in bench_ui.get_all_units():
@@ -549,21 +549,38 @@ func _pick_visible_unit_at_world(world_pos: Vector2) -> Node:
 	return candidate
 
 func _show_tooltip_for_unit(unit: Node, screen_pos: Vector2) -> void:
-	tooltip_name.text = "%s %s" % [str(unit.get("unit_name")), "★".repeat(int(unit.get("star_level")))]
+	var header_name: Label = unit_tooltip.get_node_or_null("TooltipVBox/HeaderRow/HeaderName") as Label
+	var hp_bar: ProgressBar = unit_tooltip.get_node_or_null("TooltipVBox/HPRow/HPBarRich") as ProgressBar
+	var mp_bar: ProgressBar = unit_tooltip.get_node_or_null("TooltipVBox/MPRow/MPBarRich") as ProgressBar
+	var hp_text: Label = unit_tooltip.get_node_or_null("TooltipVBox/HPRow/HPText") as Label
+	var mp_text: Label = unit_tooltip.get_node_or_null("TooltipVBox/MPRow/MPText") as Label
+	if header_name != null:
+		header_name.text = "%s %s" % [str(unit.get("unit_name")), "★".repeat(int(unit.get("star_level")))]
+
 	var combat: Node = unit.get_node_or_null("Components/UnitCombat")
 	if combat != null:
 		var max_hp: float = maxf(float(combat.get("max_hp")), 1.0)
 		var max_mp: float = maxf(float(combat.get("max_mp")), 1.0)
-		tooltip_hp.value = clampf(float(combat.get("current_hp")) / max_hp * 100.0, 0.0, 100.0)
-		tooltip_mp.value = clampf(float(combat.get("current_mp")) / max_mp * 100.0, 0.0, 100.0)
+		var current_hp: float = float(combat.get("current_hp"))
+		var current_mp: float = float(combat.get("current_mp"))
+		if hp_bar != null:
+			hp_bar.value = clampf(current_hp / max_hp * 100.0, 0.0, 100.0)
+		if mp_bar != null:
+			mp_bar.value = clampf(current_mp / max_mp * 100.0, 0.0, 100.0)
+		if hp_text != null:
+			hp_text.text = "%d/%d" % [int(round(current_hp)), int(round(max_hp))]
+		if mp_text != null:
+			mp_text.text = "%d/%d" % [int(round(current_mp)), int(round(max_mp))]
 	else:
-		tooltip_hp.value = 100.0
-		tooltip_mp.value = 0.0
-	var gongfa: Array = unit.get("initial_gongfa")
-	var runtime_ids: Array = unit.get("runtime_equipped_gongfa_ids")
-	if runtime_ids.is_empty():
-		runtime_ids = gongfa
-	tooltip_gongfa.text = "功法: 无" if runtime_ids.is_empty() else "功法: %s" % str(runtime_ids[0])
+		if hp_bar != null:
+			hp_bar.value = 100.0
+		if mp_bar != null:
+			mp_bar.value = 0.0
+		if hp_text != null:
+			hp_text.text = "100/100"
+		if mp_text != null:
+			mp_text.text = "0/100"
+
 	var viewport_size: Vector2 = get_viewport().get_visible_rect().size
 	var desired: Vector2 = screen_pos + Vector2(16.0, 16.0)
 	var tooltip_size: Vector2 = unit_tooltip.size
@@ -586,7 +603,6 @@ func _set_stage(next_stage: int) -> void:
 			bench_ui.set_interactable(true)
 			deploy_overlay.visible = true
 			_set_bottom_expanded(true, false)
-			_set_shop_action_enabled(true)
 			_play_phase_transition("布阵开始")
 		Stage.COMBAT:
 			phase_label.text = "交锋期"
@@ -594,7 +610,6 @@ func _set_stage(next_stage: int) -> void:
 			bench_ui.set_interactable(false)
 			deploy_overlay.visible = false
 			_set_bottom_expanded(false, true)
-			_set_shop_action_enabled(false)
 			_play_phase_transition("交锋开始")
 		Stage.RESULT:
 			phase_label.text = "结算期"
@@ -602,20 +617,12 @@ func _set_stage(next_stage: int) -> void:
 			bench_ui.set_interactable(false)
 			deploy_overlay.visible = false
 			_set_bottom_expanded(true, true)
-			_set_shop_action_enabled(false)
 			_play_phase_transition("战斗结束")
 	_apply_visual_to_all_units()
 	_refit_hex_grid()
 	# 阶段切换会触发布局变化（尤其底栏收起/展开），必须同步刷新单位格子坐标。
 	_refresh_deployed_positions()
 	_refresh_all_ui()
-
-func _set_shop_action_enabled(enabled: bool) -> void:
-	refresh_button.disabled = not enabled
-	lock_button.disabled = not enabled
-	upgrade_button.disabled = not enabled
-	gongfa_button.disabled = not enabled
-	equip_button.disabled = not enabled
 
 func _set_bottom_expanded(expanded: bool, animate: bool) -> void:
 	_bottom_expanded = expanded
@@ -725,7 +732,6 @@ func _on_battle_ended(winner_team: int, _summary: Dictionary) -> void:
 	phase_label.modulate = Color(1.0, 0.86, 0.5, 1.0)
 	bench_ui.set_interactable(false)
 	deploy_overlay.visible = false
-	_set_shop_action_enabled(false)
 	_play_phase_transition("战斗结束")
 	# 仅刷新 HUD 文案/数值，不触发任何布局与单位视觉重算。
 	_refresh_dynamic_ui()
@@ -751,8 +757,6 @@ func _refresh_dynamic_ui_incremental() -> void:
 	var total_power: int = maxi(ally_alive + enemy_alive, 1)
 	_set_progress_value_if_changed(power_bar, "power_bar_value", float(ally_alive) / float(total_power) * 100.0)
 	_set_control_tooltip_if_changed(power_bar, "power_bar_tooltip", "己方 %d / 敌方 %d" % [ally_alive, enemy_alive])
-	_set_label_text_if_changed(resource_label, "resource_label", "门派LV7  |  银两328  |  备战席%d / %d" % [bench_count, bench_ui.get_slot_count()])
-	_set_label_text_if_changed(minimap_info, "minimap_info", "小地图：己 %d / 敌 %d" % [ally_alive, enemy_alive])
 	var stage_name: String = "PREPARATION"
 	if _stage == Stage.COMBAT:
 		stage_name = "COMBAT"

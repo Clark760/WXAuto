@@ -25,6 +25,7 @@ var _effect_engine = preload("res://scripts/gongfa/effect_engine.gd").new()
 var _buff_manager = preload("res://scripts/gongfa/buff_manager.gd").new()
 var _trigger_engine = preload("res://scripts/gongfa/trigger_engine.gd").new()
 var _passive_applier = preload("res://scripts/gongfa/passive_applier.gd").new()
+var _tag_linkage_resolver = preload("res://scripts/gongfa/tag_linkage_resolver.gd").new()
 var _unit_data_script: Script = load("res://scripts/data/unit_data.gd")
 
 var _bound_combat_manager: Node = null
@@ -269,6 +270,114 @@ func get_equipment_data(equip_id: String) -> Dictionary:
 
 func get_all_equipment() -> Array[Dictionary]:
 	return _registry.get_all_equipment()
+
+
+func get_gongfa_tags(gongfa_id: String) -> Array[String]:
+	var gid: String = gongfa_id.strip_edges()
+	if gid.is_empty():
+		return []
+	var data: Dictionary = _registry.get_gongfa(gid)
+	if data.is_empty():
+		return []
+	return _normalize_tag_array(data.get("tags", []))
+
+
+func get_equipment_tags(equip_id: String) -> Array[String]:
+	var eid: String = equip_id.strip_edges()
+	if eid.is_empty():
+		return []
+	var data: Dictionary = _registry.get_equipment(eid)
+	if data.is_empty():
+		return []
+	return _normalize_tag_array(data.get("tags", []))
+
+
+func get_unit_runtime_gongfa_ids(unit: Node) -> Array[String]:
+	if unit == null or not is_instance_valid(unit):
+		return []
+	var runtime_value: Variant = unit.get("runtime_equipped_gongfa_ids")
+	if runtime_value is Array:
+		return _normalize_string_array(runtime_value)
+	return _resolve_equipped_gongfa_ids(unit)
+
+
+func get_unit_runtime_equip_ids(unit: Node) -> Array[String]:
+	if unit == null or not is_instance_valid(unit):
+		return []
+	var runtime_value: Variant = unit.get("runtime_equipped_equip_ids")
+	if runtime_value is Array:
+		return _normalize_string_array(runtime_value)
+	return _resolve_equipped_equip_ids(unit)
+
+
+func evaluate_tag_linkage_branch(owner: Node, config: Dictionary, context: Dictionary) -> Dictionary:
+	if _tag_linkage_resolver == null:
+		return {}
+	var eval_context: Dictionary = context.duplicate(false)
+	if not eval_context.has("all_units"):
+		eval_context["all_units"] = _battle_units
+	if not eval_context.has("combat_manager"):
+		eval_context["combat_manager"] = _bound_combat_manager
+	if not eval_context.has("hex_grid"):
+		eval_context["hex_grid"] = _bound_hex_grid
+	if not eval_context.has("hex_size"):
+		eval_context["hex_size"] = _bound_hex_grid.get("hex_size") if _bound_hex_grid != null else 26.0
+	eval_context["gongfa_manager"] = self
+	return _tag_linkage_resolver.call("evaluate", owner, config, eval_context)
+
+
+func execute_external_effects(
+	source: Node,
+	target: Node,
+	effects: Array,
+	context: Dictionary,
+	meta: Dictionary = {}
+) -> Dictionary:
+	if _effect_engine == null:
+		return {}
+	if effects.is_empty():
+		return {
+			"damage_total": 0.0,
+			"heal_total": 0.0,
+			"mp_total": 0.0,
+			"summon_total": 0,
+			"hazard_total": 0,
+			"buff_applied": 0,
+			"debuff_applied": 0,
+			"damage_events": [],
+			"heal_events": [],
+			"mp_events": [],
+			"buff_events": []
+		}
+	var execution_context: Dictionary = context.duplicate(false)
+	if not execution_context.has("all_units"):
+		execution_context["all_units"] = _battle_units
+	if not execution_context.has("combat_manager"):
+		execution_context["combat_manager"] = _bound_combat_manager
+	if not execution_context.has("hex_grid"):
+		execution_context["hex_grid"] = _bound_hex_grid
+	if not execution_context.has("hex_size"):
+		execution_context["hex_size"] = _bound_hex_grid.get("hex_size") if _bound_hex_grid != null else 26.0
+	if not execution_context.has("buff_manager"):
+		execution_context["buff_manager"] = _buff_manager
+	if not execution_context.has("battle_elapsed"):
+		execution_context["battle_elapsed"] = _battle_elapsed
+	execution_context["gongfa_manager"] = self
+
+	var summary: Dictionary = _effect_engine.execute_active_effects(source, target, effects, execution_context)
+	var origin: String = str(meta.get("origin", "external_effect")).strip_edges()
+	if origin.is_empty():
+		origin = "external_effect"
+	var trigger: String = str(meta.get("trigger", origin)).strip_edges()
+	if trigger.is_empty():
+		trigger = origin
+	var gongfa_id: String = str(meta.get("gongfa_id", "")).strip_edges()
+	var extra_fields: Dictionary = {}
+	var extra_value: Variant = meta.get("extra_fields", {})
+	if extra_value is Dictionary:
+		extra_fields = (extra_value as Dictionary).duplicate(true)
+	_emit_effect_log_events(summary, source, target, origin, gongfa_id, trigger, extra_fields)
+	return summary
 
 
 func equip_equipment(unit: Node, slot: String, equip_id: String) -> bool:
@@ -901,12 +1010,12 @@ func _skill_requires_enemy_target(effects: Array) -> bool:
 func _resolve_skill_cast_range_cells(source: Node, skill_data: Dictionary) -> float:
 	# 优先读 skill.range；未配置时退化为单位基础射程，避免旧数据突然“无限技能”。
 	if skill_data.has("range"):
-		return clampf(float(skill_data.get("range", DEFAULT_SKILL_CAST_RANGE_CELLS)), 0.0, 12.0)
+		return maxf(float(skill_data.get("range", DEFAULT_SKILL_CAST_RANGE_CELLS)), 0.0)
 	if source == null or not is_instance_valid(source):
 		return DEFAULT_SKILL_CAST_RANGE_CELLS
 	var runtime_stats: Variant = source.get("runtime_stats")
 	if runtime_stats is Dictionary:
-		return clampf(float((runtime_stats as Dictionary).get("rng", DEFAULT_SKILL_CAST_RANGE_CELLS)), 1.0, 12.0)
+		return maxf(float((runtime_stats as Dictionary).get("rng", DEFAULT_SKILL_CAST_RANGE_CELLS)), 1.0)
 	return DEFAULT_SKILL_CAST_RANGE_CELLS
 
 
@@ -1054,7 +1163,7 @@ func _fire_trigger_for_unit(unit: Node, trigger: String, context: Dictionary) ->
 		_trigger_engine.call("fire_trigger_for_unit", self, unit, trigger, context)
 
 func _clamp_runtime_stats(runtime_stats: Dictionary) -> void:
-	var min_positive_keys: Array[String] = ["hp", "spd", "mov", "rng"]
+	var min_positive_keys: Array[String] = ["hp", "rng"]
 	for key in runtime_stats.keys():
 		runtime_stats[key] = maxf(float(runtime_stats[key]), 0.0)
 	for key in min_positive_keys:
@@ -1094,6 +1203,36 @@ func _count_filled_slots(slots: Dictionary) -> int:
 		if str(slots.get(slot, "")).strip_edges() != "":
 			count += 1
 	return count
+
+
+func _normalize_tag_array(raw: Variant) -> Array[String]:
+	var out: Array[String] = []
+	var seen: Dictionary = {}
+	if raw is Array:
+		for item in (raw as Array):
+			var text: String = str(item).strip_edges().to_lower()
+			if text.is_empty():
+				continue
+			if seen.has(text):
+				continue
+			seen[text] = true
+			out.append(text)
+	return out
+
+
+func _normalize_string_array(raw: Variant) -> Array[String]:
+	var out: Array[String] = []
+	var seen: Dictionary = {}
+	if raw is Array:
+		for item in (raw as Array):
+			var text: String = str(item).strip_edges()
+			if text.is_empty():
+				continue
+			if seen.has(text):
+				continue
+			seen[text] = true
+			out.append(text)
+	return out
 
 
 func _count_filled_equip_slots(slots: Dictionary) -> int:

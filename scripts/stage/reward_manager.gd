@@ -97,11 +97,6 @@ func _grant_item_drop(battlefield: Node, item_type: String, item_id: String) -> 
 		return false
 	if battlefield.has_method("grant_stage_reward_item"):
 		return bool(battlefield.call("grant_stage_reward_item", item_type, item_id, 1))
-	# 兼容旧接口：若未提供新封装，尝试直接走库存方法。
-	if battlefield.has_method("_add_owned_item"):
-		var category: String = "gongfa" if item_type == "gongfa" else "equipment"
-		battlefield.call("_add_owned_item", category, item_id, 1)
-		return true
 	return false
 
 

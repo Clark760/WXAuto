@@ -29,10 +29,26 @@ offset_bottom = 560.0
 theme_override_font_sizes/font_size = 16
 text = "按 F6/Enter 进入战斗，按 F5 重载数据"
 
-[node name="EnterBattleButton" type="Button" parent="CanvasLayer" unique_id=2118262177]
+[node name="StageListPanel" type="PanelContainer" parent="CanvasLayer" unique_id=2118262177]
 offset_left = 20.0
-offset_top = 430.0
-offset_right = 280.0
-offset_bottom = 476.0
+offset_top = 360.0
+offset_right = 520.0
+offset_bottom = 690.0
+
+[node name="StageListRoot" type="VBoxContainer" parent="CanvasLayer/StageListPanel"]
+offset_left = 12.0
+offset_top = 10.0
+offset_right = 488.0
+offset_bottom = 320.0
+theme_override_constants/separation = 8
+
+[node name="StageListTitle" type="Label" parent="CanvasLayer/StageListPanel/StageListRoot"]
 theme_override_font_sizes/font_size = 18
-text = "进入正式战斗"
+text = "选择章节序列（点击直接进入）"
+
+[node name="StageListScroll" type="ScrollContainer" parent="CanvasLayer/StageListPanel/StageListRoot"]
+size_flags_vertical = 3
+
+[node name="StageListVBox" type="VBoxContainer" parent="CanvasLayer/StageListPanel/StageListRoot/StageListScroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 6

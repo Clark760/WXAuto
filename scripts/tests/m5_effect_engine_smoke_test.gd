@@ -512,8 +512,7 @@ func _make_test_unit(team_id: int, unit_id: String = "") -> MockUnit:
 		"idr": 60.0,
 		"spd": 100.0,
 		"wis": 60.0,
-		"rng": 2.0,
-		"mov": 2.0
+		"rng": 2.0
 	}
 	var components: Node = Node.new()
 	components.name = "Components"

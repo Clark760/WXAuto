@@ -16,7 +16,6 @@ const DEFAULT_BASE_STATS := {
 	"idr": 20.0,
 	"spd": 80.0,
 	"rng": 1.0,
-	"mov": 90.0,
 	"wis": 40.0
 }
 
@@ -46,14 +45,16 @@ static func normalize_unit_record(raw_record: Dictionary) -> Dictionary:
 
 	var default_cost: int = int(QUALITY_TO_COST.get(result["quality"], 1))
 	result["cost"] = int(raw_record.get("cost", default_cost))
+	result["shop_visible"] = bool(raw_record.get("shop_visible", true))
 	result["role"] = str(raw_record.get("role", "vanguard"))
 
 	result["base_stats"] = _normalize_stats(raw_record.get("base_stats", {}))
 	result["traits"] = _normalize_traits(raw_record.get("traits", []))
 
 	var initial_gongfa: Array[String] = []
-	if raw_record.get("initial_gongfa", []) is Array:
-		for gongfa_id in raw_record["initial_gongfa"]:
+	var initial_gongfa_value: Variant = raw_record.get("initial_gongfa", [])
+	if initial_gongfa_value is Array:
+		for gongfa_id in initial_gongfa_value:
 			initial_gongfa.append(str(gongfa_id))
 	result["initial_gongfa"] = initial_gongfa
 	result["gongfa_slots"] = _normalize_gongfa_slots(raw_record.get("gongfa_slots", {}), initial_gongfa)
@@ -104,9 +105,21 @@ static func build_runtime_stats(base_stats: Dictionary, star_level: int) -> Dict
 		_:
 			multiplier = 1.0
 
+	# 升星仅影响核心战斗数值；RNG/SPD/WIS 为固定基础值（可被 effect 改写）。
+	var scaled_keys: Array[String] = ["hp", "mp", "atk", "iat", "def", "idr"]
 	var runtime_stats: Dictionary = {}
 	for stat_key in base_stats.keys():
-		runtime_stats[stat_key] = float(base_stats[stat_key]) * multiplier
+		var value: float = float(base_stats.get(stat_key, 0.0))
+		if scaled_keys.has(stat_key):
+			runtime_stats[stat_key] = value * multiplier
+		else:
+			runtime_stats[stat_key] = value
+	# 运行时底线约束：
+	# - rng 最小 1（不能为 0）
+	# - spd/wis 最小 0
+	runtime_stats["rng"] = maxf(float(runtime_stats.get("rng", 1.0)), 1.0)
+	runtime_stats["spd"] = maxf(float(runtime_stats.get("spd", 0.0)), 0.0)
+	runtime_stats["wis"] = maxf(float(runtime_stats.get("wis", 0.0)), 0.0)
 	return runtime_stats
 
 
@@ -116,15 +129,29 @@ static func _normalize_stats(value: Variant) -> Dictionary:
 		var input_stats: Dictionary = value
 		for stat_key in DEFAULT_BASE_STATS.keys():
 			if input_stats.has(stat_key):
-				output[stat_key] = maxf(float(input_stats[stat_key]), 0.0)
+				output[stat_key] = float(input_stats[stat_key])
+	# 明确约束：rng >= 1；spd/wis >= 0；其他基础属性 >= 0。
+	for stat_key in output.keys():
+		output[stat_key] = maxf(float(output[stat_key]), 0.0)
+	output["rng"] = maxf(float(output.get("rng", 1.0)), 1.0)
+	output["spd"] = maxf(float(output.get("spd", 0.0)), 0.0)
+	output["wis"] = maxf(float(output.get("wis", 0.0)), 0.0)
 	return output
 
 
 static func _normalize_tags(value: Variant) -> Array[String]:
 	var tags: Array[String] = []
+	var seen: Dictionary = {}
 	if value is Array:
 		for tag in value:
-			tags.append(str(tag))
+			var normalized: String = str(tag).strip_edges()
+			if normalized.is_empty():
+				continue
+			var lookup_key: String = normalized.to_lower()
+			if seen.has(lookup_key):
+				continue
+			seen[lookup_key] = true
+			tags.append(normalized)
 	return tags
 
 
@@ -133,7 +160,9 @@ static func _normalize_traits(value: Variant) -> Array[Dictionary]:
 	if value is Array:
 		for trait_value in value:
 			if trait_value is Dictionary:
-				traits.append((trait_value as Dictionary).duplicate(true))
+				var trait_data: Dictionary = (trait_value as Dictionary).duplicate(true)
+				trait_data["tags"] = _normalize_tags(trait_data.get("tags", []))
+				traits.append(trait_data)
 	return traits
 
 

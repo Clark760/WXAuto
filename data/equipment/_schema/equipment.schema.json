@@ -3,7 +3,13 @@
   "title": "EquipmentSchema",
   "description": "装备数据结构定义（M3 统一效果系统格式）",
   "type": "object",
-  "required": ["id", "name", "type", "rarity", "effects"],
+  "required": [
+    "id",
+    "name",
+    "type",
+    "rarity",
+    "effects"
+  ],
   "properties": {
     "id": {
       "type": "string",
@@ -17,21 +23,45 @@
     },
     "type": {
       "type": "string",
-      "enum": ["weapon", "armor", "accessory"]
+      "enum": [
+        "weapon",
+        "armor",
+        "accessory"
+      ]
     },
     "element": {
       "type": "string",
-      "enum": ["metal", "wood", "water", "fire", "earth", "none"]
+      "enum": [
+        "metal",
+        "wood",
+        "water",
+        "fire",
+        "earth",
+        "none"
+      ]
     },
     "rarity": {
       "type": "string",
-      "enum": ["white", "green", "blue", "purple", "orange", "red"]
+      "enum": [
+        "white",
+        "green",
+        "blue",
+        "purple",
+        "orange",
+        "red"
+      ]
+    },
+    "shop_visible": {
+      "type": "boolean",
+      "default": true
     },
     "effects": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["op"],
+        "required": [
+          "op"
+        ],
         "properties": {
           "op": {
             "type": "string"
@@ -75,7 +105,7 @@
         "type": "string"
       }
     },
-    "linkage_tags": {
+    "tags": {
       "type": "array",
       "items": {
         "type": "string"

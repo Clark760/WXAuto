@@ -100,7 +100,8 @@ func play_state(state: int, context: Dictionary = {}) -> void:
 		return
 
 	# 高频逻辑帧下，循环状态重复设置会造成抖动；直接忽略即可。
-	if _state == state and _is_loop_state(state):
+	# 但仅在“循环状态已激活”时才允许早返回，避免 reset 后卡在静止姿态。
+	if _state == state and _is_loop_state(state) and _loop_state_active:
 		return
 
 	_stop_tween()

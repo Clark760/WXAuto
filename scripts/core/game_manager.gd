@@ -22,6 +22,7 @@ const DEFAULT_MAIN_SCENE_PATH := "res://scenes/main/main.tscn"
 var current_phase: int = GamePhase.BOOT
 var current_scene_path: String = ""
 var is_initialized: bool = false
+var requested_stage_sequence_id: String = ""
 
 # 记录最近一次数据重载摘要，方便 UI 或调试工具读取。
 var last_load_summary: Dictionary = {}
@@ -113,6 +114,25 @@ func request_scene_change(scene_path: String) -> void:
 	var event_bus: Node = _get_event_bus()
 	if event_bus != null:
 		event_bus.call("emit_scene_change_requested", scene_path)
+
+
+func set_requested_stage_sequence_id(sequence_id: String) -> void:
+	requested_stage_sequence_id = sequence_id.strip_edges()
+
+
+func consume_requested_stage_sequence_id() -> String:
+	var sequence_id: String = requested_stage_sequence_id.strip_edges()
+	requested_stage_sequence_id = ""
+	return sequence_id
+
+
+# 兼容旧调用：保留同义接口，内部统一映射到 sequence_id。
+func set_requested_stage_id(stage_id: String) -> void:
+	set_requested_stage_sequence_id(stage_id)
+
+
+func consume_requested_stage_id() -> String:
+	return consume_requested_stage_sequence_id()
 
 
 func change_scene(scene_path: String) -> bool:

@@ -15,7 +15,6 @@ signal healing_performed(source: Node, target: Node, amount: float, heal_type: S
 signal thorns_damage_dealt(source: Node, target: Node, event: Dictionary)
 
 @export var attack_range_min_cells: int = 1
-@export var attack_range_max_cells: int = 2
 
 var owner_unit: Node = null
 var is_alive: bool = true
@@ -354,11 +353,10 @@ func get_attack_range_world(hex_size: float = 26.0) -> float:
 
 func get_attack_range_cells() -> int:
 	# 严格六角格战斗：攻击距离统一按“格子数”判定。
-	# 为避免“全员超远射程”造成观感失真，默认对最终射程做上限约束。
+	# M5：RNG 只保留最小值约束，不做上限裁剪。
 	var range_cells: float = _get_owner_stat("rng") + float(_external_modifiers.get("range_add", 0.0))
 	var min_cells: int = maxi(attack_range_min_cells, 1)
-	var max_cells: int = maxi(attack_range_max_cells, min_cells)
-	return clampi(int(range_cells), min_cells, max_cells)
+	return maxi(int(range_cells), min_cells)
 
 
 func get_max_effective_range_cells() -> int:
@@ -402,7 +400,7 @@ func get_external_modifiers() -> Dictionary:
 
 
 func _rebuild_attack_interval(runtime_stats: Dictionary) -> void:
-	var spd: float = maxf(float(runtime_stats.get("spd", 60.0)), 1.0)
+	var spd: float = maxf(float(runtime_stats.get("spd", 60.0)), 0.0)
 	var base_interval: float = clampf(1.8 - spd / 120.0, 0.24, 2.2)
 	var speed_bonus: float = clampf(float(_external_modifiers.get("attack_speed_bonus", 0.0)), -0.8, 0.9)
 	# 攻速加成为“间隔缩短百分比”，例如 0.2 => 间隔 * 0.8。

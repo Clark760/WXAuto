@@ -1,0 +1,6433 @@
+[
+  {
+    "id": "bm5_u_white_001",
+    "name": "Guo Jing",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "swordsman",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 845,
+      "mp": 71,
+      "atk": 80,
+      "iat": 71,
+      "def": 42,
+      "idr": 30,
+      "spd": 79,
+      "rng": 1,
+      "wis": 58
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_001",
+      "bm5_eq_white_001"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_001",
+        "name": "Guo Jing Trait",
+        "description": "Core trait of Guo Jing.",
+        "effects": [
+          {
+            "op": "attack_speed_bonus",
+            "value": 0.08
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.swordsman",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "bm5_gf_white_001",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_white_001",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_001.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_001.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.swordsman",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.001"
+    ]
+  },
+  {
+    "id": "bm5_u_white_002",
+    "name": "Huang Rong",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "assassin",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 697,
+      "mp": 67,
+      "atk": 75,
+      "iat": 68,
+      "def": 33,
+      "idr": 24,
+      "spd": 96,
+      "rng": 1,
+      "wis": 55
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_002",
+      "bm5_eq_white_002"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_002",
+        "name": "Huang Rong Trait",
+        "description": "Core trait of Huang Rong.",
+        "effects": [
+          {
+            "op": "dodge_bonus",
+            "value": 0.06
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.assassin",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "bm5_gf_white_002",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_white_002",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_002.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_002.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.assassin",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.002"
+    ]
+  },
+  {
+    "id": "bm5_u_white_003",
+    "name": "Yang Guo",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "archer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 723,
+      "mp": 64,
+      "atk": 68,
+      "iat": 66,
+      "def": 31,
+      "idr": 40,
+      "spd": 85,
+      "rng": 4,
+      "wis": 52
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_003",
+      "bm5_eq_white_003"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_003",
+        "name": "Yang Guo Trait",
+        "description": "Core trait of Yang Guo.",
+        "effects": [
+          {
+            "op": "range_add",
+            "value": 1
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.archer",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": "bm5_gf_white_003"
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_white_003",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_003.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_003.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.archer",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.003"
+    ]
+  },
+  {
+    "id": "bm5_u_white_004",
+    "name": "Xiao Longnu",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "caster",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 741,
+      "mp": 93,
+      "atk": 61,
+      "iat": 79,
+      "def": 29,
+      "idr": 42,
+      "spd": 73,
+      "rng": 3,
+      "wis": 60
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_004",
+      "bm5_eq_white_004"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_004",
+        "name": "Xiao Longnu Trait",
+        "description": "Core trait of Xiao Longnu.",
+        "effects": [
+          {
+            "op": "mp_regen_add",
+            "value": 2
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.caster",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "bm5_gf_white_004",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "",
+      "accessory": "bm5_eq_white_004"
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_004.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_004.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.caster",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.004"
+    ]
+  },
+  {
+    "id": "bm5_u_white_005",
+    "name": "Zhang Wuji",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "healer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 785,
+      "mp": 102,
+      "atk": 56,
+      "iat": 72,
+      "def": 39,
+      "idr": 43,
+      "spd": 74,
+      "rng": 3,
+      "wis": 63
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_005",
+      "bm5_eq_white_005"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_005",
+        "name": "Zhang Wuji Trait",
+        "description": "Core trait of Zhang Wuji.",
+        "effects": [
+          {
+            "op": "healing_amp",
+            "value": 0.12
+          }
+        ],
+        "skills": [
+          {
+            "trigger": "on_time_elapsed",
+            "trigger_params": {
+              "at_seconds": 18.0
+            },
+            "max_trigger_count": 1,
+            "effects": [
+              {
+                "op": "heal_self_percent",
+                "value": 0.12
+              }
+            ]
+          }
+        ],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.healer",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "bm5_gf_white_005",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "",
+      "accessory": "bm5_eq_white_005"
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_005.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_005.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.healer",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.005",
+      "bm5.skill.heal"
+    ]
+  },
+  {
+    "id": "bm5_u_white_006",
+    "name": "Zhao Min",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "leader",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 879,
+      "mp": 85,
+      "atk": 80,
+      "iat": 65,
+      "def": 48,
+      "idr": 49,
+      "spd": 73,
+      "rng": 2,
+      "wis": 56
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_006",
+      "bm5_eq_white_006"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_006",
+        "name": "Zhao Min Trait",
+        "description": "Core trait of Zhao Min.",
+        "effects": [
+          {
+            "op": "stat_percent",
+            "stat": "hp",
+            "value": 0.08
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.leader",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "bm5_gf_white_006",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "bm5_eq_white_006",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_006.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_006.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.leader",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.006"
+    ]
+  },
+  {
+    "id": "bm5_u_white_007",
+    "name": "Zhou Zhiruo",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "vanguard",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 942,
+      "mp": 69,
+      "atk": 66,
+      "iat": 56,
+      "def": 62,
+      "idr": 53,
+      "spd": 75,
+      "rng": 1,
+      "wis": 50
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_007",
+      "bm5_eq_white_007"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_007",
+        "name": "Zhou Zhiruo Trait",
+        "description": "Core trait of Zhou Zhiruo.",
+        "effects": [
+          {
+            "op": "stat_add",
+            "stat": "hp",
+            "value": 120
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.vanguard",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "bm5_gf_white_007",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "bm5_eq_white_007",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_007.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_007.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.vanguard",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.007"
+    ]
+  },
+  {
+    "id": "bm5_u_white_008",
+    "name": "Linghu Chong",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "swordsman",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 842,
+      "mp": 65,
+      "atk": 78,
+      "iat": 71,
+      "def": 43,
+      "idr": 31,
+      "spd": 79,
+      "rng": 1,
+      "wis": 48
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_008",
+      "bm5_eq_white_008"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_008",
+        "name": "Linghu Chong Trait",
+        "description": "Core trait of Linghu Chong.",
+        "effects": [
+          {
+            "op": "attack_speed_bonus",
+            "value": 0.08
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.swordsman",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "bm5_gf_white_008",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_white_008",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_008.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_008.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.swordsman",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.008"
+    ]
+  },
+  {
+    "id": "bm5_u_white_009",
+    "name": "Ren Yingying",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "assassin",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 706,
+      "mp": 75,
+      "atk": 77,
+      "iat": 67,
+      "def": 25,
+      "idr": 28,
+      "spd": 96,
+      "rng": 1,
+      "wis": 56
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_009",
+      "bm5_eq_white_009"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_009",
+        "name": "Ren Yingying Trait",
+        "description": "Core trait of Ren Yingying.",
+        "effects": [
+          {
+            "op": "dodge_bonus",
+            "value": 0.06
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.assassin",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "bm5_gf_white_009",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_white_009",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_009.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_009.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.assassin",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.009"
+    ]
+  },
+  {
+    "id": "bm5_u_white_010",
+    "name": "Yue Buqun",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "archer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 724,
+      "mp": 69,
+      "atk": 72,
+      "iat": 65,
+      "def": 23,
+      "idr": 25,
+      "spd": 88,
+      "rng": 4,
+      "wis": 55
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_010",
+      "bm5_eq_white_010"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_010",
+        "name": "Yue Buqun Trait",
+        "description": "Core trait of Yue Buqun.",
+        "effects": [
+          {
+            "op": "range_add",
+            "value": 1
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.archer",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": "bm5_gf_white_010"
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_white_010",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_010.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_010.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.archer",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.010"
+    ]
+  },
+  {
+    "id": "bm5_u_white_011",
+    "name": "Lin Pingzhi",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "caster",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 736,
+      "mp": 104,
+      "atk": 49,
+      "iat": 86,
+      "def": 25,
+      "idr": 36,
+      "spd": 73,
+      "rng": 3,
+      "wis": 66
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_011",
+      "bm5_eq_white_011"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_011",
+        "name": "Lin Pingzhi Trait",
+        "description": "Core trait of Lin Pingzhi.",
+        "effects": [
+          {
+            "op": "mp_regen_add",
+            "value": 2
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.caster",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "bm5_gf_white_011",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "",
+      "accessory": "bm5_eq_white_011"
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_011.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_011.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.caster",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.011"
+    ]
+  },
+  {
+    "id": "bm5_u_white_012",
+    "name": "Dongfang Bubai",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "healer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 787,
+      "mp": 101,
+      "atk": 62,
+      "iat": 84,
+      "def": 32,
+      "idr": 43,
+      "spd": 76,
+      "rng": 3,
+      "wis": 76
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_012",
+      "bm5_eq_white_012"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_012",
+        "name": "Dongfang Bubai Trait",
+        "description": "Core trait of Dongfang Bubai.",
+        "effects": [
+          {
+            "op": "healing_amp",
+            "value": 0.12
+          }
+        ],
+        "skills": [
+          {
+            "trigger": "on_time_elapsed",
+            "trigger_params": {
+              "at_seconds": 18.0
+            },
+            "max_trigger_count": 1,
+            "effects": [
+              {
+                "op": "heal_self_percent",
+                "value": 0.12
+              }
+            ]
+          }
+        ],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.healer",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "bm5_gf_white_012",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "",
+      "accessory": "bm5_eq_white_012"
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_012.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_012.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.healer",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.012",
+      "bm5.skill.heal"
+    ]
+  },
+  {
+    "id": "bm5_u_white_013",
+    "name": "Wei Xiaobao",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "leader",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 883,
+      "mp": 80,
+      "atk": 78,
+      "iat": 65,
+      "def": 41,
+      "idr": 49,
+      "spd": 72,
+      "rng": 2,
+      "wis": 68
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_013",
+      "bm5_eq_white_013"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_013",
+        "name": "Wei Xiaobao Trait",
+        "description": "Core trait of Wei Xiaobao.",
+        "effects": [
+          {
+            "op": "stat_percent",
+            "stat": "hp",
+            "value": 0.08
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.leader",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "bm5_gf_white_013",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "bm5_eq_white_013",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_013.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_013.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.leader",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.013"
+    ]
+  },
+  {
+    "id": "bm5_u_white_014",
+    "name": "Chen Jinnan",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "vanguard",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 946,
+      "mp": 80,
+      "atk": 77,
+      "iat": 59,
+      "def": 50,
+      "idr": 40,
+      "spd": 60,
+      "rng": 1,
+      "wis": 44
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_014",
+      "bm5_eq_white_014"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_014",
+        "name": "Chen Jinnan Trait",
+        "description": "Core trait of Chen Jinnan.",
+        "effects": [
+          {
+            "op": "stat_add",
+            "stat": "hp",
+            "value": 120
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.vanguard",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "bm5_gf_white_014",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "bm5_eq_white_014",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_014.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_014.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.vanguard",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.014"
+    ]
+  },
+  {
+    "id": "bm5_u_white_015",
+    "name": "Qiao Feng",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "swordsman",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 846,
+      "mp": 71,
+      "atk": 78,
+      "iat": 69,
+      "def": 50,
+      "idr": 35,
+      "spd": 78,
+      "rng": 1,
+      "wis": 58
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_015",
+      "bm5_eq_white_015"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_015",
+        "name": "Qiao Feng Trait",
+        "description": "Core trait of Qiao Feng.",
+        "effects": [
+          {
+            "op": "attack_speed_bonus",
+            "value": 0.08
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.swordsman",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "bm5_gf_white_015",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_white_015",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_015.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_015.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.swordsman",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.015"
+    ]
+  },
+  {
+    "id": "bm5_u_white_016",
+    "name": "Duan Yu",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "assassin",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 696,
+      "mp": 71,
+      "atk": 72,
+      "iat": 67,
+      "def": 30,
+      "idr": 27,
+      "spd": 98,
+      "rng": 1,
+      "wis": 59
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_016",
+      "bm5_eq_white_016"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_016",
+        "name": "Duan Yu Trait",
+        "description": "Core trait of Duan Yu.",
+        "effects": [
+          {
+            "op": "dodge_bonus",
+            "value": 0.06
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.assassin",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "bm5_gf_white_016",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_white_016",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_016.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_016.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.assassin",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.016"
+    ]
+  },
+  {
+    "id": "bm5_u_white_017",
+    "name": "Xu Zhu",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "archer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 714,
+      "mp": 66,
+      "atk": 69,
+      "iat": 55,
+      "def": 29,
+      "idr": 24,
+      "spd": 79,
+      "rng": 4,
+      "wis": 58
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_017",
+      "bm5_eq_white_017"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_017",
+        "name": "Xu Zhu Trait",
+        "description": "Core trait of Xu Zhu.",
+        "effects": [
+          {
+            "op": "range_add",
+            "value": 1
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.archer",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": "bm5_gf_white_017"
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_white_017",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_017.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_017.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.archer",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.017"
+    ]
+  },
+  {
+    "id": "bm5_u_white_018",
+    "name": "Wang Yuyan",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "caster",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 734,
+      "mp": 100,
+      "atk": 52,
+      "iat": 94,
+      "def": 33,
+      "idr": 44,
+      "spd": 81,
+      "rng": 3,
+      "wis": 65
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_018",
+      "bm5_eq_white_018"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_018",
+        "name": "Wang Yuyan Trait",
+        "description": "Core trait of Wang Yuyan.",
+        "effects": [
+          {
+            "op": "mp_regen_add",
+            "value": 2
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.caster",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "bm5_gf_white_018",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "",
+      "accessory": "bm5_eq_white_018"
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_018.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_018.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.caster",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.018"
+    ]
+  },
+  {
+    "id": "bm5_u_white_019",
+    "name": "Murong Fu",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "healer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 780,
+      "mp": 103,
+      "atk": 62,
+      "iat": 73,
+      "def": 41,
+      "idr": 42,
+      "spd": 80,
+      "rng": 3,
+      "wis": 68
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_019",
+      "bm5_eq_white_019"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_019",
+        "name": "Murong Fu Trait",
+        "description": "Core trait of Murong Fu.",
+        "effects": [
+          {
+            "op": "healing_amp",
+            "value": 0.12
+          }
+        ],
+        "skills": [
+          {
+            "trigger": "on_time_elapsed",
+            "trigger_params": {
+              "at_seconds": 18.0
+            },
+            "max_trigger_count": 1,
+            "effects": [
+              {
+                "op": "heal_self_percent",
+                "value": 0.12
+              }
+            ]
+          }
+        ],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.healer",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "bm5_gf_white_019",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "",
+      "accessory": "bm5_eq_white_019"
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_019.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_019.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.healer",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.019",
+      "bm5.skill.heal"
+    ]
+  },
+  {
+    "id": "bm5_u_white_020",
+    "name": "A Zhu",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "leader",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 886,
+      "mp": 74,
+      "atk": 74,
+      "iat": 65,
+      "def": 36,
+      "idr": 38,
+      "spd": 78,
+      "rng": 2,
+      "wis": 60
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_020",
+      "bm5_eq_white_020"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_020",
+        "name": "A Zhu Trait",
+        "description": "Core trait of A Zhu.",
+        "effects": [
+          {
+            "op": "stat_percent",
+            "stat": "hp",
+            "value": 0.08
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.leader",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "bm5_gf_white_020",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "bm5_eq_white_020",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_020.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_020.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.leader",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.020"
+    ]
+  },
+  {
+    "id": "bm5_u_white_021",
+    "name": "A Zi",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "vanguard",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 932,
+      "mp": 71,
+      "atk": 66,
+      "iat": 67,
+      "def": 51,
+      "idr": 40,
+      "spd": 72,
+      "rng": 1,
+      "wis": 54
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_021",
+      "bm5_eq_white_021"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_021",
+        "name": "A Zi Trait",
+        "description": "Core trait of A Zi.",
+        "effects": [
+          {
+            "op": "stat_add",
+            "stat": "hp",
+            "value": 120
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.vanguard",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "bm5_gf_white_021",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "bm5_eq_white_021",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_021.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_021.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.vanguard",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.021"
+    ]
+  },
+  {
+    "id": "bm5_u_white_022",
+    "name": "Ding Chunqiu",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "swordsman",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 833,
+      "mp": 72,
+      "atk": 72,
+      "iat": 66,
+      "def": 38,
+      "idr": 45,
+      "spd": 80,
+      "rng": 1,
+      "wis": 51
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_022",
+      "bm5_eq_white_022"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_022",
+        "name": "Ding Chunqiu Trait",
+        "description": "Core trait of Ding Chunqiu.",
+        "effects": [
+          {
+            "op": "attack_speed_bonus",
+            "value": 0.08
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.swordsman",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "bm5_gf_white_022",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_white_022",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_022.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_022.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.swordsman",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.022"
+    ]
+  },
+  {
+    "id": "bm5_u_white_023",
+    "name": "You Tanzhi",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "assassin",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 698,
+      "mp": 64,
+      "atk": 82,
+      "iat": 59,
+      "def": 27,
+      "idr": 31,
+      "spd": 84,
+      "rng": 1,
+      "wis": 58
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_023",
+      "bm5_eq_white_023"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_023",
+        "name": "You Tanzhi Trait",
+        "description": "Core trait of You Tanzhi.",
+        "effects": [
+          {
+            "op": "dodge_bonus",
+            "value": 0.06
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.assassin",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "bm5_gf_white_023",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_white_023",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_023.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_023.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.assassin",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.023"
+    ]
+  },
+  {
+    "id": "bm5_u_white_024",
+    "name": "Yuan Chengzhi",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "archer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 727,
+      "mp": 71,
+      "atk": 76,
+      "iat": 61,
+      "def": 35,
+      "idr": 33,
+      "spd": 87,
+      "rng": 4,
+      "wis": 59
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_024",
+      "bm5_eq_white_024"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_024",
+        "name": "Yuan Chengzhi Trait",
+        "description": "Core trait of Yuan Chengzhi.",
+        "effects": [
+          {
+            "op": "range_add",
+            "value": 1
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.archer",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": "bm5_gf_white_024"
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_white_024",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_024.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_024.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.archer",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.024"
+    ]
+  },
+  {
+    "id": "bm5_u_white_025",
+    "name": "Xia Xueyi",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "caster",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 742,
+      "mp": 103,
+      "atk": 49,
+      "iat": 87,
+      "def": 37,
+      "idr": 45,
+      "spd": 81,
+      "rng": 3,
+      "wis": 59
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_025",
+      "bm5_eq_white_025"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_025",
+        "name": "Xia Xueyi Trait",
+        "description": "Core trait of Xia Xueyi.",
+        "effects": [
+          {
+            "op": "mp_regen_add",
+            "value": 2
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.caster",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "bm5_gf_white_025",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "",
+      "accessory": "bm5_eq_white_025"
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_025.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_025.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.caster",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.025"
+    ]
+  },
+  {
+    "id": "bm5_u_white_026",
+    "name": "Hu Fei",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "healer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 783,
+      "mp": 108,
+      "atk": 49,
+      "iat": 73,
+      "def": 43,
+      "idr": 41,
+      "spd": 78,
+      "rng": 3,
+      "wis": 69
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_026",
+      "bm5_eq_white_026"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_026",
+        "name": "Hu Fei Trait",
+        "description": "Core trait of Hu Fei.",
+        "effects": [
+          {
+            "op": "healing_amp",
+            "value": 0.12
+          }
+        ],
+        "skills": [
+          {
+            "trigger": "on_time_elapsed",
+            "trigger_params": {
+              "at_seconds": 18.0
+            },
+            "max_trigger_count": 1,
+            "effects": [
+              {
+                "op": "heal_self_percent",
+                "value": 0.12
+              }
+            ]
+          }
+        ],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.healer",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "bm5_gf_white_026",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "",
+      "accessory": "bm5_eq_white_026"
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_026.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_026.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.healer",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.026",
+      "bm5.skill.heal"
+    ]
+  },
+  {
+    "id": "bm5_u_white_027",
+    "name": "Cheng Lingsu",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "leader",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 884,
+      "mp": 76,
+      "atk": 74,
+      "iat": 67,
+      "def": 39,
+      "idr": 50,
+      "spd": 79,
+      "rng": 2,
+      "wis": 67
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_027",
+      "bm5_eq_white_027"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_027",
+        "name": "Cheng Lingsu Trait",
+        "description": "Core trait of Cheng Lingsu.",
+        "effects": [
+          {
+            "op": "stat_percent",
+            "stat": "hp",
+            "value": 0.08
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.leader",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "bm5_gf_white_027",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "bm5_eq_white_027",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_027.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_027.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.leader",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.027"
+    ]
+  },
+  {
+    "id": "bm5_u_white_028",
+    "name": "Miao Ruolan",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "vanguard",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 934,
+      "mp": 77,
+      "atk": 75,
+      "iat": 52,
+      "def": 61,
+      "idr": 54,
+      "spd": 76,
+      "rng": 1,
+      "wis": 59
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_028",
+      "bm5_eq_white_028"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_028",
+        "name": "Miao Ruolan Trait",
+        "description": "Core trait of Miao Ruolan.",
+        "effects": [
+          {
+            "op": "stat_add",
+            "stat": "hp",
+            "value": 120
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.vanguard",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "bm5_gf_white_028",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "bm5_eq_white_028",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_028.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_028.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.vanguard",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.028"
+    ]
+  },
+  {
+    "id": "bm5_u_white_029",
+    "name": "Di Yun",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "swordsman",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 848,
+      "mp": 74,
+      "atk": 74,
+      "iat": 62,
+      "def": 38,
+      "idr": 36,
+      "spd": 74,
+      "rng": 1,
+      "wis": 56
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_029",
+      "bm5_eq_white_029"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_029",
+        "name": "Di Yun Trait",
+        "description": "Core trait of Di Yun.",
+        "effects": [
+          {
+            "op": "attack_speed_bonus",
+            "value": 0.08
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.swordsman",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "bm5_gf_white_029",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_white_029",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_029.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_029.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.swordsman",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.029"
+    ]
+  },
+  {
+    "id": "bm5_u_white_030",
+    "name": "Qi Fang",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "assassin",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 703,
+      "mp": 71,
+      "atk": 70,
+      "iat": 63,
+      "def": 29,
+      "idr": 28,
+      "spd": 88,
+      "rng": 1,
+      "wis": 60
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_030",
+      "bm5_eq_white_030"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_030",
+        "name": "Qi Fang Trait",
+        "description": "Core trait of Qi Fang.",
+        "effects": [
+          {
+            "op": "dodge_bonus",
+            "value": 0.06
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.assassin",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "bm5_gf_white_030",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_white_030",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_030.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_030.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.assassin",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.030"
+    ]
+  },
+  {
+    "id": "bm5_u_white_031",
+    "name": "Xuedao Laozu",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "archer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 715,
+      "mp": 64,
+      "atk": 75,
+      "iat": 54,
+      "def": 35,
+      "idr": 40,
+      "spd": 73,
+      "rng": 4,
+      "wis": 62
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_031",
+      "bm5_eq_white_031"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_031",
+        "name": "Xuedao Laozu Trait",
+        "description": "Core trait of Xuedao Laozu.",
+        "effects": [
+          {
+            "op": "range_add",
+            "value": 1
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.archer",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": "bm5_gf_white_031"
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_white_031",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_031.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_031.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.archer",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.031"
+    ]
+  },
+  {
+    "id": "bm5_u_white_032",
+    "name": "Shi Potian",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "caster",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 741,
+      "mp": 91,
+      "atk": 50,
+      "iat": 93,
+      "def": 30,
+      "idr": 46,
+      "spd": 76,
+      "rng": 3,
+      "wis": 66
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_032",
+      "bm5_eq_white_032"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_032",
+        "name": "Shi Potian Trait",
+        "description": "Core trait of Shi Potian.",
+        "effects": [
+          {
+            "op": "mp_regen_add",
+            "value": 2
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.caster",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "bm5_gf_white_032",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "",
+      "accessory": "bm5_eq_white_032"
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_032.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_032.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.caster",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.032"
+    ]
+  },
+  {
+    "id": "bm5_u_white_033",
+    "name": "Ding Dang",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "healer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 784,
+      "mp": 97,
+      "atk": 57,
+      "iat": 81,
+      "def": 33,
+      "idr": 43,
+      "spd": 70,
+      "rng": 3,
+      "wis": 68
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_033",
+      "bm5_eq_white_033"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_033",
+        "name": "Ding Dang Trait",
+        "description": "Core trait of Ding Dang.",
+        "effects": [
+          {
+            "op": "healing_amp",
+            "value": 0.12
+          }
+        ],
+        "skills": [
+          {
+            "trigger": "on_time_elapsed",
+            "trigger_params": {
+              "at_seconds": 18.0
+            },
+            "max_trigger_count": 1,
+            "effects": [
+              {
+                "op": "heal_self_percent",
+                "value": 0.12
+              }
+            ]
+          }
+        ],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.healer",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "bm5_gf_white_033",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "",
+      "accessory": "bm5_eq_white_033"
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_033.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_033.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.healer",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.033",
+      "bm5.skill.heal"
+    ]
+  },
+  {
+    "id": "bm5_u_white_034",
+    "name": "Su Xinghe",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "leader",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 881,
+      "mp": 75,
+      "atk": 65,
+      "iat": 66,
+      "def": 51,
+      "idr": 44,
+      "spd": 81,
+      "rng": 2,
+      "wis": 64
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_034",
+      "bm5_eq_white_034"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_034",
+        "name": "Su Xinghe Trait",
+        "description": "Core trait of Su Xinghe.",
+        "effects": [
+          {
+            "op": "stat_percent",
+            "stat": "hp",
+            "value": 0.08
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.leader",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "bm5_gf_white_034",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "bm5_eq_white_034",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_034.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_034.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.leader",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.034"
+    ]
+  },
+  {
+    "id": "bm5_u_white_035",
+    "name": "Tianshan Tonglao",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "vanguard",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 932,
+      "mp": 75,
+      "atk": 65,
+      "iat": 54,
+      "def": 48,
+      "idr": 39,
+      "spd": 72,
+      "rng": 1,
+      "wis": 60
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_035",
+      "bm5_eq_white_035"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_035",
+        "name": "Tianshan Tonglao Trait",
+        "description": "Core trait of Tianshan Tonglao.",
+        "effects": [
+          {
+            "op": "stat_add",
+            "stat": "hp",
+            "value": 120
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.vanguard",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "bm5_gf_white_035",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "bm5_eq_white_035",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_035.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_035.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.vanguard",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.035"
+    ]
+  },
+  {
+    "id": "bm5_u_white_036",
+    "name": "Li Qiushui",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "swordsman",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 839,
+      "mp": 71,
+      "atk": 84,
+      "iat": 71,
+      "def": 44,
+      "idr": 45,
+      "spd": 83,
+      "rng": 1,
+      "wis": 56
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_036",
+      "bm5_eq_white_036"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_036",
+        "name": "Li Qiushui Trait",
+        "description": "Core trait of Li Qiushui.",
+        "effects": [
+          {
+            "op": "attack_speed_bonus",
+            "value": 0.08
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.swordsman",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "bm5_gf_white_036",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_white_036",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_036.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_036.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.swordsman",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.036"
+    ]
+  },
+  {
+    "id": "bm5_u_white_037",
+    "name": "Wu Yazi",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "assassin",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 708,
+      "mp": 78,
+      "atk": 72,
+      "iat": 52,
+      "def": 25,
+      "idr": 25,
+      "spd": 87,
+      "rng": 1,
+      "wis": 66
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_037",
+      "bm5_eq_white_037"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_037",
+        "name": "Wu Yazi Trait",
+        "description": "Core trait of Wu Yazi.",
+        "effects": [
+          {
+            "op": "dodge_bonus",
+            "value": 0.06
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.assassin",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "bm5_gf_white_037",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_white_037",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_037.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_037.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.assassin",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.037"
+    ]
+  },
+  {
+    "id": "bm5_u_white_038",
+    "name": "Huang Yaoshi",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "archer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 715,
+      "mp": 68,
+      "atk": 78,
+      "iat": 69,
+      "def": 32,
+      "idr": 40,
+      "spd": 82,
+      "rng": 4,
+      "wis": 59
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_038",
+      "bm5_eq_white_038"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_038",
+        "name": "Huang Yaoshi Trait",
+        "description": "Core trait of Huang Yaoshi.",
+        "effects": [
+          {
+            "op": "range_add",
+            "value": 1
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.archer",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": "bm5_gf_white_038"
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_white_038",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_038.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_038.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.archer",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.038"
+    ]
+  },
+  {
+    "id": "bm5_u_white_039",
+    "name": "Ouyang Feng",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "caster",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 736,
+      "mp": 103,
+      "atk": 51,
+      "iat": 81,
+      "def": 35,
+      "idr": 38,
+      "spd": 71,
+      "rng": 3,
+      "wis": 60
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_039",
+      "bm5_eq_white_039"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_039",
+        "name": "Ouyang Feng Trait",
+        "description": "Core trait of Ouyang Feng.",
+        "effects": [
+          {
+            "op": "mp_regen_add",
+            "value": 2
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.caster",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "bm5_gf_white_039",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "",
+      "accessory": "bm5_eq_white_039"
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_039.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_039.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.caster",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.039"
+    ]
+  },
+  {
+    "id": "bm5_u_white_040",
+    "name": "Hong Qigong",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "healer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 783,
+      "mp": 94,
+      "atk": 46,
+      "iat": 77,
+      "def": 44,
+      "idr": 43,
+      "spd": 70,
+      "rng": 3,
+      "wis": 72
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_040",
+      "bm5_eq_white_040"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_040",
+        "name": "Hong Qigong Trait",
+        "description": "Core trait of Hong Qigong.",
+        "effects": [
+          {
+            "op": "healing_amp",
+            "value": 0.12
+          }
+        ],
+        "skills": [
+          {
+            "trigger": "on_time_elapsed",
+            "trigger_params": {
+              "at_seconds": 18.0
+            },
+            "max_trigger_count": 1,
+            "effects": [
+              {
+                "op": "heal_self_percent",
+                "value": 0.12
+              }
+            ]
+          }
+        ],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.healer",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "bm5_gf_white_040",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "",
+      "accessory": "bm5_eq_white_040"
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_040.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_040.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.healer",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.040",
+      "bm5.skill.heal"
+    ]
+  },
+  {
+    "id": "bm5_u_white_041",
+    "name": "Yideng Dashi",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "leader",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 881,
+      "mp": 79,
+      "atk": 65,
+      "iat": 66,
+      "def": 37,
+      "idr": 37,
+      "spd": 71,
+      "rng": 2,
+      "wis": 58
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_041",
+      "bm5_eq_white_041"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_041",
+        "name": "Yideng Dashi Trait",
+        "description": "Core trait of Yideng Dashi.",
+        "effects": [
+          {
+            "op": "stat_percent",
+            "stat": "hp",
+            "value": 0.08
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.leader",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "bm5_gf_white_041",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "bm5_eq_white_041",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_041.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_041.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.leader",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.041"
+    ]
+  },
+  {
+    "id": "bm5_u_white_042",
+    "name": "Zhou Botong",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "vanguard",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 944,
+      "mp": 73,
+      "atk": 68,
+      "iat": 58,
+      "def": 58,
+      "idr": 44,
+      "spd": 62,
+      "rng": 1,
+      "wis": 60
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_042",
+      "bm5_eq_white_042"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_042",
+        "name": "Zhou Botong Trait",
+        "description": "Core trait of Zhou Botong.",
+        "effects": [
+          {
+            "op": "stat_add",
+            "stat": "hp",
+            "value": 120
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.vanguard",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "bm5_gf_white_042",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "bm5_eq_white_042",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_042.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_042.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.vanguard",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.042"
+    ]
+  },
+  {
+    "id": "bm5_u_white_043",
+    "name": "Qiu Qianren",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "swordsman",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 833,
+      "mp": 68,
+      "atk": 84,
+      "iat": 71,
+      "def": 42,
+      "idr": 46,
+      "spd": 78,
+      "rng": 1,
+      "wis": 55
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_043",
+      "bm5_eq_white_043"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_043",
+        "name": "Qiu Qianren Trait",
+        "description": "Core trait of Qiu Qianren.",
+        "effects": [
+          {
+            "op": "attack_speed_bonus",
+            "value": 0.08
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.swordsman",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "bm5_gf_white_043",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_white_043",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_043.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_043.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.swordsman",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.043"
+    ]
+  },
+  {
+    "id": "bm5_u_white_044",
+    "name": "Mei Chaofeng",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "assassin",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 696,
+      "mp": 70,
+      "atk": 75,
+      "iat": 61,
+      "def": 26,
+      "idr": 30,
+      "spd": 95,
+      "rng": 1,
+      "wis": 58
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_044",
+      "bm5_eq_white_044"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_044",
+        "name": "Mei Chaofeng Trait",
+        "description": "Core trait of Mei Chaofeng.",
+        "effects": [
+          {
+            "op": "dodge_bonus",
+            "value": 0.06
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.assassin",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "bm5_gf_white_044",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_white_044",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_044.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_044.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.assassin",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.044"
+    ]
+  },
+  {
+    "id": "bm5_u_white_045",
+    "name": "Li Mochou",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "archer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 712,
+      "mp": 67,
+      "atk": 70,
+      "iat": 63,
+      "def": 36,
+      "idr": 37,
+      "spd": 76,
+      "rng": 4,
+      "wis": 58
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_045",
+      "bm5_eq_white_045"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_045",
+        "name": "Li Mochou Trait",
+        "description": "Core trait of Li Mochou.",
+        "effects": [
+          {
+            "op": "range_add",
+            "value": 1
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.archer",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": "bm5_gf_white_045"
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_white_045",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_045.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_045.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.archer",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.045"
+    ]
+  },
+  {
+    "id": "bm5_u_white_046",
+    "name": "Gongsun Zhi",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "caster",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 740,
+      "mp": 97,
+      "atk": 55,
+      "iat": 94,
+      "def": 26,
+      "idr": 39,
+      "spd": 76,
+      "rng": 3,
+      "wis": 58
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_046",
+      "bm5_eq_white_046"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_046",
+        "name": "Gongsun Zhi Trait",
+        "description": "Core trait of Gongsun Zhi.",
+        "effects": [
+          {
+            "op": "mp_regen_add",
+            "value": 2
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.caster",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "bm5_gf_white_046",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "",
+      "accessory": "bm5_eq_white_046"
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_046.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_046.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.caster",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.046"
+    ]
+  },
+  {
+    "id": "bm5_u_white_047",
+    "name": "Huo Qingtong",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "healer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 781,
+      "mp": 98,
+      "atk": 51,
+      "iat": 78,
+      "def": 31,
+      "idr": 40,
+      "spd": 68,
+      "rng": 3,
+      "wis": 65
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_047",
+      "bm5_eq_white_047"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_047",
+        "name": "Huo Qingtong Trait",
+        "description": "Core trait of Huo Qingtong.",
+        "effects": [
+          {
+            "op": "healing_amp",
+            "value": 0.12
+          }
+        ],
+        "skills": [
+          {
+            "trigger": "on_time_elapsed",
+            "trigger_params": {
+              "at_seconds": 18.0
+            },
+            "max_trigger_count": 1,
+            "effects": [
+              {
+                "op": "heal_self_percent",
+                "value": 0.12
+              }
+            ]
+          }
+        ],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.healer",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "bm5_gf_white_047",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "",
+      "accessory": "bm5_eq_white_047"
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_047.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_047.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.healer",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.047",
+      "bm5.skill.heal"
+    ]
+  },
+  {
+    "id": "bm5_u_white_048",
+    "name": "Xiangxiang Gongzhu",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "leader",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 876,
+      "mp": 75,
+      "atk": 67,
+      "iat": 74,
+      "def": 42,
+      "idr": 45,
+      "spd": 66,
+      "rng": 2,
+      "wis": 54
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_048",
+      "bm5_eq_white_048"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_048",
+        "name": "Xiangxiang Gongzhu Trait",
+        "description": "Core trait of Xiangxiang Gongzhu.",
+        "effects": [
+          {
+            "op": "stat_percent",
+            "stat": "hp",
+            "value": 0.08
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.leader",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "bm5_gf_white_048",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "bm5_eq_white_048",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_048.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_048.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.leader",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.048"
+    ]
+  },
+  {
+    "id": "bm5_u_white_049",
+    "name": "Chen Jialuo",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "vanguard",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 940,
+      "mp": 72,
+      "atk": 73,
+      "iat": 61,
+      "def": 56,
+      "idr": 40,
+      "spd": 70,
+      "rng": 1,
+      "wis": 45
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_049",
+      "bm5_eq_white_049"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_049",
+        "name": "Chen Jialuo Trait",
+        "description": "Core trait of Chen Jialuo.",
+        "effects": [
+          {
+            "op": "stat_add",
+            "stat": "hp",
+            "value": 120
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.vanguard",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "bm5_gf_white_049",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "bm5_eq_white_049",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_049.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_049.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.vanguard",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.049"
+    ]
+  },
+  {
+    "id": "bm5_u_white_050",
+    "name": "Mu Wanqing",
+    "faction": "bm5_faction_jinyong",
+    "quality": "white",
+    "cost": 1,
+    "shop_visible": true,
+    "role": "swordsman",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 840,
+      "mp": 78,
+      "atk": 87,
+      "iat": 60,
+      "def": 47,
+      "idr": 37,
+      "spd": 72,
+      "rng": 1,
+      "wis": 58
+    },
+    "initial_gongfa": [
+      "bm5_gf_white_050",
+      "bm5_eq_white_050"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_white_050",
+        "name": "Mu Wanqing Trait",
+        "description": "Core trait of Mu Wanqing.",
+        "effects": [
+          {
+            "op": "attack_speed_bonus",
+            "value": 0.08
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.swordsman",
+          "bm5.trait.white"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "bm5_gf_white_050",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_white_050",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_white_050.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_050.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.white",
+      "bm5.role.swordsman",
+      "bm5.source.jinyong",
+      "bm5.shop.buyable",
+      "bm5.unit.white.050"
+    ]
+  },
+  {
+    "id": "bm5_u_green_001",
+    "name": "Chu Liuxiang",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "archer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 872,
+      "mp": 80,
+      "atk": 85,
+      "iat": 76,
+      "def": 39,
+      "idr": 45,
+      "spd": 91,
+      "rng": 4,
+      "wis": 66
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_001",
+      "bm5_eq_green_001"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_001",
+        "name": "Chu Liuxiang Trait",
+        "description": "Core trait of Chu Liuxiang.",
+        "effects": [
+          {
+            "op": "range_add",
+            "value": 1
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.archer",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": "bm5_gf_green_001"
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_green_001",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_001.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_001.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.archer",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.001"
+    ]
+  },
+  {
+    "id": "bm5_u_green_002",
+    "name": "Hu Tiehua",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "caster",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 901,
+      "mp": 107,
+      "atk": 75,
+      "iat": 102,
+      "def": 48,
+      "idr": 42,
+      "spd": 81,
+      "rng": 3,
+      "wis": 75
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_002",
+      "bm5_eq_green_002"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_002",
+        "name": "Hu Tiehua Trait",
+        "description": "Core trait of Hu Tiehua.",
+        "effects": [
+          {
+            "op": "mp_regen_add",
+            "value": 3
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.caster",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "bm5_gf_green_002",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "",
+      "accessory": "bm5_eq_green_002"
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_002.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_002.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.caster",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.002"
+    ]
+  },
+  {
+    "id": "bm5_u_green_003",
+    "name": "Ji Bingyan",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "healer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 937,
+      "mp": 114,
+      "atk": 70,
+      "iat": 85,
+      "def": 43,
+      "idr": 59,
+      "spd": 84,
+      "rng": 3,
+      "wis": 77
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_003",
+      "bm5_eq_green_003"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_003",
+        "name": "Ji Bingyan Trait",
+        "description": "Core trait of Ji Bingyan.",
+        "effects": [
+          {
+            "op": "healing_amp",
+            "value": 0.16
+          }
+        ],
+        "skills": [
+          {
+            "trigger": "on_time_elapsed",
+            "trigger_params": {
+              "at_seconds": 18.0
+            },
+            "max_trigger_count": 1,
+            "effects": [
+              {
+                "op": "heal_self_percent",
+                "value": 0.12
+              }
+            ]
+          }
+        ],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.healer",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "bm5_gf_green_003",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "",
+      "accessory": "bm5_eq_green_003"
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_003.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_003.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.healer",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.003",
+      "bm5.skill.heal"
+    ]
+  },
+  {
+    "id": "bm5_u_green_004",
+    "name": "Su Rongrong",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "leader",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 1036,
+      "mp": 90,
+      "atk": 92,
+      "iat": 77,
+      "def": 55,
+      "idr": 50,
+      "spd": 74,
+      "rng": 2,
+      "wis": 59
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_004",
+      "bm5_eq_green_004"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_004",
+        "name": "Su Rongrong Trait",
+        "description": "Core trait of Su Rongrong.",
+        "effects": [
+          {
+            "op": "stat_percent",
+            "stat": "hp",
+            "value": 0.1
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.leader",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "bm5_gf_green_004",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "bm5_eq_green_004",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_004.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_004.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.leader",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.004"
+    ]
+  },
+  {
+    "id": "bm5_u_green_005",
+    "name": "Lu Xiaofeng",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "vanguard",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 1108,
+      "mp": 82,
+      "atk": 87,
+      "iat": 80,
+      "def": 61,
+      "idr": 46,
+      "spd": 75,
+      "rng": 1,
+      "wis": 52
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_005",
+      "bm5_eq_green_005"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_005",
+        "name": "Lu Xiaofeng Trait",
+        "description": "Core trait of Lu Xiaofeng.",
+        "effects": [
+          {
+            "op": "stat_add",
+            "stat": "hp",
+            "value": 160
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.vanguard",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "bm5_gf_green_005",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "bm5_eq_green_005",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_005.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_005.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.vanguard",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.005"
+    ]
+  },
+  {
+    "id": "bm5_u_green_006",
+    "name": "Hua Manlou",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "swordsman",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 993,
+      "mp": 92,
+      "atk": 86,
+      "iat": 69,
+      "def": 49,
+      "idr": 38,
+      "spd": 82,
+      "rng": 1,
+      "wis": 52
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_006",
+      "bm5_eq_green_006"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_006",
+        "name": "Hua Manlou Trait",
+        "description": "Core trait of Hua Manlou.",
+        "effects": [
+          {
+            "op": "attack_speed_bonus",
+            "value": 0.1
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.swordsman",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "bm5_gf_green_006",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_green_006",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_006.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_006.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.swordsman",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.006"
+    ]
+  },
+  {
+    "id": "bm5_u_green_007",
+    "name": "Ximen Chuixue",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "assassin",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 864,
+      "mp": 77,
+      "atk": 94,
+      "iat": 74,
+      "def": 35,
+      "idr": 37,
+      "spd": 92,
+      "rng": 1,
+      "wis": 76
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_007",
+      "bm5_eq_green_007"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_007",
+        "name": "Ximen Chuixue Trait",
+        "description": "Core trait of Ximen Chuixue.",
+        "effects": [
+          {
+            "op": "dodge_bonus",
+            "value": 0.08
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.assassin",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "bm5_gf_green_007",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_green_007",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_007.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_007.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.assassin",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.007"
+    ]
+  },
+  {
+    "id": "bm5_u_green_008",
+    "name": "Ye Gucheng",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "archer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 880,
+      "mp": 78,
+      "atk": 85,
+      "iat": 72,
+      "def": 42,
+      "idr": 46,
+      "spd": 80,
+      "rng": 4,
+      "wis": 65
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_008",
+      "bm5_eq_green_008"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_008",
+        "name": "Ye Gucheng Trait",
+        "description": "Core trait of Ye Gucheng.",
+        "effects": [
+          {
+            "op": "range_add",
+            "value": 1
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.archer",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": "bm5_gf_green_008"
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_green_008",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_008.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_008.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.archer",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.008"
+    ]
+  },
+  {
+    "id": "bm5_u_green_009",
+    "name": "Sikong Zhaixing",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "caster",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 907,
+      "mp": 101,
+      "atk": 73,
+      "iat": 101,
+      "def": 32,
+      "idr": 55,
+      "spd": 88,
+      "rng": 3,
+      "wis": 72
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_009",
+      "bm5_eq_green_009"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_009",
+        "name": "Sikong Zhaixing Trait",
+        "description": "Core trait of Sikong Zhaixing.",
+        "effects": [
+          {
+            "op": "mp_regen_add",
+            "value": 3
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.caster",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "bm5_gf_green_009",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "",
+      "accessory": "bm5_eq_green_009"
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_009.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_009.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.caster",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.009"
+    ]
+  },
+  {
+    "id": "bm5_u_green_010",
+    "name": "Xue Bing",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "healer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 936,
+      "mp": 116,
+      "atk": 67,
+      "iat": 85,
+      "def": 47,
+      "idr": 52,
+      "spd": 80,
+      "rng": 3,
+      "wis": 72
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_010",
+      "bm5_eq_green_010"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_010",
+        "name": "Xue Bing Trait",
+        "description": "Core trait of Xue Bing.",
+        "effects": [
+          {
+            "op": "healing_amp",
+            "value": 0.16
+          }
+        ],
+        "skills": [
+          {
+            "trigger": "on_time_elapsed",
+            "trigger_params": {
+              "at_seconds": 18.0
+            },
+            "max_trigger_count": 1,
+            "effects": [
+              {
+                "op": "heal_self_percent",
+                "value": 0.12
+              }
+            ]
+          }
+        ],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.healer",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "bm5_gf_green_010",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "",
+      "accessory": "bm5_eq_green_010"
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_010.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_010.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.healer",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.010",
+      "bm5.skill.heal"
+    ]
+  },
+  {
+    "id": "bm5_u_green_011",
+    "name": "Shen Lang",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "leader",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 1048,
+      "mp": 90,
+      "atk": 90,
+      "iat": 87,
+      "def": 52,
+      "idr": 58,
+      "spd": 82,
+      "rng": 2,
+      "wis": 70
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_011",
+      "bm5_eq_green_011"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_011",
+        "name": "Shen Lang Trait",
+        "description": "Core trait of Shen Lang.",
+        "effects": [
+          {
+            "op": "stat_percent",
+            "stat": "hp",
+            "value": 0.1
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.leader",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "bm5_gf_green_011",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "bm5_eq_green_011",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_011.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_011.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.leader",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.011"
+    ]
+  },
+  {
+    "id": "bm5_u_green_012",
+    "name": "Wang Lianhua",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "vanguard",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 1094,
+      "mp": 77,
+      "atk": 83,
+      "iat": 80,
+      "def": 64,
+      "idr": 54,
+      "spd": 75,
+      "rng": 1,
+      "wis": 55
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_012",
+      "bm5_eq_green_012"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_012",
+        "name": "Wang Lianhua Trait",
+        "description": "Core trait of Wang Lianhua.",
+        "effects": [
+          {
+            "op": "stat_add",
+            "stat": "hp",
+            "value": 160
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.vanguard",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "bm5_gf_green_012",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "bm5_eq_green_012",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_012.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_012.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.vanguard",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.012"
+    ]
+  },
+  {
+    "id": "bm5_u_green_013",
+    "name": "Zhu Qiqi",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "swordsman",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 997,
+      "mp": 83,
+      "atk": 88,
+      "iat": 74,
+      "def": 45,
+      "idr": 41,
+      "spd": 86,
+      "rng": 1,
+      "wis": 59
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_013",
+      "bm5_eq_green_013"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_013",
+        "name": "Zhu Qiqi Trait",
+        "description": "Core trait of Zhu Qiqi.",
+        "effects": [
+          {
+            "op": "attack_speed_bonus",
+            "value": 0.1
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.swordsman",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "bm5_gf_green_013",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_green_013",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_013.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_013.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.swordsman",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.013"
+    ]
+  },
+  {
+    "id": "bm5_u_green_014",
+    "name": "Li Xunhuan",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "assassin",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 854,
+      "mp": 86,
+      "atk": 88,
+      "iat": 68,
+      "def": 42,
+      "idr": 26,
+      "spd": 102,
+      "rng": 1,
+      "wis": 69
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_014",
+      "bm5_eq_green_014"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_014",
+        "name": "Li Xunhuan Trait",
+        "description": "Core trait of Li Xunhuan.",
+        "effects": [
+          {
+            "op": "dodge_bonus",
+            "value": 0.08
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.assassin",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "bm5_gf_green_014",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_green_014",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_014.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_014.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.assassin",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.014"
+    ]
+  },
+  {
+    "id": "bm5_u_green_015",
+    "name": "A Fei",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "archer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 876,
+      "mp": 76,
+      "atk": 84,
+      "iat": 70,
+      "def": 43,
+      "idr": 43,
+      "spd": 88,
+      "rng": 4,
+      "wis": 58
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_015",
+      "bm5_eq_green_015"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_015",
+        "name": "A Fei Trait",
+        "description": "Core trait of A Fei.",
+        "effects": [
+          {
+            "op": "range_add",
+            "value": 1
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.archer",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": "bm5_gf_green_015"
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_green_015",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_015.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_015.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.archer",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.015"
+    ]
+  },
+  {
+    "id": "bm5_u_green_016",
+    "name": "Lin Shiyin",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "caster",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 894,
+      "mp": 116,
+      "atk": 68,
+      "iat": 106,
+      "def": 35,
+      "idr": 55,
+      "spd": 88,
+      "rng": 3,
+      "wis": 68
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_016",
+      "bm5_eq_green_016"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_016",
+        "name": "Lin Shiyin Trait",
+        "description": "Core trait of Lin Shiyin.",
+        "effects": [
+          {
+            "op": "mp_regen_add",
+            "value": 3
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.caster",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "bm5_gf_green_016",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "",
+      "accessory": "bm5_eq_green_016"
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_016.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_016.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.caster",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.016"
+    ]
+  },
+  {
+    "id": "bm5_u_green_017",
+    "name": "Shangguan Jinhong",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "healer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 945,
+      "mp": 116,
+      "atk": 65,
+      "iat": 87,
+      "def": 41,
+      "idr": 58,
+      "spd": 77,
+      "rng": 3,
+      "wis": 68
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_017",
+      "bm5_eq_green_017"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_017",
+        "name": "Shangguan Jinhong Trait",
+        "description": "Core trait of Shangguan Jinhong.",
+        "effects": [
+          {
+            "op": "healing_amp",
+            "value": 0.16
+          }
+        ],
+        "skills": [
+          {
+            "trigger": "on_time_elapsed",
+            "trigger_params": {
+              "at_seconds": 18.0
+            },
+            "max_trigger_count": 1,
+            "effects": [
+              {
+                "op": "heal_self_percent",
+                "value": 0.12
+              }
+            ]
+          }
+        ],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.healer",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "bm5_gf_green_017",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "",
+      "accessory": "bm5_eq_green_017"
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_017.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_017.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.healer",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.017",
+      "bm5.skill.heal"
+    ]
+  },
+  {
+    "id": "bm5_u_green_018",
+    "name": "Jing Wuming",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "leader",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 1035,
+      "mp": 93,
+      "atk": 86,
+      "iat": 87,
+      "def": 45,
+      "idr": 52,
+      "spd": 76,
+      "rng": 2,
+      "wis": 74
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_018",
+      "bm5_eq_green_018"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_018",
+        "name": "Jing Wuming Trait",
+        "description": "Core trait of Jing Wuming.",
+        "effects": [
+          {
+            "op": "stat_percent",
+            "stat": "hp",
+            "value": 0.1
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.leader",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "bm5_gf_green_018",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "bm5_eq_green_018",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_018.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_018.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.leader",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.018"
+    ]
+  },
+  {
+    "id": "bm5_u_green_019",
+    "name": "Fu Hongxue",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "vanguard",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 1104,
+      "mp": 83,
+      "atk": 75,
+      "iat": 65,
+      "def": 54,
+      "idr": 51,
+      "spd": 66,
+      "rng": 1,
+      "wis": 55
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_019",
+      "bm5_eq_green_019"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_019",
+        "name": "Fu Hongxue Trait",
+        "description": "Core trait of Fu Hongxue.",
+        "effects": [
+          {
+            "op": "stat_add",
+            "stat": "hp",
+            "value": 160
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.vanguard",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "bm5_gf_green_019",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "bm5_eq_green_019",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_019.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_019.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.vanguard",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.019"
+    ]
+  },
+  {
+    "id": "bm5_u_green_020",
+    "name": "Ye Kai",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "swordsman",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 993,
+      "mp": 83,
+      "atk": 87,
+      "iat": 82,
+      "def": 55,
+      "idr": 44,
+      "spd": 82,
+      "rng": 1,
+      "wis": 54
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_020",
+      "bm5_eq_green_020"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_020",
+        "name": "Ye Kai Trait",
+        "description": "Core trait of Ye Kai.",
+        "effects": [
+          {
+            "op": "attack_speed_bonus",
+            "value": 0.1
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.swordsman",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "bm5_gf_green_020",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_green_020",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_020.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_020.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.swordsman",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.020"
+    ]
+  },
+  {
+    "id": "bm5_u_green_021",
+    "name": "Ding Linglin",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "assassin",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 867,
+      "mp": 85,
+      "atk": 80,
+      "iat": 66,
+      "def": 34,
+      "idr": 30,
+      "spd": 104,
+      "rng": 1,
+      "wis": 72
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_021",
+      "bm5_eq_green_021"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_021",
+        "name": "Ding Linglin Trait",
+        "description": "Core trait of Ding Linglin.",
+        "effects": [
+          {
+            "op": "dodge_bonus",
+            "value": 0.08
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.assassin",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "bm5_gf_green_021",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_green_021",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_021.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_021.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.assassin",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.021"
+    ]
+  },
+  {
+    "id": "bm5_u_green_022",
+    "name": "Yan Nantian",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "archer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 884,
+      "mp": 85,
+      "atk": 94,
+      "iat": 82,
+      "def": 45,
+      "idr": 35,
+      "spd": 85,
+      "rng": 4,
+      "wis": 72
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_022",
+      "bm5_eq_green_022"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_022",
+        "name": "Yan Nantian Trait",
+        "description": "Core trait of Yan Nantian.",
+        "effects": [
+          {
+            "op": "range_add",
+            "value": 1
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.archer",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": "bm5_gf_green_022"
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_green_022",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_022.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_022.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.archer",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.022"
+    ]
+  },
+  {
+    "id": "bm5_u_green_023",
+    "name": "Hua Wuque",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "caster",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 894,
+      "mp": 106,
+      "atk": 75,
+      "iat": 93,
+      "def": 40,
+      "idr": 54,
+      "spd": 82,
+      "rng": 3,
+      "wis": 69
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_023",
+      "bm5_eq_green_023"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_023",
+        "name": "Hua Wuque Trait",
+        "description": "Core trait of Hua Wuque.",
+        "effects": [
+          {
+            "op": "mp_regen_add",
+            "value": 3
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.caster",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "bm5_gf_green_023",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "",
+      "accessory": "bm5_eq_green_023"
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_023.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_023.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.caster",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.023"
+    ]
+  },
+  {
+    "id": "bm5_u_green_024",
+    "name": "Xiao Yuer",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "healer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 946,
+      "mp": 115,
+      "atk": 70,
+      "iat": 85,
+      "def": 37,
+      "idr": 45,
+      "spd": 81,
+      "rng": 3,
+      "wis": 75
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_024",
+      "bm5_eq_green_024"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_024",
+        "name": "Xiao Yuer Trait",
+        "description": "Core trait of Xiao Yuer.",
+        "effects": [
+          {
+            "op": "healing_amp",
+            "value": 0.16
+          }
+        ],
+        "skills": [
+          {
+            "trigger": "on_time_elapsed",
+            "trigger_params": {
+              "at_seconds": 18.0
+            },
+            "max_trigger_count": 1,
+            "effects": [
+              {
+                "op": "heal_self_percent",
+                "value": 0.12
+              }
+            ]
+          }
+        ],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.healer",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "bm5_gf_green_024",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "",
+      "accessory": "bm5_eq_green_024"
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_024.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_024.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.healer",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.024",
+      "bm5.skill.heal"
+    ]
+  },
+  {
+    "id": "bm5_u_green_025",
+    "name": "Su Ying",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "leader",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 1048,
+      "mp": 87,
+      "atk": 82,
+      "iat": 77,
+      "def": 47,
+      "idr": 44,
+      "spd": 76,
+      "rng": 2,
+      "wis": 60
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_025",
+      "bm5_eq_green_025"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_025",
+        "name": "Su Ying Trait",
+        "description": "Core trait of Su Ying.",
+        "effects": [
+          {
+            "op": "stat_percent",
+            "stat": "hp",
+            "value": 0.1
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.leader",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "bm5_gf_green_025",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "bm5_eq_green_025",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_025.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_025.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.leader",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.025"
+    ]
+  },
+  {
+    "id": "bm5_u_green_026",
+    "name": "Xie Xiaofeng",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "vanguard",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 1104,
+      "mp": 76,
+      "atk": 76,
+      "iat": 74,
+      "def": 55,
+      "idr": 55,
+      "spd": 74,
+      "rng": 1,
+      "wis": 53
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_026",
+      "bm5_eq_green_026"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_026",
+        "name": "Xie Xiaofeng Trait",
+        "description": "Core trait of Xie Xiaofeng.",
+        "effects": [
+          {
+            "op": "stat_add",
+            "stat": "hp",
+            "value": 160
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.vanguard",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "bm5_gf_green_026",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "bm5_eq_green_026",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_026.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_026.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.vanguard",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.026"
+    ]
+  },
+  {
+    "id": "bm5_u_green_027",
+    "name": "Murong Qiudi",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "swordsman",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 996,
+      "mp": 82,
+      "atk": 89,
+      "iat": 78,
+      "def": 44,
+      "idr": 48,
+      "spd": 88,
+      "rng": 1,
+      "wis": 64
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_027",
+      "bm5_eq_green_027"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_027",
+        "name": "Murong Qiudi Trait",
+        "description": "Core trait of Murong Qiudi.",
+        "effects": [
+          {
+            "op": "attack_speed_bonus",
+            "value": 0.1
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.swordsman",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "bm5_gf_green_027",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_green_027",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_027.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_027.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.swordsman",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.027"
+    ]
+  },
+  {
+    "id": "bm5_u_green_028",
+    "name": "Xiao ShiyiLang",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "assassin",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 864,
+      "mp": 84,
+      "atk": 88,
+      "iat": 74,
+      "def": 42,
+      "idr": 36,
+      "spd": 93,
+      "rng": 1,
+      "wis": 70
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_028",
+      "bm5_eq_green_028"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_028",
+        "name": "Xiao ShiyiLang Trait",
+        "description": "Core trait of Xiao ShiyiLang.",
+        "effects": [
+          {
+            "op": "dodge_bonus",
+            "value": 0.08
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.assassin",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "bm5_gf_green_028",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_green_028",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_028.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_028.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.assassin",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.028"
+    ]
+  },
+  {
+    "id": "bm5_u_green_029",
+    "name": "Feng Siniang",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "archer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 873,
+      "mp": 91,
+      "atk": 96,
+      "iat": 73,
+      "def": 42,
+      "idr": 46,
+      "spd": 81,
+      "rng": 4,
+      "wis": 58
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_029",
+      "bm5_eq_green_029"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_029",
+        "name": "Feng Siniang Trait",
+        "description": "Core trait of Feng Siniang.",
+        "effects": [
+          {
+            "op": "range_add",
+            "value": 1
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.archer",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": "bm5_gf_green_029"
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_green_029",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_029.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_029.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.archer",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.029"
+    ]
+  },
+  {
+    "id": "bm5_u_green_030",
+    "name": "Lian Chengbi",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "caster",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 897,
+      "mp": 102,
+      "atk": 64,
+      "iat": 105,
+      "def": 47,
+      "idr": 46,
+      "spd": 76,
+      "rng": 3,
+      "wis": 77
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_030",
+      "bm5_eq_green_030"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_030",
+        "name": "Lian Chengbi Trait",
+        "description": "Core trait of Lian Chengbi.",
+        "effects": [
+          {
+            "op": "mp_regen_add",
+            "value": 3
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.caster",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "bm5_gf_green_030",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "",
+      "accessory": "bm5_eq_green_030"
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_030.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_030.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.caster",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.030"
+    ]
+  },
+  {
+    "id": "bm5_u_green_031",
+    "name": "Tie Zhongtang",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "healer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 944,
+      "mp": 118,
+      "atk": 66,
+      "iat": 93,
+      "def": 48,
+      "idr": 57,
+      "spd": 74,
+      "rng": 3,
+      "wis": 78
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_031",
+      "bm5_eq_green_031"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_031",
+        "name": "Tie Zhongtang Trait",
+        "description": "Core trait of Tie Zhongtang.",
+        "effects": [
+          {
+            "op": "healing_amp",
+            "value": 0.16
+          }
+        ],
+        "skills": [
+          {
+            "trigger": "on_time_elapsed",
+            "trigger_params": {
+              "at_seconds": 18.0
+            },
+            "max_trigger_count": 1,
+            "effects": [
+              {
+                "op": "heal_self_percent",
+                "value": 0.12
+              }
+            ]
+          }
+        ],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.healer",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "bm5_gf_green_031",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "",
+      "accessory": "bm5_eq_green_031"
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_031.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_031.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.healer",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.031",
+      "bm5.skill.heal"
+    ]
+  },
+  {
+    "id": "bm5_u_green_032",
+    "name": "Yun Zheng",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "leader",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 1035,
+      "mp": 97,
+      "atk": 92,
+      "iat": 74,
+      "def": 45,
+      "idr": 57,
+      "spd": 73,
+      "rng": 2,
+      "wis": 65
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_032",
+      "bm5_eq_green_032"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_032",
+        "name": "Yun Zheng Trait",
+        "description": "Core trait of Yun Zheng.",
+        "effects": [
+          {
+            "op": "stat_percent",
+            "stat": "hp",
+            "value": 0.1
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.leader",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "bm5_gf_green_032",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "bm5_eq_green_032",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_032.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_032.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.leader",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.032"
+    ]
+  },
+  {
+    "id": "bm5_u_green_033",
+    "name": "Shui Lingguang",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "vanguard",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 1098,
+      "mp": 87,
+      "atk": 75,
+      "iat": 77,
+      "def": 63,
+      "idr": 47,
+      "spd": 74,
+      "rng": 1,
+      "wis": 51
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_033",
+      "bm5_eq_green_033"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_033",
+        "name": "Shui Lingguang Trait",
+        "description": "Core trait of Shui Lingguang.",
+        "effects": [
+          {
+            "op": "stat_add",
+            "stat": "hp",
+            "value": 160
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.vanguard",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "bm5_gf_green_033",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "bm5_eq_green_033",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_033.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_033.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.vanguard",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.033"
+    ]
+  },
+  {
+    "id": "bm5_u_green_034",
+    "name": "Fang Baoyu",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "swordsman",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 992,
+      "mp": 79,
+      "atk": 98,
+      "iat": 81,
+      "def": 48,
+      "idr": 51,
+      "spd": 91,
+      "rng": 1,
+      "wis": 55
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_034",
+      "bm5_eq_green_034"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_034",
+        "name": "Fang Baoyu Trait",
+        "description": "Core trait of Fang Baoyu.",
+        "effects": [
+          {
+            "op": "attack_speed_bonus",
+            "value": 0.1
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.swordsman",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "bm5_gf_green_034",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_green_034",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_034.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_034.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.swordsman",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.034"
+    ]
+  },
+  {
+    "id": "bm5_u_green_035",
+    "name": "Zhuge Shenhou",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "assassin",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 854,
+      "mp": 80,
+      "atk": 93,
+      "iat": 66,
+      "def": 29,
+      "idr": 28,
+      "spd": 91,
+      "rng": 1,
+      "wis": 76
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_035",
+      "bm5_eq_green_035"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_035",
+        "name": "Zhuge Shenhou Trait",
+        "description": "Core trait of Zhuge Shenhou.",
+        "effects": [
+          {
+            "op": "dodge_bonus",
+            "value": 0.08
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.assassin",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "bm5_gf_green_035",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_green_035",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_035.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_035.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.assassin",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.035"
+    ]
+  },
+  {
+    "id": "bm5_u_green_036",
+    "name": "Wu Qing",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "archer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 886,
+      "mp": 76,
+      "atk": 92,
+      "iat": 72,
+      "def": 44,
+      "idr": 31,
+      "spd": 87,
+      "rng": 4,
+      "wis": 65
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_036",
+      "bm5_eq_green_036"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_036",
+        "name": "Wu Qing Trait",
+        "description": "Core trait of Wu Qing.",
+        "effects": [
+          {
+            "op": "range_add",
+            "value": 1
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.archer",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": "bm5_gf_green_036"
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "bm5_eq_green_036",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_036.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_036.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.archer",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.036"
+    ]
+  },
+  {
+    "id": "bm5_u_green_037",
+    "name": "Tie Shou",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "caster",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 899,
+      "mp": 107,
+      "atk": 63,
+      "iat": 91,
+      "def": 48,
+      "idr": 54,
+      "spd": 89,
+      "rng": 3,
+      "wis": 68
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_037",
+      "bm5_eq_green_037"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_037",
+        "name": "Tie Shou Trait",
+        "description": "Core trait of Tie Shou.",
+        "effects": [
+          {
+            "op": "mp_regen_add",
+            "value": 3
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.caster",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "bm5_gf_green_037",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "",
+      "accessory": "bm5_eq_green_037"
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_037.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_037.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.caster",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.037"
+    ]
+  },
+  {
+    "id": "bm5_u_green_038",
+    "name": "Zhui Ming",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "healer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 937,
+      "mp": 112,
+      "atk": 65,
+      "iat": 92,
+      "def": 45,
+      "idr": 52,
+      "spd": 89,
+      "rng": 3,
+      "wis": 68
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_038",
+      "bm5_eq_green_038"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_038",
+        "name": "Zhui Ming Trait",
+        "description": "Core trait of Zhui Ming.",
+        "effects": [
+          {
+            "op": "healing_amp",
+            "value": 0.16
+          }
+        ],
+        "skills": [
+          {
+            "trigger": "on_time_elapsed",
+            "trigger_params": {
+              "at_seconds": 18.0
+            },
+            "max_trigger_count": 1,
+            "effects": [
+              {
+                "op": "heal_self_percent",
+                "value": 0.12
+              }
+            ]
+          }
+        ],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.healer",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "bm5_gf_green_038",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "",
+      "accessory": "bm5_eq_green_038"
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_038.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_038.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.healer",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.038",
+      "bm5.skill.heal"
+    ]
+  },
+  {
+    "id": "bm5_u_green_039",
+    "name": "Leng Xue",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "leader",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 1045,
+      "mp": 88,
+      "atk": 84,
+      "iat": 90,
+      "def": 56,
+      "idr": 42,
+      "spd": 73,
+      "rng": 2,
+      "wis": 60
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_039",
+      "bm5_eq_green_039"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_039",
+        "name": "Leng Xue Trait",
+        "description": "Core trait of Leng Xue.",
+        "effects": [
+          {
+            "op": "stat_percent",
+            "stat": "hp",
+            "value": 0.1
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.leader",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "bm5_gf_green_039",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "bm5_eq_green_039",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_039.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_039.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.leader",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.039"
+    ]
+  },
+  {
+    "id": "bm5_u_green_040",
+    "name": "Tang Fang",
+    "faction": "bm5_faction_gulong",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": true,
+    "role": "vanguard",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 1092,
+      "mp": 92,
+      "atk": 83,
+      "iat": 70,
+      "def": 60,
+      "idr": 60,
+      "spd": 68,
+      "rng": 1,
+      "wis": 51
+    },
+    "initial_gongfa": [
+      "bm5_gf_green_040",
+      "bm5_eq_green_040"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_green_040",
+        "name": "Tang Fang Trait",
+        "description": "Core trait of Tang Fang.",
+        "effects": [
+          {
+            "op": "stat_add",
+            "stat": "hp",
+            "value": 160
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.vanguard",
+          "bm5.trait.green"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "bm5_gf_green_040",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 3,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "bm5_eq_green_040",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_green_040.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_040.png",
+    "tags": [
+      "bm5.batch.one",
+      "bm5.quality.green",
+      "bm5.role.vanguard",
+      "bm5.source.gulong",
+      "bm5.shop.buyable",
+      "bm5.unit.green.040"
+    ]
+  }
+]

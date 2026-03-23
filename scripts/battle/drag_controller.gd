@@ -44,8 +44,6 @@ func begin_drag(unit: Node, origin_kind: String, origin_slot: int, origin_cell: 
 	_drag_origin_kind = origin_kind
 	_drag_origin_slot = origin_slot
 	_drag_origin_cell = origin_cell
-	# 为保持旧链路兼容，把拖拽来源写入 unit meta 供其他逻辑读取。
-	unit.set_meta("drag_origin_kind", origin_kind)
 	if unit is CanvasItem:
 		(unit as CanvasItem).visible = false
 	_owner.call("_update_drag_preview_data", unit)
@@ -85,8 +83,6 @@ func finish_drag() -> void:
 	var dragging_unit: Node = _owner.get("_dragging_unit")
 	var target_cell: Vector2i = _owner.get("_drag_target_cell")
 	var had_drag_overlay: bool = dragging_unit != null or target_cell.x >= 0
-	if dragging_unit != null and is_instance_valid(dragging_unit):
-		dragging_unit.remove_meta("drag_origin_kind")
 	_owner.set("_dragging_unit", null)
 	_drag_origin_kind = ""
 	_drag_origin_slot = -1
@@ -180,3 +176,7 @@ func restore_drag_origin() -> void:
 				return
 	if bench_ui != null:
 		bench_ui.call("add_unit", dragging_unit)
+
+
+func get_drag_origin_kind() -> String:
+	return _drag_origin_kind

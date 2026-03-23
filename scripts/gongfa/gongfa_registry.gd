@@ -98,6 +98,8 @@ func _load_category_into_map(data_manager: Node, category: String, output_map: D
 		var record_id: String = str(record.get("id", "")).strip_edges()
 		if record_id.is_empty():
 			continue
+		if category == "gongfa" or category == "equipment":
+			record["shop_visible"] = bool(record.get("shop_visible", true))
 		output_map[record_id] = record
 
 

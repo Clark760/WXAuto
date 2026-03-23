@@ -7,7 +7,6 @@ extends Node2D
 # 1. 该层挂在 HexGrid 下，使用同一坐标空间绘制己方部署区高亮。
 # 2. 仅负责视觉提示，不参与格子合法性判定。
 
-@export var ally_columns: int = 16
 @export var deploy_x_min: int = 0
 @export var deploy_x_max: int = 15
 @export var deploy_y_min: int = 0
@@ -19,16 +18,6 @@ extends Node2D
 
 
 func _ready() -> void:
-	queue_redraw()
-
-
-func set_ally_columns(value: int) -> void:
-	ally_columns = maxi(value, 1)
-	deploy_x_min = 0
-	deploy_x_max = ally_columns - 1
-	deploy_y_min = 0
-	if _grid != null:
-		deploy_y_max = int(_grid.grid_height) - 1
 	queue_redraw()
 
 

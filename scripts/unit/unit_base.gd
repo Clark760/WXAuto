@@ -175,9 +175,8 @@ func setup_from_unit_record(unit_record: Dictionary, forced_star: int = -1) -> v
 	portrait_path = str(unit_record.get("portrait_path", ""))
 
 	tags.clear()
-	if unit_record.get("tags", []) is Array:
-		for tag in unit_record["tags"]:
-			tags.append(str(tag))
+	tags = _normalize_tag_array(unit_record.get("tags", []))
+	traits = _normalize_traits_tags(traits)
 
 	_apply_runtime_stats()
 	_bind_components()
@@ -361,16 +360,7 @@ func play_quick_cell_step(target_world: Vector2, duration: float = 0.08) -> void
 func _sync_sprite_animator_rest_anchor() -> void:
 	if sprite_animator == null:
 		return
-	if sprite_animator.has_method("sync_rest_transform_to_current"):
-		sprite_animator.call("sync_rest_transform_to_current")
-		return
-	if sprite_animator.has_method("update_rest_position"):
-		# 兼容旧接口：默认动画目标是 VisualRoot，其静止位置应为当前局部坐标。
-		var rest_position: Vector2 = visual_root.position if visual_root != null else Vector2.ZERO
-		sprite_animator.call("update_rest_position", rest_position)
-		return
-	if sprite_animator.has_method("force_reset_rest_transform"):
-		sprite_animator.call("force_reset_rest_transform")
+	sprite_animator.call("sync_rest_transform_to_current")
 
 
 func begin_drag() -> void:
@@ -451,6 +441,45 @@ func get_equipped_equip_ids() -> Array[String]:
 	return ids
 
 
+func get_trait_tags() -> Array[String]:
+	var merged: Array[String] = []
+	var seen: Dictionary = {}
+	for trait_value in traits:
+		if not (trait_value is Dictionary):
+			continue
+		var trait_data: Dictionary = trait_value as Dictionary
+		var trait_tags: Array[String] = _normalize_tag_array(trait_data.get("tags", []))
+		for tag in trait_tags:
+			var key: String = tag.to_lower()
+			if seen.has(key):
+				continue
+			seen[key] = true
+			merged.append(tag)
+	return merged
+
+
+func has_trait_tag(tag: String) -> bool:
+	var target: String = tag.strip_edges().to_lower()
+	if target.is_empty():
+		return false
+	for trait_tag in get_trait_tags():
+		if trait_tag.to_lower() == target:
+			return true
+	return false
+
+
+func has_unit_tag(tag: String, include_trait_tags: bool = true) -> bool:
+	var target: String = tag.strip_edges().to_lower()
+	if target.is_empty():
+		return false
+	for unit_tag in tags:
+		if unit_tag.to_lower() == target:
+			return true
+	if include_trait_tags:
+		return has_trait_tag(target)
+	return false
+
+
 func _apply_animation_overrides() -> void:
 	if sprite_animator != null:
 		sprite_animator.call("set_overrides", animation_overrides)
@@ -491,6 +520,31 @@ func _apply_pending_texture_if_needed() -> void:
 	if _pending_texture == null:
 		return
 	sprite_2d.texture = _pending_texture
+
+
+func _normalize_tag_array(value: Variant) -> Array[String]:
+	var out: Array[String] = []
+	var seen: Dictionary = {}
+	if value is Array:
+		for tag_value in (value as Array):
+			var tag_text: String = str(tag_value).strip_edges()
+			if tag_text.is_empty():
+				continue
+			var key: String = tag_text.to_lower()
+			if seen.has(key):
+				continue
+			seen[key] = true
+			out.append(tag_text)
+	return out
+
+
+func _normalize_traits_tags(raw_traits: Array[Dictionary]) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	for trait_data in raw_traits:
+		var row: Dictionary = trait_data.duplicate(true)
+		row["tags"] = _normalize_tag_array(row.get("tags", []))
+		out.append(row)
+	return out
 
 
 func _get_star_color(star: int) -> Color:

@@ -1,0 +1,41 @@
+[
+  {
+    "id": "bm5_eq_batch5_qi_lantern",
+    "name": "????",
+    "description": "????????????????",
+    "type": "accessory",
+    "element": "wood",
+    "rarity": "purple",
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "wis",
+        "value": 18
+      }
+    ],
+    "trigger": {
+      "type": "periodic_seconds",
+      "trigger_params": {
+        "interval": 10.0
+      },
+      "effects": [
+        {
+          "op": "create_terrain",
+          "terrain_ref_id": "terrain_bm5_qi_spring",
+          "at": "self",
+          "radius": 1,
+          "duration": 4.5,
+          "target_mode": "allies"
+        }
+      ]
+    },
+    "tags": [
+      "bm5.batch.five",
+      "bm5.equipment",
+      "bm5.terrain.generator",
+      "bm5.quality.purple",
+      "bm5.equipment.accessory"
+    ]
+  }
+]

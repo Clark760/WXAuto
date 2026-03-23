@@ -42,7 +42,6 @@ const EXPECTED_ACTIVE_OPS: Array[String] = [
 	"silence_target",
 	"stun_target",
 	"fear_aoe",
-	"burn_ground",
 	"freeze_target",
 	"resurrect_self",
 	"aoe_percent_hp_damage"
@@ -84,12 +83,12 @@ func _run_checks() -> void:
 	var effect_engine_text: String = _read_text("res://scripts/gongfa/effect_engine.gd")
 	var gongfa_manager_text: String = _read_text("res://scripts/gongfa/gongfa_manager.gd")
 	var trigger_engine_text: String = _read_text("res://scripts/gongfa/trigger_engine.gd")
-	var terrain_manager_text: String = _read_text("res://scripts/board/terrain_manager.gd")
+	var terrain_data_text: String = _read_text("res://data/terrains/terrains_core.json") + "\n" + _read_text("res://data/terrains/terrains_m5_expansion.json")
 
 	_assert_none_missing("passive_ops", EXPECTED_PASSIVE_OPS, effect_engine_text)
 	_assert_none_missing("active_ops", EXPECTED_ACTIVE_OPS, effect_engine_text)
 	_assert_none_missing("triggers", EXPECTED_TRIGGERS, gongfa_manager_text + "\n" + trigger_engine_text)
-	_assert_none_missing("terrain_types", EXPECTED_TERRAIN_TYPES, terrain_manager_text)
+	_assert_none_missing("terrain_types", EXPECTED_TERRAIN_TYPES, terrain_data_text)
 
 	_check_data_counts()
 	_check_linkage_removed()

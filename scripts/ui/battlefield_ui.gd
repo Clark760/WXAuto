@@ -11,11 +11,6 @@ extends "res://scripts/battle/battlefield_runtime.gd"
 const SLOT_ORDER: Array[String] = ["neigong", "waigong", "qinggong", "zhenfa", "qishu"]
 const EQUIP_ORDER: Array[String] = ["weapon", "armor", "accessory"]
 const CLICK_DRAG_THRESHOLD: float = 8.0
-const INVENTORY_PANEL_WIDTH: float = 260.0
-const LEFT_PANEL_WIDTH: float = 180.0
-const TOP_BAR_HEIGHT: float = 56.0
-const DETAIL_DEFAULT_WIDTH: float = 720.0
-const DETAIL_DEFAULT_HEIGHT: float = 520.0
 const BATTLE_LOG_MAX_LINES: int = 50
 const BATTLE_LOG_FLUSH_INTERVAL: float = 0.12
 const DETAIL_REFRESH_INTERVAL_PREP: float = 0.2
@@ -86,20 +81,20 @@ var _equip_slot_name_buttons: Array[LinkButton] = []
 var _equip_slot_swap_buttons: Array[Button] = []
 var _tooltip_gongfa_rows: Array[PanelContainer] = []
 var _tooltip_gongfa_links: Array[LinkButton] = []
-var _inventory_panel: PanelContainer = null
-var _inventory_title: Label = null
-var _inventory_filter_row: HBoxContainer = null
-var _inventory_search: LineEdit = null
-var _inventory_grid: VBoxContainer = null
-var _inventory_summary: Label = null
-var _inventory_tab_gongfa_btn: Button = null
-var _inventory_tab_equip_btn: Button = null
-var _inventory_mode: String = ""
+@onready var _inventory_panel: PanelContainer = $DetailLayer/InventoryPanel
+@onready var _inventory_title: Label = $DetailLayer/InventoryPanel/InventoryMargin/InventoryRoot/HeaderRow/InventoryTitle
+@onready var _inventory_filter_row: HBoxContainer = $DetailLayer/InventoryPanel/InventoryMargin/InventoryRoot/FilterRow
+@onready var _inventory_search: LineEdit = $DetailLayer/InventoryPanel/InventoryMargin/InventoryRoot/SearchInput
+@onready var _inventory_grid: VBoxContainer = $DetailLayer/InventoryPanel/InventoryMargin/InventoryRoot/InventoryScroll/InventoryGrid
+@onready var _inventory_summary: Label = $DetailLayer/InventoryPanel/InventoryMargin/InventoryRoot/FooterRow/InventorySummary
+@onready var _inventory_tab_gongfa_btn: Button = $DetailLayer/InventoryPanel/InventoryMargin/InventoryRoot/HeaderRow/InventoryTabGongfaButton
+@onready var _inventory_tab_equip_btn: Button = $DetailLayer/InventoryPanel/InventoryMargin/InventoryRoot/HeaderRow/InventoryTabEquipButton
+var _inventory_mode: String = "gongfa"
 var _inventory_filter_type: String = "all"
 var _inventory_drag_enabled: bool = true
 
-var _battle_log_panel: PanelContainer = null
-var _battle_log_text: RichTextLabel = null
+@onready var _battle_log_panel: PanelContainer = $HUDLayer/BattleLogPanel
+@onready var _battle_log_text: RichTextLabel = $HUDLayer/BattleLogPanel/LogRoot/LogScroll/BattleLogText
 var _battle_log_entries: Array[String] = []
 var _battle_log_dirty: bool = false
 var _battle_log_flush_accum: float = 0.0
@@ -112,23 +107,13 @@ var _detail_drag_offset: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
 	super._ready()
-	if gongfa_button != null:
-		gongfa_button.visible = false
-		gongfa_button.disabled = true
-	if equip_button != null:
-		equip_button.visible = false
-		equip_button.disabled = true
 	_reparent_tooltips_to_high_layer()
-	_hide_legacy_tooltip_nodes()
 	_connect_ui_signals()
 	_prune_verbose_battle_log_signals()
 	_build_gongfa_type_cache()
 	_reload_external_item_data()
-	_ensure_battle_log_panel()
-	_layout_detail_panel()
-	_ensure_inventory_panel_created()
-	_layout_left_side_panels()
-	_layout_inventory_panel()
+	_rebuild_inventory_filters()
+	_rebuild_inventory_items()
 	_apply_stage_ui_state()
 	if unit_detail_mask != null:
 		unit_detail_mask.visible = false
@@ -327,9 +312,6 @@ func _handle_key_input(event: InputEventKey) -> void:
 
 func _on_viewport_size_changed() -> void:
 	super._on_viewport_size_changed()
-	_layout_left_side_panels()
-	_layout_detail_panel()
-	_layout_inventory_panel()
 
 
 func _show_tooltip_for_unit(unit: Node, screen_pos: Vector2) -> void:
@@ -384,6 +366,21 @@ func _connect_ui_signals() -> void:
 	if detail_drag_handle != null and not detail_drag_handle.is_connected("gui_input", drag_cb):
 		detail_drag_handle.connect("gui_input", drag_cb)
 
+	if _inventory_tab_gongfa_btn != null:
+		_inventory_tab_gongfa_btn.toggle_mode = true
+		var tab_gongfa_cb: Callable = Callable(self, "_on_inventory_tab_pressed").bind("gongfa")
+		if not _inventory_tab_gongfa_btn.is_connected("pressed", tab_gongfa_cb):
+			_inventory_tab_gongfa_btn.connect("pressed", tab_gongfa_cb)
+	if _inventory_tab_equip_btn != null:
+		_inventory_tab_equip_btn.toggle_mode = true
+		var tab_equip_cb: Callable = Callable(self, "_on_inventory_tab_pressed").bind("equipment")
+		if not _inventory_tab_equip_btn.is_connected("pressed", tab_equip_cb):
+			_inventory_tab_equip_btn.connect("pressed", tab_equip_cb)
+	if _inventory_search != null:
+		var search_cb: Callable = Callable(self, "_on_inventory_search_changed")
+		if not _inventory_search.is_connected("text_changed", search_cb):
+			_inventory_search.connect("text_changed", search_cb)
+
 	if gongfa_manager == null:
 		return
 	var reload_cb: Callable = Callable(self, "_on_gongfa_data_reloaded")
@@ -436,8 +433,6 @@ func _refresh_all_ui() -> void:
 	super._refresh_all_ui()
 	if _inventory_panel != null and _inventory_panel.visible:
 		_rebuild_inventory_items()
-	_layout_left_side_panels()
-	_layout_inventory_panel()
 
 
 func _set_stage(next_stage: int) -> void:
@@ -637,171 +632,20 @@ func _battle_log_color_hex(event_type: String) -> String:
 			return "#D6D6D6"
 
 
-func _ensure_battle_log_panel() -> void:
-	if _battle_log_panel != null and is_instance_valid(_battle_log_panel):
-		return
-	_battle_log_panel = PanelContainer.new()
-	_battle_log_panel.name = "BattleLogPanel"
-	$HUDLayer.add_child(_battle_log_panel)
-	var root := VBoxContainer.new()
-	root.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	root.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_battle_log_panel.add_child(root)
-	var title := Label.new()
-	title.text = "战斗日志"
-	title.add_theme_font_size_override("font_size", 18)
-	root.add_child(title)
-	var scroll := ScrollContainer.new()
-	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	root.add_child(scroll)
-	_battle_log_text = RichTextLabel.new()
-	_battle_log_text.bbcode_enabled = true
-	_battle_log_text.fit_content = false
-	_battle_log_text.scroll_active = true
-	_battle_log_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_battle_log_text.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.add_child(_battle_log_text)
-
-
-func _ensure_inventory_panel_created() -> void:
-	# 右侧常驻功法/装备区。
-	if _inventory_panel != null and is_instance_valid(_inventory_panel):
-		return
-
-	# 修复拖放跨层失效：
-	# 1. 仓库与详情槽位必须位于同一 CanvasLayer，Godot 原生拖放才会生效。
-	# 2. 优先挂到场景已有的 DetailLayer；仅在缺失时创建容错层（layer=20）。
-	var detail_layer_node: Node = get_node_or_null("DetailLayer")
-	if detail_layer_node == null:
-		var fallback_layer: Node = get_node_or_null("RightPanelLayer")
-		if fallback_layer == null:
-			var created_layer := CanvasLayer.new()
-			created_layer.layer = 20
-			created_layer.name = "RightPanelLayer"
-			add_child(created_layer)
-			detail_layer_node = created_layer
-		else:
-			detail_layer_node = fallback_layer
-
-	_inventory_panel = PanelContainer.new()
-	_inventory_panel.name = "InventoryPanel"
-	_inventory_panel.visible = true
-	_inventory_panel.mouse_filter = Control.MOUSE_FILTER_STOP
-	# 仓库面板渲染在详情面板下方，避免遮挡详情交互区域。
-	_inventory_panel.z_index = -1
-	detail_layer_node.add_child(_inventory_panel)
-
-	var root_vbox := VBoxContainer.new()
-	root_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	root_vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	root_vbox.add_theme_constant_override("separation", 8)
-	_inventory_panel.add_child(root_vbox)
-
-	var header := HBoxContainer.new()
-	header.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	header.add_theme_constant_override("separation", 8)
-	root_vbox.add_child(header)
-
-	_inventory_tab_gongfa_btn = Button.new()
-	_inventory_tab_gongfa_btn.text = "功法"
-	_inventory_tab_gongfa_btn.toggle_mode = true
-	_inventory_tab_gongfa_btn.button_pressed = true
-	_inventory_tab_gongfa_btn.pressed.connect(Callable(self, "_on_inventory_tab_pressed").bind("gongfa"))
-	header.add_child(_inventory_tab_gongfa_btn)
-
-	_inventory_tab_equip_btn = Button.new()
-	_inventory_tab_equip_btn.text = "装备"
-	_inventory_tab_equip_btn.toggle_mode = true
-	_inventory_tab_equip_btn.button_pressed = false
-	_inventory_tab_equip_btn.pressed.connect(Callable(self, "_on_inventory_tab_pressed").bind("equipment"))
-	header.add_child(_inventory_tab_equip_btn)
-
-	_inventory_title = Label.new()
-	_inventory_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_inventory_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_inventory_title.text = "功法装备区"
-	header.add_child(_inventory_title)
-
-	_inventory_filter_row = HBoxContainer.new()
-	_inventory_filter_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_inventory_filter_row.add_theme_constant_override("separation", 6)
-	root_vbox.add_child(_inventory_filter_row)
-
-	_inventory_search = LineEdit.new()
-	_inventory_search.placeholder_text = "搜索名称..."
-	_inventory_search.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_inventory_search.text_changed.connect(Callable(self, "_on_inventory_search_changed"))
-	root_vbox.add_child(_inventory_search)
-
-	var scroll := ScrollContainer.new()
-	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.custom_minimum_size = Vector2(0, 320)
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
-	scroll.clip_contents = true
-	root_vbox.add_child(scroll)
-
-	# 仓库改为单列纵向列表，避免窄宽度下的多列裁切与滚动遮挡。
-	_inventory_grid = VBoxContainer.new()
-	_inventory_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_inventory_grid.add_theme_constant_override("separation", 8)
-	scroll.add_child(_inventory_grid)
-
-	var footer := HBoxContainer.new()
-	footer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	root_vbox.add_child(footer)
-
-	_inventory_summary = Label.new()
-	_inventory_summary.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_inventory_summary.text = "共 0 件 | 已装备 0 件"
-	footer.add_child(_inventory_summary)
-
-	_inventory_mode = "gongfa"
-	_inventory_filter_type = "all"
-	_rebuild_inventory_filters()
-	_rebuild_inventory_items()
-	_layout_inventory_panel()
-
-
-func _layout_inventory_panel() -> void:
-	if _inventory_panel == null or not is_instance_valid(_inventory_panel):
-		return
-	var viewport_size: Vector2 = get_viewport().get_visible_rect().size
-	var bottom_top: float = bottom_panel.position.y if bottom_panel != null else viewport_size.y - 230.0
-	var width: float = INVENTORY_PANEL_WIDTH
-	var top: float = TOP_BAR_HEIGHT + 8.0
-	var height: float = maxf(bottom_top - top - 8.0, 180.0)
-	var left: float = viewport_size.x - width - 12.0
-	_inventory_panel.position = Vector2(left, top)
-	_inventory_panel.size = Vector2(width, height)
-
-
-func _layout_left_side_panels() -> void:
-	var viewport_size: Vector2 = get_viewport().get_visible_rect().size
-	var top: float = TOP_BAR_HEIGHT + 8.0
-	var x: float = 12.0
-	var minimap_h: float = 170.0
-	if minimap_info != null:
-		var minimap: Control = minimap_info.get_parent() as Control
-		if minimap != null:
-			minimap.position = Vector2(x, top)
-			minimap.size = Vector2(LEFT_PANEL_WIDTH, minimap_h)
-	if _battle_log_panel != null and is_instance_valid(_battle_log_panel):
-		var bottom_top: float = bottom_panel.position.y if bottom_panel != null else viewport_size.y - 230.0
-		var log_top: float = top + minimap_h + 10.0
-		_battle_log_panel.position = Vector2(x, log_top)
-		_battle_log_panel.size = Vector2(LEFT_PANEL_WIDTH, maxf(bottom_top - log_top - 12.0, 120.0))
-
-
 func _refit_hex_grid() -> void:
-	# 重新定义棋盘可用区域：扣除左侧信息区和右侧仓库区，避免 UI 与棋盘重叠。
+	# 棋盘避让直接读取场景中已摆放的 UI 面板矩形，避免硬编码尺寸。
 	var viewport_size: Vector2 = get_viewport().get_visible_rect().size
 	if viewport_size.x <= 1.0 or viewport_size.y <= 1.0:
 		return
 	var bottom_reserved: float = bottom_reserved_preparation if _bottom_expanded else bottom_reserved_collapsed
-	var left_reserved: float = LEFT_PANEL_WIDTH + 28.0
-	var right_reserved: float = INVENTORY_PANEL_WIDTH + 20.0
+	var left_reserved: float = 20.0
+	if _battle_log_panel != null and is_instance_valid(_battle_log_panel) and _battle_log_panel.visible:
+		var log_right: float = _battle_log_panel.position.x + _battle_log_panel.size.x
+		left_reserved = maxf(left_reserved, log_right + 16.0)
+	var right_reserved: float = 20.0
+	if _inventory_panel != null and is_instance_valid(_inventory_panel) and _inventory_panel.visible:
+		var inv_left: float = _inventory_panel.position.x
+		right_reserved = maxf(right_reserved, viewport_size.x - inv_left + 12.0)
 	var available_w: float = maxf(viewport_size.x - left_reserved - right_reserved - board_margin, 280.0)
 	var available_h: float = maxf(viewport_size.y - top_reserved_height - bottom_reserved - board_margin, 180.0)
 	var fit_hex: float = _calculate_fit_hex_size(available_w, available_h)
@@ -1121,18 +965,6 @@ func _safe_node_prop(node: Node, key: String, fallback: Variant) -> Variant:
 	return value
 
 
-func _hide_legacy_tooltip_nodes() -> void:
-	# 父类为了兼容仍会绑定旧节点，这里仅隐藏旧显示节点，避免与新版 Tooltip 叠加。
-	if tooltip_name != null:
-		tooltip_name.visible = false
-	if tooltip_hp != null:
-		tooltip_hp.visible = false
-	if tooltip_mp != null:
-		tooltip_mp.visible = false
-	if tooltip_gongfa != null:
-		tooltip_gongfa.visible = false
-
-
 func _build_gongfa_type_cache() -> void:
 	_gongfa_by_type.clear()
 	for slot in SLOT_ORDER:
@@ -1223,8 +1055,6 @@ func _open_detail_panel(unit: Node) -> void:
 	_update_detail_panel(unit)
 	if not unit_detail_panel.visible:
 		unit_detail_panel.visible = true
-		unit_detail_panel.position = _default_detail_position()
-	_layout_detail_panel()
 
 
 func _close_detail_panel(animate: bool) -> void:
@@ -1269,38 +1099,7 @@ func _on_detail_drag_handle_gui_input(event: InputEvent) -> void:
 			_is_dragging_detail_panel = false
 	elif event is InputEventMouseMotion and _is_dragging_detail_panel:
 		var next_pos: Vector2 = get_viewport().get_mouse_position() - _detail_drag_offset
-		unit_detail_panel.position = _clamp_detail_panel_position(next_pos)
-
-
-func _layout_detail_panel() -> void:
-	var viewport_size: Vector2 = get_viewport().get_visible_rect().size
-	var width: float = minf(DETAIL_DEFAULT_WIDTH, viewport_size.x - INVENTORY_PANEL_WIDTH - LEFT_PANEL_WIDTH - 48.0)
-	var height: float = minf(DETAIL_DEFAULT_HEIGHT, viewport_size.y - TOP_BAR_HEIGHT - 26.0)
-	width = maxf(width, 520.0)
-	height = maxf(height, 380.0)
-	unit_detail_panel.size = Vector2(width, height)
-	if not unit_detail_panel.visible:
-		unit_detail_panel.position = _default_detail_position()
-		return
-	unit_detail_panel.position = _clamp_detail_panel_position(unit_detail_panel.position)
-
-
-func _default_detail_position() -> Vector2:
-	var viewport_size: Vector2 = get_viewport().get_visible_rect().size
-	var left_limit: float = LEFT_PANEL_WIDTH + 24.0
-	var right_limit: float = viewport_size.x - INVENTORY_PANEL_WIDTH - 20.0
-	var x: float = (left_limit + right_limit - unit_detail_panel.size.x) * 0.5
-	var y: float = (viewport_size.y - unit_detail_panel.size.y) * 0.45
-	return _clamp_detail_panel_position(Vector2(x, y))
-
-
-func _clamp_detail_panel_position(pos: Vector2) -> Vector2:
-	var viewport_size: Vector2 = get_viewport().get_visible_rect().size
-	var min_x: float = LEFT_PANEL_WIDTH + 12.0
-	var max_x: float = viewport_size.x - INVENTORY_PANEL_WIDTH - unit_detail_panel.size.x - 12.0
-	var min_y: float = TOP_BAR_HEIGHT + 8.0
-	var max_y: float = viewport_size.y - unit_detail_panel.size.y - 8.0
-	return Vector2(clampf(pos.x, min_x, maxf(min_x, max_x)), clampf(pos.y, min_y, maxf(min_y, max_y)))
+		unit_detail_panel.position = next_pos
 
 
 func _update_detail_panel(unit: Node) -> void:
@@ -2492,8 +2291,6 @@ func _stat_key_to_cn(stat_key: String) -> String:
 			return "速度"
 		"rng":
 			return "射程"
-		"mov":
-			return "移速"
 		"wis":
 			return "悟性"
 		"crit_bonus":

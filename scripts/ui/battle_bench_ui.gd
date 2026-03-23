@@ -74,10 +74,10 @@ func add_unit(unit: Node) -> bool:
 	var slot_index: int = _first_empty_slot()
 	if slot_index < 0:
 		return false
-	return add_unit_to_slot(unit, slot_index)
+	return add_unit_to_slot(unit, slot_index, false)
 
 
-func add_unit_to_slot(unit: Node, slot_index: int, compact_after_add: bool = true) -> bool:
+func add_unit_to_slot(unit: Node, slot_index: int, _compact_after_add: bool = false) -> bool:
 	if unit == null or not is_instance_valid(unit):
 		return false
 	if not _is_slot_valid(slot_index):
@@ -88,8 +88,6 @@ func add_unit_to_slot(unit: Node, slot_index: int, compact_after_add: bool = tru
 	_slots[slot_index] = unit
 	_prepare_unit_for_bench(unit, slot_index)
 
-	if compact_after_add:
-		_compact_slots()
 	_refresh_all_slot_ui()
 	_try_star_upgrade_loop()
 	emit_signal("bench_changed")
@@ -388,21 +386,9 @@ func _is_slot_valid(slot_index: int) -> bool:
 
 
 func _compact_slots() -> void:
-	var compacted: Array[Node] = []
-	for unit in _slots:
-		if unit != null and is_instance_valid(unit):
-			compacted.append(unit)
-
-	_slots.clear()
-	_slots.resize(max_slots)
-	for i in range(max_slots):
-		_slots[i] = compacted[i] if i < compacted.size() else null
-
-	for i in range(max_slots):
-		var unit: Node = _slots[i]
-		if unit == null:
-			continue
-		_prepare_unit_for_bench(unit, i)
+	# 历史版本会在新增后做整排压缩（重排），这会破坏玩家手动摆放顺序。
+	# 按规则：备战区在任何情况下都不应自动重排，因此保留接口但不执行任何操作。
+	return
 
 
 func _try_star_upgrade_loop() -> void:

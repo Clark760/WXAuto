@@ -3,15 +3,7 @@
   "$id": "https://wxauto.local/schema/stage.schema.json",
   "title": "Stage Config",
   "type": "object",
-  "required": [
-    "id",
-    "chapter",
-    "index",
-    "type",
-    "grid",
-    "enemies",
-    "rewards"
-  ],
+  "required": ["id"],
   "properties": {
     "id": { "type": "string", "minLength": 1 },
     "chapter": { "type": "integer", "minimum": 1 },
@@ -63,16 +55,7 @@
               "items": { "type": "integer" }
             }
           },
-          "gongfa_ids": {
-            "type": "array",
-            "items": { "type": "string" }
-          },
-          "equip_ids": {
-            "type": "array",
-            "items": { "type": "string" }
-          },
-          "stat_scale": { "type": "number", "minimum": 0.01 },
-          "is_boss": { "type": "boolean" }
+          "stat_scale": { "type": "number", "minimum": 0.01 }
         }
       }
     },
@@ -117,12 +100,28 @@
             "type": "string",
             "enum": ["enemies", "allies", "all", "none"]
           },
-          "damage_per_second": { "type": "number", "minimum": 0.0 },
-          "heal_per_second": { "type": "number", "minimum": 0.0 },
-          "apply_buff_id": { "type": "string" },
-          "buff_duration": { "type": "number", "minimum": 0.0 },
+          "effects_on_enter": {
+            "type": "array",
+            "items": { "type": "object" }
+          },
+          "effects_on_tick": {
+            "type": "array",
+            "items": { "type": "object" }
+          },
+          "effects_on_exit": {
+            "type": "array",
+            "items": { "type": "object" }
+          },
+          "effects_on_expire": {
+            "type": "array",
+            "items": { "type": "object" }
+          },
           "damage_type": { "type": "string" },
-          "is_barrier": { "type": "boolean" }
+          "is_barrier": { "type": "boolean" },
+          "tags": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
         }
       }
     },
@@ -155,33 +154,49 @@
         }
       }
     },
-    "boss_gongfa_ids": {
+    "chapters": {
       "type": "array",
-      "items": { "type": "string", "minLength": 1 }
-    },
-    "boss_mechanics": {
-      "anyOf": [
-        { "type": "null" },
-        {
-          "type": "object",
-          "required": ["type"],
-          "properties": {
-            "type": { "type": "string", "minLength": 1 },
-            "config": { "type": "object" }
-          }
-        },
-        {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "required": ["type"],
-            "properties": {
-              "type": { "type": "string", "minLength": 1 },
-              "config": { "type": "object" }
-            }
-          }
+      "items": {
+        "type": "object",
+        "required": ["chapter", "stages"],
+        "properties": {
+          "chapter": { "type": "integer", "minimum": 1 },
+          "name": { "type": "string" },
+          "stages": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "rest_after": { "type": "boolean" }
         }
-      ]
+      }
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "required": ["chapters"]
+      },
+      "then": {
+        "required": ["chapters"]
+      }
+    },
+    {
+      "if": {
+        "not": {
+          "required": ["chapters"]
+        }
+      },
+      "then": {
+        "required": [
+          "chapter",
+          "index",
+          "type",
+          "grid",
+          "enemies",
+          "rewards"
+        ]
+      }
+    }
+  ]
 }

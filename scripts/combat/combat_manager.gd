@@ -291,6 +291,18 @@ func is_cell_blocked(cell: Vector2i) -> bool:
 	return _is_cell_blocked(cell)
 
 
+func get_terrain_tags_at_cell(cell: Vector2i, scope: String = "all") -> Array[String]:
+	if _terrain_manager == null:
+		return []
+	return _terrain_manager.call("get_terrain_tags_at_cell", cell, scope, _hex_grid)
+
+
+func cell_has_terrain_tag(cell: Vector2i, tag: String, scope: String = "all") -> bool:
+	if _terrain_manager == null:
+		return false
+	return bool(_terrain_manager.call("cell_has_terrain_tag", cell, tag, scope, _hex_grid))
+
+
 func _apply_terrain_visuals() -> void:
 	if _hex_grid == null or not is_instance_valid(_hex_grid):
 		return
@@ -424,6 +436,7 @@ func add_unit_mid_battle(unit: Node) -> bool:
 	var combat: Node = _get_combat(unit)
 	if combat == null:
 		return false
+	_bind_combat_component_signals(unit)
 	combat.call("prepare_for_battle")
 	var movement: Node = _get_movement(unit)
 	if movement != null:
@@ -442,71 +455,6 @@ func add_unit_mid_battle(unit: Node) -> bool:
 	if _hex_grid != null:
 		_resolve_and_register_unit_cell(unit)
 	return true
-
-
-func apply_environment_damage(
-	target: Node,
-	damage_amount: float,
-	source: Node = null,
-	damage_type: String = "internal",
-	source_fallback: Dictionary = {}
-) -> Dictionary:
-	if not _battle_running:
-		return {}
-	if not _is_live_unit(target):
-		return {}
-	if not _is_unit_alive(target):
-		return {}
-	var combat: Node = _get_combat(target)
-	if combat == null:
-		return {}
-	var result_value: Variant = combat.call(
-		"receive_damage",
-		maxf(damage_amount, 0.0),
-		source,
-		damage_type,
-		true,
-		false,
-		false
-	)
-	if not (result_value is Dictionary):
-		return {}
-	var result: Dictionary = result_value
-	var fallback_source_id: int = int(source_fallback.get("source_id", -1))
-	var fallback_source_team: int = int(source_fallback.get("source_team", 0))
-	var fallback_source_unit_id: String = str(source_fallback.get("source_unit_id", "")).strip_edges()
-	var fallback_source_name: String = str(source_fallback.get("source_name", "")).strip_edges()
-	var source_id: int = source.get_instance_id() if _is_live_unit(source) else fallback_source_id
-	var source_team: int = int(source.get("team_id")) if _is_live_unit(source) else fallback_source_team
-	var source_unit_id: String = str(source.get("unit_id")) if _is_live_unit(source) else fallback_source_unit_id
-	var source_name: String = str(source.get("unit_name")) if _is_live_unit(source) else fallback_source_name
-	var event_dict: Dictionary = {
-		"source_id": source_id,
-		"target_id": target.get_instance_id(),
-		"source_team": source_team,
-		"source_unit_id": source_unit_id,
-		"source_name": source_name,
-		"target_team": int(target.get("team_id")),
-		"target_unit_id": str(target.get("unit_id")),
-		"target_name": str(target.get("unit_name")),
-		"is_skill": true,
-		"is_dodged": false,
-		"is_crit": false,
-		"damage_type": damage_type,
-		"damage": float(result.get("damage", 0.0)),
-		"target_hp_after": float(result.get("target_hp_after", 0.0)),
-		"target_mp_after": float(result.get("target_mp_after", 0.0)),
-		"shield_absorbed": float(result.get("shield_absorbed", 0.0)),
-		"immune_absorbed": float(result.get("immune_absorbed", 0.0)),
-		"shield_hp_after": float(result.get("shield_hp_after", 0.0)),
-		"shield_broken": bool(result.get("shield_broken", false)),
-		"logic_frame": _logic_frame,
-		"is_environment": true
-	}
-	damage_resolved.emit(event_dict)
-	if bool(result.get("target_died", false)):
-		_handle_unit_death(target, source)
-	return event_dict
 
 
 func start_battle(ally_units: Array[Node], enemy_units: Array[Node], battle_seed: int = 0) -> bool:
@@ -735,6 +683,7 @@ func _register_units(units: Array[Node], team_id: int) -> void:
 		_cache_components_for_unit(unit)
 		var combat: Node = _get_combat(unit)
 		if combat != null:
+			_bind_combat_component_signals(unit)
 			combat.call("prepare_for_battle")
 		var movement: Node = _get_movement(unit)
 		if movement != null:
@@ -1101,6 +1050,33 @@ func _cache_components_for_unit(unit: Node) -> void:
 		_movement_cache[iid] = unit.get_node_or_null("Components/UnitMovement")
 
 
+func _bind_combat_component_signals(unit: Node) -> void:
+	if not _is_live_unit(unit):
+		return
+	var combat: Node = _get_combat(unit)
+	if combat == null:
+		return
+	var cb_dead: Callable = Callable(self, "_on_combat_component_died")
+	if combat.has_signal("died") and not combat.is_connected("died", cb_dead):
+		combat.connect("died", cb_dead)
+
+
+func _on_combat_component_died(dead_unit: Node, killer: Node) -> void:
+	if not _battle_running:
+		return
+	if not _is_live_unit(dead_unit):
+		return
+	# 统一接入 UnitCombat 的 died 信号，覆盖反伤/功法直伤等非主攻击链路的死亡。
+	# 采用 deferred 避免与主攻击结算同栈竞争时序。
+	call_deferred("_handle_unit_death_from_signal", dead_unit, killer)
+
+
+func _handle_unit_death_from_signal(dead_unit: Node, killer: Node) -> void:
+	if not _battle_running:
+		return
+	_handle_unit_death(dead_unit, killer)
+
+
 func _get_combat(unit: Node) -> Node:
 	if not _is_live_unit(unit):
 		return null
@@ -1373,4 +1349,3 @@ func _build_damage_event(source: Node, target: Node, event_dict: Dictionary) -> 
 		"shield_broken": bool(event_dict.get("shield_broken", false)),
 		"logic_frame": _logic_frame
 	}
-

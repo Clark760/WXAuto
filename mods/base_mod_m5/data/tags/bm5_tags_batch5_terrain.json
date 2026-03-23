@@ -1,0 +1,110 @@
+[
+  {
+    "id": "bm5_tag_4022",
+    "tag": "bm5.batch.five",
+    "name": "bm5.batch.five",
+    "description": "BaseMod M5 batch5 terrain tag: bm5.batch.five"
+  },
+  {
+    "id": "bm5_tag_4023",
+    "tag": "bm5.terrain",
+    "name": "bm5.terrain",
+    "description": "BaseMod M5 batch5 terrain tag: bm5.terrain"
+  },
+  {
+    "id": "bm5_tag_4024",
+    "tag": "bm5.terrain.bamboo",
+    "name": "bm5.terrain.bamboo",
+    "description": "BaseMod M5 batch5 terrain tag: bm5.terrain.bamboo"
+  },
+  {
+    "id": "bm5_tag_4025",
+    "tag": "bm5.terrain.bridge",
+    "name": "bm5.terrain.bridge",
+    "description": "BaseMod M5 batch5 terrain tag: bm5.terrain.bridge"
+  },
+  {
+    "id": "bm5_tag_4026",
+    "tag": "bm5.terrain.fire",
+    "name": "bm5.terrain.fire",
+    "description": "BaseMod M5 batch5 terrain tag: bm5.terrain.fire"
+  },
+  {
+    "id": "bm5_tag_4027",
+    "tag": "bm5.terrain.generator",
+    "name": "bm5.terrain.generator",
+    "description": "BaseMod M5 batch5 terrain tag: bm5.terrain.generator"
+  },
+  {
+    "id": "bm5_tag_4028",
+    "tag": "bm5.terrain.heal",
+    "name": "bm5.terrain.heal",
+    "description": "BaseMod M5 batch5 terrain tag: bm5.terrain.heal"
+  },
+  {
+    "id": "bm5_tag_4029",
+    "tag": "bm5.terrain.ice",
+    "name": "bm5.terrain.ice",
+    "description": "BaseMod M5 batch5 terrain tag: bm5.terrain.ice"
+  },
+  {
+    "id": "bm5_tag_4030",
+    "tag": "bm5.terrain.marsh",
+    "name": "bm5.terrain.marsh",
+    "description": "BaseMod M5 batch5 terrain tag: bm5.terrain.marsh"
+  },
+  {
+    "id": "bm5_tag_4031",
+    "tag": "bm5.terrain.rock",
+    "name": "bm5.terrain.rock",
+    "description": "BaseMod M5 batch5 terrain tag: bm5.terrain.rock"
+  },
+  {
+    "id": "bm5_tag_4032",
+    "tag": "bm5.terrain.sand",
+    "name": "bm5.terrain.sand",
+    "description": "BaseMod M5 batch5 terrain tag: bm5.terrain.sand"
+  },
+  {
+    "id": "bm5_tag_4033",
+    "tag": "bm5.terrain.vfx",
+    "name": "bm5.terrain.vfx",
+    "description": "BaseMod M5 batch5 terrain tag: bm5.terrain.vfx"
+  },
+  {
+    "id": "bm5_tag_4034",
+    "tag": "element.fire",
+    "name": "element.fire",
+    "description": "BaseMod M5 batch5 terrain tag: element.fire"
+  },
+  {
+    "id": "bm5_tag_4035",
+    "tag": "element.water",
+    "name": "element.water",
+    "description": "BaseMod M5 batch5 terrain tag: element.water"
+  },
+  {
+    "id": "bm5_tag_4036",
+    "tag": "element.wood",
+    "name": "element.wood",
+    "description": "BaseMod M5 batch5 terrain tag: element.wood"
+  },
+  {
+    "id": "bm5_tag_4037",
+    "tag": "terrain.beneficial",
+    "name": "terrain.beneficial",
+    "description": "BaseMod M5 batch5 terrain tag: terrain.beneficial"
+  },
+  {
+    "id": "bm5_tag_4038",
+    "tag": "terrain.hazard",
+    "name": "terrain.hazard",
+    "description": "BaseMod M5 batch5 terrain tag: terrain.hazard"
+  },
+  {
+    "id": "bm5_tag_4039",
+    "tag": "terrain.obstacle",
+    "name": "terrain.obstacle",
+    "description": "BaseMod M5 batch5 terrain tag: terrain.obstacle"
+  }
+]

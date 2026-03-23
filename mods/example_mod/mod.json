@@ -1,9 +1,0 @@
-{
-  "id": "example_mod",
-  "name": "M1角色扩展示例",
-  "author": "AI",
-  "version": "1.0.0",
-  "description": "用于演示新增角色与同ID覆盖角色。",
-  "game_version_min": "1.0.0",
-  "load_order": 200
-}

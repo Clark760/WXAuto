@@ -241,13 +241,6 @@ func record_battle_result(_player_won: bool) -> void:
 	return
 
 
-func record_battle_result_by_team(winner_team: int, player_team: int = 1) -> void:
-	# 保留接口兼容旧调用链，但不再自动结算经验/奖励。
-	var _unused_winner_team: int = winner_team
-	var _unused_player_team: int = player_team
-	return
-
-
 func _emit_all_changed(silver_delta: int) -> void:
 	var level_now: int = get_level()
 	silver_changed.emit(get_silver(), silver_delta)

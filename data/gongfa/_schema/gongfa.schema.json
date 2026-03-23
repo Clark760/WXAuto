@@ -11,7 +11,7 @@
     "quality",
     "passive_effects",
     "skills",
-    "linkage_tags"
+    "tags"
   ],
   "properties": {
     "id": {
@@ -60,6 +60,10 @@
         "red"
       ]
     },
+    "shop_visible": {
+      "type": "boolean",
+      "default": true
+    },
     "tags": {
       "type": "array",
       "items": {
@@ -95,12 +99,6 @@
             "minimum": 0
           }
         }
-      }
-    },
-    "linkage_tags": {
-      "type": "array",
-      "items": {
-        "type": "string"
       }
     }
   },

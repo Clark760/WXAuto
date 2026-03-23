@@ -12,7 +12,7 @@ func try_sell_dragging_unit(ctx: Node) -> bool:
 	if dragging_unit == null or not bool(ctx.call("_is_valid_unit", dragging_unit)):
 		return false
 	# 仅允许出售“备战席来源”单位，阻止误卖战斗中的在编单位。
-	var origin_kind: String = str(dragging_unit.get_meta("drag_origin_kind", ""))
+	var origin_kind: String = str(ctx.call("_get_drag_origin_kind"))
 	if origin_kind != "bench":
 		var debug_label: Label = ctx.get("debug_label")
 		if debug_label != null:

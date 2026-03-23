@@ -33,6 +33,7 @@ func set_terrain_registry(records: Array) -> void:
 		if terrain_id.is_empty():
 			continue
 		record["id"] = terrain_id
+		record["tags"] = _normalize_tags(record.get("tags", []))
 		_terrain_registry[terrain_id] = record
 		_register_terrain_alias(terrain_id, terrain_id)
 		if terrain_id.begins_with("terrain_") and terrain_id.length() > 8:
@@ -134,7 +135,7 @@ func add_static_terrain(terrain_ref: String, cells: Array, context: Dictionary =
 	}
 
 
-# 推进所有地形的持续时间与 tick 逻辑，并在必要时重建阻挡与可视缓存。
+# 推进所有地形的持续时间与效果逻辑，并在必要时重建阻挡与可视缓存。
 func tick(delta: float, context: Dictionary) -> Dictionary:
 	if _terrains.is_empty():
 		return {
@@ -149,20 +150,24 @@ func tick(delta: float, context: Dictionary) -> Dictionary:
 		if not (terrain_value is Dictionary):
 			continue
 		var terrain: Dictionary = (terrain_value as Dictionary).duplicate(true)
+		var current_targets: Array[Node] = _collect_targets_in_terrain(terrain, context)
 		var is_static: bool = bool(terrain.get("is_static", false))
 		if not is_static:
 			var previous_remaining: float = float(terrain.get("remaining", 0.0))
 			var remaining: float = previous_remaining - delta
 			terrain["remaining"] = remaining
 			if previous_remaining >= 0.0 and remaining <= 0.0:
+				_execute_terrain_phase_effects(terrain, current_targets, "expire", context)
 				visual_changed = true
 				continue
+		_apply_terrain_enter_exit_effects(terrain, current_targets, context)
 		var tick_interval: float = maxf(float(terrain.get("tick_interval", DEFAULT_TICK_INTERVAL)), 0.05)
 		var tick_accum: float = float(terrain.get("tick_accum", 0.0)) + delta
 		while tick_accum >= tick_interval:
 			tick_accum -= tick_interval
-			_apply_terrain_tick(terrain, tick_interval, context)
+			_apply_terrain_tick(terrain, current_targets, context)
 		terrain["tick_accum"] = tick_accum
+		terrain["occupied_iids"] = _build_target_iid_map(current_targets)
 		next_terrains.append(terrain)
 
 	_terrains = next_terrains
@@ -203,6 +208,46 @@ func get_visual_cells(hex_grid: Node) -> Dictionary:
 		_visual_cells_cache = _build_visual_cells(hex_grid)
 		_needs_visual_refresh = false
 	return _visual_cells_cache.duplicate(true)
+
+
+func get_terrain_tags_at_cell(cell: Vector2i, scope: String = "all", hex_grid: Node = null) -> Array[String]:
+	var merged: Array[String] = []
+	if cell.x < 0 or cell.y < 0:
+		return merged
+	var seen: Dictionary = {}
+	for terrain_value in _terrains:
+		if not (terrain_value is Dictionary):
+			continue
+		var terrain: Dictionary = terrain_value as Dictionary
+		if not _should_include_terrain_by_scope(terrain, scope):
+			continue
+		var contains_cell: bool = false
+		for terrain_cell in _get_effective_cells_for_terrain(terrain, hex_grid):
+			if terrain_cell == cell:
+				contains_cell = true
+				break
+		if not contains_cell:
+			continue
+		var tags_value: Variant = terrain.get("tags", [])
+		if not (tags_value is Array):
+			continue
+		for tag_value in (tags_value as Array):
+			var normalized: String = str(tag_value).strip_edges().to_lower()
+			if normalized.is_empty():
+				continue
+			if seen.has(normalized):
+				continue
+			seen[normalized] = true
+			merged.append(normalized)
+	return merged
+
+
+func cell_has_terrain_tag(cell: Vector2i, tag: String, scope: String = "all", hex_grid: Node = null) -> bool:
+	var target: String = tag.strip_edges().to_lower()
+	if target.is_empty():
+		return false
+	var tags: Array[String] = get_terrain_tags_at_cell(cell, scope, hex_grid)
+	return tags.has(target)
 
 
 # 将输入配置标准化为可运行的地形实例结构。
@@ -252,10 +297,10 @@ func _build_terrain_entry(config: Dictionary, source: Node, context: Dictionary,
 	if damage_type.is_empty():
 		damage_type = DEFAULT_DAMAGE_TYPE
 
-	var damage_per_second: float = _resolve_damage_per_second(config, terrain_def)
-	var heal_per_second: float = _resolve_heal_per_second(config, terrain_def)
-	var apply_buff_id: String = _resolve_apply_buff_id(config, terrain_def)
-	var buff_duration: float = maxf(float(config.get("buff_duration", terrain_def.get("buff_duration", 1.0))), 0.0)
+	var effects_on_enter: Array[Dictionary] = _resolve_terrain_effects(config, terrain_def, "effects_on_enter")
+	var effects_on_tick: Array[Dictionary] = _resolve_terrain_effects(config, terrain_def, "effects_on_tick")
+	var effects_on_exit: Array[Dictionary] = _resolve_terrain_effects(config, terrain_def, "effects_on_exit")
+	var effects_on_expire: Array[Dictionary] = _resolve_terrain_effects(config, terrain_def, "effects_on_expire")
 	var is_barrier: bool = bool(config.get("is_barrier", terrain_def.get("is_barrier", false)))
 	if not is_barrier and str(terrain_def.get("type", "")).strip_edges().to_lower() == "obstacle":
 		is_barrier = true
@@ -264,6 +309,7 @@ func _build_terrain_entry(config: Dictionary, source: Node, context: Dictionary,
 		config.get("color", terrain_def.get("color", "")),
 		Color(0.8, 0.8, 0.8, 0.25)
 	)
+	var terrain_tags: Array[String] = _resolve_terrain_tags(config, terrain_def)
 
 	return {
 		"terrain_id": terrain_instance_id,
@@ -281,53 +327,107 @@ func _build_terrain_entry(config: Dictionary, source: Node, context: Dictionary,
 		"tick_accum": 0.0,
 		"target_mode": target_mode,
 		"damage_type": damage_type,
-		"damage_per_second": damage_per_second,
-		"heal_per_second": heal_per_second,
-		"apply_buff_id": apply_buff_id,
-		"buff_duration": buff_duration,
 		"vfx_on_tick": str(config.get("vfx_on_tick", terrain_def.get("vfx_on_tick", ""))).strip_edges(),
+		"effects_on_enter": effects_on_enter,
+		"effects_on_tick": effects_on_tick,
+		"effects_on_exit": effects_on_exit,
+		"effects_on_expire": effects_on_expire,
+		"occupied_iids": {},
 		"source_id": int(source_payload.get("source_id", -1)),
 		"source_team": int(source_payload.get("source_team", 0)),
 		"source_unit_id": str(source_payload.get("source_unit_id", "")),
 		"source_name": str(source_payload.get("source_name", "")),
+		"tags": terrain_tags,
 		"color": color
 	}
 
 
-# 执行单次地形 tick：对目标施加伤害/治疗/buff。
-func _apply_terrain_tick(terrain: Dictionary, tick_seconds: float, context: Dictionary) -> void:
-	var target_mode: String = str(terrain.get("target_mode", DEFAULT_TARGET_MODE)).strip_edges().to_lower()
-	if target_mode == "none":
-		return
+# 执行单次地形 tick：对当前地形内目标执行 effects_on_tick。
+func _apply_terrain_tick(terrain: Dictionary, targets: Array[Node], context: Dictionary) -> void:
+	_execute_terrain_phase_effects(terrain, targets, "tick", context)
 
-	var damage_per_tick: float = maxf(float(terrain.get("damage_per_second", 0.0)) * tick_seconds, 0.0)
-	var heal_per_tick: float = maxf(float(terrain.get("heal_per_second", 0.0)) * tick_seconds, 0.0)
-	var apply_buff_id: String = str(terrain.get("apply_buff_id", "")).strip_edges()
-	var buff_duration: float = maxf(float(terrain.get("buff_duration", 0.0)), 0.0)
-	if damage_per_tick <= 0.0 and heal_per_tick <= 0.0 and apply_buff_id.is_empty():
-		return
 
-	var targets: Array[Node] = _collect_targets_in_terrain(terrain, context)
+func _apply_terrain_enter_exit_effects(terrain: Dictionary, current_targets: Array[Node], context: Dictionary) -> void:
+	var previous_map: Dictionary = {}
+	var previous_value: Variant = terrain.get("occupied_iids", {})
+	if previous_value is Dictionary:
+		previous_map = (previous_value as Dictionary).duplicate(true)
+	var current_map: Dictionary = _build_target_iid_map(current_targets)
+	var enter_targets: Array[Node] = []
+	for target in current_targets:
+		if target == null or not is_instance_valid(target):
+			continue
+		var iid: int = target.get_instance_id()
+		if previous_map.has(iid):
+			continue
+		enter_targets.append(target)
+	var exit_targets: Array[Node] = []
+	for iid_value in previous_map.keys():
+		var iid: int = int(iid_value)
+		if current_map.has(iid):
+			continue
+		var unit: Node = _resolve_unit_by_instance_id(iid, context)
+		if unit == null or not is_instance_valid(unit):
+			continue
+		var combat: Node = unit.get_node_or_null("Components/UnitCombat")
+		if combat == null or not bool(combat.get("is_alive")):
+			continue
+		exit_targets.append(unit)
+	_execute_terrain_phase_effects(terrain, enter_targets, "enter", context)
+	_execute_terrain_phase_effects(terrain, exit_targets, "exit", context)
+
+
+func _execute_terrain_phase_effects(terrain: Dictionary, targets: Array[Node], phase: String, context: Dictionary) -> void:
 	if targets.is_empty():
 		return
-
-	var combat_manager: Node = context.get("combat_manager", null)
+	var effects: Array[Dictionary] = _get_terrain_phase_effects(terrain, phase)
+	if effects.is_empty():
+		return
 	var gongfa_manager: Node = context.get("gongfa_manager", null)
+	if gongfa_manager == null or not is_instance_valid(gongfa_manager):
+		return
+	if not gongfa_manager.has_method("execute_external_effects"):
+		return
 	var source_node: Node = _resolve_source_node(terrain, context)
 	var source_fallback: Dictionary = _build_source_fallback_from_terrain(terrain)
-	var damage_type: String = str(terrain.get("damage_type", DEFAULT_DAMAGE_TYPE)).strip_edges().to_lower()
-	if damage_type.is_empty():
-		damage_type = DEFAULT_DAMAGE_TYPE
+	var extra_fields: Dictionary = {
+		"terrain_id": str(terrain.get("terrain_id", "")),
+		"terrain_def_id": str(terrain.get("terrain_def_id", "")),
+		"terrain_type": str(terrain.get("terrain_type", "")),
+		"terrain_phase": phase,
+		"is_environment": true
+	}
+	if source_node == null and not source_fallback.is_empty():
+		extra_fields["source_id"] = int(source_fallback.get("source_id", -1))
+		extra_fields["source_unit_id"] = str(source_fallback.get("source_unit_id", ""))
+		extra_fields["source_name"] = str(source_fallback.get("source_name", ""))
+		extra_fields["source_team"] = int(source_fallback.get("source_team", 0))
+	var origin: String = "terrain_%s" % phase
+	for target in targets:
+		if target == null or not is_instance_valid(target):
+			continue
+		var effect_context: Dictionary = context.duplicate(false)
+		effect_context["terrain"] = terrain
+		effect_context["terrain_phase"] = phase
+		effect_context["is_environment"] = true
+		gongfa_manager.call("execute_external_effects", source_node, target, effects, effect_context, {
+			"origin": origin,
+			"trigger": origin,
+			"extra_fields": extra_fields
+		})
 
-	for unit in targets:
-		if damage_per_tick > 0.0 and combat_manager != null and combat_manager.has_method("apply_environment_damage"):
-			combat_manager.call("apply_environment_damage", unit, damage_per_tick, source_node, damage_type, source_fallback)
-		if heal_per_tick > 0.0:
-			var combat: Node = unit.get_node_or_null("Components/UnitCombat")
-			if combat != null and combat.has_method("restore_hp"):
-				combat.call("restore_hp", heal_per_tick)
-		if not apply_buff_id.is_empty() and buff_duration > 0.0 and gongfa_manager != null and gongfa_manager.has_method("apply_runtime_buff"):
-			gongfa_manager.call("apply_runtime_buff", unit, apply_buff_id, buff_duration, source_node, "terrain")
+
+func _get_terrain_phase_effects(terrain: Dictionary, phase: String) -> Array[Dictionary]:
+	var key: String = "effects_on_tick"
+	match phase:
+		"enter":
+			key = "effects_on_enter"
+		"exit":
+			key = "effects_on_exit"
+		"expire":
+			key = "effects_on_expire"
+	var effects_value: Variant = terrain.get(key, [])
+	return _normalize_effect_rows(effects_value)
 
 
 # 收集当前地形生效范围内的有效目标单位。
@@ -596,36 +696,56 @@ func _resolve_target_mode(config: Dictionary, terrain_def: Dictionary) -> String
 	return target_mode
 
 
-# 解析每秒伤害，兼容 damage_per_second / dps / value 字段。
-func _resolve_damage_per_second(config: Dictionary, terrain_def: Dictionary) -> float:
-	if config.has("damage_per_second"):
-		return maxf(float(config.get("damage_per_second", 0.0)), 0.0)
-	if config.has("dps"):
-		return maxf(float(config.get("dps", 0.0)), 0.0)
-	if config.has("value"):
-		return maxf(float(config.get("value", 0.0)), 0.0)
-	return maxf(float(terrain_def.get("base_dps", 0.0)), 0.0)
+func _resolve_terrain_effects(config: Dictionary, terrain_def: Dictionary, key: String) -> Array[Dictionary]:
+	if config.has(key):
+		return _normalize_effect_rows(config.get(key, []))
+	return _normalize_effect_rows(terrain_def.get(key, []))
 
 
-# 解析每秒治疗，兼容 heal_per_second / hps 字段。
-func _resolve_heal_per_second(config: Dictionary, terrain_def: Dictionary) -> float:
-	if config.has("heal_per_second"):
-		return maxf(float(config.get("heal_per_second", 0.0)), 0.0)
-	if config.has("hps"):
-		return maxf(float(config.get("hps", 0.0)), 0.0)
-	return maxf(float(terrain_def.get("base_hps", 0.0)), 0.0)
+func _resolve_terrain_tags(config: Dictionary, terrain_def: Dictionary) -> Array[String]:
+	if config.has("tags"):
+		return _normalize_tags(config.get("tags", []))
+	return _normalize_tags(terrain_def.get("tags", []))
 
 
-# 解析地形 tick 需要施加的 buff/debuff id。
-func _resolve_apply_buff_id(config: Dictionary, terrain_def: Dictionary) -> String:
-	var apply_buff_id: String = str(config.get("apply_buff_id", "")).strip_edges()
-	if apply_buff_id.is_empty():
-		apply_buff_id = str(config.get("debuff_id", "")).strip_edges()
-	if apply_buff_id.is_empty():
-		apply_buff_id = str(config.get("buff_id", "")).strip_edges()
-	if apply_buff_id.is_empty():
-		apply_buff_id = str(terrain_def.get("apply_buff_id", "")).strip_edges()
-	return apply_buff_id
+func _normalize_effect_rows(value: Variant) -> Array[Dictionary]:
+	var output: Array[Dictionary] = []
+	if not (value is Array):
+		return output
+	for effect_value in (value as Array):
+		if effect_value is Dictionary:
+			output.append((effect_value as Dictionary).duplicate(true))
+	return output
+
+
+func _build_target_iid_map(targets: Array[Node]) -> Dictionary:
+	var out: Dictionary = {}
+	for target in targets:
+		if target == null or not is_instance_valid(target):
+			continue
+		out[target.get_instance_id()] = true
+	return out
+
+
+func _resolve_unit_by_instance_id(instance_id: int, context: Dictionary) -> Node:
+	if instance_id <= 0:
+		return null
+	var combat_manager: Node = context.get("combat_manager", null)
+	if combat_manager != null and is_instance_valid(combat_manager) and combat_manager.has_method("get_unit_by_instance_id"):
+		var result: Variant = combat_manager.call("get_unit_by_instance_id", instance_id)
+		if result is Node:
+			return result as Node
+	var all_units_value: Variant = context.get("all_units", [])
+	if all_units_value is Array:
+		for unit_value in (all_units_value as Array):
+			if not (unit_value is Node):
+				continue
+			var unit: Node = unit_value as Node
+			if unit == null or not is_instance_valid(unit):
+				continue
+			if unit.get_instance_id() == instance_id:
+				return unit
+	return null
 
 
 # 解析中心格：优先配置，其次从 source 世界坐标反推。
@@ -720,6 +840,30 @@ func _terrain_short_name(terrain_def_id: String, source: Dictionary) -> String:
 			return terrain_type.substr(8)
 		return terrain_type
 	return "custom"
+
+
+func _should_include_terrain_by_scope(terrain: Dictionary, scope: String) -> bool:
+	var mode: String = scope.strip_edges().to_lower()
+	if mode == "static":
+		return bool(terrain.get("is_static", false))
+	if mode == "dynamic" or mode == "temporary":
+		return not bool(terrain.get("is_static", false))
+	return true
+
+
+func _normalize_tags(value: Variant) -> Array[String]:
+	var out: Array[String] = []
+	var seen: Dictionary = {}
+	if value is Array:
+		for tag_value in (value as Array):
+			var normalized: String = str(tag_value).strip_edges().to_lower()
+			if normalized.is_empty():
+				continue
+			if seen.has(normalized):
+				continue
+			seen[normalized] = true
+			out.append(normalized)
+	return out
 
 
 # 比较两个字典的 key 集是否发生变化（用于判断是否需要刷新）。

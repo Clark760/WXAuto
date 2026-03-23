@@ -1,0 +1,15 @@
+{
+  "id": "stage_sequence_bm5_batch5_terrain",
+  "chapters": [
+    {
+      "chapter": 5,
+      "name": "地形演武",
+      "stages": [
+        "bm5_stage_5_1",
+        "bm5_stage_5_2",
+        "bm5_stage_5_3"
+      ],
+      "rest_after": true
+    }
+  ]
+}

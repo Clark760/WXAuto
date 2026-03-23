@@ -1,0 +1,976 @@
+[
+  {
+    "id": "bm5_gf_purple_001",
+    "name": "令狐冲??",
+    "type": "waigong",
+    "description": "令狐冲?????",
+    "faction": "bm5_faction_purple_0",
+    "element": "metal",
+    "quality": "purple",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.three",
+      "bm5.gongfa",
+      "bm5.quality.purple",
+      "bm5.role.swordsman",
+      "bm5.source.wuxia_novel",
+      "bm5.gongfa.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "crit_bonus",
+        "value": 0.12
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 3.5,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 182,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_purple_combo",
+            "duration": 3.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_purple_002",
+    "name": "任盈盈??",
+    "type": "neigong",
+    "description": "任盈盈?????",
+    "faction": "bm5_faction_purple_1",
+    "element": "wood",
+    "quality": "purple",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.three",
+      "bm5.gongfa",
+      "bm5.quality.purple",
+      "bm5.role.healer",
+      "bm5.source.wuxia_novel",
+      "bm5.gongfa.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "healing_amp",
+        "value": 0.18
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 5.0
+        },
+        "effects": [
+          {
+            "op": "heal_lowest_ally",
+            "value": 340
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_purple_heal",
+            "duration": 3.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_purple_003",
+    "name": "东方不败??",
+    "type": "qinggong",
+    "description": "东方不败?????",
+    "faction": "bm5_faction_purple_2",
+    "element": "water",
+    "quality": "purple",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.three",
+      "bm5.gongfa",
+      "bm5.quality.purple",
+      "bm5.role.assassin",
+      "bm5.source.wuxia_novel",
+      "bm5.gongfa.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.12
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_crit",
+        "cooldown": 3.8,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "bm5_mark_purple_shadow",
+            "duration": 5.0
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "bm5_mark_purple_shadow",
+            "value": 165,
+            "bonus_multiplier": 2.2
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "bm5_debuff_purple_bleed",
+            "duration": 4.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_purple_004",
+    "name": "岳不群??",
+    "type": "zhenfa",
+    "description": "岳不群?????",
+    "faction": "bm5_faction_purple_3",
+    "element": "fire",
+    "quality": "purple",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.three",
+      "bm5.gongfa",
+      "bm5.quality.purple",
+      "bm5.role.leader",
+      "bm5.source.wuxia_novel",
+      "bm5.gongfa.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "atk",
+        "value": 0.12
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "passive_aura",
+        "cooldown": 0.25,
+        "effects": [
+          {
+            "op": "tag_linkage_branch",
+            "range": 4,
+            "include_self": true,
+            "team_scope": "ally",
+            "source_types": [
+              "trait",
+              "gongfa",
+              "equipment",
+              "unit"
+            ],
+            "count_mode": "provider",
+            "queries": [
+              {
+                "id": "q_purple_core",
+                "tags": [
+                  "bm5.batch.three",
+                  "bm5.quality.purple"
+                ],
+                "tag_match": "all"
+              }
+            ],
+            "cases": [
+              {
+                "id": "purple_synergy_on",
+                "all": [
+                  {
+                    "query_id": "q_purple_core",
+                    "min_count": 3
+                  }
+                ],
+                "effects": [
+                  {
+                    "op": "buff_self",
+                    "buff_id": "bm5_buff_purple_array",
+                    "duration": 0.4
+                  }
+                ]
+              }
+            ],
+            "stop_after_first_case": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_purple_005",
+    "name": "左冷禅??",
+    "type": "waigong",
+    "description": "左冷禅?????",
+    "faction": "bm5_faction_purple_4",
+    "element": "earth",
+    "quality": "purple",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.three",
+      "bm5.gongfa",
+      "bm5.quality.purple",
+      "bm5.role.vanguard",
+      "bm5.source.wuxia_novel",
+      "bm5.gongfa.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "damage_reduce_percent",
+        "value": 0.12
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attacked",
+        "cooldown": 3.2,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_purple_guard",
+            "duration": 3.0
+          },
+          {
+            "op": "knockback_target",
+            "distance": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_purple_006",
+    "name": "乔峰??",
+    "type": "waigong",
+    "description": "乔峰?????",
+    "faction": "bm5_faction_purple_0",
+    "element": "metal",
+    "quality": "purple",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.three",
+      "bm5.gongfa",
+      "bm5.quality.purple",
+      "bm5.role.vanguard",
+      "bm5.source.wuxia_novel",
+      "bm5.gongfa.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "damage_reduce_percent",
+        "value": 0.12
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attacked",
+        "cooldown": 3.2,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_purple_guard",
+            "duration": 3.0
+          },
+          {
+            "op": "knockback_target",
+            "distance": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_purple_007",
+    "name": "段誉??",
+    "type": "neigong",
+    "description": "段誉?????",
+    "faction": "bm5_faction_purple_1",
+    "element": "wood",
+    "quality": "purple",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.three",
+      "bm5.gongfa",
+      "bm5.quality.purple",
+      "bm5.role.caster",
+      "bm5.source.wuxia_novel",
+      "bm5.gongfa.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "damage_amp_percent",
+        "value": 0.12
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 6.0
+        },
+        "effects": [
+          {
+            "op": "damage_aoe",
+            "radius": 2.2,
+            "value": 170,
+            "damage_type": "internal"
+          },
+          {
+            "op": "debuff_aoe",
+            "radius": 2.2,
+            "buff_id": "bm5_debuff_purple_burn",
+            "duration": 3.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_purple_008",
+    "name": "虚竹??",
+    "type": "neigong",
+    "description": "虚竹?????",
+    "faction": "bm5_faction_purple_2",
+    "element": "water",
+    "quality": "purple",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.three",
+      "bm5.gongfa",
+      "bm5.quality.purple",
+      "bm5.role.healer",
+      "bm5.source.wuxia_novel",
+      "bm5.gongfa.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "healing_amp",
+        "value": 0.18
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 5.0
+        },
+        "effects": [
+          {
+            "op": "heal_lowest_ally",
+            "value": 340
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_purple_heal",
+            "duration": 3.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_purple_009",
+    "name": "王语嫣??",
+    "type": "zhenfa",
+    "description": "王语嫣?????",
+    "faction": "bm5_faction_purple_3",
+    "element": "fire",
+    "quality": "purple",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.three",
+      "bm5.gongfa",
+      "bm5.quality.purple",
+      "bm5.role.leader",
+      "bm5.source.wuxia_novel",
+      "bm5.gongfa.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "atk",
+        "value": 0.12
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "passive_aura",
+        "cooldown": 0.25,
+        "effects": [
+          {
+            "op": "tag_linkage_branch",
+            "range": 4,
+            "include_self": true,
+            "team_scope": "ally",
+            "source_types": [
+              "trait",
+              "gongfa",
+              "equipment",
+              "unit"
+            ],
+            "count_mode": "provider",
+            "queries": [
+              {
+                "id": "q_purple_core",
+                "tags": [
+                  "bm5.batch.three",
+                  "bm5.quality.purple"
+                ],
+                "tag_match": "all"
+              }
+            ],
+            "cases": [
+              {
+                "id": "purple_synergy_on",
+                "all": [
+                  {
+                    "query_id": "q_purple_core",
+                    "min_count": 3
+                  }
+                ],
+                "effects": [
+                  {
+                    "op": "buff_self",
+                    "buff_id": "bm5_buff_purple_array",
+                    "duration": 0.4
+                  }
+                ]
+              }
+            ],
+            "stop_after_first_case": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_purple_010",
+    "name": "慕容复??",
+    "type": "waigong",
+    "description": "慕容复?????",
+    "faction": "bm5_faction_purple_4",
+    "element": "earth",
+    "quality": "purple",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.three",
+      "bm5.gongfa",
+      "bm5.quality.purple",
+      "bm5.role.swordsman",
+      "bm5.source.wuxia_novel",
+      "bm5.gongfa.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "crit_bonus",
+        "value": 0.12
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 3.5,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 182,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_purple_combo",
+            "duration": 3.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_purple_011",
+    "name": "张无忌??",
+    "type": "zhenfa",
+    "description": "张无忌?????",
+    "faction": "bm5_faction_purple_0",
+    "element": "metal",
+    "quality": "purple",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.three",
+      "bm5.gongfa",
+      "bm5.quality.purple",
+      "bm5.role.leader",
+      "bm5.source.wuxia_novel",
+      "bm5.gongfa.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_percent",
+        "stat": "atk",
+        "value": 0.12
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "passive_aura",
+        "cooldown": 0.25,
+        "effects": [
+          {
+            "op": "tag_linkage_branch",
+            "range": 4,
+            "include_self": true,
+            "team_scope": "ally",
+            "source_types": [
+              "trait",
+              "gongfa",
+              "equipment",
+              "unit"
+            ],
+            "count_mode": "provider",
+            "queries": [
+              {
+                "id": "q_purple_core",
+                "tags": [
+                  "bm5.batch.three",
+                  "bm5.quality.purple"
+                ],
+                "tag_match": "all"
+              }
+            ],
+            "cases": [
+              {
+                "id": "purple_synergy_on",
+                "all": [
+                  {
+                    "query_id": "q_purple_core",
+                    "min_count": 3
+                  }
+                ],
+                "effects": [
+                  {
+                    "op": "buff_self",
+                    "buff_id": "bm5_buff_purple_array",
+                    "duration": 0.4
+                  }
+                ]
+              }
+            ],
+            "stop_after_first_case": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_purple_012",
+    "name": "周芙若??",
+    "type": "qinggong",
+    "description": "周芙若?????",
+    "faction": "bm5_faction_purple_1",
+    "element": "wood",
+    "quality": "purple",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.three",
+      "bm5.gongfa",
+      "bm5.quality.purple",
+      "bm5.role.assassin",
+      "bm5.source.wuxia_novel",
+      "bm5.gongfa.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.12
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_crit",
+        "cooldown": 3.8,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "bm5_mark_purple_shadow",
+            "duration": 5.0
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "bm5_mark_purple_shadow",
+            "value": 165,
+            "bonus_multiplier": 2.2
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "bm5_debuff_purple_bleed",
+            "duration": 4.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_purple_013",
+    "name": "赵敏??",
+    "type": "qishu",
+    "description": "赵敏?????",
+    "faction": "bm5_faction_purple_2",
+    "element": "water",
+    "quality": "purple",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.three",
+      "bm5.gongfa",
+      "bm5.quality.purple",
+      "bm5.role.archer",
+      "bm5.source.wuxia_novel",
+      "bm5.gongfa.qishu"
+    ],
+    "passive_effects": [
+      {
+        "op": "range_add",
+        "value": 1
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 3.8,
+        "effects": [
+          {
+            "op": "damage_target_scaling",
+            "value": 145,
+            "scale_stat": "spd",
+            "scale_ratio": 0.55,
+            "scale_source": "self",
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "bm5_debuff_purple_slow",
+            "duration": 3.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_purple_014",
+    "name": "小龙女??",
+    "type": "qinggong",
+    "description": "小龙女?????",
+    "faction": "bm5_faction_purple_3",
+    "element": "fire",
+    "quality": "purple",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.three",
+      "bm5.gongfa",
+      "bm5.quality.purple",
+      "bm5.role.assassin",
+      "bm5.source.wuxia_novel",
+      "bm5.gongfa.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.12
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_crit",
+        "cooldown": 3.8,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "bm5_mark_purple_shadow",
+            "duration": 5.0
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "bm5_mark_purple_shadow",
+            "value": 165,
+            "bonus_multiplier": 2.2
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "bm5_debuff_purple_bleed",
+            "duration": 4.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_purple_015",
+    "name": "杨过??",
+    "type": "waigong",
+    "description": "杨过?????",
+    "faction": "bm5_faction_purple_4",
+    "element": "earth",
+    "quality": "purple",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.three",
+      "bm5.gongfa",
+      "bm5.quality.purple",
+      "bm5.role.swordsman",
+      "bm5.source.wuxia_novel",
+      "bm5.gongfa.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "crit_bonus",
+        "value": 0.12
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 3.5,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 182,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_purple_combo",
+            "duration": 3.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_purple_016",
+    "name": "李寻欢??",
+    "type": "qishu",
+    "description": "李寻欢?????",
+    "faction": "bm5_faction_purple_0",
+    "element": "metal",
+    "quality": "purple",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.three",
+      "bm5.gongfa",
+      "bm5.quality.purple",
+      "bm5.role.archer",
+      "bm5.source.wuxia_novel",
+      "bm5.gongfa.qishu"
+    ],
+    "passive_effects": [
+      {
+        "op": "range_add",
+        "value": 1
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 3.8,
+        "effects": [
+          {
+            "op": "damage_target_scaling",
+            "value": 145,
+            "scale_stat": "spd",
+            "scale_ratio": 0.55,
+            "scale_source": "self",
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "bm5_debuff_purple_slow",
+            "duration": 3.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_purple_017",
+    "name": "楚留香??",
+    "type": "qinggong",
+    "description": "楚留香?????",
+    "faction": "bm5_faction_purple_1",
+    "element": "wood",
+    "quality": "purple",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.three",
+      "bm5.gongfa",
+      "bm5.quality.purple",
+      "bm5.role.assassin",
+      "bm5.source.wuxia_novel",
+      "bm5.gongfa.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.12
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_crit",
+        "cooldown": 3.8,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "bm5_mark_purple_shadow",
+            "duration": 5.0
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "bm5_mark_purple_shadow",
+            "value": 165,
+            "bonus_multiplier": 2.2
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "bm5_debuff_purple_bleed",
+            "duration": 4.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_purple_018",
+    "name": "陆小凤??",
+    "type": "waigong",
+    "description": "陆小凤?????",
+    "faction": "bm5_faction_purple_2",
+    "element": "water",
+    "quality": "purple",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.three",
+      "bm5.gongfa",
+      "bm5.quality.purple",
+      "bm5.role.swordsman",
+      "bm5.source.wuxia_novel",
+      "bm5.gongfa.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "crit_bonus",
+        "value": 0.12
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 3.5,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 182,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_purple_combo",
+            "duration": 3.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_purple_019",
+    "name": "花满楼??",
+    "type": "neigong",
+    "description": "花满楼?????",
+    "faction": "bm5_faction_purple_3",
+    "element": "fire",
+    "quality": "purple",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.three",
+      "bm5.gongfa",
+      "bm5.quality.purple",
+      "bm5.role.healer",
+      "bm5.source.wuxia_novel",
+      "bm5.gongfa.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "healing_amp",
+        "value": 0.18
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 5.0
+        },
+        "effects": [
+          {
+            "op": "heal_lowest_ally",
+            "value": 340
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_purple_heal",
+            "duration": 3.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bm5_gf_purple_020",
+    "name": "西门吹雪??",
+    "type": "waigong",
+    "description": "西门吹雪?????",
+    "faction": "bm5_faction_purple_4",
+    "element": "earth",
+    "quality": "purple",
+    "shop_visible": true,
+    "tags": [
+      "bm5.batch.three",
+      "bm5.gongfa",
+      "bm5.quality.purple",
+      "bm5.role.swordsman",
+      "bm5.source.wuxia_novel",
+      "bm5.gongfa.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "crit_bonus",
+        "value": 0.12
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 3.5,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 182,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "bm5_buff_purple_combo",
+            "duration": 3.0
+          }
+        ]
+      }
+    ]
+  }
+]

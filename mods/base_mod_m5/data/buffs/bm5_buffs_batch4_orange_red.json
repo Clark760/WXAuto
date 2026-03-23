@@ -1,0 +1,272 @@
+[
+  {
+    "id": "bm5_buff_orange_guard",
+    "name": "????",
+    "type": "buff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 4.0,
+    "effects": [
+      {
+        "op": "damage_reduce_percent",
+        "value": 0.2
+      }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0
+  },
+  {
+    "id": "bm5_buff_orange_combo",
+    "name": "????",
+    "type": "buff",
+    "stackable": true,
+    "max_stacks": 4,
+    "default_duration": 4.0,
+    "effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.12
+      }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0
+  },
+  {
+    "id": "bm5_buff_orange_focus",
+    "name": "????",
+    "type": "buff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 5.0,
+    "effects": [
+      {
+        "op": "crit_bonus",
+        "value": 0.18
+      }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0
+  },
+  {
+    "id": "bm5_buff_orange_heal",
+    "name": "????",
+    "type": "buff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 4.0,
+    "effects": [
+      {
+        "op": "healing_amp",
+        "value": 0.24
+      },
+      {
+        "op": "hp_regen_add",
+        "value": 22
+      }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0
+  },
+  {
+    "id": "bm5_buff_orange_array",
+    "name": "????",
+    "type": "buff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 5.0,
+    "effects": [
+      {
+        "op": "damage_amp_percent",
+        "value": 0.18
+      }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0
+  },
+  {
+    "id": "bm5_debuff_orange_slow",
+    "name": "????",
+    "type": "debuff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 3.0,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": -28
+      }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0
+  },
+  {
+    "id": "bm5_debuff_orange_bleed",
+    "name": "????",
+    "type": "debuff",
+    "stackable": true,
+    "max_stacks": 4,
+    "default_duration": 5.0,
+    "effects": [],
+    "tick_effects": [
+      {
+        "op": "damage_target",
+        "value": 46,
+        "damage_type": "external"
+      }
+    ],
+    "tick_interval": 1.0
+  },
+  {
+    "id": "bm5_debuff_orange_burn",
+    "name": "????",
+    "type": "debuff",
+    "stackable": true,
+    "max_stacks": 4,
+    "default_duration": 5.0,
+    "effects": [],
+    "tick_effects": [
+      {
+        "op": "damage_target",
+        "value": 42,
+        "damage_type": "internal"
+      }
+    ],
+    "tick_interval": 1.0
+  },
+  {
+    "id": "bm5_buff_red_guard",
+    "name": "????",
+    "type": "buff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 4.0,
+    "effects": [
+      {
+        "op": "damage_reduce_percent",
+        "value": 0.24
+      }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0
+  },
+  {
+    "id": "bm5_buff_red_combo",
+    "name": "????",
+    "type": "buff",
+    "stackable": true,
+    "max_stacks": 5,
+    "default_duration": 4.0,
+    "effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.14
+      }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0
+  },
+  {
+    "id": "bm5_buff_red_focus",
+    "name": "????",
+    "type": "buff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 5.0,
+    "effects": [
+      {
+        "op": "crit_bonus",
+        "value": 0.22
+      }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0
+  },
+  {
+    "id": "bm5_buff_red_heal",
+    "name": "????",
+    "type": "buff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 4.0,
+    "effects": [
+      {
+        "op": "healing_amp",
+        "value": 0.3
+      },
+      {
+        "op": "hp_regen_add",
+        "value": 28
+      }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0
+  },
+  {
+    "id": "bm5_buff_red_array",
+    "name": "????",
+    "type": "buff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 5.0,
+    "effects": [
+      {
+        "op": "damage_amp_percent",
+        "value": 0.22
+      }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0
+  },
+  {
+    "id": "bm5_debuff_red_slow",
+    "name": "????",
+    "type": "debuff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 3.0,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": -34
+      }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0
+  },
+  {
+    "id": "bm5_debuff_red_bleed",
+    "name": "????",
+    "type": "debuff",
+    "stackable": true,
+    "max_stacks": 5,
+    "default_duration": 5.0,
+    "effects": [],
+    "tick_effects": [
+      {
+        "op": "damage_target",
+        "value": 58,
+        "damage_type": "external"
+      }
+    ],
+    "tick_interval": 1.0
+  },
+  {
+    "id": "bm5_debuff_red_burn",
+    "name": "????",
+    "type": "debuff",
+    "stackable": true,
+    "max_stacks": 5,
+    "default_duration": 5.0,
+    "effects": [],
+    "tick_effects": [
+      {
+        "op": "damage_target",
+        "value": 52,
+        "damage_type": "internal"
+      }
+    ],
+    "tick_interval": 1.0
+  }
+]

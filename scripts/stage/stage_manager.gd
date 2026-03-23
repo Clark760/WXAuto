@@ -48,7 +48,7 @@ func configure_runtime_context(
 	_player_team = player_team
 
 
-func load_stage_sequence(data_manager: Node) -> void:
+func load_stage_sequence(data_manager: Node, sequence_id: String = "stage_sequence") -> void:
 	_stage_map.clear()
 	_ordered_stage_ids.clear()
 	_current_stage_id = ""
@@ -58,11 +58,46 @@ func load_stage_sequence(data_manager: Node) -> void:
 	if not data_manager.has_method("get_record"):
 		return
 
-	var sequence_raw: Variant = data_manager.call("get_record", "stages", "stage_sequence")
-	if not (sequence_raw is Dictionary):
-		return
-	var sequence_record: Dictionary = _stage_data.normalize_stage_sequence_record(sequence_raw as Dictionary)
-	var sequence_ids: Array[String] = _stage_data.flatten_sequence_stage_ids(sequence_record)
+	var sequence_record_id: String = sequence_id.strip_edges()
+	if sequence_record_id.is_empty():
+		sequence_record_id = "stage_sequence"
+
+	var sequence_ids: Array[String] = []
+	var sequence_raw: Variant = data_manager.call("get_record", "stages", sequence_record_id)
+	if sequence_raw is Dictionary:
+		var sequence_record: Dictionary = _stage_data.normalize_stage_sequence_record(sequence_raw as Dictionary)
+		sequence_ids = _stage_data.flatten_sequence_stage_ids(sequence_record)
+	if sequence_ids.is_empty() and data_manager.has_method("get_all_records"):
+		var all_stage_rows: Variant = data_manager.call("get_all_records", "stages")
+		if all_stage_rows is Array:
+			var sequence_records: Array[Dictionary] = []
+			for row_value in all_stage_rows:
+				if not (row_value is Dictionary):
+					continue
+				var row: Dictionary = row_value as Dictionary
+				if not row.has("chapters"):
+					continue
+				var normalized_seq: Dictionary = _stage_data.normalize_stage_sequence_record(row)
+				var flatten_ids: Array[String] = _stage_data.flatten_sequence_stage_ids(normalized_seq)
+				if flatten_ids.is_empty():
+					continue
+				sequence_records.append({
+					"id": str(normalized_seq.get("id", "")).strip_edges(),
+					"stage_ids": flatten_ids
+				})
+			if not sequence_records.is_empty():
+				sequence_records.sort_custom(
+					func(a: Dictionary, b: Dictionary) -> bool:
+						return str(a.get("id", "")) < str(b.get("id", ""))
+				)
+				var picked_stage_ids: Variant = (sequence_records[0] as Dictionary).get("stage_ids", [])
+				if picked_stage_ids is Array:
+					for stage_id_value in picked_stage_ids:
+						var fallback_stage_id: String = str(stage_id_value).strip_edges()
+						if fallback_stage_id.is_empty():
+							continue
+						sequence_ids.append(fallback_stage_id)
+
 	for stage_id in sequence_ids:
 		if _stage_map.has(stage_id):
 			continue
@@ -136,6 +171,13 @@ func get_current_index() -> int:
 
 func get_total_stages() -> int:
 	return _ordered_stage_ids.size()
+
+
+func get_ordered_stage_ids() -> Array[String]:
+	var output: Array[String] = []
+	for stage_id in _ordered_stage_ids:
+		output.append(stage_id)
+	return output
 
 
 func notify_stage_combat_started() -> void:

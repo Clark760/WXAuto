@@ -1,0 +1,265 @@
+[
+  {
+    "id": "terrain_bm5_blazing_lotus",
+    "name": "????",
+    "type": "hazard",
+    "aliases": [
+      "bm5_blazing_lotus",
+      "blazing_lotus"
+    ],
+    "color": "#E66A3A66",
+    "is_barrier": false,
+    "tick_interval": 0.5,
+    "target_mode": "enemies",
+    "damage_type": "internal",
+    "tags": [
+      "bm5.batch.five",
+      "bm5.terrain",
+      "bm5.terrain.fire",
+      "bm5.terrain.vfx",
+      "element.fire",
+      "terrain.hazard"
+    ],
+    "effects_on_enter": [
+      {
+        "op": "debuff_target",
+        "buff_id": "bm5_debuff_terrain_scorch",
+        "duration": 1.8
+      }
+    ],
+    "effects_on_tick": [
+      {
+        "op": "damage_target",
+        "value": 24.0,
+        "damage_type": "internal"
+      },
+      {
+        "op": "debuff_target",
+        "buff_id": "bm5_debuff_terrain_scorch",
+        "duration": 1.8
+      },
+      {
+        "op": "spawn_vfx",
+        "vfx_id": "vfx_sword_qi",
+        "at": "target"
+      }
+    ],
+    "effects_on_exit": [],
+    "effects_on_expire": []
+  },
+  {
+    "id": "terrain_bm5_frost_mirror",
+    "name": "????",
+    "type": "hazard",
+    "aliases": [
+      "bm5_frost_mirror",
+      "frost_mirror"
+    ],
+    "color": "#75B5F066",
+    "is_barrier": false,
+    "tick_interval": 0.5,
+    "target_mode": "enemies",
+    "damage_type": "internal",
+    "tags": [
+      "bm5.batch.five",
+      "bm5.terrain",
+      "bm5.terrain.ice",
+      "bm5.terrain.vfx",
+      "element.water",
+      "terrain.hazard"
+    ],
+    "effects_on_enter": [
+      {
+        "op": "debuff_target",
+        "buff_id": "bm5_debuff_terrain_frostbite",
+        "duration": 1.5
+      }
+    ],
+    "effects_on_tick": [
+      {
+        "op": "damage_target",
+        "value": 16.0,
+        "damage_type": "internal"
+      },
+      {
+        "op": "debuff_target",
+        "buff_id": "bm5_debuff_terrain_frostbite",
+        "duration": 1.5
+      },
+      {
+        "op": "spawn_vfx",
+        "vfx_id": "vfx_sword_qi",
+        "at": "target"
+      }
+    ],
+    "effects_on_exit": [],
+    "effects_on_expire": []
+  },
+  {
+    "id": "terrain_bm5_qi_spring",
+    "name": "????",
+    "type": "beneficial",
+    "aliases": [
+      "bm5_qi_spring",
+      "qi_spring"
+    ],
+    "color": "#6ED8A266",
+    "is_barrier": false,
+    "tick_interval": 0.5,
+    "target_mode": "allies",
+    "damage_type": "internal",
+    "tags": [
+      "bm5.batch.five",
+      "bm5.terrain",
+      "bm5.terrain.heal",
+      "bm5.terrain.vfx",
+      "element.wood",
+      "terrain.beneficial"
+    ],
+    "effects_on_enter": [
+      {
+        "op": "buff_target",
+        "buff_id": "bm5_buff_terrain_qi_flow",
+        "duration": 1.5
+      }
+    ],
+    "effects_on_tick": [
+      {
+        "op": "heal_target_flat",
+        "value": 26.0
+      },
+      {
+        "op": "buff_target",
+        "buff_id": "bm5_buff_terrain_qi_flow",
+        "duration": 1.5
+      },
+      {
+        "op": "spawn_vfx",
+        "vfx_id": "vfx_sword_qi",
+        "at": "target"
+      }
+    ],
+    "effects_on_exit": [],
+    "effects_on_expire": []
+  },
+  {
+    "id": "terrain_bm5_stone_wall",
+    "name": "????",
+    "type": "obstacle",
+    "aliases": [
+      "bm5_stone_wall",
+      "stone_wall"
+    ],
+    "color": "#777777CC",
+    "is_barrier": true,
+    "tick_interval": 0.5,
+    "target_mode": "none",
+    "damage_type": "internal",
+    "tags": [
+      "bm5.batch.five",
+      "bm5.terrain",
+      "bm5.terrain.rock",
+      "terrain.obstacle"
+    ],
+    "effects_on_enter": [],
+    "effects_on_tick": [],
+    "effects_on_exit": [],
+    "effects_on_expire": []
+  },
+  {
+    "id": "terrain_bm5_bamboo_grove",
+    "name": "????",
+    "type": "obstacle",
+    "aliases": [
+      "bm5_bamboo_grove",
+      "bamboo_grove"
+    ],
+    "color": "#4F9A63CC",
+    "is_barrier": true,
+    "tick_interval": 0.5,
+    "target_mode": "none",
+    "damage_type": "internal",
+    "tags": [
+      "bm5.batch.five",
+      "bm5.terrain",
+      "bm5.terrain.bamboo",
+      "terrain.obstacle"
+    ],
+    "effects_on_enter": [],
+    "effects_on_tick": [],
+    "effects_on_exit": [],
+    "effects_on_expire": []
+  },
+  {
+    "id": "terrain_bm5_mist_marsh",
+    "name": "????",
+    "type": "hazard",
+    "aliases": [
+      "bm5_mist_marsh",
+      "mist_marsh"
+    ],
+    "color": "#8A8A6B66",
+    "is_barrier": false,
+    "tick_interval": 0.5,
+    "target_mode": "none",
+    "damage_type": "internal",
+    "tags": [
+      "bm5.batch.five",
+      "bm5.terrain",
+      "bm5.terrain.marsh",
+      "terrain.hazard"
+    ],
+    "effects_on_enter": [],
+    "effects_on_tick": [],
+    "effects_on_exit": [],
+    "effects_on_expire": []
+  },
+  {
+    "id": "terrain_bm5_ancient_bridge",
+    "name": "????",
+    "type": "beneficial",
+    "aliases": [
+      "bm5_ancient_bridge",
+      "ancient_bridge"
+    ],
+    "color": "#9A7E5B66",
+    "is_barrier": false,
+    "tick_interval": 0.5,
+    "target_mode": "none",
+    "damage_type": "internal",
+    "tags": [
+      "bm5.batch.five",
+      "bm5.terrain",
+      "bm5.terrain.bridge",
+      "terrain.beneficial"
+    ],
+    "effects_on_enter": [],
+    "effects_on_tick": [],
+    "effects_on_exit": [],
+    "effects_on_expire": []
+  },
+  {
+    "id": "terrain_bm5_sand_sink",
+    "name": "????",
+    "type": "hazard",
+    "aliases": [
+      "bm5_sand_sink",
+      "sand_sink"
+    ],
+    "color": "#C8AA6A66",
+    "is_barrier": false,
+    "tick_interval": 0.5,
+    "target_mode": "none",
+    "damage_type": "internal",
+    "tags": [
+      "bm5.batch.five",
+      "bm5.terrain",
+      "bm5.terrain.sand",
+      "terrain.hazard"
+    ],
+    "effects_on_enter": [],
+    "effects_on_tick": [],
+    "effects_on_exit": [],
+    "effects_on_expire": []
+  }
+]

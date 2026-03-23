@@ -12,11 +12,6 @@ const SHOP_TAB_RECRUIT: String = "recruit"
 const SHOP_TAB_GONGFA: String = "gongfa"
 const SHOP_TAB_EQUIPMENT: String = "equipment"
 
-const SHOP_LAYER_INDEX: int = 12
-const SHOP_PANEL_MIN_WIDTH: float = 760.0
-const SHOP_PANEL_MAX_WIDTH: float = 980.0
-const SHOP_PANEL_HEIGHT: float = 320.0
-
 const QUALITY_SELL_PRICE: Dictionary = {
 	"white": 1,
 	"green": 2,
@@ -54,30 +49,28 @@ const DEFAULT_DEPLOY_ZONE: Dictionary = {
 	"y_max": 15
 }
 
-@onready var _shop_bar: HBoxContainer = $BottomLayer/BottomPanel/RootVBox/ShopBar
-@onready var _shop_label: Label = $BottomLayer/BottomPanel/RootVBox/ShopBar/ShopLabel
-
 var _economy_manager: Node = null
 var _shop_manager: Node = null
 var _stage_manager: Node = null
 
-var _shop_layer: CanvasLayer = null
-var _shop_panel: PanelContainer = null
-var _shop_open_button: Button = null
-var _start_battle_button: Button = null
-var _reset_battle_button: Button = null
-var _shop_title_label: Label = null
-var _shop_status_label: Label = null
-var _shop_close_button: Button = null
+@onready var _shop_panel: PanelContainer = $ShopPanelLayer/ShopPanel
+@onready var _shop_open_button: Button = $HUDLayer/TopBar/TopBarContent/ShopOpenButton
+@onready var _start_battle_button: Button = $HUDLayer/TopBar/TopBarContent/StartBattleButton
+@onready var _reset_battle_button: Button = $HUDLayer/TopBar/TopBarContent/ResetBattleButton
+@onready var _shop_status_label: Label = $ShopPanelLayer/ShopPanel/ShopRoot/HeaderRow/ShopStatus
+@onready var _shop_close_button: Button = $ShopPanelLayer/ShopPanel/ShopRoot/HeaderRow/ShopCloseButton
+@onready var _shop_tab_recruit_button: Button = $ShopPanelLayer/ShopPanel/ShopRoot/TabRow/RecruitTabButton
+@onready var _shop_tab_gongfa_button: Button = $ShopPanelLayer/ShopPanel/ShopRoot/TabRow/GongfaTabButton
+@onready var _shop_tab_equipment_button: Button = $ShopPanelLayer/ShopPanel/ShopRoot/TabRow/EquipmentTabButton
 var _shop_tabs: Dictionary = {}
-var _shop_offer_row: HBoxContainer = null
-var _shop_silver_label: Label = null
-var _shop_level_label: Label = null
-var _shop_refresh_button: Button = null
-var _shop_upgrade_button: Button = null
-var _shop_lock_button: Button = null
-var _shop_test_add_silver_button: Button = null
-var _shop_test_add_exp_button: Button = null
+@onready var _shop_offer_row: HBoxContainer = $ShopPanelLayer/ShopPanel/ShopRoot/OfferRow
+@onready var _shop_silver_label: Label = $ShopPanelLayer/ShopPanel/ShopRoot/OperationPanel/OperationRoot/Row1/ShopSilverLabel
+@onready var _shop_level_label: Label = $ShopPanelLayer/ShopPanel/ShopRoot/OperationPanel/OperationRoot/Row2/ShopLevelLabel
+@onready var _shop_refresh_button: Button = $ShopPanelLayer/ShopPanel/ShopRoot/OperationPanel/OperationRoot/Row1/ShopRefreshButton
+@onready var _shop_upgrade_button: Button = $ShopPanelLayer/ShopPanel/ShopRoot/OperationPanel/OperationRoot/Row2/ShopUpgradeButton
+@onready var _shop_lock_button: Button = $ShopPanelLayer/ShopPanel/ShopRoot/OperationPanel/OperationRoot/Row2/ShopLockButton
+@onready var _shop_test_add_silver_button: Button = $ShopPanelLayer/ShopPanel/ShopRoot/OperationPanel/OperationRoot/Row1/ShopTestAddSilverButton
+@onready var _shop_test_add_exp_button: Button = $ShopPanelLayer/ShopPanel/ShopRoot/OperationPanel/OperationRoot/Row2/ShopTestAddExpButton
 
 var _shop_current_tab: String = SHOP_TAB_RECRUIT
 var _shop_open_in_preparation: bool = true
@@ -126,11 +119,13 @@ func _ready() -> void:
 	_stage_enemy_rng.randomize()
 	_bootstrap_battle_services()
 	super._ready()
-	_simplify_bottom_workspace_ui()
 	_ensure_recycle_zone_created()
 	_ensure_battle_flow_created()
-	_ensure_shop_panel_created()
-	_ensure_shop_open_button()
+	_shop_tabs = {
+		SHOP_TAB_RECRUIT: _shop_tab_recruit_button,
+		SHOP_TAB_GONGFA: _shop_tab_gongfa_button,
+		SHOP_TAB_EQUIPMENT: _shop_tab_equipment_button
+	}
 	_connect_battle_ui_signals()
 	_initialize_stage_progression()
 	_refresh_shop_for_preparation(true)
@@ -226,7 +221,6 @@ func _apply_stage_ui_state() -> void:
 
 func _on_viewport_size_changed() -> void:
 	super._on_viewport_size_changed()
-	_layout_shop_panel()
 	_layout_bench_recycle_wrap()
 	if _battle_flow != null and is_instance_valid(_battle_flow):
 		_battle_flow.call("refresh_layout")
@@ -243,24 +237,6 @@ func _refresh_dynamic_ui() -> void:
 	super._refresh_dynamic_ui()
 	if _economy_manager == null:
 		return
-	var assets: Dictionary = _economy_manager.get_assets_snapshot()
-	var level: int = int(assets.get("level", 1))
-	var exp_value: int = int(assets.get("exp", 0))
-	var max_exp: int = int(assets.get("max_exp", 0))
-	var silver: int = int(assets.get("silver", 0))
-	var bench_count: int = bench_ui.get_unit_count() if bench_ui != null else 0
-	var bench_slots: int = bench_ui.get_slot_count() if bench_ui != null else 0
-	var deploy_limit: int = _economy_manager.get_max_deploy_limit()
-	if resource_label != null and resource_label.visible:
-		resource_label.text = "门派LV%d (%d/%d) | 银两%d | 上场上限%d | 备战席 %d/%d" % [
-			level,
-			exp_value,
-			max_exp,
-			silver,
-			deploy_limit,
-			bench_count,
-			bench_slots
-		]
 	_update_shop_operation_labels()
 
 
@@ -319,7 +295,7 @@ func _update_drag_target(screen_pos: Vector2) -> void:
 
 	if _recycle_drop_zone != null and is_instance_valid(_recycle_drop_zone):
 		if target_type == "recycle" and _dragging_unit != null and _is_valid_unit(_dragging_unit):
-			var can_sell_unit: bool = str(_dragging_unit.get_meta("drag_origin_kind", "")) == "bench"
+			var can_sell_unit: bool = _get_drag_origin_kind() == "bench"
 			var payload: Dictionary = {
 				"type": "unit",
 				"id": str(_dragging_unit.get("unit_id")),
@@ -360,6 +336,21 @@ func _finish_drag() -> void:
 		if _recycle_drop_zone.has_method("clear_external_preview"):
 			_recycle_drop_zone.call("clear_external_preview")
 	super._finish_drag()
+
+
+func _restore_drag_origin() -> void:
+	# 本地兜底：避免继承链调整时找不到 Runtime 层同名方法。
+	var drag_controller: Node = get("_drag_controller") as Node
+	if drag_controller != null and is_instance_valid(drag_controller):
+		drag_controller.call("restore_drag_origin")
+
+
+func _get_drag_origin_kind() -> String:
+	# 本地兜底：由 RuntimeDragController 返回拖拽来源。
+	var drag_controller: Node = get("_drag_controller") as Node
+	if drag_controller != null and is_instance_valid(drag_controller):
+		return str(drag_controller.call("get_drag_origin_kind"))
+	return ""
 
 
 func _on_data_reloaded(is_full_reload: bool, summary: Dictionary) -> void:
@@ -550,8 +541,10 @@ func _apply_stage_enemy_overrides(unit_node: Node, enemy_cfg: Dictionary) -> voi
 	var stats_changed: bool = false
 	var stat_scale: float = maxf(float(enemy_cfg.get("stat_scale", 1.0)), 0.01)
 	if not is_equal_approx(stat_scale, 1.0):
-		for stat_key in base_stats.keys():
-			var current_value: Variant = base_stats[stat_key]
+		# 关卡倍率只放大核心战斗数值，不改写 RNG/SPD/WIS。
+		var scalable_keys: Array[String] = ["hp", "mp", "atk", "iat", "def", "idr"]
+		for stat_key in scalable_keys:
+			var current_value: Variant = base_stats.get(stat_key, 0.0)
 			if current_value is int or current_value is float:
 				base_stats[stat_key] = float(current_value) * stat_scale
 		stats_changed = true
@@ -569,90 +562,8 @@ func _apply_stage_enemy_overrides(unit_node: Node, enemy_cfg: Dictionary) -> voi
 		unit_node.set("base_stats", base_stats)
 		unit_node.call("_apply_runtime_stats")
 
-	var merged_gongfa_ids: Array[String] = []
-	var gongfa_ids_value: Variant = enemy_cfg.get("gongfa_ids", [])
-	if gongfa_ids_value is Array:
-		for gongfa_id_value in (gongfa_ids_value as Array):
-			var base_gongfa_id: String = str(gongfa_id_value).strip_edges()
-			if base_gongfa_id.is_empty() or merged_gongfa_ids.has(base_gongfa_id):
-				continue
-			merged_gongfa_ids.append(base_gongfa_id)
-	# M5 合并方案：Boss 机制改为关卡声明的 boss_gongfa_ids，由功法管线统一执行。
-	if _is_stage_boss_enemy_cfg(enemy_cfg):
-		var stage_boss_gongfa_value: Variant = _current_stage_config.get("boss_gongfa_ids", [])
-		if stage_boss_gongfa_value is Array:
-			for stage_gongfa_value in (stage_boss_gongfa_value as Array):
-				var stage_gongfa_id: String = str(stage_gongfa_value).strip_edges()
-				if stage_gongfa_id.is_empty() or merged_gongfa_ids.has(stage_gongfa_id):
-					continue
-				merged_gongfa_ids.append(stage_gongfa_id)
-
-	if not merged_gongfa_ids.is_empty():
-		var slots: Dictionary = _normalize_unit_slots(unit_node.get("gongfa_slots"))
-		for gongfa_id in merged_gongfa_ids:
-			var gongfa_data: Dictionary = gongfa_manager.call("get_gongfa_data", gongfa_id) if gongfa_manager != null else {}
-			var slot: String = str(gongfa_data.get("type", "")).strip_edges()
-			if not slot.is_empty() and slots.has(slot):
-				slots[slot] = gongfa_id
-		unit_node.set("gongfa_slots", slots)
-
-	var equip_ids_value: Variant = enemy_cfg.get("equip_ids", [])
-	if equip_ids_value is Array and not (equip_ids_value as Array).is_empty():
-		var equip_slots: Dictionary = _normalize_equip_slots(_get_unit_equip_slots(unit_node))
-		for equip_id_value in (equip_ids_value as Array):
-			var equip_id: String = str(equip_id_value).strip_edges()
-			if equip_id.is_empty():
-				continue
-			var equip_data: Dictionary = gongfa_manager.call("get_equipment_data", equip_id) if gongfa_manager != null else {}
-			var slot2: String = str(equip_data.get("type", "")).strip_edges()
-			if not slot2.is_empty() and equip_slots.has(slot2):
-				equip_slots[slot2] = equip_id
-		unit_node.set("equip_slots", equip_slots)
-
 	if gongfa_manager != null:
 		gongfa_manager.call("apply_gongfa", unit_node)
-
-
-func _is_stage_boss_enemy_cfg(enemy_cfg: Dictionary) -> bool:
-	if bool(enemy_cfg.get("is_boss", false)):
-		return true
-	var stage_type: String = str(_current_stage_config.get("type", "normal")).strip_edges().to_lower()
-	if stage_type != "boss":
-		return false
-	var deploy_zone: String = str(enemy_cfg.get("deploy_zone", "random")).strip_edges().to_lower()
-	var count: int = maxi(int(enemy_cfg.get("count", 1)), 0)
-	var star: int = clampi(int(enemy_cfg.get("star", 1)), 1, 3)
-	return count == 1 and (deploy_zone == "center" or star >= 3)
-
-
-func get_primary_boss_unit() -> Node:
-	var tagged_boss: Node = null
-	for unit in _enemy_deployed.values():
-		if not _is_valid_unit(unit):
-			continue
-		if not _is_enemy_unit_alive(unit):
-			continue
-		if bool((unit as Node).get_meta("stage_is_boss", false)):
-			tagged_boss = unit as Node
-			break
-	if tagged_boss != null:
-		return tagged_boss
-
-	var fallback_boss: Node = null
-	var best_hp: float = -1.0
-	for unit in _enemy_deployed.values():
-		if not _is_valid_unit(unit):
-			continue
-		if not _is_enemy_unit_alive(unit):
-			continue
-		var combat: Node = (unit as Node).get_node_or_null("Components/UnitCombat")
-		if combat == null:
-			continue
-		var hp: float = float(combat.get("max_hp"))
-		if hp > best_hp:
-			best_hp = hp
-			fallback_boss = unit as Node
-	return fallback_boss
 
 
 func spawn_mechanic_enemy_wave(wave_units_value: Variant) -> int:
@@ -1017,6 +928,8 @@ func _rebuild_battle_data_caches() -> void:
 
 
 func _connect_battle_ui_signals() -> void:
+	_connect_shop_ui_signals()
+
 	if _economy_manager != null:
 		var assets_cb: Callable = Callable(self, "_on_assets_changed")
 		if not _economy_manager.is_connected("assets_changed", assets_cb):
@@ -1051,25 +964,105 @@ func _connect_battle_ui_signals() -> void:
 		if _recycle_drop_zone.has_signal("sell_requested") and not _recycle_drop_zone.is_connected("sell_requested", sell_cb):
 			_recycle_drop_zone.connect("sell_requested", sell_cb)
 
-	var refresh_cb_btn: Callable = Callable(self, "_on_bottom_refresh_pressed")
-	if refresh_button != null and not refresh_button.is_connected("pressed", refresh_cb_btn):
-		refresh_button.connect("pressed", refresh_cb_btn)
-	var lock_cb_btn: Callable = Callable(self, "_on_bottom_lock_pressed")
-	if lock_button != null and not lock_button.is_connected("pressed", lock_cb_btn):
-		lock_button.connect("pressed", lock_cb_btn)
-	var upgrade_cb_btn: Callable = Callable(self, "_on_bottom_upgrade_pressed")
-	if upgrade_button != null and not upgrade_button.is_connected("pressed", upgrade_cb_btn):
-		upgrade_button.connect("pressed", upgrade_cb_btn)
+
+func _connect_shop_ui_signals() -> void:
+	if _shop_open_button != null:
+		_shop_open_button.text = "商店(B)"
+		_shop_open_button.toggle_mode = true
+		var shop_open_cb: Callable = Callable(self, "_on_shop_open_button_pressed")
+		if not _shop_open_button.is_connected("pressed", shop_open_cb):
+			_shop_open_button.connect("pressed", shop_open_cb)
+
+	if _start_battle_button != null:
+		_start_battle_button.text = "开始战斗(F6)"
+		var start_cb: Callable = Callable(self, "_on_start_battle_button_pressed")
+		if not _start_battle_button.is_connected("pressed", start_cb):
+			_start_battle_button.connect("pressed", start_cb)
+
+	if _reset_battle_button != null:
+		_reset_battle_button.text = "重置战场(F7)"
+		var reset_cb: Callable = Callable(self, "_on_reset_battle_button_pressed")
+		if not _reset_battle_button.is_connected("pressed", reset_cb):
+			_reset_battle_button.connect("pressed", reset_cb)
+
+	if _shop_close_button != null:
+		var close_cb: Callable = Callable(self, "_on_shop_close_pressed")
+		if not _shop_close_button.is_connected("pressed", close_cb):
+			_shop_close_button.connect("pressed", close_cb)
+
+	if _shop_tab_recruit_button != null:
+		_shop_tab_recruit_button.toggle_mode = true
+		var recruit_tab_cb: Callable = Callable(self, "_on_shop_tab_pressed").bind(SHOP_TAB_RECRUIT)
+		if not _shop_tab_recruit_button.is_connected("pressed", recruit_tab_cb):
+			_shop_tab_recruit_button.connect("pressed", recruit_tab_cb)
+	if _shop_tab_gongfa_button != null:
+		_shop_tab_gongfa_button.toggle_mode = true
+		var gongfa_tab_cb: Callable = Callable(self, "_on_shop_tab_pressed").bind(SHOP_TAB_GONGFA)
+		if not _shop_tab_gongfa_button.is_connected("pressed", gongfa_tab_cb):
+			_shop_tab_gongfa_button.connect("pressed", gongfa_tab_cb)
+	if _shop_tab_equipment_button != null:
+		_shop_tab_equipment_button.toggle_mode = true
+		var equip_tab_cb: Callable = Callable(self, "_on_shop_tab_pressed").bind(SHOP_TAB_EQUIPMENT)
+		if not _shop_tab_equipment_button.is_connected("pressed", equip_tab_cb):
+			_shop_tab_equipment_button.connect("pressed", equip_tab_cb)
+
+	if _shop_refresh_button != null:
+		var refresh_cb: Callable = Callable(self, "_on_bottom_refresh_pressed")
+		if not _shop_refresh_button.is_connected("pressed", refresh_cb):
+			_shop_refresh_button.connect("pressed", refresh_cb)
+	if _shop_upgrade_button != null:
+		var upgrade_cb: Callable = Callable(self, "_on_bottom_upgrade_pressed")
+		if not _shop_upgrade_button.is_connected("pressed", upgrade_cb):
+			_shop_upgrade_button.connect("pressed", upgrade_cb)
+	if _shop_lock_button != null:
+		var lock_cb: Callable = Callable(self, "_on_bottom_lock_pressed")
+		if not _shop_lock_button.is_connected("pressed", lock_cb):
+			_shop_lock_button.connect("pressed", lock_cb)
+	if _shop_test_add_silver_button != null:
+		var test_silver_cb: Callable = Callable(self, "_on_test_add_silver_pressed")
+		if not _shop_test_add_silver_button.is_connected("pressed", test_silver_cb):
+			_shop_test_add_silver_button.connect("pressed", test_silver_cb)
+	if _shop_test_add_exp_button != null:
+		var test_exp_cb: Callable = Callable(self, "_on_test_add_exp_pressed")
+		if not _shop_test_add_exp_button.is_connected("pressed", test_exp_cb):
+			_shop_test_add_exp_button.connect("pressed", test_exp_cb)
+
+	for key in _shop_tabs.keys():
+		var tab_btn: Button = _shop_tabs[key] as Button
+		if tab_btn != null:
+			tab_btn.button_pressed = str(key) == _shop_current_tab
+
+	_refresh_top_quick_action_buttons()
 
 
 func _initialize_stage_progression() -> void:
 	if _stage_manager == null or not is_instance_valid(_stage_manager):
 		return
 	var data_manager: Node = _get_root_node("DataManager")
-	_stage_manager.call("load_stage_sequence", data_manager)
+	var requested_sequence_id: String = _consume_requested_stage_sequence_id()
+	if requested_sequence_id.is_empty():
+		_stage_manager.call("load_stage_sequence", data_manager)
+	else:
+		_stage_manager.call("load_stage_sequence", data_manager, requested_sequence_id)
 	var started: bool = bool(_stage_manager.call("start_first_stage"))
+	if not started and not requested_sequence_id.is_empty():
+		_stage_manager.call("load_stage_sequence", data_manager)
+		started = bool(_stage_manager.call("start_first_stage"))
+		if started:
+			_append_battle_log("指定章节序列不可用：%s，已回退默认序列。" % requested_sequence_id, "system")
 	if not started:
 		debug_label.text = "M5 提示：未检测到关卡配置，沿用旧战场模式。"
+
+
+func _consume_requested_stage_sequence_id() -> String:
+	var game_manager: Node = _get_root_node("GameManager")
+	if game_manager == null or not is_instance_valid(game_manager):
+		return ""
+	if game_manager.has_method("consume_requested_stage_sequence_id"):
+		return str(game_manager.call("consume_requested_stage_sequence_id")).strip_edges()
+	if game_manager.has_method("consume_requested_stage_id"):
+		return str(game_manager.call("consume_requested_stage_id")).strip_edges()
+	return ""
 
 
 func _on_stage_loaded(config: Dictionary) -> void:
@@ -1161,8 +1154,6 @@ func _apply_stage_grid_config(grid_value: Variant) -> void:
 		var swap_y: int = int(_current_deploy_zone["y_min"])
 		_current_deploy_zone["y_min"] = int(_current_deploy_zone["y_max"])
 		_current_deploy_zone["y_max"] = swap_y
-	# 兼容旧逻辑：仍同步到 ally_deploy_columns，避免未覆写路径读到旧值。
-	ally_deploy_columns = int(_current_deploy_zone["x_max"]) + 1
 	if deploy_overlay != null and deploy_overlay.has_method("set_deploy_zone_rect"):
 		deploy_overlay.call(
 			"set_deploy_zone_rect",
@@ -1171,8 +1162,6 @@ func _apply_stage_grid_config(grid_value: Variant) -> void:
 			int(_current_deploy_zone.get("y_min", 0)),
 			int(_current_deploy_zone.get("y_max", height - 1))
 		)
-	elif deploy_overlay != null and deploy_overlay.has_method("set_ally_columns"):
-		deploy_overlay.call("set_ally_columns", ally_deploy_columns)
 	_refit_hex_grid()
 
 
@@ -1252,32 +1241,6 @@ func _normalize_stage_terrains(terrains_value: Variant, obstacles_value: Variant
 				"cells": (cells_value as Array).duplicate(true)
 			})
 	return rows
-
-
-func _simplify_bottom_workspace_ui() -> void:
-	# 底部只保留备战区与回收区，商店/门派信息统一以上方商店面板为准。
-	if _shop_bar != null:
-		_shop_bar.visible = false
-		_shop_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	if refresh_button != null:
-		refresh_button.focus_mode = Control.FOCUS_NONE
-	if lock_button != null:
-		lock_button.focus_mode = Control.FOCUS_NONE
-	if resource_label != null:
-		var resource_bar: Control = resource_label.get_parent() as Control
-		if resource_bar != null:
-			resource_bar.visible = false
-			resource_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	if upgrade_button != null:
-		var action_bar: Control = upgrade_button.get_parent() as Control
-		if action_bar != null:
-			action_bar.visible = false
-			action_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		upgrade_button.focus_mode = Control.FOCUS_NONE
-	if gongfa_button != null:
-		gongfa_button.focus_mode = Control.FOCUS_NONE
-	if equip_button != null:
-		equip_button.focus_mode = Control.FOCUS_NONE
 
 
 func _ensure_battle_flow_created() -> void:
@@ -1513,192 +1476,6 @@ func _resolve_sell_item_name(item_type: String, item_id: String) -> String:
 	else:
 		data = gongfa_manager.call("get_equipment_data", item_id)
 	return str(data.get("name", item_id))
-
-
-func _ensure_shop_open_button() -> void:
-	var top_bar_row: HBoxContainer = timer_label.get_parent() as HBoxContainer if timer_label != null else null
-	if top_bar_row == null:
-		return
-	if _shop_label != null:
-		_shop_label.text = "商店"
-	if _shop_open_button == null or not is_instance_valid(_shop_open_button):
-		_shop_open_button = Button.new()
-		_shop_open_button.toggle_mode = true
-		_shop_open_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		_shop_open_button.pressed.connect(Callable(self, "_on_shop_open_button_pressed"))
-	if _start_battle_button == null or not is_instance_valid(_start_battle_button):
-		_start_battle_button = Button.new()
-		_start_battle_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		_start_battle_button.pressed.connect(Callable(self, "_on_start_battle_button_pressed"))
-	if _reset_battle_button == null or not is_instance_valid(_reset_battle_button):
-		_reset_battle_button = Button.new()
-		_reset_battle_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		_reset_battle_button.pressed.connect(Callable(self, "_on_reset_battle_button_pressed"))
-	if _shop_open_button.get_parent() != top_bar_row:
-		if _shop_open_button.get_parent() != null:
-			_shop_open_button.get_parent().remove_child(_shop_open_button)
-		top_bar_row.add_child(_shop_open_button)
-	if _start_battle_button.get_parent() != top_bar_row:
-		if _start_battle_button.get_parent() != null:
-			_start_battle_button.get_parent().remove_child(_start_battle_button)
-		top_bar_row.add_child(_start_battle_button)
-	if _reset_battle_button.get_parent() != top_bar_row:
-		if _reset_battle_button.get_parent() != null:
-			_reset_battle_button.get_parent().remove_child(_reset_battle_button)
-		top_bar_row.add_child(_reset_battle_button)
-	var timer_index: int = top_bar_row.get_children().find(timer_label)
-	if timer_index >= 0:
-		top_bar_row.move_child(_shop_open_button, timer_index + 1)
-		top_bar_row.move_child(_start_battle_button, timer_index + 2)
-		top_bar_row.move_child(_reset_battle_button, timer_index + 3)
-	_shop_open_button.text = "商店(B)"
-	_shop_open_button.button_pressed = _shop_panel != null and _shop_panel.visible
-	_start_battle_button.text = "开始战斗(F6)"
-	_reset_battle_button.text = "重置战场(F7)"
-	_refresh_top_quick_action_buttons()
-
-
-func _ensure_shop_panel_created() -> void:
-	if _shop_panel != null and is_instance_valid(_shop_panel):
-		return
-
-	_shop_layer = CanvasLayer.new()
-	_shop_layer.name = "ShopPanelLayer"
-	_shop_layer.layer = SHOP_LAYER_INDEX
-	add_child(_shop_layer)
-
-	_shop_panel = PanelContainer.new()
-	_shop_panel.name = "ShopPanel"
-	_shop_panel.mouse_filter = Control.MOUSE_FILTER_STOP
-	_shop_layer.add_child(_shop_panel)
-
-	var root := VBoxContainer.new()
-	root.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	root.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	root.add_theme_constant_override("separation", 8)
-	_shop_panel.add_child(root)
-
-	var header := HBoxContainer.new()
-	header.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	root.add_child(header)
-
-	_shop_title_label = Label.new()
-	_shop_title_label.text = "综合商店"
-	_shop_title_label.add_theme_font_size_override("font_size", 20)
-	header.add_child(_shop_title_label)
-
-	_shop_status_label = Label.new()
-	_shop_status_label.text = "布阵期可购买"
-	_shop_status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_shop_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	header.add_child(_shop_status_label)
-
-	_shop_close_button = Button.new()
-	_shop_close_button.text = "关闭(B)"
-	_shop_close_button.pressed.connect(Callable(self, "_on_shop_close_pressed"))
-	header.add_child(_shop_close_button)
-
-	var tab_row := HBoxContainer.new()
-	tab_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	tab_row.add_theme_constant_override("separation", 8)
-	root.add_child(tab_row)
-
-	_shop_tabs.clear()
-	for tab_info in [
-		{"id": SHOP_TAB_RECRUIT, "name": "招募侠客"},
-		{"id": SHOP_TAB_GONGFA, "name": "秘籍阁"},
-		{"id": SHOP_TAB_EQUIPMENT, "name": "神兵铺"}
-	]:
-		var tab_id: String = str(tab_info.get("id", ""))
-		var tab_btn := Button.new()
-		tab_btn.text = str(tab_info.get("name", tab_id))
-		tab_btn.toggle_mode = true
-		tab_btn.button_pressed = tab_id == _shop_current_tab
-		tab_btn.pressed.connect(Callable(self, "_on_shop_tab_pressed").bind(tab_id))
-		tab_row.add_child(tab_btn)
-		_shop_tabs[tab_id] = tab_btn
-
-	_shop_offer_row = HBoxContainer.new()
-	_shop_offer_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_shop_offer_row.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_shop_offer_row.add_theme_constant_override("separation", 10)
-	root.add_child(_shop_offer_row)
-
-	var op_panel := PanelContainer.new()
-	op_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	root.add_child(op_panel)
-
-	var op_root := VBoxContainer.new()
-	op_root.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	op_root.add_theme_constant_override("separation", 4)
-	op_panel.add_child(op_root)
-
-	var row1 := HBoxContainer.new()
-	row1.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	op_root.add_child(row1)
-
-	_shop_silver_label = Label.new()
-	_shop_silver_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_shop_silver_label.text = "银两: 0"
-	row1.add_child(_shop_silver_label)
-
-	_shop_refresh_button = Button.new()
-	_shop_refresh_button.text = "刷新(2)"
-	_shop_refresh_button.pressed.connect(Callable(self, "_on_bottom_refresh_pressed"))
-	row1.add_child(_shop_refresh_button)
-
-	_shop_test_add_silver_button = Button.new()
-	_shop_test_add_silver_button.text = "测试+10银两"
-	_shop_test_add_silver_button.pressed.connect(Callable(self, "_on_test_add_silver_pressed"))
-	row1.add_child(_shop_test_add_silver_button)
-
-	var row2 := HBoxContainer.new()
-	row2.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	op_root.add_child(row2)
-
-	_shop_level_label = Label.new()
-	_shop_level_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_shop_level_label.text = "门派LV1 (0/2)"
-	row2.add_child(_shop_level_label)
-
-	_shop_upgrade_button = Button.new()
-	_shop_upgrade_button.text = "升级(4)"
-	_shop_upgrade_button.pressed.connect(Callable(self, "_on_bottom_upgrade_pressed"))
-	row2.add_child(_shop_upgrade_button)
-
-	_shop_test_add_exp_button = Button.new()
-	_shop_test_add_exp_button.text = "测试+5经验"
-	_shop_test_add_exp_button.pressed.connect(Callable(self, "_on_test_add_exp_pressed"))
-	row2.add_child(_shop_test_add_exp_button)
-
-	_shop_lock_button = Button.new()
-	_shop_lock_button.text = "锁定"
-	_shop_lock_button.pressed.connect(Callable(self, "_on_bottom_lock_pressed"))
-	row2.add_child(_shop_lock_button)
-
-	_layout_shop_panel()
-	_set_shop_panel_visible(true)
-
-
-func _layout_shop_panel() -> void:
-	if _shop_panel == null or not is_instance_valid(_shop_panel):
-		return
-	var viewport_size: Vector2 = get_viewport().get_visible_rect().size
-	var left_limit: float = LEFT_PANEL_WIDTH + 18.0
-	var right_limit: float = viewport_size.x - INVENTORY_PANEL_WIDTH - 16.0
-	if right_limit - left_limit < 420.0:
-		left_limit = 12.0
-		right_limit = viewport_size.x - 12.0
-	var available_width: float = maxf(right_limit - left_limit, 360.0)
-	var panel_width: float = clampf(available_width, SHOP_PANEL_MIN_WIDTH, SHOP_PANEL_MAX_WIDTH)
-	panel_width = minf(panel_width, available_width)
-
-	var bottom_top: float = bottom_panel.position.y if bottom_panel != null else viewport_size.y - 230.0
-	var panel_height: float = minf(SHOP_PANEL_HEIGHT, maxf(bottom_top - TOP_BAR_HEIGHT - 24.0, 220.0))
-	var panel_x: float = left_limit + (available_width - panel_width) * 0.5
-	var panel_y: float = clampf(bottom_top - panel_height - 10.0, TOP_BAR_HEIGHT + 10.0, viewport_size.y - panel_height - 8.0)
-	_shop_panel.position = Vector2(panel_x, panel_y)
-	_shop_panel.size = Vector2(panel_width, panel_height)
 
 
 func _set_shop_panel_visible(panel_visible: bool) -> void:
@@ -2082,7 +1859,7 @@ func grant_stage_reward_unit(unit_id: String, star: int = 1) -> Dictionary:
 		_refresh_all_ui()
 		return result
 
-	var board_cell: Vector2i = _find_reward_unit_board_cell()
+	var board_cell: Vector2i = _find_reward_unit_board_cell(unit_node)
 	if board_cell.x >= 0:
 		_deploy_ally_unit_to_cell(unit_node, board_cell)
 		result["granted"] = true
@@ -2096,7 +1873,7 @@ func grant_stage_reward_unit(unit_id: String, star: int = 1) -> Dictionary:
 	return result
 
 
-func _find_reward_unit_board_cell() -> Vector2i:
+func _find_reward_unit_board_cell(unit_node: Node = null) -> Vector2i:
 	var candidates: Array[Vector2i] = _collect_ally_spawn_cells()
 	if candidates.is_empty():
 		return Vector2i(-1, -1)
@@ -2106,6 +1883,8 @@ func _find_reward_unit_board_cell() -> Vector2i:
 		if _ally_deployed.has(cell_key):
 			continue
 		if _is_stage_cell_blocked(cell):
+			continue
+		if unit_node != null and not _can_deploy_ally_to_cell(unit_node, cell):
 			continue
 		return cell
 	return Vector2i(-1, -1)

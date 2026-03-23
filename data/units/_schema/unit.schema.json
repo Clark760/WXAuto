@@ -35,13 +35,17 @@
       "type": "integer",
       "minimum": 1
     },
+    "shop_visible": {
+      "type": "boolean",
+      "default": true
+    },
     "role": {
       "type": "string",
       "enum": ["vanguard", "swordsman", "assassin", "archer", "caster", "healer", "leader"]
     },
     "base_stats": {
       "type": "object",
-      "required": ["hp", "mp", "atk", "iat", "def", "idr", "spd", "rng", "mov", "wis"],
+      "required": ["hp", "mp", "atk", "iat", "def", "idr", "spd", "rng", "wis"],
       "properties": {
         "hp": {"type": "number", "minimum": 1},
         "mp": {"type": "number", "minimum": 0},
@@ -51,7 +55,6 @@
         "idr": {"type": "number", "minimum": 0},
         "spd": {"type": "number", "minimum": 0},
         "rng": {"type": "number", "minimum": 1},
-        "mov": {"type": "number", "minimum": 0},
         "wis": {"type": "number", "minimum": 0}
       },
       "additionalProperties": false
@@ -76,6 +79,10 @@
           "skills": {
             "type": "array",
             "items": {"type": "object"}
+          },
+          "tags": {
+            "type": "array",
+            "items": {"type": "string"}
           }
         },
         "additionalProperties": true
@@ -129,4 +136,3 @@
   },
   "additionalProperties": true
 }
-

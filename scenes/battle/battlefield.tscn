@@ -1,18 +1,18 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene format=3 uid="uid://bnmwem2n0nc1c"]
 
-[ext_resource type="Script" path="res://scripts/board/battlefield.gd" id="1_m2bf"]
-[ext_resource type="Script" path="res://scripts/board/hex_grid.gd" id="2_hexg"]
-[ext_resource type="Script" path="res://scripts/board/deploy_zone_overlay.gd" id="3_overlay"]
-[ext_resource type="Script" path="res://scripts/unit/unit_multimesh_renderer.gd" id="4_mm"]
-[ext_resource type="Script" path="res://scripts/vfx/vfx_factory.gd" id="5_vfx"]
-[ext_resource type="Script" path="res://scripts/unit/unit_factory.gd" id="6_factory"]
-[ext_resource type="Script" path="res://scripts/combat/combat_manager.gd" id="7_combat"]
-[ext_resource type="Script" path="res://scripts/ui/battle_bench_ui.gd" id="8_bench_ui"]
+[ext_resource type="Script" uid="uid://cchafdvtc5tms" path="res://scripts/board/battlefield.gd" id="1_m2bf"]
+[ext_resource type="Script" uid="uid://b2igrq6di1mtd" path="res://scripts/board/hex_grid.gd" id="2_hexg"]
+[ext_resource type="Script" uid="uid://drnisnayr8upi" path="res://scripts/board/deploy_zone_overlay.gd" id="3_overlay"]
+[ext_resource type="Script" uid="uid://ba1fgtthl143q" path="res://scripts/unit/unit_multimesh_renderer.gd" id="4_mm"]
+[ext_resource type="Script" uid="uid://dwgxefjo1e80v" path="res://scripts/vfx/vfx_factory.gd" id="5_vfx"]
+[ext_resource type="Script" uid="uid://ceygbpaq1k4p4" path="res://scripts/unit/unit_factory.gd" id="6_factory"]
+[ext_resource type="Script" uid="uid://bh7mgnc7j02fa" path="res://scripts/combat/combat_manager.gd" id="7_combat"]
+[ext_resource type="Script" uid="uid://cakyqi2555ju5" path="res://scripts/ui/battle_bench_ui.gd" id="8_bench_ui"]
 
-[node name="Battlefield" type="Node2D"]
+[node name="Battlefield" type="Node2D" unique_id=153178821]
 script = ExtResource("1_m2bf")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="Background" type="ColorRect" parent="." unique_id=1252973606]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -20,104 +20,123 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.23, 0.23, 0.24, 1)
 
-[node name="WorldContainer" type="Node2D" parent="."]
+[node name="WorldContainer" type="Node2D" parent="." unique_id=983481222]
 
-[node name="HexGrid" type="Node2D" parent="WorldContainer"]
+[node name="HexGrid" type="Node2D" parent="WorldContainer" unique_id=1227002219]
 script = ExtResource("2_hexg")
 grid_width = 32
 grid_height = 32
 hex_size = 16.0
 origin_offset = Vector2(140, 90)
-use_staggered_square_layout = true
 draw_coordinates = false
 fill_color = Color(0.17, 0.2, 0.26, 0.28)
 line_color = Color(0.73, 0.82, 0.88, 0.9)
 
-[node name="DeployZoneOverlay" type="Node2D" parent="WorldContainer/HexGrid"]
+[node name="DeployZoneOverlay" type="Node2D" parent="WorldContainer/HexGrid" unique_id=321797183]
 script = ExtResource("3_overlay")
-ally_columns = 16
 
-[node name="UnitLayer" type="Node2D" parent="WorldContainer"]
+[node name="UnitLayer" type="Node2D" parent="WorldContainer" unique_id=1134562936]
 
-[node name="UnitMultiMeshRenderer" type="Node2D" parent="WorldContainer/UnitLayer"]
+[node name="UnitMultiMeshRenderer" type="Node2D" parent="WorldContainer/UnitLayer" unique_id=202891637]
 script = ExtResource("4_mm")
 marker_size = 8.0
 marker_alpha = 0.35
 
-[node name="MultiMeshInstance2D" type="MultiMeshInstance2D" parent="WorldContainer/UnitLayer/UnitMultiMeshRenderer"]
+[node name="MultiMeshInstance2D" type="MultiMeshInstance2D" parent="WorldContainer/UnitLayer/UnitMultiMeshRenderer" unique_id=964423716]
 z_index = -1
 
-[node name="VfxLayer" type="Node2D" parent="WorldContainer"]
+[node name="VfxLayer" type="Node2D" parent="WorldContainer" unique_id=1295944486]
 
-[node name="VfxFactory" type="Node2D" parent="WorldContainer/VfxLayer"]
+[node name="VfxFactory" type="Node2D" parent="WorldContainer/VfxLayer" unique_id=1173483277]
 script = ExtResource("5_vfx")
 
-[node name="UnitFactory" type="Node" parent="."]
+[node name="UnitFactory" type="Node" parent="." unique_id=200392639]
 script = ExtResource("6_factory")
 
-[node name="CombatManager" type="Node" parent="."]
+[node name="CombatManager" type="Node" parent="." unique_id=183521337]
 script = ExtResource("7_combat")
-logic_fps = 10.0
 target_query_radius = 360.0
-flow_refresh_interval_frames = 5
 flow_step_distance = 22.0
 
-[node name="HUDLayer" type="CanvasLayer" parent="."]
+[node name="HUDLayer" type="CanvasLayer" parent="." unique_id=1114000922]
 layer = 10
 
-[node name="TooltipLayer" type="CanvasLayer" parent="."]
-layer = 30
+[node name="TopBar" type="PanelContainer" parent="HUDLayer" unique_id=659927201]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 31.0
+grow_horizontal = 2
 
-[node name="TopBar" type="PanelContainer" parent="HUDLayer"]
-offset_left = 16.0
-offset_top = 10.0
-offset_right = 1136.0
-offset_bottom = 56.0
-
-[node name="TopBarContent" type="HBoxContainer" parent="HUDLayer/TopBar"]
+[node name="TopBarContent" type="HBoxContainer" parent="HUDLayer/TopBar" unique_id=356178361]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 alignment = 1
 
-[node name="PhaseLabel" type="Label" parent="HUDLayer/TopBar/TopBarContent"]
+[node name="PhaseLabel" type="Label" parent="HUDLayer/TopBar/TopBarContent" unique_id=1972485093]
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
 text = "布阵期"
 
-[node name="RoundLabel" type="Label" parent="HUDLayer/TopBar/TopBarContent"]
+[node name="RoundLabel" type="Label" parent="HUDLayer/TopBar/TopBarContent" unique_id=1650307297]
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "第 1 回合"
 
-[node name="PowerBar" type="ProgressBar" parent="HUDLayer/TopBar/TopBarContent"]
+[node name="PowerBar" type="ProgressBar" parent="HUDLayer/TopBar/TopBarContent" unique_id=900830667]
 custom_minimum_size = Vector2(240, 20)
 layout_mode = 2
 value = 50.0
 show_percentage = false
 
-[node name="TimerLabel" type="Label" parent="HUDLayer/TopBar/TopBarContent"]
+[node name="TimerLabel" type="Label" parent="HUDLayer/TopBar/TopBarContent" unique_id=169518891]
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "--"
 
-[node name="MiniMap" type="PanelContainer" parent="HUDLayer"]
-offset_left = 964.0
-offset_top = 66.0
-offset_right = 1136.0
-offset_bottom = 196.0
-
-[node name="MiniMapInfo" type="Label" parent="HUDLayer/MiniMap"]
+[node name="ShopOpenButton" type="Button" parent="HUDLayer/TopBar/TopBarContent" unique_id=813989658]
 layout_mode = 2
-offset_left = 10.0
-offset_top = 10.0
-offset_right = 160.0
-offset_bottom = 110.0
-text = "小地图（占位）"
-horizontal_alignment = 1
-vertical_alignment = 1
+toggle_mode = true
+text = "商店(B)"
 
-[node name="UnitTooltip" type="PanelContainer" parent="HUDLayer"]
+[node name="StartBattleButton" type="Button" parent="HUDLayer/TopBar/TopBarContent" unique_id=661751400]
+layout_mode = 2
+text = "开始战斗(F6)"
+
+[node name="ResetBattleButton" type="Button" parent="HUDLayer/TopBar/TopBarContent" unique_id=1136362894]
+layout_mode = 2
+text = "重置战场(F7)"
+
+[node name="BattleLogPanel" type="PanelContainer" parent="HUDLayer" unique_id=719283554]
+visible = false
+offset_left = 12.0
+offset_top = 64.0
+offset_right = 192.0
+offset_bottom = 466.0
+mouse_filter = 1
+
+[node name="LogRoot" type="VBoxContainer" parent="HUDLayer/BattleLogPanel" unique_id=1008765768]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="LogTitle" type="Label" parent="HUDLayer/BattleLogPanel/LogRoot" unique_id=2033183048]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "战斗日志"
+
+[node name="LogScroll" type="ScrollContainer" parent="HUDLayer/BattleLogPanel/LogRoot" unique_id=1150605979]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="BattleLogText" type="RichTextLabel" parent="HUDLayer/BattleLogPanel/LogRoot/LogScroll" unique_id=166264561]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+bbcode_enabled = true
+
+[node name="UnitTooltip" type="PanelContainer" parent="HUDLayer" unique_id=1642184682]
 visible = false
 custom_minimum_size = Vector2(320, 330)
 offset_left = 420.0
@@ -125,140 +144,249 @@ offset_top = 220.0
 offset_right = 650.0
 offset_bottom = 350.0
 
-[node name="TooltipVBox" type="VBoxContainer" parent="HUDLayer/UnitTooltip"]
+[node name="TooltipVBox" type="VBoxContainer" parent="HUDLayer/UnitTooltip" unique_id=1790566952]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="NameLabel" type="Label" parent="HUDLayer/UnitTooltip/TooltipVBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 16
-text = "角色"
-
-[node name="HPBar" type="ProgressBar" parent="HUDLayer/UnitTooltip/TooltipVBox"]
-layout_mode = 2
-max_value = 100.0
-value = 100.0
-show_percentage = true
-
-[node name="MPBar" type="ProgressBar" parent="HUDLayer/UnitTooltip/TooltipVBox"]
-layout_mode = 2
-max_value = 100.0
-value = 40.0
-show_percentage = true
-
-[node name="GongfaLabel" type="Label" parent="HUDLayer/UnitTooltip/TooltipVBox"]
-layout_mode = 2
-text = "功法: 无"
-
-[node name="HeaderRow" type="HBoxContainer" parent="HUDLayer/UnitTooltip/TooltipVBox"]
+[node name="HeaderRow" type="HBoxContainer" parent="HUDLayer/UnitTooltip/TooltipVBox" unique_id=127312310]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="FactionIcon" type="ColorRect" parent="HUDLayer/UnitTooltip/TooltipVBox/HeaderRow"]
+[node name="FactionIcon" type="ColorRect" parent="HUDLayer/UnitTooltip/TooltipVBox/HeaderRow" unique_id=860706839]
 custom_minimum_size = Vector2(16, 16)
 layout_mode = 2
 color = Color(0.5, 0.5, 0.5, 1)
 
-[node name="HeaderName" type="Label" parent="HUDLayer/UnitTooltip/TooltipVBox/HeaderRow"]
+[node name="HeaderName" type="Label" parent="HUDLayer/UnitTooltip/TooltipVBox/HeaderRow" unique_id=1149262385]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 15
 text = "角色名"
 
-[node name="QualityBadge" type="ColorRect" parent="HUDLayer/UnitTooltip/TooltipVBox/HeaderRow"]
+[node name="QualityBadge" type="ColorRect" parent="HUDLayer/UnitTooltip/TooltipVBox/HeaderRow" unique_id=2080079582]
 custom_minimum_size = Vector2(12, 16)
 layout_mode = 2
 color = Color(0.8, 0.8, 0.8, 1)
 
-[node name="HPRow" type="HBoxContainer" parent="HUDLayer/UnitTooltip/TooltipVBox"]
+[node name="HPRow" type="HBoxContainer" parent="HUDLayer/UnitTooltip/TooltipVBox" unique_id=1858739046]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="HPBarRich" type="ProgressBar" parent="HUDLayer/UnitTooltip/TooltipVBox/HPRow"]
+[node name="HPBarRich" type="ProgressBar" parent="HUDLayer/UnitTooltip/TooltipVBox/HPRow" unique_id=367755496]
 custom_minimum_size = Vector2(160, 16)
 layout_mode = 2
 size_flags_horizontal = 3
-max_value = 100.0
 value = 100.0
 show_percentage = false
 
-[node name="HPText" type="Label" parent="HUDLayer/UnitTooltip/TooltipVBox/HPRow"]
-layout_mode = 2
+[node name="HPText" type="Label" parent="HUDLayer/UnitTooltip/TooltipVBox/HPRow" unique_id=1677627969]
 custom_minimum_size = Vector2(68, 0)
+layout_mode = 2
 text = "100/100"
 horizontal_alignment = 2
 
-[node name="MPRow" type="HBoxContainer" parent="HUDLayer/UnitTooltip/TooltipVBox"]
+[node name="MPRow" type="HBoxContainer" parent="HUDLayer/UnitTooltip/TooltipVBox" unique_id=1240660434]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="MPBarRich" type="ProgressBar" parent="HUDLayer/UnitTooltip/TooltipVBox/MPRow"]
+[node name="MPBarRich" type="ProgressBar" parent="HUDLayer/UnitTooltip/TooltipVBox/MPRow" unique_id=1793807128]
 custom_minimum_size = Vector2(160, 16)
 layout_mode = 2
 size_flags_horizontal = 3
-max_value = 100.0
 value = 40.0
 show_percentage = false
 
-[node name="MPText" type="Label" parent="HUDLayer/UnitTooltip/TooltipVBox/MPRow"]
-layout_mode = 2
+[node name="MPText" type="Label" parent="HUDLayer/UnitTooltip/TooltipVBox/MPRow" unique_id=1855644120]
 custom_minimum_size = Vector2(68, 0)
+layout_mode = 2
 text = "40/100"
 horizontal_alignment = 2
 
-[node name="StatsGrid" type="GridContainer" parent="HUDLayer/UnitTooltip/TooltipVBox"]
+[node name="StatsGrid" type="GridContainer" parent="HUDLayer/UnitTooltip/TooltipVBox" unique_id=286391096]
 layout_mode = 2
-columns = 2
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 2
+columns = 2
 
-[node name="AtkLabel" type="Label" parent="HUDLayer/UnitTooltip/TooltipVBox/StatsGrid"]
+[node name="AtkLabel" type="Label" parent="HUDLayer/UnitTooltip/TooltipVBox/StatsGrid" unique_id=1787133808]
 layout_mode = 2
 text = "外功 0"
 
-[node name="DefLabel" type="Label" parent="HUDLayer/UnitTooltip/TooltipVBox/StatsGrid"]
+[node name="DefLabel" type="Label" parent="HUDLayer/UnitTooltip/TooltipVBox/StatsGrid" unique_id=675719694]
 layout_mode = 2
 text = "外防 0"
 
-[node name="IatLabel" type="Label" parent="HUDLayer/UnitTooltip/TooltipVBox/StatsGrid"]
+[node name="IatLabel" type="Label" parent="HUDLayer/UnitTooltip/TooltipVBox/StatsGrid" unique_id=499381434]
 layout_mode = 2
 text = "内功 0"
 
-[node name="IdrLabel" type="Label" parent="HUDLayer/UnitTooltip/TooltipVBox/StatsGrid"]
+[node name="IdrLabel" type="Label" parent="HUDLayer/UnitTooltip/TooltipVBox/StatsGrid" unique_id=709640005]
 layout_mode = 2
 text = "内防 0"
 
-[node name="SpdLabel" type="Label" parent="HUDLayer/UnitTooltip/TooltipVBox/StatsGrid"]
+[node name="SpdLabel" type="Label" parent="HUDLayer/UnitTooltip/TooltipVBox/StatsGrid" unique_id=875288436]
 layout_mode = 2
 text = "速度 0"
 
-[node name="RngLabel" type="Label" parent="HUDLayer/UnitTooltip/TooltipVBox/StatsGrid"]
+[node name="RngLabel" type="Label" parent="HUDLayer/UnitTooltip/TooltipVBox/StatsGrid" unique_id=2092955325]
 layout_mode = 2
 text = "射程 0"
 
-[node name="SeparatorRich1" type="HSeparator" parent="HUDLayer/UnitTooltip/TooltipVBox"]
+[node name="SeparatorRich1" type="HSeparator" parent="HUDLayer/UnitTooltip/TooltipVBox" unique_id=1950508772]
 layout_mode = 2
 
-[node name="GongfaList" type="VBoxContainer" parent="HUDLayer/UnitTooltip/TooltipVBox"]
+[node name="GongfaList" type="VBoxContainer" parent="HUDLayer/UnitTooltip/TooltipVBox" unique_id=2023571240]
 layout_mode = 2
 theme_override_constants/separation = 2
 
-[node name="SeparatorRich2" type="HSeparator" parent="HUDLayer/UnitTooltip/TooltipVBox"]
+[node name="SeparatorRich2" type="HSeparator" parent="HUDLayer/UnitTooltip/TooltipVBox" unique_id=1385088516]
 layout_mode = 2
 
-[node name="BuffList" type="HBoxContainer" parent="HUDLayer/UnitTooltip/TooltipVBox"]
+[node name="BuffList" type="HBoxContainer" parent="HUDLayer/UnitTooltip/TooltipVBox" unique_id=1340362726]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="StatusLabel" type="Label" parent="HUDLayer/UnitTooltip/TooltipVBox"]
+[node name="StatusLabel" type="Label" parent="HUDLayer/UnitTooltip/TooltipVBox" unique_id=1800323488]
 layout_mode = 2
 text = "状态: 待命"
 
-[node name="DetailLayer" type="CanvasLayer" parent="."]
+[node name="PhaseTransition" type="CenterContainer" parent="HUDLayer" unique_id=331736898]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PhaseText" type="Label" parent="HUDLayer/PhaseTransition" unique_id=1473339087]
+layout_mode = 2
+theme_override_font_sizes/font_size = 42
+text = "交锋开始"
+
+[node name="ShopPanelLayer" type="CanvasLayer" parent="." unique_id=1425204302]
+layer = 12
+
+[node name="ShopPanel" type="PanelContainer" parent="ShopPanelLayer" unique_id=36728218]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -339.0
+offset_top = -584.0
+offset_right = 339.0
+offset_bottom = -264.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 1
+
+[node name="ShopRoot" type="VBoxContainer" parent="ShopPanelLayer/ShopPanel" unique_id=1366259310]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="HeaderRow" type="HBoxContainer" parent="ShopPanelLayer/ShopPanel/ShopRoot" unique_id=262044886]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ShopTitle" type="Label" parent="ShopPanelLayer/ShopPanel/ShopRoot/HeaderRow" unique_id=2048331496]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "综合商店"
+
+[node name="ShopStatus" type="Label" parent="ShopPanelLayer/ShopPanel/ShopRoot/HeaderRow" unique_id=914700009]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "布阵期可购买"
+horizontal_alignment = 2
+
+[node name="ShopCloseButton" type="Button" parent="ShopPanelLayer/ShopPanel/ShopRoot/HeaderRow" unique_id=1147969864]
+layout_mode = 2
+text = "关闭(B)"
+
+[node name="TabRow" type="HBoxContainer" parent="ShopPanelLayer/ShopPanel/ShopRoot" unique_id=110650775]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="RecruitTabButton" type="Button" parent="ShopPanelLayer/ShopPanel/ShopRoot/TabRow" unique_id=166258862]
+layout_mode = 2
+toggle_mode = true
+button_pressed = true
+text = "招募侠客"
+
+[node name="GongfaTabButton" type="Button" parent="ShopPanelLayer/ShopPanel/ShopRoot/TabRow" unique_id=1790145017]
+layout_mode = 2
+toggle_mode = true
+text = "秘籍阁"
+
+[node name="EquipmentTabButton" type="Button" parent="ShopPanelLayer/ShopPanel/ShopRoot/TabRow" unique_id=1921555461]
+layout_mode = 2
+toggle_mode = true
+text = "神兵铺"
+
+[node name="OfferRow" type="HBoxContainer" parent="ShopPanelLayer/ShopPanel/ShopRoot" unique_id=535526370]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="OperationPanel" type="PanelContainer" parent="ShopPanelLayer/ShopPanel/ShopRoot" unique_id=1005248734]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="OperationRoot" type="VBoxContainer" parent="ShopPanelLayer/ShopPanel/ShopRoot/OperationPanel" unique_id=1812851629]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="Row1" type="HBoxContainer" parent="ShopPanelLayer/ShopPanel/ShopRoot/OperationPanel/OperationRoot" unique_id=976043520]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ShopSilverLabel" type="Label" parent="ShopPanelLayer/ShopPanel/ShopRoot/OperationPanel/OperationRoot/Row1" unique_id=555971135]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "当前银两: 0"
+
+[node name="ShopRefreshButton" type="Button" parent="ShopPanelLayer/ShopPanel/ShopRoot/OperationPanel/OperationRoot/Row1" unique_id=1959266683]
+layout_mode = 2
+text = "刷新(2)"
+
+[node name="ShopTestAddSilverButton" type="Button" parent="ShopPanelLayer/ShopPanel/ShopRoot/OperationPanel/OperationRoot/Row1" unique_id=361050850]
+layout_mode = 2
+text = "测试+10银两"
+
+[node name="Row2" type="HBoxContainer" parent="ShopPanelLayer/ShopPanel/ShopRoot/OperationPanel/OperationRoot" unique_id=2020624045]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ShopLevelLabel" type="Label" parent="ShopPanelLayer/ShopPanel/ShopRoot/OperationPanel/OperationRoot/Row2" unique_id=623754173]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "门派LV1 (0/2)"
+
+[node name="ShopUpgradeButton" type="Button" parent="ShopPanelLayer/ShopPanel/ShopRoot/OperationPanel/OperationRoot/Row2" unique_id=1506795492]
+layout_mode = 2
+text = "升级(4)"
+
+[node name="ShopTestAddExpButton" type="Button" parent="ShopPanelLayer/ShopPanel/ShopRoot/OperationPanel/OperationRoot/Row2" unique_id=362820290]
+layout_mode = 2
+text = "测试+5经验"
+
+[node name="ShopLockButton" type="Button" parent="ShopPanelLayer/ShopPanel/ShopRoot/OperationPanel/OperationRoot/Row2" unique_id=228326072]
+layout_mode = 2
+text = "锁定"
+
+[node name="TooltipLayer" type="CanvasLayer" parent="." unique_id=715317129]
+layer = 30
+
+[node name="DetailLayer" type="CanvasLayer" parent="." unique_id=555614993]
 layer = 20
 
-[node name="UnitDetailMask" type="ColorRect" parent="DetailLayer"]
+[node name="UnitDetailMask" type="ColorRect" parent="DetailLayer" unique_id=1382511439]
 visible = false
 anchors_preset = 15
 anchor_right = 1.0
@@ -268,7 +396,7 @@ grow_vertical = 2
 mouse_filter = 1
 color = Color(0, 0, 0, 0.45)
 
-[node name="UnitDetailPanel" type="PanelContainer" parent="DetailLayer"]
+[node name="UnitDetailPanel" type="PanelContainer" parent="DetailLayer" unique_id=1918172180]
 visible = false
 offset_left = 172.0
 offset_top = 84.0
@@ -276,113 +404,113 @@ offset_right = 980.0
 offset_bottom = 588.0
 mouse_filter = 1
 
-[node name="DetailMargin" type="MarginContainer" parent="DetailLayer/UnitDetailPanel"]
+[node name="DetailMargin" type="MarginContainer" parent="DetailLayer/UnitDetailPanel" unique_id=1307397013]
 layout_mode = 2
 theme_override_constants/margin_left = 12
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 12
 theme_override_constants/margin_bottom = 10
 
-[node name="DetailRoot" type="VBoxContainer" parent="DetailLayer/UnitDetailPanel/DetailMargin"]
+[node name="DetailRoot" type="VBoxContainer" parent="DetailLayer/UnitDetailPanel/DetailMargin" unique_id=806312490]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 10
 
-[node name="HeaderRow" type="HBoxContainer" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot"]
+[node name="HeaderRow" type="HBoxContainer" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot" unique_id=2044394007]
 layout_mode = 2
 
-[node name="DetailTitle" type="Label" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/HeaderRow"]
+[node name="DetailTitle" type="Label" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/HeaderRow" unique_id=530057501]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "角色详情"
 
-[node name="HeaderSpacer" type="Control" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/HeaderRow"]
+[node name="HeaderSpacer" type="Control" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/HeaderRow" unique_id=62026662]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="DetailCloseButton" type="Button" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/HeaderRow"]
+[node name="DetailCloseButton" type="Button" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/HeaderRow" unique_id=1829461549]
 layout_mode = 2
 text = "关闭"
 
-[node name="ContentRow" type="HBoxContainer" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot"]
+[node name="ContentRow" type="HBoxContainer" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot" unique_id=323491255]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 12
 
-[node name="PortraitSection" type="VBoxContainer" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow"]
+[node name="PortraitSection" type="VBoxContainer" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow" unique_id=1854140716]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 0.9
 
-[node name="PortraitColor" type="ColorRect" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/PortraitSection"]
+[node name="PortraitColor" type="ColorRect" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/PortraitSection" unique_id=16021409]
 custom_minimum_size = Vector2(180, 220)
 layout_mode = 2
 color = Color(0.24, 0.26, 0.3, 0.95)
 
-[node name="DetailNameLabel" type="Label" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/PortraitSection"]
+[node name="DetailNameLabel" type="Label" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/PortraitSection" unique_id=921267183]
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "角色名 ★"
 
-[node name="DetailFactionLabel" type="Label" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/PortraitSection"]
+[node name="DetailFactionLabel" type="Label" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/PortraitSection" unique_id=433568539]
 layout_mode = 2
 text = "门派/品质"
 
-[node name="StatsSection" type="VBoxContainer" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow"]
+[node name="StatsSection" type="VBoxContainer" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow" unique_id=1411928601]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 1.25
 theme_override_constants/separation = 6
 
-[node name="StatsTitle" type="Label" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/StatsSection"]
+[node name="StatsTitle" type="Label" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/StatsSection" unique_id=847338574]
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
 text = "属性"
 
-[node name="StatsValueLabel" type="Label" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/StatsSection"]
+[node name="StatsValueLabel" type="Label" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/StatsSection" unique_id=1077490121]
 layout_mode = 2
 size_flags_vertical = 3
-autowrap_mode = 2
 text = "属性明细"
+autowrap_mode = 2
 
-[node name="BonusTitle" type="Label" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/StatsSection"]
+[node name="BonusTitle" type="Label" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/StatsSection" unique_id=1241309227]
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
 text = "功法加成明细"
 
-[node name="BonusValueLabel" type="Label" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/StatsSection"]
+[node name="BonusValueLabel" type="Label" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/StatsSection" unique_id=320637161]
 layout_mode = 2
 size_flags_vertical = 3
-autowrap_mode = 2
 text = "无"
+autowrap_mode = 2
 
-[node name="GongfaSection" type="VBoxContainer" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow"]
+[node name="GongfaSection" type="VBoxContainer" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow" unique_id=497125310]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 1.1
 theme_override_constants/separation = 6
 
-[node name="GongfaTitle" type="Label" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/GongfaSection"]
+[node name="GongfaTitle" type="Label" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/GongfaSection" unique_id=2091259603]
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
 text = "功法槽位"
 
-[node name="SlotList" type="VBoxContainer" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/GongfaSection"]
+[node name="SlotList" type="VBoxContainer" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/GongfaSection" unique_id=845809782]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="EquipTitle" type="Label" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/GongfaSection"]
+[node name="EquipTitle" type="Label" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/GongfaSection" unique_id=586045695]
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
 text = "装备槽位"
 
-[node name="EquipSlotList" type="VBoxContainer" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/GongfaSection"]
+[node name="EquipSlotList" type="VBoxContainer" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/GongfaSection" unique_id=1833544366]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="ItemTooltip" type="PanelContainer" parent="DetailLayer"]
+[node name="ItemTooltip" type="PanelContainer" parent="DetailLayer" unique_id=632590522]
 visible = false
 z_index = 200
 custom_minimum_size = Vector2(360, 280)
@@ -391,154 +519,180 @@ offset_top = 180.0
 offset_right = 1156.0
 offset_bottom = 460.0
 
-[node name="TooltipMargin" type="MarginContainer" parent="DetailLayer/ItemTooltip"]
+[node name="TooltipMargin" type="MarginContainer" parent="DetailLayer/ItemTooltip" unique_id=1661529513]
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 8
 
-[node name="TooltipRoot" type="VBoxContainer" parent="DetailLayer/ItemTooltip/TooltipMargin"]
+[node name="TooltipRoot" type="VBoxContainer" parent="DetailLayer/ItemTooltip/TooltipMargin" unique_id=1460178588]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 4
 
-[node name="ItemName" type="Label" parent="DetailLayer/ItemTooltip/TooltipMargin/TooltipRoot"]
+[node name="ItemName" type="Label" parent="DetailLayer/ItemTooltip/TooltipMargin/TooltipRoot" unique_id=1069907684]
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "条目名"
 
-[node name="ItemType" type="Label" parent="DetailLayer/ItemTooltip/TooltipMargin/TooltipRoot"]
+[node name="ItemType" type="Label" parent="DetailLayer/ItemTooltip/TooltipMargin/TooltipRoot" unique_id=1098476638]
 layout_mode = 2
 text = "类型"
 
-[node name="Sep1" type="HSeparator" parent="DetailLayer/ItemTooltip/TooltipMargin/TooltipRoot"]
+[node name="Sep1" type="HSeparator" parent="DetailLayer/ItemTooltip/TooltipMargin/TooltipRoot" unique_id=86752327]
 layout_mode = 2
 
-[node name="DescLabel" type="RichTextLabel" parent="DetailLayer/ItemTooltip/TooltipMargin/TooltipRoot"]
+[node name="DescLabel" type="RichTextLabel" parent="DetailLayer/ItemTooltip/TooltipMargin/TooltipRoot" unique_id=1295832469]
 custom_minimum_size = Vector2(0, 56)
 layout_mode = 2
-bbcode_enabled = false
+text = "描述"
 fit_content = true
 scroll_active = false
-text = "描述"
 
-[node name="Sep2" type="HSeparator" parent="DetailLayer/ItemTooltip/TooltipMargin/TooltipRoot"]
+[node name="Sep2" type="HSeparator" parent="DetailLayer/ItemTooltip/TooltipMargin/TooltipRoot" unique_id=2029430445]
 layout_mode = 2
 
-[node name="EffectsTitle" type="Label" parent="DetailLayer/ItemTooltip/TooltipMargin/TooltipRoot"]
+[node name="EffectsTitle" type="Label" parent="DetailLayer/ItemTooltip/TooltipMargin/TooltipRoot" unique_id=1931845603]
 layout_mode = 2
 text = "效果"
 
-[node name="EffectsList" type="VBoxContainer" parent="DetailLayer/ItemTooltip/TooltipMargin/TooltipRoot"]
+[node name="EffectsList" type="VBoxContainer" parent="DetailLayer/ItemTooltip/TooltipMargin/TooltipRoot" unique_id=571334982]
 layout_mode = 2
 theme_override_constants/separation = 2
 
-[node name="SkillSection" type="VBoxContainer" parent="DetailLayer/ItemTooltip/TooltipMargin/TooltipRoot"]
+[node name="SkillSection" type="VBoxContainer" parent="DetailLayer/ItemTooltip/TooltipMargin/TooltipRoot" unique_id=1269738045]
 layout_mode = 2
 theme_override_constants/separation = 2
 
-[node name="SkillTrigger" type="Label" parent="DetailLayer/ItemTooltip/TooltipMargin/TooltipRoot/SkillSection"]
+[node name="SkillTrigger" type="Label" parent="DetailLayer/ItemTooltip/TooltipMargin/TooltipRoot/SkillSection" unique_id=1793897797]
 layout_mode = 2
 text = "触发：-"
 
-[node name="SkillEffects" type="VBoxContainer" parent="DetailLayer/ItemTooltip/TooltipMargin/TooltipRoot/SkillSection"]
+[node name="SkillEffects" type="VBoxContainer" parent="DetailLayer/ItemTooltip/TooltipMargin/TooltipRoot/SkillSection" unique_id=1199345654]
 layout_mode = 2
 theme_override_constants/separation = 2
 
-[node name="PhaseTransition" type="CenterContainer" parent="HUDLayer"]
-visible = false
-anchors_preset = 15
+[node name="InventoryPanel" type="PanelContainer" parent="DetailLayer" unique_id=1676721955]
+z_index = -1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
 anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
+anchor_bottom = 0.5
+offset_left = -260.0
+offset_top = -288.0
+offset_bottom = 165.0
+grow_horizontal = 0
 grow_vertical = 2
+mouse_filter = 1
 
-[node name="PhaseText" type="Label" parent="HUDLayer/PhaseTransition"]
+[node name="InventoryMargin" type="MarginContainer" parent="DetailLayer/InventoryPanel" unique_id=1028306106]
 layout_mode = 2
-theme_override_font_sizes/font_size = 42
-text = "交锋开始"
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
 
-[node name="BottomLayer" type="CanvasLayer" parent="."]
+[node name="InventoryRoot" type="VBoxContainer" parent="DetailLayer/InventoryPanel/InventoryMargin" unique_id=451434724]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="HeaderRow" type="HBoxContainer" parent="DetailLayer/InventoryPanel/InventoryMargin/InventoryRoot" unique_id=1339264235]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="InventoryTabGongfaButton" type="Button" parent="DetailLayer/InventoryPanel/InventoryMargin/InventoryRoot/HeaderRow" unique_id=1311503374]
+layout_mode = 2
+toggle_mode = true
+button_pressed = true
+text = "功法"
+
+[node name="InventoryTabEquipButton" type="Button" parent="DetailLayer/InventoryPanel/InventoryMargin/InventoryRoot/HeaderRow" unique_id=321133890]
+layout_mode = 2
+toggle_mode = true
+text = "装备"
+
+[node name="InventoryTitle" type="Label" parent="DetailLayer/InventoryPanel/InventoryMargin/InventoryRoot/HeaderRow" unique_id=675233044]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "功法装备区"
+horizontal_alignment = 2
+
+[node name="FilterRow" type="HBoxContainer" parent="DetailLayer/InventoryPanel/InventoryMargin/InventoryRoot" unique_id=862539074]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="SearchInput" type="LineEdit" parent="DetailLayer/InventoryPanel/InventoryMargin/InventoryRoot" unique_id=632761389]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "搜索名称..."
+
+[node name="InventoryScroll" type="ScrollContainer" parent="DetailLayer/InventoryPanel/InventoryMargin/InventoryRoot" unique_id=697185693]
+custom_minimum_size = Vector2(0, 320)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="InventoryGrid" type="VBoxContainer" parent="DetailLayer/InventoryPanel/InventoryMargin/InventoryRoot/InventoryScroll" unique_id=1475500345]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="FooterRow" type="HBoxContainer" parent="DetailLayer/InventoryPanel/InventoryMargin/InventoryRoot" unique_id=2070400381]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="InventorySummary" type="Label" parent="DetailLayer/InventoryPanel/InventoryMargin/InventoryRoot/FooterRow" unique_id=1224064549]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "共 0 件 | 已装备 0 件"
+
+[node name="BottomLayer" type="CanvasLayer" parent="." unique_id=102093718]
 layer = 5
 
-[node name="BottomPanel" type="PanelContainer" parent="BottomLayer"]
-offset_left = 12.0
-offset_top = 388.0
-offset_right = 1140.0
-offset_bottom = 640.0
+[node name="BottomPanel" type="PanelContainer" parent="BottomLayer" unique_id=298811527]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -170.0
+grow_horizontal = 2
+grow_vertical = 0
 
-[node name="RootVBox" type="VBoxContainer" parent="BottomLayer/BottomPanel"]
+[node name="RootVBox" type="VBoxContainer" parent="BottomLayer/BottomPanel" unique_id=1809599233]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="ShopBar" type="HBoxContainer" parent="BottomLayer/BottomPanel/RootVBox"]
-visible = false
-layout_mode = 2
-
-[node name="ShopLabel" type="Label" parent="BottomLayer/BottomPanel/RootVBox/ShopBar"]
-layout_mode = 2
-text = "商店"
-
-[node name="RefreshButton" type="Button" parent="BottomLayer/BottomPanel/RootVBox/ShopBar"]
-layout_mode = 2
-text = "刷新"
-
-[node name="LockButton" type="Button" parent="BottomLayer/BottomPanel/RootVBox/ShopBar"]
-layout_mode = 2
-text = "锁定"
-
-[node name="BenchArea" type="ScrollContainer" parent="BottomLayer/BottomPanel/RootVBox"]
+[node name="BenchArea" type="ScrollContainer" parent="BottomLayer/BottomPanel/RootVBox" unique_id=1535305535]
 custom_minimum_size = Vector2(0, 170)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-vertical_scroll_mode = 1
 horizontal_scroll_mode = 0
 script = ExtResource("8_bench_ui")
 
-[node name="BenchGrid" type="GridContainer" parent="BottomLayer/BottomPanel/RootVBox/BenchArea"]
+[node name="BenchGrid" type="GridContainer" parent="BottomLayer/BottomPanel/RootVBox/BenchArea" unique_id=292197474]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 columns = 10
 
-[node name="ResourceBar" type="HBoxContainer" parent="BottomLayer/BottomPanel/RootVBox"]
-visible = false
-layout_mode = 2
-
-[node name="ResourceLabel" type="Label" parent="BottomLayer/BottomPanel/RootVBox/ResourceBar"]
-layout_mode = 2
-text = "门派LV7 | 银两328"
-
-[node name="ActionBar" type="HBoxContainer" parent="BottomLayer/BottomPanel/RootVBox"]
-visible = false
-layout_mode = 2
-
-[node name="UpgradeButton" type="Button" parent="BottomLayer/BottomPanel/RootVBox/ActionBar"]
-layout_mode = 2
-text = "升级"
-
-[node name="GongfaButton" type="Button" parent="BottomLayer/BottomPanel/RootVBox/ActionBar"]
-visible = false
-layout_mode = 2
-text = "功法"
-
-[node name="EquipButton" type="Button" parent="BottomLayer/BottomPanel/RootVBox/ActionBar"]
-visible = false
-layout_mode = 2
-text = "装备"
-
-[node name="ToggleButton" type="Button" parent="BottomLayer"]
+[node name="ToggleButton" type="Button" parent="BottomLayer" unique_id=771519265]
 offset_left = 560.0
 offset_top = 612.0
 offset_right = 608.0
 offset_bottom = 640.0
 text = "▼"
 
-[node name="DragPreview" type="PanelContainer" parent="BottomLayer"]
+[node name="DragPreview" type="PanelContainer" parent="BottomLayer" unique_id=2023710637]
 visible = false
 custom_minimum_size = Vector2(120, 90)
 offset_left = 20.0
@@ -546,28 +700,28 @@ offset_top = 20.0
 offset_right = 140.0
 offset_bottom = 110.0
 
-[node name="PreviewVBox" type="VBoxContainer" parent="BottomLayer/DragPreview"]
+[node name="PreviewVBox" type="VBoxContainer" parent="BottomLayer/DragPreview" unique_id=1947962532]
 layout_mode = 2
 
-[node name="Icon" type="ColorRect" parent="BottomLayer/DragPreview/PreviewVBox"]
+[node name="Icon" type="ColorRect" parent="BottomLayer/DragPreview/PreviewVBox" unique_id=1171222755]
 custom_minimum_size = Vector2(60, 36)
 layout_mode = 2
 
-[node name="Name" type="Label" parent="BottomLayer/DragPreview/PreviewVBox"]
+[node name="Name" type="Label" parent="BottomLayer/DragPreview/PreviewVBox" unique_id=1415404499]
 layout_mode = 2
 text = "角色"
 
-[node name="Star" type="Label" parent="BottomLayer/DragPreview/PreviewVBox"]
+[node name="Star" type="Label" parent="BottomLayer/DragPreview/PreviewVBox" unique_id=424665407]
 layout_mode = 2
 text = "★"
 
-[node name="DebugLayer" type="CanvasLayer" parent="."]
+[node name="DebugLayer" type="CanvasLayer" parent="." unique_id=1800185506]
 layer = 100
 
-[node name="DebugLabel" type="Label" parent="DebugLayer"]
+[node name="DebugLabel" type="Label" parent="DebugLayer" unique_id=1808451991]
 offset_left = 16.0
 offset_top = 64.0
-offset_right = 760.0
-offset_bottom = 110.0
-autowrap_mode = 2
+offset_right = 219.0
+offset_bottom = 456.0
 text = "战斗调试信息"
+autowrap_mode = 2

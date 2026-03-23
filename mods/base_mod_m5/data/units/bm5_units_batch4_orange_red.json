@@ -1,0 +1,1055 @@
+[
+  {
+    "id": "bm5_u_orange_001",
+    "name": "张三丰",
+    "faction": "bm5_faction_batch4_0",
+    "quality": "orange",
+    "cost": 5,
+    "shop_visible": true,
+    "role": "leader",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 1976,
+      "mp": 187,
+      "atk": 181,
+      "iat": 161,
+      "def": 112,
+      "idr": 103,
+      "spd": 105,
+      "rng": 2,
+      "wis": 149
+    },
+    "initial_gongfa": [
+      "bm5_gf_orange_001_a",
+      "bm5_gf_orange_001_b",
+      "bm5_eq_orange_001"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_orange_001",
+        "name": "张三丰??",
+        "description": "张三丰??????",
+        "effects": [
+          {
+            "op": "stat_percent",
+            "stat": "atk",
+            "value": 0.18
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.leader",
+          "bm5.trait.orange"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "bm5_gf_orange_001_b",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "bm5_gf_orange_001_a",
+      "qishu": ""
+    },
+    "max_gongfa_count": 5,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "bm5_eq_orange_001",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_orange_001.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_orange_001.png",
+    "tags": [
+      "bm5.batch.four",
+      "bm5.quality.orange",
+      "bm5.role.leader",
+      "bm5.source.wuxia_novel",
+      "bm5.shop.buyable",
+      "bm5.unit.orange.001"
+    ]
+  },
+  {
+    "id": "bm5_u_orange_002",
+    "name": "王重阳",
+    "faction": "bm5_faction_batch4_1",
+    "quality": "orange",
+    "cost": 5,
+    "shop_visible": true,
+    "role": "leader",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 2012,
+      "mp": 196,
+      "atk": 190,
+      "iat": 168,
+      "def": 116,
+      "idr": 100,
+      "spd": 106,
+      "rng": 2,
+      "wis": 154
+    },
+    "initial_gongfa": [
+      "bm5_gf_orange_002_a",
+      "bm5_gf_orange_002_b",
+      "bm5_eq_orange_002"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_orange_002",
+        "name": "王重阳??",
+        "description": "王重阳??????",
+        "effects": [
+          {
+            "op": "stat_percent",
+            "stat": "atk",
+            "value": 0.18
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.leader",
+          "bm5.trait.orange"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "bm5_gf_orange_002_b",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "bm5_gf_orange_002_a",
+      "qishu": ""
+    },
+    "max_gongfa_count": 5,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "bm5_eq_orange_002",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_orange_002.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_orange_002.png",
+    "tags": [
+      "bm5.batch.four",
+      "bm5.quality.orange",
+      "bm5.role.leader",
+      "bm5.source.wuxia_novel",
+      "bm5.shop.buyable",
+      "bm5.unit.orange.002"
+    ]
+  },
+  {
+    "id": "bm5_u_orange_003",
+    "name": "独孤求败",
+    "faction": "bm5_faction_batch4_2",
+    "quality": "orange",
+    "cost": 5,
+    "shop_visible": true,
+    "role": "swordsman",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 1948,
+      "mp": 185,
+      "atk": 219,
+      "iat": 170,
+      "def": 102,
+      "idr": 95,
+      "spd": 127,
+      "rng": 1,
+      "wis": 128
+    },
+    "initial_gongfa": [
+      "bm5_gf_orange_003_a",
+      "bm5_gf_orange_003_b",
+      "bm5_eq_orange_003"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_orange_003",
+        "name": "独孤求败??",
+        "description": "独孤求败??????",
+        "effects": [
+          {
+            "op": "attack_speed_bonus",
+            "value": 0.16
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.swordsman",
+          "bm5.trait.orange"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "bm5_gf_orange_003_a",
+      "qinggong": "bm5_gf_orange_003_b",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 5,
+    "equip_slots": {
+      "weapon": "bm5_eq_orange_003",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_orange_003.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_orange_003.png",
+    "tags": [
+      "bm5.batch.four",
+      "bm5.quality.orange",
+      "bm5.role.swordsman",
+      "bm5.source.wuxia_novel",
+      "bm5.shop.buyable",
+      "bm5.unit.orange.003"
+    ]
+  },
+  {
+    "id": "bm5_u_orange_004",
+    "name": "黄裳",
+    "faction": "bm5_faction_batch4_3",
+    "quality": "orange",
+    "cost": 5,
+    "shop_visible": true,
+    "role": "caster",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 1764,
+      "mp": 241,
+      "atk": 164,
+      "iat": 205,
+      "def": 78,
+      "idr": 86,
+      "spd": 116,
+      "rng": 4,
+      "wis": 165
+    },
+    "initial_gongfa": [
+      "bm5_gf_orange_004_a",
+      "bm5_gf_orange_004_b",
+      "bm5_eq_orange_004"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_orange_004",
+        "name": "黄裳??",
+        "description": "黄裳??????",
+        "effects": [
+          {
+            "op": "damage_amp_percent",
+            "value": 0.18
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.caster",
+          "bm5.trait.orange"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "bm5_gf_orange_004_a",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": "bm5_gf_orange_004_b"
+    },
+    "max_gongfa_count": 5,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "",
+      "accessory": "bm5_eq_orange_004"
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_orange_004.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_orange_004.png",
+    "tags": [
+      "bm5.batch.four",
+      "bm5.quality.orange",
+      "bm5.role.caster",
+      "bm5.source.wuxia_novel",
+      "bm5.shop.buyable",
+      "bm5.unit.orange.004"
+    ]
+  },
+  {
+    "id": "bm5_u_orange_005",
+    "name": "逍遥子",
+    "faction": "bm5_faction_batch4_4",
+    "quality": "orange",
+    "cost": 5,
+    "shop_visible": true,
+    "role": "caster",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 1620,
+      "mp": 205,
+      "atk": 128,
+      "iat": 212,
+      "def": 82,
+      "idr": 89,
+      "spd": 117,
+      "rng": 4,
+      "wis": 170
+    },
+    "initial_gongfa": [
+      "bm5_gf_orange_005_a",
+      "bm5_gf_orange_005_b",
+      "bm5_eq_orange_005"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_orange_005",
+        "name": "逍遥子??",
+        "description": "逍遥子??????",
+        "effects": [
+          {
+            "op": "damage_amp_percent",
+            "value": 0.18
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.caster",
+          "bm5.trait.orange"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "bm5_gf_orange_005_a",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": "bm5_gf_orange_005_b"
+    },
+    "max_gongfa_count": 5,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "",
+      "accessory": "bm5_eq_orange_005"
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_orange_005.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_orange_005.png",
+    "tags": [
+      "bm5.batch.four",
+      "bm5.quality.orange",
+      "bm5.role.caster",
+      "bm5.source.wuxia_novel",
+      "bm5.shop.buyable",
+      "bm5.unit.orange.005"
+    ]
+  },
+  {
+    "id": "bm5_u_orange_006",
+    "name": "令东来",
+    "faction": "bm5_faction_batch4_5",
+    "quality": "orange",
+    "cost": 5,
+    "shop_visible": true,
+    "role": "assassin",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 1686,
+      "mp": 159,
+      "atk": 197,
+      "iat": 160,
+      "def": 78,
+      "idr": 66,
+      "spd": 138,
+      "rng": 1,
+      "wis": 118
+    },
+    "initial_gongfa": [
+      "bm5_gf_orange_006_a",
+      "bm5_gf_orange_006_b",
+      "bm5_eq_orange_006"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_orange_006",
+        "name": "令东来??",
+        "description": "令东来??????",
+        "effects": [
+          {
+            "op": "dodge_bonus",
+            "value": 0.16
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.assassin",
+          "bm5.trait.orange"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "bm5_gf_orange_006_b",
+      "qinggong": "bm5_gf_orange_006_a",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 5,
+    "equip_slots": {
+      "weapon": "bm5_eq_orange_006",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_orange_006.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_orange_006.png",
+    "tags": [
+      "bm5.batch.four",
+      "bm5.quality.orange",
+      "bm5.role.assassin",
+      "bm5.source.wuxia_novel",
+      "bm5.shop.buyable",
+      "bm5.unit.orange.006"
+    ]
+  },
+  {
+    "id": "bm5_u_orange_007",
+    "name": "石破天",
+    "faction": "bm5_faction_batch4_0",
+    "quality": "orange",
+    "cost": 5,
+    "shop_visible": true,
+    "role": "vanguard",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 2192,
+      "mp": 154,
+      "atk": 202,
+      "iat": 139,
+      "def": 130,
+      "idr": 119,
+      "spd": 101,
+      "rng": 1,
+      "wis": 113
+    },
+    "initial_gongfa": [
+      "bm5_gf_orange_007_a",
+      "bm5_gf_orange_007_b",
+      "bm5_eq_orange_007"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_orange_007",
+        "name": "石破天??",
+        "description": "石破天??????",
+        "effects": [
+          {
+            "op": "damage_reduce_percent",
+            "value": 0.18
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.vanguard",
+          "bm5.trait.orange"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "bm5_gf_orange_007_a",
+      "qinggong": "",
+      "zhenfa": "bm5_gf_orange_007_b",
+      "qishu": ""
+    },
+    "max_gongfa_count": 5,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "bm5_eq_orange_007",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_orange_007.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_orange_007.png",
+    "tags": [
+      "bm5.batch.four",
+      "bm5.quality.orange",
+      "bm5.role.vanguard",
+      "bm5.source.wuxia_novel",
+      "bm5.shop.buyable",
+      "bm5.unit.orange.007"
+    ]
+  },
+  {
+    "id": "bm5_u_orange_008",
+    "name": "风清扬",
+    "faction": "bm5_faction_batch4_1",
+    "quality": "orange",
+    "cost": 5,
+    "shop_visible": true,
+    "role": "swordsman",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 1948,
+      "mp": 185,
+      "atk": 219,
+      "iat": 184,
+      "def": 110,
+      "idr": 92,
+      "spd": 124,
+      "rng": 1,
+      "wis": 138
+    },
+    "initial_gongfa": [
+      "bm5_gf_orange_008_a",
+      "bm5_gf_orange_008_b",
+      "bm5_eq_orange_008"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_orange_008",
+        "name": "风清扬??",
+        "description": "风清扬??????",
+        "effects": [
+          {
+            "op": "attack_speed_bonus",
+            "value": 0.16
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.swordsman",
+          "bm5.trait.orange"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "bm5_gf_orange_008_a",
+      "qinggong": "bm5_gf_orange_008_b",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 5,
+    "equip_slots": {
+      "weapon": "bm5_eq_orange_008",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_orange_008.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_orange_008.png",
+    "tags": [
+      "bm5.batch.four",
+      "bm5.quality.orange",
+      "bm5.role.swordsman",
+      "bm5.source.wuxia_novel",
+      "bm5.shop.buyable",
+      "bm5.unit.orange.008"
+    ]
+  },
+  {
+    "id": "bm5_u_orange_009",
+    "name": "阿青",
+    "faction": "bm5_faction_batch4_2",
+    "quality": "orange",
+    "cost": 5,
+    "shop_visible": true,
+    "role": "assassin",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 1794,
+      "mp": 186,
+      "atk": 224,
+      "iat": 160,
+      "def": 78,
+      "idr": 69,
+      "spd": 137,
+      "rng": 1,
+      "wis": 118
+    },
+    "initial_gongfa": [
+      "bm5_gf_orange_009_a",
+      "bm5_gf_orange_009_b",
+      "bm5_eq_orange_009"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_orange_009",
+        "name": "阿青??",
+        "description": "阿青??????",
+        "effects": [
+          {
+            "op": "dodge_bonus",
+            "value": 0.16
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.assassin",
+          "bm5.trait.orange"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "bm5_gf_orange_009_b",
+      "qinggong": "bm5_gf_orange_009_a",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 5,
+    "equip_slots": {
+      "weapon": "bm5_eq_orange_009",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_orange_009.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_orange_009.png",
+    "tags": [
+      "bm5.batch.four",
+      "bm5.quality.orange",
+      "bm5.role.assassin",
+      "bm5.source.wuxia_novel",
+      "bm5.shop.buyable",
+      "bm5.unit.orange.009"
+    ]
+  },
+  {
+    "id": "bm5_u_orange_010",
+    "name": "孙思邈",
+    "faction": "bm5_faction_batch4_3",
+    "quality": "orange",
+    "cost": 5,
+    "shop_visible": true,
+    "role": "healer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 1720,
+      "mp": 220,
+      "atk": 116,
+      "iat": 175,
+      "def": 92,
+      "idr": 98,
+      "spd": 112,
+      "rng": 4,
+      "wis": 191
+    },
+    "initial_gongfa": [
+      "bm5_gf_orange_010_a",
+      "bm5_gf_orange_010_b",
+      "bm5_eq_orange_010"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_orange_010",
+        "name": "孙思邈??",
+        "description": "孙思邈??????",
+        "effects": [
+          {
+            "op": "healing_amp",
+            "value": 0.28
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.healer",
+          "bm5.trait.orange"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "bm5_gf_orange_010_a",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "bm5_gf_orange_010_b",
+      "qishu": ""
+    },
+    "max_gongfa_count": 5,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "",
+      "accessory": "bm5_eq_orange_010"
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_orange_010.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_orange_010.png",
+    "tags": [
+      "bm5.batch.four",
+      "bm5.quality.orange",
+      "bm5.role.healer",
+      "bm5.source.ancient_legend",
+      "bm5.shop.buyable",
+      "bm5.unit.orange.010"
+    ]
+  },
+  {
+    "id": "bm5_u_red_011",
+    "name": "达摩祖师",
+    "faction": "bm5_faction_batch4_4",
+    "quality": "red",
+    "cost": 6,
+    "shop_visible": true,
+    "role": "leader",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 2325,
+      "mp": 219,
+      "atk": 211,
+      "iat": 195,
+      "def": 135,
+      "idr": 121,
+      "spd": 125,
+      "rng": 2,
+      "wis": 179
+    },
+    "initial_gongfa": [
+      "bm5_gf_red_011_a",
+      "bm5_gf_red_011_b",
+      "bm5_eq_red_011"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_red_011",
+        "name": "达摩祖师??",
+        "description": "达摩祖师??????",
+        "effects": [
+          {
+            "op": "stat_percent",
+            "stat": "atk",
+            "value": 0.18
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.leader",
+          "bm5.trait.red"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "bm5_gf_red_011_b",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "bm5_gf_red_011_a",
+      "qishu": ""
+    },
+    "max_gongfa_count": 6,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "bm5_eq_red_011",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_red_011.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_red_011.png",
+    "tags": [
+      "bm5.batch.four",
+      "bm5.quality.red",
+      "bm5.role.leader",
+      "bm5.source.ancient_legend",
+      "bm5.shop.buyable",
+      "bm5.unit.red.011"
+    ]
+  },
+  {
+    "id": "bm5_u_red_012",
+    "name": "鬼谷子",
+    "faction": "bm5_faction_batch4_5",
+    "quality": "red",
+    "cost": 6,
+    "shop_visible": true,
+    "role": "caster",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 1983,
+      "mp": 259,
+      "atk": 169,
+      "iat": 233,
+      "def": 87,
+      "idr": 101,
+      "spd": 136,
+      "rng": 4,
+      "wis": 188
+    },
+    "initial_gongfa": [
+      "bm5_gf_red_012_a",
+      "bm5_gf_red_012_b",
+      "bm5_eq_red_012"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_red_012",
+        "name": "鬼谷子??",
+        "description": "鬼谷子??????",
+        "effects": [
+          {
+            "op": "damage_amp_percent",
+            "value": 0.18
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.caster",
+          "bm5.trait.red"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "bm5_gf_red_012_a",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "",
+      "qishu": "bm5_gf_red_012_b"
+    },
+    "max_gongfa_count": 6,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "",
+      "accessory": "bm5_eq_red_012"
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_red_012.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_red_012.png",
+    "tags": [
+      "bm5.batch.four",
+      "bm5.quality.red",
+      "bm5.role.caster",
+      "bm5.source.ancient_legend",
+      "bm5.shop.buyable",
+      "bm5.unit.red.012"
+    ]
+  },
+  {
+    "id": "bm5_u_red_013",
+    "name": "陈抟老祖",
+    "faction": "bm5_faction_batch4_0",
+    "quality": "red",
+    "cost": 6,
+    "shop_visible": true,
+    "role": "healer",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 2137,
+      "mp": 286,
+      "atk": 163,
+      "iat": 205,
+      "def": 107,
+      "idr": 118,
+      "spd": 130,
+      "rng": 4,
+      "wis": 224
+    },
+    "initial_gongfa": [
+      "bm5_gf_red_013_a",
+      "bm5_gf_red_013_b",
+      "bm5_eq_red_013"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_red_013",
+        "name": "陈抟老祖??",
+        "description": "陈抟老祖??????",
+        "effects": [
+          {
+            "op": "healing_amp",
+            "value": 0.28
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.healer",
+          "bm5.trait.red"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "bm5_gf_red_013_a",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": "bm5_gf_red_013_b",
+      "qishu": ""
+    },
+    "max_gongfa_count": 6,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "",
+      "accessory": "bm5_eq_red_013"
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_red_013.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_red_013.png",
+    "tags": [
+      "bm5.batch.four",
+      "bm5.quality.red",
+      "bm5.role.healer",
+      "bm5.source.ancient_legend",
+      "bm5.shop.buyable",
+      "bm5.unit.red.013"
+    ]
+  },
+  {
+    "id": "bm5_u_red_014",
+    "name": "广成子",
+    "faction": "bm5_faction_batch4_1",
+    "quality": "red",
+    "cost": 6,
+    "shop_visible": true,
+    "role": "vanguard",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 2645,
+      "mp": 196,
+      "atk": 253,
+      "iat": 169,
+      "def": 156,
+      "idr": 136,
+      "spd": 117,
+      "rng": 1,
+      "wis": 137
+    },
+    "initial_gongfa": [
+      "bm5_gf_red_014_a",
+      "bm5_gf_red_014_b",
+      "bm5_eq_red_014"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_red_014",
+        "name": "广成子??",
+        "description": "广成子??????",
+        "effects": [
+          {
+            "op": "damage_reduce_percent",
+            "value": 0.18
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.vanguard",
+          "bm5.trait.red"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "bm5_gf_red_014_a",
+      "qinggong": "",
+      "zhenfa": "bm5_gf_red_014_b",
+      "qishu": ""
+    },
+    "max_gongfa_count": 6,
+    "equip_slots": {
+      "weapon": "",
+      "armor": "bm5_eq_red_014",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_red_014.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_red_014.png",
+    "tags": [
+      "bm5.batch.four",
+      "bm5.quality.red",
+      "bm5.role.vanguard",
+      "bm5.source.ancient_legend",
+      "bm5.shop.buyable",
+      "bm5.unit.red.014"
+    ]
+  },
+  {
+    "id": "bm5_u_red_015",
+    "name": "吕洞宾",
+    "faction": "bm5_faction_batch4_2",
+    "quality": "red",
+    "cost": 6,
+    "shop_visible": true,
+    "role": "swordsman",
+    "base_star": 1,
+    "max_star": 3,
+    "base_stats": {
+      "hp": 2171,
+      "mp": 186,
+      "atk": 226,
+      "iat": 200,
+      "def": 120,
+      "idr": 111,
+      "spd": 149,
+      "rng": 1,
+      "wis": 151
+    },
+    "initial_gongfa": [
+      "bm5_gf_red_015_a",
+      "bm5_gf_red_015_b",
+      "bm5_eq_red_015"
+    ],
+    "traits": [
+      {
+        "id": "bm5_trait_red_015",
+        "name": "吕洞宾??",
+        "description": "吕洞宾??????",
+        "effects": [
+          {
+            "op": "attack_speed_bonus",
+            "value": 0.16
+          }
+        ],
+        "skills": [],
+        "tags": [
+          "bm5.trait.core",
+          "bm5.role.swordsman",
+          "bm5.trait.red"
+        ]
+      }
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "bm5_gf_red_015_a",
+      "qinggong": "bm5_gf_red_015_b",
+      "zhenfa": "",
+      "qishu": ""
+    },
+    "max_gongfa_count": 6,
+    "equip_slots": {
+      "weapon": "bm5_eq_red_015",
+      "armor": "",
+      "accessory": ""
+    },
+    "max_equip_count": 3,
+    "sprite_path": "assets/basemod_m5/units/bm5_u_red_015.png",
+    "portrait_path": "assets/basemod_m5/portraits/bm5_u_red_015.png",
+    "tags": [
+      "bm5.batch.four",
+      "bm5.quality.red",
+      "bm5.role.swordsman",
+      "bm5.source.ancient_legend",
+      "bm5.shop.buyable",
+      "bm5.unit.red.015"
+    ]
+  }
+]

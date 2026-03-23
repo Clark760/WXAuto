@@ -25,6 +25,21 @@ func normalize_stage_record(raw: Dictionary) -> Dictionary:
 	var stage_id: String = str(raw.get("id", "")).strip_edges()
 	if stage_id.is_empty():
 		return {}
+	if raw.has("boss_gongfa_ids") or raw.has("boss_mechanics"):
+		push_error("StageData: stage=%s contains removed boss fields. Define boss data in unit records only." % stage_id)
+		return {}
+	var raw_enemies: Variant = raw.get("enemies", [])
+	if raw_enemies is Array:
+		for enemy_value in (raw_enemies as Array):
+			if not (enemy_value is Dictionary):
+				continue
+			var enemy_row: Dictionary = enemy_value as Dictionary
+			if enemy_row.has("is_boss"):
+				push_error("StageData: stage=%s contains removed enemies[].is_boss. Define boss data in unit records only." % stage_id)
+				return {}
+			if enemy_row.has("gongfa_ids") or enemy_row.has("equip_ids") or enemy_row.has("traits"):
+				push_error("StageData: stage=%s contains removed enemies inline boss data (gongfa_ids/equip_ids/traits)." % stage_id)
+				return {}
 
 	var stage_type: String = str(raw.get("type", "normal")).strip_edges().to_lower()
 	if not STAGE_TYPES.has(stage_type):
@@ -39,8 +54,6 @@ func normalize_stage_record(raw: Dictionary) -> Dictionary:
 	if terrains.is_empty():
 		terrains.append_array(_legacy_obstacles_to_terrains(obstacles))
 	var rewards: Dictionary = _normalize_rewards(raw.get("rewards", {}))
-	var boss_gongfa_ids: Array[String] = _normalize_boss_gongfa_ids(raw.get("boss_gongfa_ids", []))
-	var boss_mechanics: Array[Dictionary] = _normalize_boss_mechanics(raw.get("boss_mechanics", null))
 
 	var result: Dictionary = {
 		"id": stage_id,
@@ -53,9 +66,7 @@ func normalize_stage_record(raw: Dictionary) -> Dictionary:
 		"enemies": enemies,
 		"terrains": terrains,
 		"obstacles": obstacles,
-		"rewards": rewards,
-		"boss_gongfa_ids": boss_gongfa_ids,
-		"boss_mechanics": boss_mechanics
+		"rewards": rewards
 	}
 	return result
 
@@ -158,54 +169,15 @@ func _normalize_enemies(raw_enemies: Variant) -> Array[Dictionary]:
 		if not ENEMY_DEPLOY_ZONES.has(deploy_zone):
 			deploy_zone = "random"
 		var fixed_cells: Array[Vector2i] = _parse_cells(entry.get("fixed_cells", []))
-		var gongfa_ids: Array[String] = _to_string_array(entry.get("gongfa_ids", []))
-		var equip_ids: Array[String] = _to_string_array(entry.get("equip_ids", []))
 		enemies.append({
 			"unit_id": unit_id,
 			"count": count,
 			"star": clampi(int(entry.get("star", 1)), 1, 3),
 			"deploy_zone": deploy_zone,
 			"fixed_cells": fixed_cells,
-			"gongfa_ids": gongfa_ids,
-			"equip_ids": equip_ids,
-			"stat_scale": maxf(float(entry.get("stat_scale", 1.0)), 0.01),
-			"is_boss": bool(entry.get("is_boss", false))
+			"stat_scale": maxf(float(entry.get("stat_scale", 1.0)), 0.01)
 		})
 	return enemies
-
-
-func _normalize_boss_mechanics(raw_boss_mechanics: Variant) -> Array[Dictionary]:
-	var mechanics: Array[Dictionary] = []
-	if raw_boss_mechanics == null:
-		return mechanics
-
-	var source_items: Array = []
-	if raw_boss_mechanics is Array:
-		source_items = raw_boss_mechanics
-	elif raw_boss_mechanics is Dictionary:
-		source_items = [raw_boss_mechanics]
-	else:
-		return mechanics
-
-	for item in source_items:
-		if not (item is Dictionary):
-			continue
-		var row: Dictionary = item
-		var mechanic_type: String = str(row.get("type", "")).strip_edges().to_lower()
-		if mechanic_type.is_empty():
-			continue
-		var config: Dictionary = {}
-		if row.get("config", null) is Dictionary:
-			config = (row.get("config", {}) as Dictionary).duplicate(true)
-		mechanics.append({
-			"type": mechanic_type,
-			"config": config
-		})
-	return mechanics
-
-
-func _normalize_boss_gongfa_ids(value: Variant) -> Array[String]:
-	return _to_string_array(value)
 
 
 func _normalize_obstacles(raw_obstacles: Variant) -> Array[Dictionary]:
@@ -243,10 +215,11 @@ func _normalize_terrains(raw_terrains: Variant) -> Array[Dictionary]:
 			continue
 		var row: Dictionary = {
 			"terrain_id": terrain_id,
-			"cells": cells
+			"cells": cells,
+			"tags": _normalize_tags(terrain.get("tags", []))
 		}
 		for key in terrain.keys():
-			if key == "terrain_id" or key == "cells":
+			if key == "terrain_id" or key == "cells" or key == "tags":
 				continue
 			row[key] = terrain[key]
 		terrains.append(row)
@@ -263,7 +236,8 @@ func _legacy_obstacles_to_terrains(obstacles: Array[Dictionary]) -> Array[Dictio
 		var terrain_id: String = "terrain_%s" % obstacle_type
 		terrains.append({
 			"terrain_id": terrain_id,
-			"cells": (cells_value as Array).duplicate(true)
+			"cells": (cells_value as Array).duplicate(true),
+			"tags": _normalize_tags(["obstacle", obstacle_type])
 		})
 	return terrains
 
@@ -311,6 +285,22 @@ func _to_string_array(value: Variant) -> Array[String]:
 			if not text.is_empty():
 				output.append(text)
 	return output
+
+
+func _normalize_tags(value: Variant) -> Array[String]:
+	var tags: Array[String] = []
+	var seen: Dictionary = {}
+	if value is Array:
+		for item in value:
+			var text: String = str(item).strip_edges()
+			if text.is_empty():
+				continue
+			var key: String = text.to_lower()
+			if seen.has(key):
+				continue
+			seen[key] = true
+			tags.append(text)
+	return tags
 
 
 func _parse_cells(value: Variant) -> Array[Vector2i]:

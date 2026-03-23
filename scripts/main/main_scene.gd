@@ -5,17 +5,21 @@ extends Node2D
 # ===========================
 # 作用：
 # 1. 展示当前数据加载摘要与游戏阶段。
-# 2. 提供进入正式战斗场景的单一入口。
+# 2. 提供章节序列列表入口，可直接选择并进入对应序列首关。
 # 3. 提供数据热重载入口，便于反复测试完整战斗回路。
+
+const STAGE_DATA_SCRIPT: Script = preload("res://scripts/stage/stage_data.gd")
 
 @onready var info_label: Label = $CanvasLayer/InfoLabel
 @onready var tip_label: Label = $CanvasLayer/TipLabel
-@onready var enter_battle_button: Button = $CanvasLayer/EnterBattleButton
+@onready var stage_list_vbox: VBoxContainer = $CanvasLayer/StageListPanel/StageListRoot/StageListScroll/StageListVBox
+
+var _stage_data: StageData = STAGE_DATA_SCRIPT.new() as StageData
+var _selected_sequence_id: String = ""
 
 
 func _ready() -> void:
 	_connect_event_bus()
-	_bind_ui_signals()
 	_refresh_ui()
 
 
@@ -33,7 +37,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			game_manager.call("reload_game_data")
 		_refresh_ui()
 	elif key_event.keycode == KEY_F6 or key_event.keycode == KEY_ENTER:
-		_enter_battle_scene()
+		_enter_selected_sequence()
 
 
 func _connect_event_bus() -> void:
@@ -87,22 +91,121 @@ func _refresh_ui() -> void:
 	lines.append(summary_text)
 
 	info_label.text = "\n".join(lines)
-	tip_label.text = "快捷键：F6/Enter 进入战斗 | F5 重载 JSON + Mod 数据"
+	tip_label.text = "点击章节序列按钮直接进入 | F6/Enter 进入当前选中序列 | F5 重载 JSON + Mod 数据"
+	_refresh_stage_buttons(data_manager)
 
 
-func _bind_ui_signals() -> void:
-	if enter_battle_button == null:
+func _refresh_stage_buttons(data_manager: Node) -> void:
+	if stage_list_vbox == null:
 		return
-	var cb: Callable = Callable(self, "_on_enter_battle_button_pressed")
-	if not enter_battle_button.is_connected("pressed", cb):
-		enter_battle_button.connect("pressed", cb)
+	for child in stage_list_vbox.get_children():
+		child.queue_free()
+
+	var entries: Array[Dictionary] = _collect_sequence_entries(data_manager)
+	if entries.is_empty():
+		var empty_label := Label.new()
+		empty_label.text = "未检测到可用章节序列（需包含 chapters）"
+		stage_list_vbox.add_child(empty_label)
+		_selected_sequence_id = ""
+		return
+
+	_ensure_selected_sequence(entries)
+	for entry in entries:
+		var sequence_id: String = str(entry.get("id", "")).strip_edges()
+		if sequence_id.is_empty():
+			continue
+		var btn := Button.new()
+		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		btn.custom_minimum_size = Vector2(0, 38)
+		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		btn.text = _build_sequence_button_text(entry)
+		btn.tooltip_text = "点击进入序列 %s" % sequence_id
+		btn.pressed.connect(Callable(self, "_on_sequence_button_pressed").bind(sequence_id))
+		if sequence_id == _selected_sequence_id:
+			btn.text = "▶ " + btn.text
+		stage_list_vbox.add_child(btn)
 
 
-func _on_enter_battle_button_pressed() -> void:
-	_enter_battle_scene()
+func _collect_sequence_entries(data_manager: Node) -> Array[Dictionary]:
+	var entries: Array[Dictionary] = []
+	if data_manager == null or not is_instance_valid(data_manager) or not data_manager.has_method("get_all_records"):
+		return entries
+
+	var all_rows: Variant = data_manager.call("get_all_records", "stages")
+	if not (all_rows is Array):
+		return entries
+	for row_value in all_rows:
+		if not (row_value is Dictionary):
+			continue
+		var row: Dictionary = row_value as Dictionary
+		if not row.has("chapters"):
+			continue
+		var seq_cfg: Dictionary = _stage_data.normalize_stage_sequence_record(row)
+		var seq_id: String = str(seq_cfg.get("id", "")).strip_edges()
+		if seq_id.is_empty():
+			continue
+		var stage_ids: Array[String] = _stage_data.flatten_sequence_stage_ids(seq_cfg)
+		if stage_ids.is_empty():
+			continue
+		var chapter_count: int = 0
+		var chapters_value: Variant = seq_cfg.get("chapters", [])
+		if chapters_value is Array:
+			chapter_count = (chapters_value as Array).size()
+		entries.append({
+			"id": seq_id,
+			"name": seq_id,
+			"chapters": chapter_count,
+			"stages": stage_ids.size()
+		})
+	entries.sort_custom(Callable(self, "_sort_sequence_entry"))
+	return entries
 
 
-func _enter_battle_scene() -> void:
+func _build_sequence_button_text(entry: Dictionary) -> String:
+	var seq_id: String = str(entry.get("id", ""))
+	var chapter_count: int = int(entry.get("chapters", 0))
+	var stage_count: int = int(entry.get("stages", 0))
+	return "%s（章节%d，关卡%d）" % [seq_id, chapter_count, stage_count]
+
+
+func _sort_sequence_entry(a: Dictionary, b: Dictionary) -> bool:
+	return str(a.get("id", "")) < str(b.get("id", ""))
+
+
+func _ensure_selected_sequence(entries: Array[Dictionary]) -> void:
+	if entries.is_empty():
+		_selected_sequence_id = ""
+		return
+	if _selected_sequence_id.is_empty():
+		_selected_sequence_id = str(entries[0].get("id", "")).strip_edges()
+		return
+	for entry in entries:
+		if str(entry.get("id", "")).strip_edges() == _selected_sequence_id:
+			return
+	_selected_sequence_id = str(entries[0].get("id", "")).strip_edges()
+
+
+func _on_sequence_button_pressed(sequence_id: String) -> void:
+	_selected_sequence_id = sequence_id.strip_edges()
+	_enter_battle_scene(_selected_sequence_id)
+
+
+func _enter_selected_sequence() -> void:
+	if _selected_sequence_id.is_empty():
+		var data_manager: Node = _get_data_manager()
+		var entries: Array[Dictionary] = _collect_sequence_entries(data_manager)
+		if not entries.is_empty():
+			_selected_sequence_id = str(entries[0].get("id", "")).strip_edges()
+	_enter_battle_scene(_selected_sequence_id)
+
+
+func _enter_battle_scene(sequence_id: String = "") -> void:
+	var game_manager: Node = _get_game_manager()
+	if game_manager != null and is_instance_valid(game_manager):
+		if game_manager.has_method("set_requested_stage_sequence_id"):
+			game_manager.call("set_requested_stage_sequence_id", sequence_id)
+		elif game_manager.has_method("set_requested_stage_id"):
+			game_manager.call("set_requested_stage_id", sequence_id)
 	var event_bus: Node = _get_event_bus()
 	if event_bus != null:
 		event_bus.call("emit_scene_change_requested", "res://scenes/battle/battlefield.tscn")

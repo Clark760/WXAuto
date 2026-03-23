@@ -1,0 +1,116 @@
+[
+  {
+    "id": "bm5_stage_5_1",
+    "chapter": 5,
+    "index": 1,
+    "name": "断岳试阵",
+    "type": "normal",
+    "description": "以断岳石壁测试阻挡与路径切割。",
+    "grid": {
+      "width": 32,
+      "height": 16,
+      "hex_size": 24.0,
+      "deploy_zone": {
+        "x_min": 0,
+        "x_max": 12,
+        "y_min": 0,
+        "y_max": 15
+      }
+    },
+    "enemies": [
+      { "unit_id": "bm5_u_white_006", "count": 4, "star": 1, "deploy_zone": "front" },
+      { "unit_id": "bm5_u_green_008", "count": 3, "star": 1, "deploy_zone": "center" }
+    ],
+    "terrains": [
+      {
+        "terrain_id": "terrain_bm5_stone_wall",
+        "cells": [[16, 6], [16, 7], [17, 7], [18, 8]],
+        "tags": ["bm5.stage.terrain.demo", "bm5.terrain.rock"]
+      }
+    ],
+    "rewards": {
+      "silver": 42,
+      "exp": 12,
+      "drops": [
+        { "type": "gongfa", "pool": ["bm5_gf_batch5_lotus_field"], "count": 1, "chance": 0.2 },
+        { "type": "equipment", "pool": ["bm5_eq_batch5_qi_lantern"], "count": 1, "chance": 0.2 }
+      ]
+    }
+  },
+  {
+    "id": "bm5_stage_5_2",
+    "chapter": 5,
+    "index": 2,
+    "name": "青篁迷踪",
+    "type": "elite",
+    "description": "以青篁密林测试大面积障碍对站位的影响。",
+    "grid": {
+      "width": 32,
+      "height": 16,
+      "hex_size": 24.0,
+      "deploy_zone": {
+        "x_min": 0,
+        "x_max": 12,
+        "y_min": 0,
+        "y_max": 15
+      }
+    },
+    "enemies": [
+      { "unit_id": "bm5_u_blue_006", "count": 3, "star": 1, "deploy_zone": "front" },
+      { "unit_id": "bm5_u_green_015", "count": 4, "star": 1, "deploy_zone": "back" }
+    ],
+    "terrains": [
+      {
+        "terrain_id": "terrain_bm5_bamboo_grove",
+        "cells": [[15, 5], [16, 5], [17, 6], [18, 7], [19, 8]],
+        "tags": ["bm5.stage.terrain.demo", "bm5.terrain.bamboo"]
+      }
+    ],
+    "rewards": {
+      "silver": 56,
+      "exp": 16,
+      "drops": [
+        { "type": "gongfa", "pool": ["bm5_gf_batch5_frost_domain"], "count": 1, "chance": 0.25 },
+        { "type": "equipment", "pool": ["bm5_eq_batch5_qi_lantern"], "count": 1, "chance": 0.25 }
+      ]
+    }
+  },
+  {
+    "id": "bm5_stage_5_3",
+    "chapter": 5,
+    "index": 3,
+    "name": "迷沼困杀",
+    "type": "boss",
+    "description": "以迷雾沼泽测试无伤害地形标签在联动中的可见性。",
+    "grid": {
+      "width": 32,
+      "height": 16,
+      "hex_size": 24.0,
+      "deploy_zone": {
+        "x_min": 0,
+        "x_max": 12,
+        "y_min": 0,
+        "y_max": 15
+      }
+    },
+    "enemies": [
+      { "unit_id": "bm5_u_purple_004", "count": 1, "star": 2, "deploy_zone": "center" },
+      { "unit_id": "bm5_u_blue_014", "count": 2, "star": 1, "deploy_zone": "back" }
+    ],
+    "terrains": [
+      {
+        "terrain_id": "terrain_bm5_mist_marsh",
+        "cells": [[16, 6], [17, 6], [18, 6], [17, 7], [18, 7], [19, 8]],
+        "tags": ["bm5.stage.terrain.demo", "bm5.terrain.marsh"]
+      }
+    ],
+    "rewards": {
+      "silver": 80,
+      "exp": 24,
+      "drops": [
+        { "type": "gongfa", "pool": ["bm5_gf_batch5_lotus_field", "bm5_gf_batch5_frost_domain"], "count": 1, "chance": 0.35 },
+        { "type": "equipment", "pool": ["bm5_eq_batch5_qi_lantern"], "count": 1, "chance": 0.35 }
+      ]
+    }
+  }
+]

@@ -228,6 +228,13 @@ func _execute_active_op(source: Node, target: Node, effect: Dictionary, context:
 				summary["heal_total"] = float(summary.get("heal_total", 0.0)) + healed_ally
 				_append_heal_event(summary, source, ally, healed_ally, op)
 
+		"heal_target_flat":
+			var heal_target_flat: Node = target if target != null and is_instance_valid(target) else source
+			var heal_flat_amount: float = float(effect.get("value", 0.0))
+			var healed_flat: float = _heal_unit(heal_target_flat, heal_flat_amount, source)
+			summary["heal_total"] = float(summary.get("heal_total", 0.0)) + healed_flat
+			_append_heal_event(summary, source, heal_target_flat, healed_flat, op)
+
 		# 周期回蓝效果会走主动执行链路；这里按“立即回复内力”处理。
 		"mp_regen_add":
 			var mp_target: Node = target if target != null and is_instance_valid(target) else source
@@ -251,6 +258,11 @@ func _execute_active_op(source: Node, target: Node, effect: Dictionary, context:
 		"debuff_target":
 			if _apply_buff_op(source, target, effect, context):
 				summary["debuff_applied"] = int(summary.get("debuff_applied", 0)) + 1
+				_append_buff_event(summary, source, target, str(effect.get("buff_id", "")), float(effect.get("duration", 0.0)), op)
+
+		"buff_target":
+			if _apply_buff_op(source, target, effect, context):
+				summary["buff_applied"] = int(summary.get("buff_applied", 0)) + 1
 				_append_buff_event(summary, source, target, str(effect.get("buff_id", "")), float(effect.get("duration", 0.0)), op)
 
 		"debuff_aoe":
@@ -468,16 +480,6 @@ func _execute_active_op(source: Node, target: Node, effect: Dictionary, context:
 					summary["debuff_applied"] = int(summary.get("debuff_applied", 0)) + 1
 					_append_buff_event(summary, source, enemy_fear, "debuff_fear", fear_duration, op)
 
-		"burn_ground":
-			var burn_effect: Dictionary = {
-				"terrain_type": "fire",
-				"radius": int(effect.get("radius", 2)),
-				"duration": float(effect.get("duration", 5.0)),
-				"damage_per_second": float(effect.get("damage_per_second", 20.0)),
-				"at": str(effect.get("at", "self")).strip_edges()
-			}
-			_apply_create_terrain_op(source, target, burn_effect, context)
-
 		"freeze_target":
 			_apply_control_state(target, "stun", float(effect.get("duration", 2.0)), context)
 			if target != null and is_instance_valid(target):
@@ -548,8 +550,11 @@ func _execute_active_op(source: Node, target: Node, effect: Dictionary, context:
 		"taunt_aoe":
 			_execute_taunt_aoe_op(source, effect, context, summary)
 
+		"tag_linkage_branch":
+			_execute_tag_linkage_branch_op(source, target, effect, context, summary)
+
 		_:
-			push_warning("EffectEngine: 閺堫亜鐤勯悳鎵畱娑撹濮?op=%s" % op)
+			push_warning("EffectEngine: 未实现效果?op=%s" % op)
 
 
 func _execute_teleport_behind_op(source: Node, target: Node, effect: Dictionary, context: Dictionary) -> bool:
@@ -719,6 +724,27 @@ func _execute_taunt_aoe_op(source: Node, effect: Dictionary, context: Dictionary
 				summary["debuff_applied"] = int(summary.get("debuff_applied", 0)) + 1
 				_append_buff_event(summary, source, enemy, taunt_buff_id, taunt_duration, "taunt_aoe")
 	return taunted_count
+
+
+func _execute_tag_linkage_branch_op(source: Node, target: Node, effect: Dictionary, context: Dictionary, summary: Dictionary) -> void:
+	if source == null or not is_instance_valid(source):
+		return
+	var gongfa_manager: Node = context.get("gongfa_manager", null)
+	if gongfa_manager == null or not is_instance_valid(gongfa_manager):
+		return
+	if not gongfa_manager.has_method("evaluate_tag_linkage_branch"):
+		return
+	var result_value: Variant = gongfa_manager.call("evaluate_tag_linkage_branch", source, effect, context)
+	if not (result_value is Dictionary):
+		return
+	var result: Dictionary = result_value as Dictionary
+	var branch_effects_value: Variant = result.get("effects", [])
+	if not (branch_effects_value is Array):
+		return
+	for child_effect_value in (branch_effects_value as Array):
+		if not (child_effect_value is Dictionary):
+			continue
+		_execute_active_op(source, target, child_effect_value as Dictionary, context, summary)
 
 
 func _apply_taunt_state(target: Node, source: Node, duration: float, context: Dictionary) -> void:
@@ -891,25 +917,37 @@ func _apply_create_terrain_op(source: Node, target: Node, effect: Dictionary, co
 		center_cell = hex_grid.call("world_to_axial", _node_pos(anchor))
 	if center_cell.x < 0:
 		return false
-	var terrain_type: String = str(effect.get("terrain_type", "fire")).strip_edges().to_lower()
+	var terrain_ref_id: String = str(effect.get("terrain_ref_id", "")).strip_edges().to_lower()
+	var terrain_type: String = str(effect.get("terrain_type", "")).strip_edges().to_lower()
+	if terrain_ref_id.is_empty() and terrain_type.is_empty():
+		terrain_type = "fire"
 	var terrain_config: Dictionary = {
-		"terrain_id": "terrain_%d_%s" % [Time.get_ticks_msec(), terrain_type],
-		"terrain_type": terrain_type,
+		"terrain_id": "terrain_%d_%s" % [Time.get_ticks_msec(), terrain_type if not terrain_type.is_empty() else terrain_ref_id],
 		"center_cell": center_cell,
 		"radius": maxi(int(effect.get("radius", 1)), 0),
 		"duration": maxf(float(effect.get("duration", 1.0)), 0.1),
-		"buff_id": str(effect.get("buff_id", "")).strip_edges(),
-		"debuff_id": str(effect.get("debuff_id", "")).strip_edges(),
 		"target_mode": str(effect.get("target_mode", "")).strip_edges().to_lower()
 	}
-	if effect.has("damage_per_second"):
-		terrain_config["damage_per_second"] = maxf(float(effect.get("damage_per_second", 0.0)), 0.0)
-	elif effect.has("dps"):
-		terrain_config["damage_per_second"] = maxf(float(effect.get("dps", 0.0)), 0.0)
-	elif effect.has("value"):
-		terrain_config["damage_per_second"] = maxf(float(effect.get("value", 0.0)), 0.0)
-	if effect.has("heal_per_second"):
-		terrain_config["heal_per_second"] = maxf(float(effect.get("heal_per_second", 0.0)), 0.0)
+	if effect.has("tick_interval"):
+		terrain_config["tick_interval"] = maxf(float(effect.get("tick_interval", 0.5)), 0.05)
+	if not terrain_ref_id.is_empty():
+		terrain_config["terrain_ref_id"] = terrain_ref_id
+	if not terrain_type.is_empty():
+		terrain_config["terrain_type"] = terrain_type
+	if effect.has("cells"):
+		terrain_config["cells"] = effect.get("cells", [])
+	if effect.has("tags"):
+		terrain_config["tags"] = effect.get("tags", [])
+	if effect.has("is_barrier"):
+		terrain_config["is_barrier"] = bool(effect.get("is_barrier", false))
+	if effect.has("effects_on_enter"):
+		terrain_config["effects_on_enter"] = effect.get("effects_on_enter", [])
+	if effect.has("effects_on_tick"):
+		terrain_config["effects_on_tick"] = effect.get("effects_on_tick", [])
+	if effect.has("effects_on_exit"):
+		terrain_config["effects_on_exit"] = effect.get("effects_on_exit", [])
+	if effect.has("effects_on_expire"):
+		terrain_config["effects_on_expire"] = effect.get("effects_on_expire", [])
 	return bool(combat_manager.call("add_temporary_terrain", terrain_config, source))
 
 
@@ -1084,7 +1122,7 @@ func _execute_hazard_zone_op(source: Node, effect: Dictionary, context: Dictiona
 	var duration: float = maxf(float(effect.get("duration", 6.0)), 0.1)
 	var warning_seconds: float = maxf(float(effect.get("warning_seconds", 0.0)), 0.0)
 	var tick_interval: float = maxf(float(effect.get("tick_interval", 0.5)), 0.05)
-	var dps: float = maxf(float(effect.get("damage_per_second", effect.get("value", 0.0))), 0.0)
+	var dps: float = maxf(float(effect.get("value", 0.0)), 0.0)
 	if dps <= 0.0:
 		return 0
 	var damage_per_tick: float = dps * tick_interval
