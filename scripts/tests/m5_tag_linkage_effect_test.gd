@@ -251,6 +251,8 @@ func _run() -> void:
 	_test_provider_count_not_multiplied_by_tag_count()
 	_test_static_and_dynamic_terrain_tags()
 	_test_wandu_ground_poison_fire_else()
+	_test_forbid_tags_absence_and_violation()
+	_test_match_tags_with_exclude_tags_provider_filter()
 	_test_effect_engine_dispatch_tag_linkage_branch()
 
 
@@ -517,6 +519,85 @@ func _test_wandu_ground_poison_fire_else() -> void:
 	_assert_true(else_effects.size() == 1 and is_equal_approx(float((else_effects[0] as Dictionary).get("value", 0.0)), 0.2), "else branch should return fallback effect")
 
 	_free_bundle(bundle, [owner])
+
+
+func _test_forbid_tags_absence_and_violation() -> void:
+	var bundle: Dictionary = _build_context_bundle()
+	var owner: MockUnit = _make_unit("forbid_owner", 1, [], [], [], [])
+	bundle.combat_manager.register_unit_cell(owner, Vector2i(0, 0))
+
+	var config: Dictionary = {
+		"range": 1,
+		"include_self": true,
+		"source_types": ["terrain"],
+		"queries": [
+			{
+				"id": "q_no_fire",
+				"query_type": "forbid_tags",
+				"exclude_tags": ["element.fire"],
+				"exclude_match": "any",
+				"source_types": ["terrain"]
+			}
+		],
+		"cases": [
+			{
+				"id": "safe",
+				"all": [{"query_id": "q_no_fire", "max_count": 0}],
+				"effects": [{"op": "mp_regen_add", "value": 6.0}]
+			}
+		],
+		"else_effects": [{"op": "mp_regen_add", "value": 1.0}],
+		"stop_after_first_case": true
+	}
+
+	bundle.combat_manager.set_static_tags(Vector2i(0, 0), ["element.poison"])
+	var safe_result: Dictionary = bundle.manager.evaluate_tag_linkage_branch(owner, config, _build_effect_context(bundle, [owner]))
+	var safe_counts: Dictionary = safe_result.get("query_counts", {})
+	_assert_true(int(safe_counts.get("q_no_fire", 0)) == 0, "forbid_tags should count 0 when forbidden tag is absent")
+	_assert_true(_array_has_str(safe_result.get("matched_case_ids", []), "safe"), "forbid_tags max_count=0 should match safe branch")
+
+	bundle.combat_manager.set_static_tags(Vector2i(0, 0), ["element.fire"])
+	var violated_result: Dictionary = bundle.manager.evaluate_tag_linkage_branch(owner, config, _build_effect_context(bundle, [owner]))
+	var violated_counts: Dictionary = violated_result.get("query_counts", {})
+	_assert_true(int(violated_counts.get("q_no_fire", 0)) >= 1, "forbid_tags should count violating providers")
+	var violated_effects: Array = violated_result.get("effects", [])
+	_assert_true(violated_effects.size() == 1 and is_equal_approx(float((violated_effects[0] as Dictionary).get("value", 0.0)), 1.0), "forbid_tags violation should fall back to else effects")
+
+	_free_bundle(bundle, [owner])
+
+
+func _test_match_tags_with_exclude_tags_provider_filter() -> void:
+	var bundle: Dictionary = _build_context_bundle()
+	var owner: MockUnit = _make_unit("owner_filter", 1, [], [], [], [])
+	var clean_ally: MockUnit = _make_unit("clean_ally", 1, ["array.zhenwu"], [], [], [])
+	var bad_ally: MockUnit = _make_unit("bad_ally", 1, ["array.zhenwu", "debuff.stun"], [], [], [])
+	bundle.combat_manager.register_unit_cell(owner, Vector2i(0, 0))
+	bundle.combat_manager.register_unit_cell(clean_ally, Vector2i(1, 0))
+	bundle.combat_manager.register_unit_cell(bad_ally, Vector2i(1, -1))
+
+	var config: Dictionary = {
+		"range": 2,
+		"include_self": false,
+		"team_scope": "ally",
+		"source_types": ["unit"],
+		"queries": [
+			{
+				"id": "q_clean_array",
+				"query_type": "match_tags",
+				"tags": ["array.zhenwu"],
+				"tag_match": "any",
+				"exclude_tags": ["debuff.stun"],
+				"exclude_match": "any",
+				"source_types": ["unit"]
+			}
+		]
+	}
+
+	var result: Dictionary = bundle.manager.evaluate_tag_linkage_branch(owner, config, _build_effect_context(bundle, [owner, clean_ally, bad_ally]))
+	var query_counts: Dictionary = result.get("query_counts", {})
+	_assert_true(int(query_counts.get("q_clean_array", 0)) == 1, "match_tags+exclude_tags should filter out providers with forbidden tag")
+
+	_free_bundle(bundle, [owner, clean_ally, bad_ally])
 
 
 func _test_effect_engine_dispatch_tag_linkage_branch() -> void:

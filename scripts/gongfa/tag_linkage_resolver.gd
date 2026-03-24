@@ -295,14 +295,21 @@ func _count_queries(
 		var query_id: String = str(query.get("id", "")).strip_edges()
 		if query_id.is_empty():
 			continue
+		var query_type: String = str(query.get("query_type", "match_tags")).strip_edges().to_lower()
+		if query_type != "forbid_tags":
+			query_type = "match_tags"
 		var query_tags: Array[String] = query.get("tags", [])
-		if query_tags.is_empty():
+		var query_exclude_tags: Array[String] = query.get("exclude_tags", [])
+		if query_type == "forbid_tags":
+			if query_exclude_tags.is_empty():
+				query_counts[query_id] = 0
+				continue
+		elif query_tags.is_empty():
 			query_counts[query_id] = 0
 			continue
 		var query_source_types: Array[String] = query.get("source_types", global_source_types)
 		var query_team_scope: String = str(query.get("team_scope", global_team_scope))
 		var origin_scope: String = str(query.get("origin_scope", "all")).strip_edges().to_lower()
-		var query_tag_match: String = str(query.get("tag_match", "any")).strip_edges().to_lower()
 		var provider_seen: Dictionary = {}
 		var unit_seen: Dictionary = {}
 		var count: int = 0
@@ -322,7 +329,7 @@ func _count_queries(
 				if not _team_scope_accepts(query_team_scope, relation):
 					continue
 
-			if not _provider_matches_query(provider, query, query_tag_match):
+			if not _provider_matches_query(provider, query):
 				continue
 
 			match count_mode:
@@ -526,16 +533,77 @@ func _resolve_query_items(
 	return query_items
 
 
-func _provider_matches_query(provider: Dictionary, query: Dictionary, query_tag_match: String) -> bool:
+func _provider_matches_query(provider: Dictionary, query: Dictionary) -> bool:
 	var provider_tags: Array[String] = provider.get("tags", [])
-	var query_tags: Array[String] = query.get("tags", [])
-	if provider_tags.is_empty() or query_tags.is_empty():
+	if provider_tags.is_empty():
 		return false
 	var provider_mask: PackedInt64Array = provider.get("tag_mask", PackedInt64Array())
-	var query_mask: PackedInt64Array = query.get("tag_mask", PackedInt64Array())
-	var indexed_tags: Array[String] = query.get("indexed_tags", [])
-	var fallback_tags: Array[String] = query.get("fallback_tags", [])
-	if query_tag_match == "all":
+	var query_type: String = str(query.get("query_type", "match_tags")).strip_edges().to_lower()
+	if query_type != "forbid_tags":
+		query_type = "match_tags"
+
+	var query_tag_match: String = str(query.get("tag_match", "any")).strip_edges().to_lower()
+	if query_tag_match != "all":
+		query_tag_match = "any"
+	var query_exclude_match: String = str(query.get("exclude_match", "any")).strip_edges().to_lower()
+	if query_exclude_match != "all":
+		query_exclude_match = "any"
+
+	var include_ok: bool = true
+	if query_type == "match_tags":
+		include_ok = _provider_matches_compiled_tags(
+			provider_tags,
+			provider_mask,
+			query.get("tag_mask", PackedInt64Array()),
+			query.get("indexed_tags", []),
+			query.get("fallback_tags", []),
+			query.get("tags", []),
+			query_tag_match
+		)
+		if not include_ok:
+			return false
+
+	var exclude_hit: bool = _provider_matches_compiled_tags(
+		provider_tags,
+		provider_mask,
+		query.get("exclude_tag_mask", PackedInt64Array()),
+		query.get("exclude_indexed_tags", []),
+		query.get("exclude_fallback_tags", []),
+		query.get("exclude_tags", []),
+		query_exclude_match
+	)
+	if query_type == "forbid_tags":
+		return exclude_hit
+	return not exclude_hit
+
+
+func _provider_matches_compiled_tags(
+	provider_tags: Array[String],
+	provider_mask: PackedInt64Array,
+	compiled_mask_value: Variant,
+	indexed_tags_value: Variant,
+	fallback_tags_value: Variant,
+	raw_tags_value: Variant,
+	tag_match: String
+) -> bool:
+	var query_mask: PackedInt64Array = PackedInt64Array()
+	if compiled_mask_value is PackedInt64Array:
+		query_mask = compiled_mask_value
+	var indexed_tags: Array[String] = []
+	if indexed_tags_value is Array:
+		for tag in (indexed_tags_value as Array):
+			indexed_tags.append(str(tag))
+	var fallback_tags: Array[String] = []
+	if fallback_tags_value is Array:
+		for tag in (fallback_tags_value as Array):
+			fallback_tags.append(str(tag))
+	var raw_tags: Array[String] = []
+	if raw_tags_value is Array:
+		for tag in (raw_tags_value as Array):
+			raw_tags.append(str(tag))
+	if raw_tags.is_empty():
+		return false
+	if tag_match == "all":
 		if not _mask_matches_all(provider_mask, query_mask):
 			return false
 		for tag in fallback_tags:
@@ -549,7 +617,7 @@ func _provider_matches_query(provider: Dictionary, query: Dictionary, query_tag_
 			return true
 	if not indexed_tags.is_empty():
 		return false
-	return _provider_matches_tags(provider_tags, query_tags, "any")
+	return _provider_matches_tags(provider_tags, raw_tags, "any")
 
 
 func _provider_matches_tags(provider_tags: Array[String], query_tags: Array[String], tag_match: String) -> bool:
@@ -692,10 +760,17 @@ func _compile_single_query(query: Dictionary, query_idx: int, global_source_type
 	var query_id: String = str(query.get("id", "q_%d" % query_idx)).strip_edges()
 	if query_id.is_empty():
 		query_id = "q_%d" % query_idx
+	var query_type: String = str(query.get("query_type", "match_tags")).strip_edges().to_lower()
+	if query_type != "forbid_tags":
+		query_type = "match_tags"
 	var query_tags: Array[String] = _normalize_tags(query.get("tags", []))
 	var query_tag_match: String = str(query.get("tag_match", "any")).strip_edges().to_lower()
 	if query_tag_match != "all":
 		query_tag_match = "any"
+	var query_exclude_tags: Array[String] = _normalize_tags(query.get("exclude_tags", []))
+	var query_exclude_match: String = str(query.get("exclude_match", "any")).strip_edges().to_lower()
+	if query_exclude_match != "all":
+		query_exclude_match = "any"
 	var query_source_types: Array[String] = global_source_types
 	if query.has("source_types"):
 		query_source_types = _normalize_source_types(query.get("source_types", global_source_types))
@@ -712,13 +787,26 @@ func _compile_single_query(query: Dictionary, query_idx: int, global_source_type
 			indexed_tags.append(tag)
 		else:
 			fallback_tags.append(tag)
+	var exclude_indexed_tags: Array[String] = []
+	var exclude_fallback_tags: Array[String] = []
+	for tag in query_exclude_tags:
+		if _tag_to_index.has(tag):
+			exclude_indexed_tags.append(tag)
+		else:
+			exclude_fallback_tags.append(tag)
 	return {
 		"id": query_id,
+		"query_type": query_type,
 		"tags": query_tags,
 		"indexed_tags": indexed_tags,
 		"fallback_tags": fallback_tags,
 		"tag_mask": _build_mask_from_tags(indexed_tags),
 		"tag_match": query_tag_match,
+		"exclude_tags": query_exclude_tags,
+		"exclude_indexed_tags": exclude_indexed_tags,
+		"exclude_fallback_tags": exclude_fallback_tags,
+		"exclude_tag_mask": _build_mask_from_tags(exclude_indexed_tags),
+		"exclude_match": query_exclude_match,
 		"source_types": query_source_types,
 		"team_scope": query_team_scope,
 		"origin_scope": origin_scope

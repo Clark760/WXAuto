@@ -57,10 +57,15 @@ static func normalize_unit_record(raw_record: Dictionary) -> Dictionary:
 	result["initial_gongfa"] = initial_gongfa
 	result["gongfa_slots"] = _normalize_gongfa_slots(raw_record.get("gongfa_slots", {}), initial_gongfa)
 
-	# 装备槽位与功法槽位一样，统一在数据层补齐默认值，
-	# 这样战斗层/详情面板可以直接读取，避免每个调用点各自兜底。
-	result["equip_slots"] = _normalize_equip_slots(raw_record.get("equip_slots", {}))
-	result["max_equip_count"] = clampi(int(raw_record.get("max_equip_count", 3)), 0, 3)
+	# 装备槽位支持按数据动态扩展，max_equip_count 决定可同时生效上限。
+	var equip_slots: Dictionary = _normalize_equip_slots(raw_record.get("equip_slots", {}))
+	var default_equip_count: int = maxi(equip_slots.size(), 2)
+	var max_equip_count: int = int(raw_record.get("max_equip_count", default_equip_count))
+	if max_equip_count <= 0:
+		max_equip_count = default_equip_count
+	equip_slots = _normalize_equip_slots(equip_slots, max_equip_count)
+	result["equip_slots"] = equip_slots
+	result["max_equip_count"] = maxi(max_equip_count, 1)
 
 	result["sprite_path"] = str(raw_record.get(
 		"sprite_path",
@@ -184,15 +189,37 @@ static func _normalize_gongfa_slots(value: Variant, _initial_gongfa: Array[Strin
 	return slots
 
 
-static func _normalize_equip_slots(value: Variant) -> Dictionary:
-	# 固定三类装备槽位：兵器、护甲、饰品。
-	# 后续如果扩展额外槽位，应优先在此处统一定义再向上游暴露。
-	var slots: Dictionary = {
-		"weapon": "",
-		"armor": "",
-		"accessory": ""
-	}
+static func _normalize_equip_slots(value: Variant, desired_count: int = 0) -> Dictionary:
+	var slots: Dictionary = {}
 	if value is Dictionary:
-		for key in slots.keys():
-			slots[key] = str((value as Dictionary).get(key, "")).strip_edges()
+		var raw_dict: Dictionary = value as Dictionary
+		var keys: Array[String] = []
+		for raw_key in raw_dict.keys():
+			var key: String = str(raw_key).strip_edges()
+			if key.is_empty():
+				continue
+			keys.append(key)
+		keys.sort()
+		for key in keys:
+			slots[key] = str(raw_dict.get(key, "")).strip_edges()
+	if slots.is_empty():
+		slots["slot_1"] = ""
+		slots["slot_2"] = ""
+	var target_count: int = maxi(desired_count, 0)
+	if target_count <= slots.size():
+		return slots
+	for idx in range(1, target_count + 1):
+		if slots.size() >= target_count:
+			break
+		var key: String = "slot_%d" % idx
+		if not slots.has(key):
+			slots[key] = ""
+	if slots.size() >= target_count:
+		return slots
+	var extra_idx: int = 1
+	while slots.size() < target_count:
+		var extra_key: String = "equip_slot_%d" % extra_idx
+		if not slots.has(extra_key):
+			slots[extra_key] = ""
+		extra_idx += 1
 	return slots

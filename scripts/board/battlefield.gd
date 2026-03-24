@@ -680,7 +680,8 @@ func _rebuild_inventory_items_impl() -> void:
 					id_set[gid] = true
 		else:
 			var equip_slots: Dictionary = _normalize_equip_slots(_get_unit_equip_slots(unit))
-			for equip_slot in EQUIP_ORDER:
+			var equip_order: Array[String] = _get_sorted_equip_slot_keys(equip_slots, _get_unit_max_equip_count(unit, equip_slots))
+			for equip_slot in equip_order:
 				var eid: String = str(equip_slots.get(equip_slot, "")).strip_edges()
 				if not eid.is_empty():
 					id_set[eid] = true
@@ -1913,7 +1914,8 @@ func _count_equipped_instances(mode: String, item_id: String) -> int:
 					count += 1
 		else:
 			var equip_slots: Dictionary = _normalize_equip_slots(_get_unit_equip_slots(unit))
-			for equip_slot in EQUIP_ORDER:
+			var equip_order: Array[String] = _get_sorted_equip_slot_keys(equip_slots, _get_unit_max_equip_count(unit, equip_slots))
+			for equip_slot in equip_order:
 				if str(equip_slots.get(equip_slot, "")).strip_edges() == item_id:
 					count += 1
 	return count

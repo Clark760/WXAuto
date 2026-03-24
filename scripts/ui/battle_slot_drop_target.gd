@@ -11,7 +11,7 @@ class_name BattleSlotDropTarget
 signal item_dropped(slot_category: String, slot_key: String, item_id: String)
 
 var slot_category: String = "" # "gongfa" / "equipment"
-var slot_key: String = ""      # "neigong" / "weapon" ...
+var slot_key: String = ""      # "neigong" / "slot_1" ...
 var drop_enabled: bool = true
 var _default_modulate: Color = Color(1, 1, 1, 1)
 var _reject_icon: Label = null
@@ -100,7 +100,7 @@ func _is_payload_accepted(payload: Dictionary) -> bool:
 	if slot_category == "gongfa":
 		return item_type == "gongfa" and slot_type == slot_key
 	if slot_category == "equipment":
-		return item_type == "equipment" and slot_type == slot_key
+		return item_type == "equipment"
 	return false
 
 

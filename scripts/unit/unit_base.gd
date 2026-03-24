@@ -40,11 +40,10 @@ var gongfa_slots: Dictionary = {
 	"zhenfa": ""
 }
 var equip_slots: Dictionary = {
-	"weapon": "",
-	"armor": "",
-	"accessory": ""
+	"slot_1": "",
+	"slot_2": ""
 }
-var max_equip_count: int = 3
+var max_equip_count: int = 2
 var animation_overrides: Dictionary = {}
 
 var base_stats: Dictionary = {}
@@ -129,17 +128,10 @@ func setup_from_unit_record(unit_record: Dictionary, forced_star: int = -1) -> v
 		for slot in gongfa_slots.keys():
 			gongfa_slots[slot] = str(slots_raw.get(slot, ""))
 
-	# 装备槽位与功法槽位一样常驻在角色实例上，便于管理器直接读写。
-	equip_slots = {
-		"weapon": "",
-		"armor": "",
-		"accessory": ""
-	}
-	if unit_record.get("equip_slots", {}) is Dictionary:
-		var equip_slots_raw: Dictionary = unit_record["equip_slots"]
-		for slot in equip_slots.keys():
-			equip_slots[slot] = str(equip_slots_raw.get(slot, "")).strip_edges()
-	max_equip_count = clampi(int(unit_record.get("max_equip_count", 3)), 0, 3)
+	# 装备槽位按数据动态读取；未配置时默认两槽。
+	var configured_max_equip: int = int(unit_record.get("max_equip_count", 0))
+	equip_slots = _normalize_equip_slots_dict(unit_record.get("equip_slots", {}), configured_max_equip)
+	max_equip_count = _resolve_max_equip_count(configured_max_equip, equip_slots)
 	# 不能在“未进入场景树”的节点上直接 get_node("/root/...")，
 	# 这里改为通过 SceneTree 根节点安全查询 AutoLoad，避免初始化期报错。
 	var gm: Node = _get_autoload_node("GongfaManager")
@@ -148,10 +140,11 @@ func setup_from_unit_record(unit_record: Dictionary, forced_star: int = -1) -> v
 		if reg != null:
 			for item_id in initial_gongfa:
 				if reg.has_equipment(item_id):
-					var e_data: Dictionary = reg.get_equipment(item_id)
-					var slot: String = str(e_data.get("type", "")).strip_edges()
-					if slot != "" and equip_slots.get(slot, "") == "":
+					for slot in _get_sorted_equip_slot_keys(equip_slots):
+						if str(equip_slots.get(slot, "")).strip_edges() != "":
+							continue
 						equip_slots[slot] = item_id
+						break
 				elif reg.has_gongfa(item_id):
 					var g_data: Dictionary = reg.get_gongfa(item_id)
 					var slot: String = str(g_data.get("type", "")).strip_edges()
@@ -420,7 +413,7 @@ func get_equipped_gongfa_ids() -> Array[String]:
 func get_equipped_equip_ids() -> Array[String]:
 	# 装备槽位顺序固定，保证详情展示与属性重算顺序稳定。
 	var ids: Array[String] = []
-	var ordered_slots: Array[String] = ["weapon", "armor", "accessory"]
+	var ordered_slots: Array[String] = _get_sorted_equip_slot_keys(equip_slots)
 	for slot in ordered_slots:
 		var equip_id: String = str(equip_slots.get(slot, "")).strip_edges()
 		if equip_id.is_empty():
@@ -431,6 +424,73 @@ func get_equipped_equip_ids() -> Array[String]:
 		if ids.size() >= max_equip_count:
 			return ids
 	return ids
+
+
+func _resolve_max_equip_count(configured_value: int, slots: Dictionary) -> int:
+	var derived: int = configured_value
+	if derived <= 0:
+		derived = slots.size()
+	if derived <= 0:
+		derived = 2
+	return maxi(derived, 1)
+
+
+func _normalize_equip_slots_dict(raw: Variant, desired_count: int = 0) -> Dictionary:
+	var slots: Dictionary = {}
+	if raw is Dictionary:
+		var raw_dict: Dictionary = raw as Dictionary
+		for key in _get_sorted_equip_slot_keys(raw_dict):
+			slots[key] = str(raw_dict.get(key, "")).strip_edges()
+	if slots.is_empty():
+		slots["slot_1"] = ""
+		slots["slot_2"] = ""
+	var target_count: int = maxi(desired_count, 0)
+	if target_count > slots.size():
+		for idx in range(1, target_count + 1):
+			if slots.size() >= target_count:
+				break
+			var key: String = "slot_%d" % idx
+			if not slots.has(key):
+				slots[key] = ""
+	return slots
+
+
+func _get_sorted_equip_slot_keys(slots_value: Variant) -> Array[String]:
+	var keys: Array[String] = []
+	if slots_value is Dictionary:
+		for raw_key in (slots_value as Dictionary).keys():
+			var key: String = str(raw_key).strip_edges()
+			if key.is_empty():
+				continue
+			keys.append(key)
+	if keys.is_empty():
+		return ["slot_1", "slot_2"]
+	keys.sort_custom(Callable(self, "_compare_equip_slot_key"))
+	return keys
+
+
+func _compare_equip_slot_key(a: String, b: String) -> bool:
+	var a_index: int = _extract_slot_index(a)
+	var b_index: int = _extract_slot_index(b)
+	if a_index >= 0 and b_index >= 0:
+		if a_index == b_index:
+			return a < b
+		return a_index < b_index
+	if a_index >= 0:
+		return true
+	if b_index >= 0:
+		return false
+	return a < b
+
+
+func _extract_slot_index(slot_key: String) -> int:
+	var key: String = slot_key.strip_edges().to_lower()
+	if not key.begins_with("slot_"):
+		return -1
+	var tail: String = key.substr(5, key.length() - 5)
+	if tail.is_empty() or not tail.is_valid_int():
+		return -1
+	return int(tail)
 
 
 func get_trait_tags() -> Array[String]:

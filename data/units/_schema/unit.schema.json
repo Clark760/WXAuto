@@ -89,6 +89,16 @@
       },
       "additionalProperties": false
     },
+    "equip_slots": {
+      "type": "object",
+      "additionalProperties": {
+        "type": ["string", "null"]
+      }
+    },
+    "max_equip_count": {
+      "type": "integer",
+      "minimum": 1
+    },
     "sprite_path": {
       "type": "string"
     },

@@ -18,7 +18,7 @@ signal buff_event(event: Dictionary)
 @export var tag_linkage_stagger_buckets: int = 8
 
 const ALLOWED_SLOTS: Array[String] = ["neigong", "waigong", "qinggong", "zhenfa"]
-const ALLOWED_EQUIP_SLOTS: Array[String] = ["weapon", "armor", "accessory"]
+const DEFAULT_EQUIP_SLOTS: Array[String] = ["slot_1", "slot_2"]
 const DEFAULT_SKILL_CAST_RANGE_CELLS: float = 2.0
 
 var _registry = preload("res://scripts/gongfa/gongfa_registry.gd").new()
@@ -460,25 +460,24 @@ func execute_external_effects(
 func equip_equipment(unit: Node, slot: String, equip_id: String) -> bool:
 	if unit == null or not is_instance_valid(unit):
 		return false
-	if not ALLOWED_EQUIP_SLOTS.has(slot):
-		return false
 	if equip_id.strip_edges().is_empty():
 		return false
 	if not _registry.has_equipment(equip_id):
 		return false
 
-	# 装备类型必须与槽位一一对应，防止“护甲穿到兵器槽”。
-	var equip_data: Dictionary = _registry.get_equipment(equip_id)
-	var equip_type: String = str(equip_data.get("type", "")).strip_edges()
-	if equip_type != slot:
+	var configured_max: int = int(_node_prop(unit, "max_equip_count", 0))
+	var equip_slots: Dictionary = _normalize_equip_slots_dict(_node_prop(unit, "equip_slots", {}), configured_max)
+	var max_count: int = _resolve_unit_max_equip_count(unit, equip_slots)
+	if equip_slots.is_empty():
 		return false
-
-	var equip_slots: Dictionary = _normalize_equip_slots_dict(_node_prop(unit, "equip_slots", {}))
+	if not equip_slots.has(slot):
+		return false
 	equip_slots[slot] = equip_id
-	if _count_filled_equip_slots(equip_slots) > int(_node_prop(unit, "max_equip_count", 3)):
+	if _count_filled_equip_slots(equip_slots) > max_count:
 		return false
 
 	unit.set("equip_slots", equip_slots)
+	unit.set("max_equip_count", max_count)
 	apply_gongfa(unit)
 	return true
 
@@ -486,9 +485,10 @@ func equip_equipment(unit: Node, slot: String, equip_id: String) -> bool:
 func unequip_equipment(unit: Node, slot: String) -> void:
 	if unit == null or not is_instance_valid(unit):
 		return
-	if not ALLOWED_EQUIP_SLOTS.has(slot):
+	var configured_max: int = int(_node_prop(unit, "max_equip_count", 0))
+	var equip_slots: Dictionary = _normalize_equip_slots_dict(_node_prop(unit, "equip_slots", {}), configured_max)
+	if not equip_slots.has(slot):
 		return
-	var equip_slots: Dictionary = _normalize_equip_slots_dict(_node_prop(unit, "equip_slots", {}))
 	equip_slots[slot] = ""
 	unit.set("equip_slots", equip_slots)
 	apply_gongfa(unit)
@@ -597,11 +597,12 @@ func _resolve_equipped_gongfa_ids(unit: Node) -> Array[String]:
 
 func _resolve_equipped_equip_ids(unit: Node) -> Array[String]:
 	var ids: Array[String] = []
-	var max_count: int = clampi(int(_node_prop(unit, "max_equip_count", 3)), 0, 3)
+	var configured_max: int = int(_node_prop(unit, "max_equip_count", 0))
+	var slots: Dictionary = _normalize_equip_slots_dict(_node_prop(unit, "equip_slots", {}), configured_max)
+	var max_count: int = _resolve_unit_max_equip_count(unit, slots)
 	if max_count <= 0:
 		return ids
-	var slots: Dictionary = _normalize_equip_slots_dict(_node_prop(unit, "equip_slots", {}))
-	for slot in ALLOWED_EQUIP_SLOTS:
+	for slot in _get_sorted_equip_slot_keys(slots):
 		var equip_id: String = str(slots.get(slot, "")).strip_edges()
 		if equip_id.is_empty():
 			continue
@@ -1304,15 +1305,23 @@ func _normalize_slots_dict(raw: Variant) -> Dictionary:
 	return slots
 
 
-func _normalize_equip_slots_dict(raw: Variant) -> Dictionary:
-	var slots: Dictionary = {
-		"weapon": "",
-		"armor": "",
-		"accessory": ""
-	}
+func _normalize_equip_slots_dict(raw: Variant, desired_count: int = 0) -> Dictionary:
+	var slots: Dictionary = {}
 	if raw is Dictionary:
-		for slot in ALLOWED_EQUIP_SLOTS:
-			slots[slot] = str((raw as Dictionary).get(slot, "")).strip_edges()
+		var raw_dict: Dictionary = raw as Dictionary
+		for slot in _get_sorted_equip_slot_keys(raw_dict):
+			slots[slot] = str(raw_dict.get(slot, "")).strip_edges()
+	if slots.is_empty():
+		for slot in DEFAULT_EQUIP_SLOTS:
+			slots[slot] = ""
+	var target_count: int = maxi(desired_count, 0)
+	if target_count > slots.size():
+		for idx in range(1, target_count + 1):
+			if slots.size() >= target_count:
+				break
+			var key: String = "slot_%d" % idx
+			if not slots.has(key):
+				slots[key] = ""
 	return slots
 
 
@@ -1409,10 +1418,57 @@ func _normalize_string_array(raw: Variant) -> Array[String]:
 
 func _count_filled_equip_slots(slots: Dictionary) -> int:
 	var count: int = 0
-	for slot in ALLOWED_EQUIP_SLOTS:
+	for slot in slots.keys():
 		if str(slots.get(slot, "")).strip_edges() != "":
 			count += 1
 	return count
+
+
+func _resolve_unit_max_equip_count(unit: Node, slots: Dictionary) -> int:
+	var configured: int = int(_node_prop(unit, "max_equip_count", 0))
+	if configured <= 0:
+		configured = slots.size()
+	if configured <= 0:
+		configured = DEFAULT_EQUIP_SLOTS.size()
+	return maxi(configured, 1)
+
+
+func _get_sorted_equip_slot_keys(slots_value: Variant) -> Array[String]:
+	var keys: Array[String] = []
+	if slots_value is Dictionary:
+		for raw_key in (slots_value as Dictionary).keys():
+			var key: String = str(raw_key).strip_edges()
+			if key.is_empty():
+				continue
+			keys.append(key)
+	if keys.is_empty():
+		return DEFAULT_EQUIP_SLOTS.duplicate()
+	keys.sort_custom(Callable(self, "_compare_equip_slot_key"))
+	return keys
+
+
+func _compare_equip_slot_key(a: String, b: String) -> bool:
+	var a_index: int = _extract_slot_index(a)
+	var b_index: int = _extract_slot_index(b)
+	if a_index >= 0 and b_index >= 0:
+		if a_index == b_index:
+			return a < b
+		return a_index < b_index
+	if a_index >= 0:
+		return true
+	if b_index >= 0:
+		return false
+	return a < b
+
+
+func _extract_slot_index(slot_key: String) -> int:
+	var key: String = slot_key.strip_edges().to_lower()
+	if not key.begins_with("slot_"):
+		return -1
+	var tail: String = key.substr(5, key.length() - 5)
+	if tail.is_empty() or not tail.is_valid_int():
+		return -1
+	return int(tail)
 
 
 func _node_prop(node: Node, key: String, fallback: Variant) -> Variant:

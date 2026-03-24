@@ -47,11 +47,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_white_001",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_001",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_001.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_001.png",
     "tags": [
@@ -110,11 +109,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_white_002",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_002",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_002.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_002.png",
     "tags": [
@@ -173,11 +171,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_white_003",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_003",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_003.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_003.png",
     "tags": [
@@ -236,11 +233,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "",
-      "accessory": "bm5_eq_white_004"
+      "slot_1": "bm5_eq_white_004",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_004.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_004.png",
     "tags": [
@@ -313,11 +309,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "",
-      "accessory": "bm5_eq_white_005"
+      "slot_1": "bm5_eq_white_005",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_005.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_005.png",
     "tags": [
@@ -378,11 +373,10 @@
       "zhenfa": "bm5_gf_white_006"
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "bm5_eq_white_006",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_006",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_006.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_006.png",
     "tags": [
@@ -442,11 +436,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "bm5_eq_white_007",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_007",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_007.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_007.png",
     "tags": [
@@ -505,11 +498,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_white_008",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_008",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_008.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_008.png",
     "tags": [
@@ -568,11 +560,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_white_009",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_009",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_009.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_009.png",
     "tags": [
@@ -631,11 +622,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_white_010",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_010",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_010.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_010.png",
     "tags": [
@@ -694,11 +684,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "",
-      "accessory": "bm5_eq_white_011"
+      "slot_1": "bm5_eq_white_011",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_011.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_011.png",
     "tags": [
@@ -771,11 +760,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "",
-      "accessory": "bm5_eq_white_012"
+      "slot_1": "bm5_eq_white_012",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_012.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_012.png",
     "tags": [
@@ -836,11 +824,10 @@
       "zhenfa": "bm5_gf_white_013"
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "bm5_eq_white_013",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_013",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_013.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_013.png",
     "tags": [
@@ -900,11 +887,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "bm5_eq_white_014",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_014",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_014.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_014.png",
     "tags": [
@@ -963,11 +949,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_white_015",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_015",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_015.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_015.png",
     "tags": [
@@ -1026,11 +1011,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_white_016",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_016",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_016.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_016.png",
     "tags": [
@@ -1089,11 +1073,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_white_017",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_017",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_017.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_017.png",
     "tags": [
@@ -1152,11 +1135,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "",
-      "accessory": "bm5_eq_white_018"
+      "slot_1": "bm5_eq_white_018",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_018.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_018.png",
     "tags": [
@@ -1229,11 +1211,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "",
-      "accessory": "bm5_eq_white_019"
+      "slot_1": "bm5_eq_white_019",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_019.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_019.png",
     "tags": [
@@ -1294,11 +1275,10 @@
       "zhenfa": "bm5_gf_white_020"
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "bm5_eq_white_020",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_020",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_020.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_020.png",
     "tags": [
@@ -1358,11 +1338,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "bm5_eq_white_021",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_021",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_021.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_021.png",
     "tags": [
@@ -1421,11 +1400,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_white_022",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_022",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_022.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_022.png",
     "tags": [
@@ -1484,11 +1462,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_white_023",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_023",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_023.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_023.png",
     "tags": [
@@ -1547,11 +1524,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_white_024",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_024",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_024.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_024.png",
     "tags": [
@@ -1610,11 +1586,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "",
-      "accessory": "bm5_eq_white_025"
+      "slot_1": "bm5_eq_white_025",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_025.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_025.png",
     "tags": [
@@ -1687,11 +1662,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "",
-      "accessory": "bm5_eq_white_026"
+      "slot_1": "bm5_eq_white_026",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_026.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_026.png",
     "tags": [
@@ -1752,11 +1726,10 @@
       "zhenfa": "bm5_gf_white_027"
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "bm5_eq_white_027",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_027",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_027.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_027.png",
     "tags": [
@@ -1816,11 +1789,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "bm5_eq_white_028",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_028",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_028.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_028.png",
     "tags": [
@@ -1879,11 +1851,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_white_029",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_029",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_029.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_029.png",
     "tags": [
@@ -1942,11 +1913,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_white_030",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_030",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_030.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_030.png",
     "tags": [
@@ -2005,11 +1975,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_white_031",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_031",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_031.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_031.png",
     "tags": [
@@ -2068,11 +2037,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "",
-      "accessory": "bm5_eq_white_032"
+      "slot_1": "bm5_eq_white_032",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_032.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_032.png",
     "tags": [
@@ -2145,11 +2113,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "",
-      "accessory": "bm5_eq_white_033"
+      "slot_1": "bm5_eq_white_033",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_033.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_033.png",
     "tags": [
@@ -2210,11 +2177,10 @@
       "zhenfa": "bm5_gf_white_034"
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "bm5_eq_white_034",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_034",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_034.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_034.png",
     "tags": [
@@ -2274,11 +2240,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "bm5_eq_white_035",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_035",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_035.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_035.png",
     "tags": [
@@ -2337,11 +2302,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_white_036",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_036",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_036.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_036.png",
     "tags": [
@@ -2400,11 +2364,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_white_037",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_037",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_037.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_037.png",
     "tags": [
@@ -2463,11 +2426,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_white_038",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_038",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_038.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_038.png",
     "tags": [
@@ -2526,11 +2488,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "",
-      "accessory": "bm5_eq_white_039"
+      "slot_1": "bm5_eq_white_039",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_039.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_039.png",
     "tags": [
@@ -2603,11 +2564,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "",
-      "accessory": "bm5_eq_white_040"
+      "slot_1": "bm5_eq_white_040",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_040.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_040.png",
     "tags": [
@@ -2668,11 +2628,10 @@
       "zhenfa": "bm5_gf_white_041"
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "bm5_eq_white_041",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_041",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_041.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_041.png",
     "tags": [
@@ -2732,11 +2691,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "bm5_eq_white_042",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_042",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_042.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_042.png",
     "tags": [
@@ -2795,11 +2753,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_white_043",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_043",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_043.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_043.png",
     "tags": [
@@ -2858,11 +2815,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_white_044",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_044",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_044.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_044.png",
     "tags": [
@@ -2921,11 +2877,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_white_045",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_045",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_045.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_045.png",
     "tags": [
@@ -2984,11 +2939,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "",
-      "accessory": "bm5_eq_white_046"
+      "slot_1": "bm5_eq_white_046",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_046.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_046.png",
     "tags": [
@@ -3061,11 +3015,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "",
-      "accessory": "bm5_eq_white_047"
+      "slot_1": "bm5_eq_white_047",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_047.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_047.png",
     "tags": [
@@ -3126,11 +3079,10 @@
       "zhenfa": "bm5_gf_white_048"
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "bm5_eq_white_048",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_048",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_048.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_048.png",
     "tags": [
@@ -3190,11 +3142,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "bm5_eq_white_049",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_049",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_049.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_049.png",
     "tags": [
@@ -3253,11 +3204,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_white_050",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_white_050",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_white_050.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_white_050.png",
     "tags": [
@@ -3316,11 +3266,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_green_001",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_green_001",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_001.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_001.png",
     "tags": [
@@ -3379,11 +3328,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "",
-      "accessory": "bm5_eq_green_002"
+      "slot_1": "bm5_eq_green_002",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_002.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_002.png",
     "tags": [
@@ -3456,11 +3404,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "",
-      "accessory": "bm5_eq_green_003"
+      "slot_1": "bm5_eq_green_003",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_003.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_003.png",
     "tags": [
@@ -3521,11 +3468,10 @@
       "zhenfa": "bm5_gf_green_004"
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "bm5_eq_green_004",
-      "accessory": ""
+      "slot_1": "bm5_eq_green_004",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_004.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_004.png",
     "tags": [
@@ -3585,11 +3531,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "bm5_eq_green_005",
-      "accessory": ""
+      "slot_1": "bm5_eq_green_005",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_005.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_005.png",
     "tags": [
@@ -3648,11 +3593,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_green_006",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_green_006",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_006.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_006.png",
     "tags": [
@@ -3711,11 +3655,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_green_007",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_green_007",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_007.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_007.png",
     "tags": [
@@ -3774,11 +3717,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_green_008",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_green_008",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_008.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_008.png",
     "tags": [
@@ -3837,11 +3779,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "",
-      "accessory": "bm5_eq_green_009"
+      "slot_1": "bm5_eq_green_009",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_009.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_009.png",
     "tags": [
@@ -3914,11 +3855,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "",
-      "accessory": "bm5_eq_green_010"
+      "slot_1": "bm5_eq_green_010",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_010.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_010.png",
     "tags": [
@@ -3979,11 +3919,10 @@
       "zhenfa": "bm5_gf_green_011"
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "bm5_eq_green_011",
-      "accessory": ""
+      "slot_1": "bm5_eq_green_011",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_011.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_011.png",
     "tags": [
@@ -4043,11 +3982,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "bm5_eq_green_012",
-      "accessory": ""
+      "slot_1": "bm5_eq_green_012",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_012.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_012.png",
     "tags": [
@@ -4106,11 +4044,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_green_013",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_green_013",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_013.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_013.png",
     "tags": [
@@ -4169,11 +4106,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_green_014",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_green_014",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_014.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_014.png",
     "tags": [
@@ -4232,11 +4168,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_green_015",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_green_015",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_015.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_015.png",
     "tags": [
@@ -4295,11 +4230,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "",
-      "accessory": "bm5_eq_green_016"
+      "slot_1": "bm5_eq_green_016",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_016.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_016.png",
     "tags": [
@@ -4372,11 +4306,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "",
-      "accessory": "bm5_eq_green_017"
+      "slot_1": "bm5_eq_green_017",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_017.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_017.png",
     "tags": [
@@ -4437,11 +4370,10 @@
       "zhenfa": "bm5_gf_green_018"
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "bm5_eq_green_018",
-      "accessory": ""
+      "slot_1": "bm5_eq_green_018",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_018.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_018.png",
     "tags": [
@@ -4501,11 +4433,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "bm5_eq_green_019",
-      "accessory": ""
+      "slot_1": "bm5_eq_green_019",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_019.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_019.png",
     "tags": [
@@ -4564,11 +4495,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_green_020",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_green_020",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_020.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_020.png",
     "tags": [
@@ -4627,11 +4557,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_green_021",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_green_021",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_021.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_021.png",
     "tags": [
@@ -4690,11 +4619,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_green_022",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_green_022",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_022.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_022.png",
     "tags": [
@@ -4753,11 +4681,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "",
-      "accessory": "bm5_eq_green_023"
+      "slot_1": "bm5_eq_green_023",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_023.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_023.png",
     "tags": [
@@ -4830,11 +4757,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "",
-      "accessory": "bm5_eq_green_024"
+      "slot_1": "bm5_eq_green_024",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_024.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_024.png",
     "tags": [
@@ -4895,11 +4821,10 @@
       "zhenfa": "bm5_gf_green_025"
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "bm5_eq_green_025",
-      "accessory": ""
+      "slot_1": "bm5_eq_green_025",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_025.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_025.png",
     "tags": [
@@ -4959,11 +4884,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "bm5_eq_green_026",
-      "accessory": ""
+      "slot_1": "bm5_eq_green_026",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_026.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_026.png",
     "tags": [
@@ -5022,11 +4946,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_green_027",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_green_027",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_027.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_027.png",
     "tags": [
@@ -5085,11 +5008,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_green_028",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_green_028",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_028.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_028.png",
     "tags": [
@@ -5148,11 +5070,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_green_029",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_green_029",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_029.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_029.png",
     "tags": [
@@ -5211,11 +5132,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "",
-      "accessory": "bm5_eq_green_030"
+      "slot_1": "bm5_eq_green_030",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_030.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_030.png",
     "tags": [
@@ -5288,11 +5208,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "",
-      "accessory": "bm5_eq_green_031"
+      "slot_1": "bm5_eq_green_031",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_031.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_031.png",
     "tags": [
@@ -5353,11 +5272,10 @@
       "zhenfa": "bm5_gf_green_032"
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "bm5_eq_green_032",
-      "accessory": ""
+      "slot_1": "bm5_eq_green_032",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_032.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_032.png",
     "tags": [
@@ -5417,11 +5335,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "bm5_eq_green_033",
-      "accessory": ""
+      "slot_1": "bm5_eq_green_033",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_033.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_033.png",
     "tags": [
@@ -5480,11 +5397,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_green_034",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_green_034",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_034.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_034.png",
     "tags": [
@@ -5543,11 +5459,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_green_035",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_green_035",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_035.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_035.png",
     "tags": [
@@ -5606,11 +5521,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "bm5_eq_green_036",
-      "armor": "",
-      "accessory": ""
+      "slot_1": "bm5_eq_green_036",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_036.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_036.png",
     "tags": [
@@ -5669,11 +5583,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "",
-      "accessory": "bm5_eq_green_037"
+      "slot_1": "bm5_eq_green_037",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_037.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_037.png",
     "tags": [
@@ -5746,11 +5659,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "",
-      "accessory": "bm5_eq_green_038"
+      "slot_1": "bm5_eq_green_038",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_038.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_038.png",
     "tags": [
@@ -5811,11 +5723,10 @@
       "zhenfa": "bm5_gf_green_039"
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "bm5_eq_green_039",
-      "accessory": ""
+      "slot_1": "bm5_eq_green_039",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_039.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_039.png",
     "tags": [
@@ -5875,11 +5786,10 @@
       "zhenfa": ""
     },
     "equip_slots": {
-      "weapon": "",
-      "armor": "bm5_eq_green_040",
-      "accessory": ""
+      "slot_1": "bm5_eq_green_040",
+      "slot_2": ""
     },
-    "max_equip_count": 3,
+    "max_equip_count": 2,
     "sprite_path": "assets/basemod_m5/units/bm5_u_green_040.png",
     "portrait_path": "assets/basemod_m5/portraits/bm5_u_green_040.png",
     "tags": [

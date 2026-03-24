@@ -9,7 +9,7 @@ extends "res://scripts/battle/battlefield_runtime.gd"
 # 3. 保持输入交互与显示刷新集中在一层维护。
 
 const SLOT_ORDER: Array[String] = ["neigong", "waigong", "qinggong", "zhenfa"]
-const EQUIP_ORDER: Array[String] = ["weapon", "armor", "accessory"]
+const DEFAULT_EQUIP_ORDER: Array[String] = ["slot_1", "slot_2"]
 const CLICK_DRAG_THRESHOLD: float = 8.0
 const BATTLE_LOG_MAX_LINES: int = 50
 const BATTLE_LOG_FLUSH_INTERVAL: float = 0.12
@@ -78,6 +78,7 @@ var _gongfa_slot_swap_buttons: Array[Button] = []
 var _equip_slot_rows: Array[PanelContainer] = []
 var _equip_slot_name_buttons: Array[LinkButton] = []
 var _equip_slot_swap_buttons: Array[Button] = []
+var _detail_equip_slot_order: Array[String] = []
 var _tooltip_gongfa_rows: Array[PanelContainer] = []
 var _tooltip_gongfa_links: Array[LinkButton] = []
 @onready var _inventory_panel: PanelContainer = $DetailLayer/InventoryPanel
@@ -691,7 +692,7 @@ func _rebuild_inventory_filters() -> void:
 			{"id": "all", "name": "全部"},
 			{"id": "neigong", "name": "内功"},
 			{"id": "waigong", "name": "外功"},
-			{"id": "qinggong", "name": "轻功"},
+			{"id": "qinggong", "name": "身法"},
 			{"id": "zhenfa", "name": "阵法"}
 		]
 	else:
@@ -887,10 +888,13 @@ func _equip_item_to_unit(unit: Node, item_id: String) -> bool:
 	var equip_data: Dictionary = gongfa_manager.call("get_equipment_data", item_id)
 	if equip_data.is_empty():
 		return false
-	var equip_slot: String = str(equip_data.get("type", "")).strip_edges()
-	if equip_slot.is_empty():
-		return false
-	return bool(gongfa_manager.call("equip_equipment", unit, equip_slot, item_id))
+	var equip_slots: Dictionary = _normalize_equip_slots(_get_unit_equip_slots(unit))
+	var max_count: int = _get_unit_max_equip_count(unit, equip_slots)
+	var equip_order: Array[String] = _get_sorted_equip_slot_keys(equip_slots, max_count)
+	for equip_slot in equip_order:
+		if str(equip_slots.get(equip_slot, "")).strip_edges().is_empty():
+			return bool(gongfa_manager.call("equip_equipment", unit, equip_slot, item_id))
+	return false
 
 
 func _find_equipped_info(item_id: String) -> Dictionary:
@@ -910,7 +914,8 @@ func _find_equipped_info(item_id: String) -> Dictionary:
 					}
 		else:
 			var equip_slots: Dictionary = _normalize_equip_slots(_get_unit_equip_slots(unit))
-			for equip_slot in EQUIP_ORDER:
+			var equip_order: Array[String] = _get_sorted_equip_slot_keys(equip_slots, _get_unit_max_equip_count(unit, equip_slots))
+			for equip_slot in equip_order:
 				if str(equip_slots.get(equip_slot, "")).strip_edges() == item_id:
 					return {
 						"unit": unit,
@@ -1333,11 +1338,24 @@ func _on_slot_unequip_pressed(slot_category: String, slot: String) -> void:
 	_refresh_all_ui()
 
 
-func _ensure_detail_equip_rows_created() -> void:
-	# 装备槽同样固定创建，避免 hover 时节点被销毁。
-	if not _equip_slot_rows.is_empty():
+func _ensure_detail_equip_rows_created(equip_order: Array[String]) -> void:
+	# 装备槽按单位配置动态创建，支持扩展槽位。
+	var should_rebuild: bool = _equip_slot_rows.size() != equip_order.size() or _detail_equip_slot_order.size() != equip_order.size()
+	if not should_rebuild:
+		for i in range(equip_order.size()):
+			if _detail_equip_slot_order[i] != equip_order[i]:
+				should_rebuild = true
+				break
+	if not should_rebuild:
 		return
-	for equip_type in EQUIP_ORDER:
+	for child in detail_equip_slot_list.get_children():
+		child.queue_free()
+	_equip_slot_rows.clear()
+	_equip_slot_name_buttons.clear()
+	_equip_slot_swap_buttons.clear()
+	_detail_equip_slot_order = equip_order.duplicate()
+
+	for equip_slot in equip_order:
 		var row_panel := _slot_drop_target_script.new() as PanelContainer
 		if row_panel == null:
 			row_panel = PanelContainer.new()
@@ -1345,7 +1363,7 @@ func _ensure_detail_equip_rows_created() -> void:
 		row_panel.custom_minimum_size = Vector2(0, 30)
 		row_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 		if row_panel.has_method("setup_slot"):
-			row_panel.call("setup_slot", "equipment", equip_type)
+			row_panel.call("setup_slot", "equipment", equip_slot)
 		if row_panel.has_method("set_drop_enabled"):
 			row_panel.call("set_drop_enabled", _stage == Stage.PREPARATION)
 		if row_panel.has_signal("item_dropped"):
@@ -1356,7 +1374,7 @@ func _ensure_detail_equip_rows_created() -> void:
 		row.add_theme_constant_override("separation", 8)
 
 		var icon_label := Label.new()
-		icon_label.text = _equip_icon(equip_type)
+		icon_label.text = _equip_icon(equip_slot)
 		icon_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 		var name_button := LinkButton.new()
@@ -1366,14 +1384,14 @@ func _ensure_detail_equip_rows_created() -> void:
 
 		var unequip_button := Button.new()
 		unequip_button.mouse_filter = Control.MOUSE_FILTER_PASS
-		unequip_button.pressed.connect(Callable(self, "_on_slot_unequip_pressed").bind("equipment", equip_type))
+		unequip_button.pressed.connect(Callable(self, "_on_slot_unequip_pressed").bind("equipment", equip_slot))
 
 		row.add_child(icon_label)
 		row.add_child(name_button)
 		row.add_child(unequip_button)
 		row_panel.add_child(row)
 		detail_equip_slot_list.add_child(row_panel)
-		row_panel.set_meta("equip_type", equip_type)
+		row_panel.set_meta("equip_slot", equip_slot)
 
 		row_panel.mouse_entered.connect(Callable(self, "_on_item_row_hover_entered").bind(row_panel))
 		row_panel.mouse_exited.connect(Callable(self, "_on_item_source_hover_exited").bind(row_panel))
@@ -1389,16 +1407,18 @@ func _ensure_detail_equip_rows_created() -> void:
 
 func _rebuild_equip_slot_rows(unit: Node) -> void:
 	# 装备槽位与功法槽位一致：布阵期可拖放/卸下，交锋后只读。
-	_ensure_detail_equip_rows_created()
 	var equip_slots: Dictionary = _normalize_equip_slots(_get_unit_equip_slots(unit))
-	for i in range(EQUIP_ORDER.size()):
-		var equip_type: String = EQUIP_ORDER[i]
-		var equip_id: String = str(equip_slots.get(equip_type, "")).strip_edges()
+	var max_count: int = _get_unit_max_equip_count(unit, equip_slots)
+	var equip_order: Array[String] = _get_sorted_equip_slot_keys(equip_slots, max_count)
+	_ensure_detail_equip_rows_created(equip_order)
+	for i in range(equip_order.size()):
+		var equip_slot: String = equip_order[i]
+		var equip_id: String = str(equip_slots.get(equip_slot, "")).strip_edges()
 		var row_panel: PanelContainer = _equip_slot_rows[i]
 		var name_button: LinkButton = _equip_slot_name_buttons[i]
 		var unequip_button: Button = _equip_slot_swap_buttons[i]
 
-		name_button.text = "%s: %s" % [_equip_type_to_cn(equip_type), _equip_name_or_empty(equip_id)]
+		name_button.text = "%s: %s" % [_equip_type_to_cn(equip_slot), _equip_name_or_empty(equip_id)]
 		name_button.disabled = equip_id.is_empty()
 		if row_panel.has_method("set_drop_enabled"):
 			row_panel.call("set_drop_enabled", _stage == Stage.PREPARATION)
@@ -2076,17 +2096,90 @@ func _buff_name_from_id(buff_id: String) -> String:
 
 func _get_unit_equip_slots(unit: Node) -> Dictionary:
 	if unit == null or not _is_valid_unit(unit):
-		return {"weapon": "", "armor": "", "accessory": ""}
+		return _normalize_equip_slots({}, DEFAULT_EQUIP_ORDER.size())
+	var max_count: int = int(unit.get("max_equip_count"))
 	var raw_slots: Variant = unit.get("equip_slots")
-	return _normalize_equip_slots(raw_slots)
+	return _normalize_equip_slots(raw_slots, max_count)
 
 
-func _normalize_equip_slots(raw: Variant) -> Dictionary:
-	var slots: Dictionary = {"weapon": "", "armor": "", "accessory": ""}
+func _normalize_equip_slots(raw: Variant, desired_count: int = 0) -> Dictionary:
+	var slots: Dictionary = {}
 	if raw is Dictionary:
-		for key in slots.keys():
-			slots[key] = str((raw as Dictionary).get(key, "")).strip_edges()
+		var raw_dict: Dictionary = raw as Dictionary
+		for key in _get_sorted_equip_slot_keys(raw_dict):
+			slots[key] = str(raw_dict.get(key, "")).strip_edges()
+	if slots.is_empty():
+		for key in DEFAULT_EQUIP_ORDER:
+			slots[key] = ""
+	var target_count: int = maxi(desired_count, 0)
+	if target_count > slots.size():
+		for idx in range(1, target_count + 1):
+			if slots.size() >= target_count:
+				break
+			var key: String = "slot_%d" % idx
+			if not slots.has(key):
+				slots[key] = ""
 	return slots
+
+
+func _get_unit_max_equip_count(unit: Node, equip_slots: Dictionary) -> int:
+	var configured: int = 0
+	if unit != null and _is_valid_unit(unit):
+		configured = int(unit.get("max_equip_count"))
+	if configured <= 0:
+		configured = equip_slots.size()
+	if configured <= 0:
+		configured = DEFAULT_EQUIP_ORDER.size()
+	return maxi(configured, 1)
+
+
+func _get_sorted_equip_slot_keys(slots_value: Variant, desired_count: int = 0) -> Array[String]:
+	var keys: Array[String] = []
+	if slots_value is Dictionary:
+		for raw_key in (slots_value as Dictionary).keys():
+			var key: String = str(raw_key).strip_edges()
+			if key.is_empty():
+				continue
+			keys.append(key)
+	if keys.is_empty():
+		keys = DEFAULT_EQUIP_ORDER.duplicate()
+	keys.sort_custom(Callable(self, "_compare_equip_slot_key"))
+	var target_count: int = maxi(desired_count, keys.size())
+	if target_count <= keys.size():
+		return keys
+	for idx in range(1, target_count + 1):
+		if keys.size() >= target_count:
+			break
+		var key: String = "slot_%d" % idx
+		if keys.has(key):
+			continue
+		keys.append(key)
+	keys.sort_custom(Callable(self, "_compare_equip_slot_key"))
+	return keys
+
+
+func _compare_equip_slot_key(a: String, b: String) -> bool:
+	var a_index: int = _extract_equip_slot_index(a)
+	var b_index: int = _extract_equip_slot_index(b)
+	if a_index >= 0 and b_index >= 0:
+		if a_index == b_index:
+			return a < b
+		return a_index < b_index
+	if a_index >= 0:
+		return true
+	if b_index >= 0:
+		return false
+	return a < b
+
+
+func _extract_equip_slot_index(slot_key: String) -> int:
+	var key: String = slot_key.strip_edges().to_lower()
+	if not key.begins_with("slot_"):
+		return -1
+	var tail: String = key.substr(5, key.length() - 5)
+	if tail.is_empty() or not tail.is_valid_int():
+		return -1
+	return int(tail)
 
 
 func _equip_name_or_empty(equip_id: String) -> String:
@@ -2164,7 +2257,7 @@ func _slot_to_cn(slot: String) -> String:
 		"waigong":
 			return "外功"
 		"qinggong":
-			return "轻功"
+			return "身法"
 		"zhenfa":
 			return "阵法"
 		_:
@@ -2186,6 +2279,9 @@ func _slot_icon(slot: String) -> String:
 
 
 func _equip_type_to_cn(equip_type: String) -> String:
+	var slot_index: int = _extract_equip_slot_index(equip_type)
+	if slot_index >= 0:
+		return "装备槽%d" % slot_index
 	match equip_type:
 		"weapon":
 			return "兵器"
@@ -2198,6 +2294,8 @@ func _equip_type_to_cn(equip_type: String) -> String:
 
 
 func _equip_icon(equip_type: String) -> String:
+	if _extract_equip_slot_index(equip_type) >= 0:
+		return "◇"
 	match equip_type:
 		"weapon":
 			return "🗡"
