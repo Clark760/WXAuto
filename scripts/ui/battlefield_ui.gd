@@ -769,10 +769,10 @@ func _rebuild_inventory_items() -> void:
 
 
 func _sort_inventory_item(a: Dictionary, b: Dictionary) -> bool:
-	var rarity_a: String = str(a.get("rarity", a.get("quality", "white")))
-	var rarity_b: String = str(b.get("rarity", b.get("quality", "white")))
-	var rank_a: int = _quality_rank(rarity_a)
-	var rank_b: int = _quality_rank(rarity_b)
+	var quality_a: String = str(a.get("quality", "white"))
+	var quality_b: String = str(b.get("quality", "white"))
+	var rank_a: int = _quality_rank(quality_a)
+	var rank_b: int = _quality_rank(quality_b)
 	if rank_a != rank_b:
 		return rank_a > rank_b
 	return str(a.get("name", "")).naturalnocasecmp_to(str(b.get("name", ""))) < 0
@@ -780,8 +780,6 @@ func _sort_inventory_item(a: Dictionary, b: Dictionary) -> bool:
 
 func _quality_rank(quality: String) -> int:
 	match quality:
-		"red":
-			return 6
 		"orange":
 			return 5
 		"purple":
@@ -826,7 +824,7 @@ func _create_inventory_card(item_data: Dictionary) -> PanelContainer:
 		]
 	else:
 		type_line.text = "[%s] %s · %s" % [
-			_quality_to_cn(str(item_data.get("rarity", "white"))),
+			_quality_to_cn(str(item_data.get("quality", "white"))),
 			_equip_type_to_cn(item_type),
 			_element_to_cn(str(item_data.get("element", "none")))
 		]
@@ -1889,7 +1887,7 @@ func _build_equip_item_tooltip_data(equip_id: String) -> Dictionary:
 					trigger_effect_lines.append(_format_effect_op(effect_value as Dictionary))
 
 	return {
-		"name": "%s [%s]" % [str(data.get("name", equip_id)), _quality_to_cn(str(data.get("rarity", "white")))],
+		"name": "%s [%s]" % [str(data.get("name", equip_id)), _quality_to_cn(str(data.get("quality", "white")))],
 		"type_line": "%s · %s" % [_equip_type_to_cn(str(data.get("type", "weapon"))), _element_to_cn(str(data.get("element", "none")))],
 		"desc": str(data.get("description", "江湖器物")),
 		"effects": effect_lines,
@@ -2335,8 +2333,6 @@ func _quality_to_cn(quality: String) -> String:
 			return "紫"
 		"orange":
 			return "橙"
-		"red":
-			return "红"
 		_:
 			return quality
 

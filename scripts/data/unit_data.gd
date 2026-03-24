@@ -26,8 +26,7 @@ const QUALITY_TO_COST := {
 	"green": 2,
 	"blue": 3,
 	"purple": 4,
-	"orange": 5,
-	"red": 6
+	"orange": 5
 }
 
 
@@ -107,8 +106,8 @@ static func build_runtime_stats(base_stats: Dictionary, star_level: int) -> Dict
 		_:
 			multiplier = 1.0
 
-	# 升星仅影响核心战斗数值；RNG/SPD/WIS 为固定基础值（可被 effect 改写）。
-	var scaled_keys: Array[String] = ["hp", "mp", "atk", "iat", "def", "idr"]
+	# 升星仅影响核心战斗数值；MP/RNG/SPD/WIS 为固定基础值（可被 effect 改写）。
+	var scaled_keys: Array[String] = ["hp", "atk", "iat", "def", "idr"]
 	var runtime_stats: Dictionary = {}
 	for stat_key in base_stats.keys():
 		var value: float = float(base_stats.get(stat_key, 0.0))

@@ -634,7 +634,7 @@
   {
     "id": "bm5_u_red_011",
     "name": "达摩祖师",
-    "quality": "red",
+    "quality": "orange",
     "cost": 6,
     "shop_visible": true,
     "base_star": 1,
@@ -698,7 +698,7 @@
   {
     "id": "bm5_u_red_012",
     "name": "鬼谷子",
-    "quality": "red",
+    "quality": "orange",
     "cost": 6,
     "shop_visible": true,
     "base_star": 1,
@@ -761,7 +761,7 @@
   {
     "id": "bm5_u_red_013",
     "name": "陈抟老祖",
-    "quality": "red",
+    "quality": "orange",
     "cost": 6,
     "shop_visible": true,
     "base_star": 1,
@@ -824,7 +824,7 @@
   {
     "id": "bm5_u_red_014",
     "name": "广成子",
-    "quality": "red",
+    "quality": "orange",
     "cost": 6,
     "shop_visible": true,
     "base_star": 1,
@@ -887,7 +887,7 @@
   {
     "id": "bm5_u_red_015",
     "name": "吕洞宾",
-    "quality": "red",
+    "quality": "orange",
     "cost": 6,
     "shop_visible": true,
     "base_star": 1,

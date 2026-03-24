@@ -127,8 +127,6 @@ func _build_color_for_unit(unit: Node) -> Color:
 			base_color = Color(0.8, 0.58, 0.95, marker_alpha)
 		"orange":
 			base_color = Color(1.0, 0.7, 0.35, marker_alpha)
-		"red":
-			base_color = Color(0.95, 0.35, 0.35, marker_alpha)
 		_:
 			base_color = Color(1, 1, 1, marker_alpha)
 

@@ -98,7 +98,8 @@ func add_terrain(config: Dictionary, source: Node, context: Dictionary = {}) -> 
 		"added": true,
 		"barrier_changed": bool(rebuild.get("dynamic_changed", false)),
 		"static_barrier_changed": bool(rebuild.get("static_changed", false)),
-		"visual_changed": true
+		"visual_changed": true,
+		"terrain": entry.duplicate(true)
 	}
 
 
@@ -131,7 +132,8 @@ func add_static_terrain(terrain_ref: String, cells: Array, context: Dictionary =
 		"added": true,
 		"added_count": 1,
 		"barrier_changed": bool(rebuild.get("static_changed", false)),
-		"visual_changed": true
+		"visual_changed": true,
+		"terrain": entry.duplicate(true)
 	}
 
 
@@ -141,11 +143,13 @@ func tick(delta: float, context: Dictionary) -> Dictionary:
 		return {
 			"barrier_changed": false,
 			"static_barrier_changed": false,
-			"visual_changed": false
+			"visual_changed": false,
+			"phase_events": []
 		}
 
 	var next_terrains: Array[Dictionary] = []
 	var visual_changed: bool = false
+	var phase_events: Array[Dictionary] = []
 	for terrain_value in _terrains:
 		if not (terrain_value is Dictionary):
 			continue
@@ -157,15 +161,15 @@ func tick(delta: float, context: Dictionary) -> Dictionary:
 			var remaining: float = previous_remaining - delta
 			terrain["remaining"] = remaining
 			if previous_remaining >= 0.0 and remaining <= 0.0:
-				_execute_terrain_phase_effects(terrain, current_targets, "expire", context)
+				phase_events.append_array(_execute_terrain_phase_effects(terrain, current_targets, "expire", context))
 				visual_changed = true
 				continue
-		_apply_terrain_enter_exit_effects(terrain, current_targets, context)
+		phase_events.append_array(_apply_terrain_enter_exit_effects(terrain, current_targets, context))
 		var tick_interval: float = maxf(float(terrain.get("tick_interval", DEFAULT_TICK_INTERVAL)), 0.05)
 		var tick_accum: float = float(terrain.get("tick_accum", 0.0)) + delta
 		while tick_accum >= tick_interval:
 			tick_accum -= tick_interval
-			_apply_terrain_tick(terrain, current_targets, context)
+			phase_events.append_array(_apply_terrain_tick(terrain, current_targets, context))
 		terrain["tick_accum"] = tick_accum
 		terrain["occupied_iids"] = _build_target_iid_map(current_targets)
 		next_terrains.append(terrain)
@@ -179,7 +183,8 @@ func tick(delta: float, context: Dictionary) -> Dictionary:
 	return {
 		"barrier_changed": bool(rebuild.get("dynamic_changed", false)),
 		"static_barrier_changed": bool(rebuild.get("static_changed", false)),
-		"visual_changed": _needs_visual_refresh
+		"visual_changed": _needs_visual_refresh,
+		"phase_events": phase_events
 	}
 
 
@@ -343,11 +348,12 @@ func _build_terrain_entry(config: Dictionary, source: Node, context: Dictionary,
 
 
 # 执行单次地形 tick：对当前地形内目标执行 effects_on_tick。
-func _apply_terrain_tick(terrain: Dictionary, targets: Array[Node], context: Dictionary) -> void:
-	_execute_terrain_phase_effects(terrain, targets, "tick", context)
+func _apply_terrain_tick(terrain: Dictionary, targets: Array[Node], context: Dictionary) -> Array[Dictionary]:
+	return _execute_terrain_phase_effects(terrain, targets, "tick", context)
 
 
-func _apply_terrain_enter_exit_effects(terrain: Dictionary, current_targets: Array[Node], context: Dictionary) -> void:
+func _apply_terrain_enter_exit_effects(terrain: Dictionary, current_targets: Array[Node], context: Dictionary) -> Array[Dictionary]:
+	var phase_events: Array[Dictionary] = []
 	var previous_map: Dictionary = {}
 	var previous_value: Variant = terrain.get("occupied_iids", {})
 	if previous_value is Dictionary:
@@ -373,21 +379,29 @@ func _apply_terrain_enter_exit_effects(terrain: Dictionary, current_targets: Arr
 		if combat == null or not bool(combat.get("is_alive")):
 			continue
 		exit_targets.append(unit)
-	_execute_terrain_phase_effects(terrain, enter_targets, "enter", context)
-	_execute_terrain_phase_effects(terrain, exit_targets, "exit", context)
+	phase_events.append_array(_execute_terrain_phase_effects(terrain, enter_targets, "enter", context))
+	phase_events.append_array(_execute_terrain_phase_effects(terrain, exit_targets, "exit", context))
+	return phase_events
 
 
-func _execute_terrain_phase_effects(terrain: Dictionary, targets: Array[Node], phase: String, context: Dictionary) -> void:
+func _execute_terrain_phase_effects(terrain: Dictionary, targets: Array[Node], phase: String, context: Dictionary) -> Array[Dictionary]:
+	var phase_events: Array[Dictionary] = []
 	if targets.is_empty():
-		return
+		if phase == "expire":
+			phase_events.append(_build_terrain_phase_event(terrain, phase, null, context))
+		return phase_events
+	for target in targets:
+		if target == null or not is_instance_valid(target):
+			continue
+		phase_events.append(_build_terrain_phase_event(terrain, phase, target, context))
 	var effects: Array[Dictionary] = _get_terrain_phase_effects(terrain, phase)
 	if effects.is_empty():
-		return
+		return phase_events
 	var gongfa_manager: Node = context.get("gongfa_manager", null)
 	if gongfa_manager == null or not is_instance_valid(gongfa_manager):
-		return
+		return phase_events
 	if not gongfa_manager.has_method("execute_external_effects"):
-		return
+		return phase_events
 	var source_node: Node = _resolve_source_node(terrain, context)
 	var source_fallback: Dictionary = _build_source_fallback_from_terrain(terrain)
 	var extra_fields: Dictionary = {
@@ -415,6 +429,38 @@ func _execute_terrain_phase_effects(terrain: Dictionary, targets: Array[Node], p
 			"trigger": origin,
 			"extra_fields": extra_fields
 		})
+	return phase_events
+
+
+func _build_terrain_phase_event(terrain: Dictionary, phase: String, target: Node, context: Dictionary) -> Dictionary:
+	var event: Dictionary = {
+		"phase": phase,
+		"terrain": terrain.duplicate(true),
+		"terrain_id": str(terrain.get("terrain_id", "")),
+		"terrain_def_id": str(terrain.get("terrain_def_id", "")),
+		"terrain_type": str(terrain.get("terrain_type", "")),
+		"terrain_tags": _normalize_tags(terrain.get("tags", []))
+	}
+	var source_node: Node = _resolve_source_node(terrain, context)
+	if source_node != null and is_instance_valid(source_node):
+		event["source"] = source_node
+		event["source_id"] = source_node.get_instance_id()
+		event["source_team"] = int(source_node.get("team_id"))
+	else:
+		var source_fallback: Dictionary = _build_source_fallback_from_terrain(terrain)
+		event["source_id"] = int(source_fallback.get("source_id", -1))
+		event["source_team"] = int(source_fallback.get("source_team", 0))
+		event["source_unit_id"] = str(source_fallback.get("source_unit_id", ""))
+		event["source_name"] = str(source_fallback.get("source_name", ""))
+	if target != null and is_instance_valid(target):
+		event["target"] = target
+		event["target_id"] = target.get_instance_id()
+		event["target_team"] = int(target.get("team_id"))
+	else:
+		event["target"] = null
+		event["target_id"] = -1
+		event["target_team"] = 0
+	return event
 
 
 func _get_terrain_phase_effects(terrain: Dictionary, phase: String) -> Array[Dictionary]:

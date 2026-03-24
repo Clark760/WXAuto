@@ -5,7 +5,6 @@
     "description": "张三丰?????",
     "type": "armor",
     "element": "fire",
-    "rarity": "orange",
     "shop_visible": true,
     "effects": [
       {
@@ -30,7 +29,8 @@
       "bm5.quality.orange",
       "bm5.source.wuxia_novel",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "orange"
   },
   {
     "id": "bm5_eq_orange_002",
@@ -38,7 +38,6 @@
     "description": "王重阳?????",
     "type": "armor",
     "element": "earth",
-    "rarity": "orange",
     "shop_visible": true,
     "effects": [
       {
@@ -63,7 +62,8 @@
       "bm5.quality.orange",
       "bm5.source.wuxia_novel",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "orange"
   },
   {
     "id": "bm5_eq_orange_003",
@@ -71,7 +71,6 @@
     "description": "独孤求败?????",
     "type": "weapon",
     "element": "metal",
-    "rarity": "orange",
     "shop_visible": true,
     "effects": [
       {
@@ -97,7 +96,8 @@
       "bm5.quality.orange",
       "bm5.source.wuxia_novel",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "orange"
   },
   {
     "id": "bm5_eq_orange_004",
@@ -105,7 +105,6 @@
     "description": "黄裳?????",
     "type": "accessory",
     "element": "wood",
-    "rarity": "orange",
     "shop_visible": true,
     "effects": [
       {
@@ -133,7 +132,8 @@
       "bm5.quality.orange",
       "bm5.source.wuxia_novel",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "orange"
   },
   {
     "id": "bm5_eq_orange_005",
@@ -141,7 +141,6 @@
     "description": "逍遥子?????",
     "type": "accessory",
     "element": "water",
-    "rarity": "orange",
     "shop_visible": true,
     "effects": [
       {
@@ -169,7 +168,8 @@
       "bm5.quality.orange",
       "bm5.source.wuxia_novel",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "orange"
   },
   {
     "id": "bm5_eq_orange_006",
@@ -177,7 +177,6 @@
     "description": "令东来?????",
     "type": "weapon",
     "element": "fire",
-    "rarity": "orange",
     "shop_visible": true,
     "effects": [
       {
@@ -203,7 +202,8 @@
       "bm5.quality.orange",
       "bm5.source.wuxia_novel",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "orange"
   },
   {
     "id": "bm5_eq_orange_007",
@@ -211,7 +211,6 @@
     "description": "石破天?????",
     "type": "armor",
     "element": "earth",
-    "rarity": "orange",
     "shop_visible": true,
     "effects": [
       {
@@ -237,7 +236,8 @@
       "bm5.quality.orange",
       "bm5.source.wuxia_novel",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "orange"
   },
   {
     "id": "bm5_eq_orange_008",
@@ -245,7 +245,6 @@
     "description": "风清扬?????",
     "type": "weapon",
     "element": "metal",
-    "rarity": "orange",
     "shop_visible": true,
     "effects": [
       {
@@ -271,7 +270,8 @@
       "bm5.quality.orange",
       "bm5.source.wuxia_novel",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "orange"
   },
   {
     "id": "bm5_eq_orange_009",
@@ -279,7 +279,6 @@
     "description": "阿青?????",
     "type": "weapon",
     "element": "wood",
-    "rarity": "orange",
     "shop_visible": true,
     "effects": [
       {
@@ -305,7 +304,8 @@
       "bm5.quality.orange",
       "bm5.source.wuxia_novel",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "orange"
   },
   {
     "id": "bm5_eq_orange_010",
@@ -313,7 +313,6 @@
     "description": "孙思邈?????",
     "type": "accessory",
     "element": "water",
-    "rarity": "orange",
     "shop_visible": true,
     "effects": [
       {
@@ -340,7 +339,8 @@
       "bm5.quality.orange",
       "bm5.source.ancient_legend",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "orange"
   },
   {
     "id": "bm5_eq_red_011",
@@ -348,7 +348,6 @@
     "description": "达摩祖师?????",
     "type": "armor",
     "element": "fire",
-    "rarity": "red",
     "shop_visible": true,
     "effects": [
       {
@@ -373,7 +372,9 @@
       "bm5.quality.red",
       "bm5.source.ancient_legend",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "orange",
+    "cost": 6
   },
   {
     "id": "bm5_eq_red_012",
@@ -381,7 +382,6 @@
     "description": "鬼谷子?????",
     "type": "accessory",
     "element": "earth",
-    "rarity": "red",
     "shop_visible": true,
     "effects": [
       {
@@ -409,7 +409,9 @@
       "bm5.quality.red",
       "bm5.source.ancient_legend",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "orange",
+    "cost": 6
   },
   {
     "id": "bm5_eq_red_013",
@@ -417,7 +419,6 @@
     "description": "陈抟老祖?????",
     "type": "accessory",
     "element": "metal",
-    "rarity": "red",
     "shop_visible": true,
     "effects": [
       {
@@ -444,7 +445,9 @@
       "bm5.quality.red",
       "bm5.source.ancient_legend",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "orange",
+    "cost": 6
   },
   {
     "id": "bm5_eq_red_014",
@@ -452,7 +455,6 @@
     "description": "广成子?????",
     "type": "armor",
     "element": "wood",
-    "rarity": "red",
     "shop_visible": true,
     "effects": [
       {
@@ -478,7 +480,9 @@
       "bm5.quality.red",
       "bm5.source.ancient_legend",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "orange",
+    "cost": 6
   },
   {
     "id": "bm5_eq_red_015",
@@ -486,7 +490,6 @@
     "description": "吕洞宾?????",
     "type": "weapon",
     "element": "water",
-    "rarity": "red",
     "shop_visible": true,
     "effects": [
       {
@@ -512,6 +515,8 @@
       "bm5.quality.red",
       "bm5.source.ancient_legend",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "orange",
+    "cost": 6
   }
 ]

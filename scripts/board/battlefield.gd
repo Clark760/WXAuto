@@ -17,8 +17,7 @@ const QUALITY_SELL_PRICE: Dictionary = {
 	"green": 2,
 	"blue": 3,
 	"purple": 5,
-	"orange": 8,
-	"red": 15
+	"orange": 8
 }
 
 const ECONOMY_MANAGER_SCRIPT: Script = preload("res://scripts/economy/economy_manager.gd")
@@ -762,7 +761,7 @@ func _create_inventory_card(item_data: Dictionary) -> PanelContainer:
 		]
 	else:
 		type_line.text = "[%s] %s · %s" % [
-			_quality_to_cn(str(item_data.get("rarity", "white"))),
+			_quality_to_cn(str(item_data.get("quality", "white"))),
 			_equip_type_to_cn(item_type),
 			_element_to_cn(str(item_data.get("element", "none")))
 		]
@@ -1453,7 +1452,7 @@ func _get_sell_price_unit(unit: Node) -> int:
 
 
 func _get_sell_price_item(item_data: Dictionary) -> int:
-	var quality_key: String = str(item_data.get("quality", item_data.get("rarity", "white"))).strip_edges().to_lower()
+	var quality_key: String = str(item_data.get("quality", "white")).strip_edges().to_lower()
 	return int(QUALITY_SELL_PRICE.get(quality_key, 1))
 
 

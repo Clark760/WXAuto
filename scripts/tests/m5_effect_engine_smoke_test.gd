@@ -206,6 +206,9 @@ func _init() -> void:
 func _run_smoke_tests() -> void:
 	_test_passive_modifier_bundle()
 	_test_damage_if_debuffed_scaling()
+	_test_heal_allies_aoe_exclude_self()
+	_test_buff_allies_aoe_exclude_self()
+	_test_shield_allies_aoe_exclude_self()
 	_test_create_terrain_dispatch()
 	_test_create_terrain_all_types()
 	_test_teleport_behind_op()
@@ -287,6 +290,149 @@ func _test_create_terrain_dispatch() -> void:
 	target.free()
 	combat_manager.free()
 	hex_grid.free()
+
+
+func _test_heal_allies_aoe_exclude_self() -> void:
+	var engine = EFFECT_ENGINE_SCRIPT.new()
+	var source: MockUnit = _make_test_unit(1, "unit_test_heal_source")
+	var ally: MockUnit = _make_test_unit(1, "unit_test_heal_ally")
+	var source_combat: MockUnitCombat = source.get_node("Components/UnitCombat") as MockUnitCombat
+	var ally_combat: MockUnitCombat = ally.get_node("Components/UnitCombat") as MockUnitCombat
+	source_combat.current_hp = 600.0
+	ally_combat.current_hp = 500.0
+	var include_summary: Dictionary = engine.call("execute_active_effects", source, null, [{
+		"op": "heal_allies_aoe",
+		"value": 100.0,
+		"radius": 1.0
+	}], {
+		"all_units": [source, ally],
+		"hex_size": 26.0
+	})
+	_assert_true(is_equal_approx(float(include_summary.get("heal_total", 0.0)), 200.0), "heal_allies_aoe include self total")
+	_assert_true(is_equal_approx(source_combat.current_hp, 700.0), "heal_allies_aoe include self healed caster")
+	_assert_true(is_equal_approx(ally_combat.current_hp, 600.0), "heal_allies_aoe include self healed ally")
+
+	source_combat.current_hp = 600.0
+	ally_combat.current_hp = 500.0
+	var exclude_summary: Dictionary = engine.call("execute_active_effects", source, null, [{
+		"op": "heal_allies_aoe",
+		"value": 100.0,
+		"radius": 1.0,
+		"exclude_self": true
+	}], {
+		"all_units": [source, ally],
+		"hex_size": 26.0
+	})
+	_assert_true(is_equal_approx(float(exclude_summary.get("heal_total", 0.0)), 100.0), "heal_allies_aoe exclude self total")
+	_assert_true(is_equal_approx(source_combat.current_hp, 600.0), "heal_allies_aoe exclude self keeps caster hp")
+	_assert_true(is_equal_approx(ally_combat.current_hp, 600.0), "heal_allies_aoe exclude self heals ally")
+
+	source_combat.current_hp = 600.0
+	var self_only_summary: Dictionary = engine.call("execute_active_effects", source, null, [{
+		"op": "heal_allies_aoe",
+		"value": 100.0,
+		"radius": 1.0,
+		"exclude_self": true
+	}], {
+		"all_units": [source],
+		"hex_size": 26.0
+	})
+	_assert_true(is_equal_approx(float(self_only_summary.get("heal_total", 0.0)), 0.0), "heal_allies_aoe exclude self self-only hit count")
+	_assert_true(is_equal_approx(source_combat.current_hp, 600.0), "heal_allies_aoe exclude self self-only no change")
+
+	source.free()
+	ally.free()
+
+
+func _test_buff_allies_aoe_exclude_self() -> void:
+	var engine = EFFECT_ENGINE_SCRIPT.new()
+	var buff_manager = _make_test_buff_manager()
+	var source: MockUnit = _make_test_unit(1, "unit_test_buff_source")
+	var ally_a: MockUnit = _make_test_unit(1, "unit_test_buff_ally_a")
+	var ally_b: MockUnit = _make_test_unit(1, "unit_test_buff_ally_b")
+	source.position = Vector2(0, 0)
+	ally_a.position = Vector2(10, 0)
+	ally_b.position = Vector2(-10, 5)
+	var include_summary: Dictionary = engine.call("execute_active_effects", source, null, [{
+		"op": "buff_allies_aoe",
+		"buff_id": "buff_test_haste",
+		"duration": 3.0,
+		"radius": 1.0
+	}], {
+		"all_units": [source, ally_a, ally_b],
+		"buff_manager": buff_manager,
+		"hex_size": 26.0
+	})
+	_assert_true(int(include_summary.get("buff_applied", 0)) == 3, "buff_allies_aoe include self count")
+	var include_source_ids: Array = buff_manager.call("get_active_buff_ids_for_unit", source)
+	_assert_true(include_source_ids.has("buff_test_haste"), "buff_allies_aoe include self affects caster")
+	buff_manager.call("clear_all")
+
+	var exclude_summary: Dictionary = engine.call("execute_active_effects", source, null, [{
+		"op": "buff_allies_aoe",
+		"buff_id": "buff_test_haste",
+		"duration": 3.0,
+		"radius": 1.0,
+		"exclude_self": true
+	}], {
+		"all_units": [source, ally_a, ally_b],
+		"buff_manager": buff_manager,
+		"hex_size": 26.0
+	})
+	_assert_true(int(exclude_summary.get("buff_applied", 0)) == 2, "buff_allies_aoe exclude self multi-ally count")
+	var exclude_source_ids: Array = buff_manager.call("get_active_buff_ids_for_unit", source)
+	var exclude_ally_a_ids: Array = buff_manager.call("get_active_buff_ids_for_unit", ally_a)
+	var exclude_ally_b_ids: Array = buff_manager.call("get_active_buff_ids_for_unit", ally_b)
+	_assert_true(not exclude_source_ids.has("buff_test_haste"), "buff_allies_aoe exclude self skips caster")
+	_assert_true(exclude_ally_a_ids.has("buff_test_haste"), "buff_allies_aoe exclude self keeps ally A")
+	_assert_true(exclude_ally_b_ids.has("buff_test_haste"), "buff_allies_aoe exclude self keeps ally B")
+
+	source.free()
+	ally_a.free()
+	ally_b.free()
+
+
+func _test_shield_allies_aoe_exclude_self() -> void:
+	var engine = EFFECT_ENGINE_SCRIPT.new()
+	var buff_manager = _make_test_buff_manager()
+	var source: MockUnit = _make_test_unit(1, "unit_test_shield_source")
+	var ally: MockUnit = _make_test_unit(1, "unit_test_shield_ally")
+	source.position = Vector2(0, 0)
+	ally.position = Vector2(12, 0)
+	var include_summary: Dictionary = engine.call("execute_active_effects", source, null, [{
+		"op": "shield_allies_aoe",
+		"value": 120.0,
+		"radius": 1.0,
+		"duration": 3.0,
+		"shield_buff_id": "buff_test_shield"
+	}], {
+		"all_units": [source, ally],
+		"buff_manager": buff_manager,
+		"hex_size": 26.0
+	})
+	_assert_true(int(include_summary.get("buff_applied", 0)) == 2, "shield_allies_aoe include self count")
+	buff_manager.call("clear_all")
+
+	var exclude_summary: Dictionary = engine.call("execute_active_effects", source, null, [{
+		"op": "shield_allies_aoe",
+		"value": 120.0,
+		"radius": 1.0,
+		"duration": 3.0,
+		"shield_buff_id": "buff_test_shield",
+		"exclude_self": true
+	}], {
+		"all_units": [source, ally],
+		"buff_manager": buff_manager,
+		"hex_size": 26.0
+	})
+	_assert_true(int(exclude_summary.get("buff_applied", 0)) == 1, "shield_allies_aoe exclude self count")
+	var source_ids: Array = buff_manager.call("get_active_buff_ids_for_unit", source)
+	var ally_ids: Array = buff_manager.call("get_active_buff_ids_for_unit", ally)
+	_assert_true(not source_ids.has("buff_test_shield"), "shield_allies_aoe exclude self skips caster")
+	_assert_true(ally_ids.has("buff_test_shield"), "shield_allies_aoe exclude self keeps ally")
+
+	source.free()
+	ally.free()
 
 
 func _test_create_terrain_all_types() -> void:
@@ -521,6 +667,29 @@ func _make_test_unit(team_id: int, unit_id: String = "") -> MockUnit:
 	combat.name = "UnitCombat"
 	components.add_child(combat)
 	return unit
+
+
+func _make_test_buff_manager() -> RefCounted:
+	var buff_manager = BUFF_MANAGER_SCRIPT.new()
+	buff_manager.call("set_buff_definitions", {
+		"buff_test_haste": _make_test_buff_def("buff_test_haste"),
+		"buff_test_shield": _make_test_buff_def("buff_test_shield"),
+		"buff_qi_shield": _make_test_buff_def("buff_qi_shield")
+	})
+	return buff_manager
+
+
+func _make_test_buff_def(buff_id: String) -> Dictionary:
+	return {
+		"id": buff_id,
+		"type": "buff",
+		"stackable": false,
+		"max_stacks": 1,
+		"default_duration": 3.0,
+		"effects": [],
+		"tick_effects": [],
+		"tick_interval": 0.0
+	}
 
 
 func _assert_true(condition: bool, message: String) -> void:

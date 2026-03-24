@@ -5,7 +5,6 @@
     "description": "令狐冲?????",
     "type": "weapon",
     "element": "water",
-    "rarity": "purple",
     "shop_visible": true,
     "effects": [
       {
@@ -31,7 +30,8 @@
       "bm5.quality.purple",
       "bm5.source.wuxia_novel",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "purple"
   },
   {
     "id": "bm5_eq_purple_002",
@@ -39,7 +39,6 @@
     "description": "任盈盈?????",
     "type": "accessory",
     "element": "fire",
-    "rarity": "purple",
     "shop_visible": true,
     "effects": [
       {
@@ -66,7 +65,8 @@
       "bm5.quality.purple",
       "bm5.source.wuxia_novel",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "purple"
   },
   {
     "id": "bm5_eq_purple_003",
@@ -74,7 +74,6 @@
     "description": "东方不败?????",
     "type": "weapon",
     "element": "earth",
-    "rarity": "purple",
     "shop_visible": true,
     "effects": [
       {
@@ -100,7 +99,8 @@
       "bm5.quality.purple",
       "bm5.source.wuxia_novel",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "purple"
   },
   {
     "id": "bm5_eq_purple_004",
@@ -108,7 +108,6 @@
     "description": "岳不群?????",
     "type": "armor",
     "element": "metal",
-    "rarity": "purple",
     "shop_visible": true,
     "effects": [
       {
@@ -133,7 +132,8 @@
       "bm5.quality.purple",
       "bm5.source.wuxia_novel",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "purple"
   },
   {
     "id": "bm5_eq_purple_005",
@@ -141,7 +141,6 @@
     "description": "左冷禅?????",
     "type": "armor",
     "element": "wood",
-    "rarity": "purple",
     "shop_visible": true,
     "effects": [
       {
@@ -167,7 +166,8 @@
       "bm5.quality.purple",
       "bm5.source.wuxia_novel",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "purple"
   },
   {
     "id": "bm5_eq_purple_006",
@@ -175,7 +175,6 @@
     "description": "乔峰?????",
     "type": "armor",
     "element": "water",
-    "rarity": "purple",
     "shop_visible": true,
     "effects": [
       {
@@ -201,7 +200,8 @@
       "bm5.quality.purple",
       "bm5.source.wuxia_novel",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "purple"
   },
   {
     "id": "bm5_eq_purple_007",
@@ -209,7 +209,6 @@
     "description": "段誉?????",
     "type": "accessory",
     "element": "fire",
-    "rarity": "purple",
     "shop_visible": true,
     "effects": [
       {
@@ -237,7 +236,8 @@
       "bm5.quality.purple",
       "bm5.source.wuxia_novel",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "purple"
   },
   {
     "id": "bm5_eq_purple_008",
@@ -245,7 +245,6 @@
     "description": "虚竹?????",
     "type": "accessory",
     "element": "earth",
-    "rarity": "purple",
     "shop_visible": true,
     "effects": [
       {
@@ -272,7 +271,8 @@
       "bm5.quality.purple",
       "bm5.source.wuxia_novel",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "purple"
   },
   {
     "id": "bm5_eq_purple_009",
@@ -280,7 +280,6 @@
     "description": "王语嫣?????",
     "type": "armor",
     "element": "metal",
-    "rarity": "purple",
     "shop_visible": true,
     "effects": [
       {
@@ -305,7 +304,8 @@
       "bm5.quality.purple",
       "bm5.source.wuxia_novel",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "purple"
   },
   {
     "id": "bm5_eq_purple_010",
@@ -313,7 +313,6 @@
     "description": "慕容复?????",
     "type": "weapon",
     "element": "wood",
-    "rarity": "purple",
     "shop_visible": true,
     "effects": [
       {
@@ -339,7 +338,8 @@
       "bm5.quality.purple",
       "bm5.source.wuxia_novel",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "purple"
   },
   {
     "id": "bm5_eq_purple_011",
@@ -347,7 +347,6 @@
     "description": "张无忌?????",
     "type": "armor",
     "element": "water",
-    "rarity": "purple",
     "shop_visible": true,
     "effects": [
       {
@@ -372,7 +371,8 @@
       "bm5.quality.purple",
       "bm5.source.wuxia_novel",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "purple"
   },
   {
     "id": "bm5_eq_purple_012",
@@ -380,7 +380,6 @@
     "description": "周芙若?????",
     "type": "weapon",
     "element": "fire",
-    "rarity": "purple",
     "shop_visible": true,
     "effects": [
       {
@@ -406,7 +405,8 @@
       "bm5.quality.purple",
       "bm5.source.wuxia_novel",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "purple"
   },
   {
     "id": "bm5_eq_purple_013",
@@ -414,7 +414,6 @@
     "description": "赵敏?????",
     "type": "weapon",
     "element": "earth",
-    "rarity": "purple",
     "shop_visible": true,
     "effects": [
       {
@@ -440,7 +439,8 @@
       "bm5.quality.purple",
       "bm5.source.wuxia_novel",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "purple"
   },
   {
     "id": "bm5_eq_purple_014",
@@ -448,7 +448,6 @@
     "description": "小龙女?????",
     "type": "weapon",
     "element": "metal",
-    "rarity": "purple",
     "shop_visible": true,
     "effects": [
       {
@@ -474,7 +473,8 @@
       "bm5.quality.purple",
       "bm5.source.wuxia_novel",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "purple"
   },
   {
     "id": "bm5_eq_purple_015",
@@ -482,7 +482,6 @@
     "description": "杨过?????",
     "type": "weapon",
     "element": "wood",
-    "rarity": "purple",
     "shop_visible": true,
     "effects": [
       {
@@ -508,7 +507,8 @@
       "bm5.quality.purple",
       "bm5.source.wuxia_novel",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "purple"
   },
   {
     "id": "bm5_eq_purple_016",
@@ -516,7 +516,6 @@
     "description": "李寻欢?????",
     "type": "weapon",
     "element": "water",
-    "rarity": "purple",
     "shop_visible": true,
     "effects": [
       {
@@ -542,7 +541,8 @@
       "bm5.quality.purple",
       "bm5.source.wuxia_novel",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "purple"
   },
   {
     "id": "bm5_eq_purple_017",
@@ -550,7 +550,6 @@
     "description": "楚留香?????",
     "type": "weapon",
     "element": "fire",
-    "rarity": "purple",
     "shop_visible": true,
     "effects": [
       {
@@ -576,7 +575,8 @@
       "bm5.quality.purple",
       "bm5.source.wuxia_novel",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "purple"
   },
   {
     "id": "bm5_eq_purple_018",
@@ -584,7 +584,6 @@
     "description": "陆小凤?????",
     "type": "weapon",
     "element": "earth",
-    "rarity": "purple",
     "shop_visible": true,
     "effects": [
       {
@@ -610,7 +609,8 @@
       "bm5.quality.purple",
       "bm5.source.wuxia_novel",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "purple"
   },
   {
     "id": "bm5_eq_purple_019",
@@ -618,7 +618,6 @@
     "description": "花满楼?????",
     "type": "accessory",
     "element": "metal",
-    "rarity": "purple",
     "shop_visible": true,
     "effects": [
       {
@@ -645,7 +644,8 @@
       "bm5.quality.purple",
       "bm5.source.wuxia_novel",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "purple"
   },
   {
     "id": "bm5_eq_purple_020",
@@ -653,7 +653,6 @@
     "description": "西门吹雪?????",
     "type": "weapon",
     "element": "wood",
-    "rarity": "purple",
     "shop_visible": true,
     "effects": [
       {
@@ -679,6 +678,7 @@
       "bm5.quality.purple",
       "bm5.source.wuxia_novel",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "purple"
   }
 ]

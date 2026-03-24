@@ -5,7 +5,6 @@
     "description": "Exclusive equipment of Guo Jing.",
     "type": "weapon",
     "element": "fire",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -31,7 +30,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_002",
@@ -39,7 +39,6 @@
     "description": "Exclusive equipment of Huang Rong.",
     "type": "weapon",
     "element": "earth",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -65,7 +64,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_003",
@@ -73,7 +73,6 @@
     "description": "Exclusive equipment of Yang Guo.",
     "type": "weapon",
     "element": "none",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -99,7 +98,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_004",
@@ -107,7 +107,6 @@
     "description": "Exclusive equipment of Xiao Longnu.",
     "type": "accessory",
     "element": "metal",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -135,7 +134,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_005",
@@ -143,7 +143,6 @@
     "description": "Exclusive equipment of Zhang Wuji.",
     "type": "accessory",
     "element": "wood",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -170,7 +169,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_006",
@@ -178,7 +178,6 @@
     "description": "Exclusive equipment of Zhao Min.",
     "type": "armor",
     "element": "water",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -203,7 +202,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_007",
@@ -211,7 +211,6 @@
     "description": "Exclusive equipment of Zhou Zhiruo.",
     "type": "armor",
     "element": "fire",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -237,7 +236,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_008",
@@ -245,7 +245,6 @@
     "description": "Exclusive equipment of Linghu Chong.",
     "type": "weapon",
     "element": "earth",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -271,7 +270,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_009",
@@ -279,7 +279,6 @@
     "description": "Exclusive equipment of Ren Yingying.",
     "type": "weapon",
     "element": "none",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -305,7 +304,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_010",
@@ -313,7 +313,6 @@
     "description": "Exclusive equipment of Yue Buqun.",
     "type": "weapon",
     "element": "metal",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -339,7 +338,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_011",
@@ -347,7 +347,6 @@
     "description": "Exclusive equipment of Lin Pingzhi.",
     "type": "accessory",
     "element": "wood",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -375,7 +374,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_012",
@@ -383,7 +383,6 @@
     "description": "Exclusive equipment of Dongfang Bubai.",
     "type": "accessory",
     "element": "water",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -410,7 +409,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_013",
@@ -418,7 +418,6 @@
     "description": "Exclusive equipment of Wei Xiaobao.",
     "type": "armor",
     "element": "fire",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -443,7 +442,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_014",
@@ -451,7 +451,6 @@
     "description": "Exclusive equipment of Chen Jinnan.",
     "type": "armor",
     "element": "earth",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -477,7 +476,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_015",
@@ -485,7 +485,6 @@
     "description": "Exclusive equipment of Qiao Feng.",
     "type": "weapon",
     "element": "none",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -511,7 +510,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_016",
@@ -519,7 +519,6 @@
     "description": "Exclusive equipment of Duan Yu.",
     "type": "weapon",
     "element": "metal",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -545,7 +544,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_017",
@@ -553,7 +553,6 @@
     "description": "Exclusive equipment of Xu Zhu.",
     "type": "weapon",
     "element": "wood",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -579,7 +578,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_018",
@@ -587,7 +587,6 @@
     "description": "Exclusive equipment of Wang Yuyan.",
     "type": "accessory",
     "element": "water",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -615,7 +614,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_019",
@@ -623,7 +623,6 @@
     "description": "Exclusive equipment of Murong Fu.",
     "type": "accessory",
     "element": "fire",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -650,7 +649,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_020",
@@ -658,7 +658,6 @@
     "description": "Exclusive equipment of A Zhu.",
     "type": "armor",
     "element": "earth",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -683,7 +682,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_021",
@@ -691,7 +691,6 @@
     "description": "Exclusive equipment of A Zi.",
     "type": "armor",
     "element": "none",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -717,7 +716,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_022",
@@ -725,7 +725,6 @@
     "description": "Exclusive equipment of Ding Chunqiu.",
     "type": "weapon",
     "element": "metal",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -751,7 +750,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_023",
@@ -759,7 +759,6 @@
     "description": "Exclusive equipment of You Tanzhi.",
     "type": "weapon",
     "element": "wood",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -785,7 +784,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_024",
@@ -793,7 +793,6 @@
     "description": "Exclusive equipment of Yuan Chengzhi.",
     "type": "weapon",
     "element": "water",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -819,7 +818,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_025",
@@ -827,7 +827,6 @@
     "description": "Exclusive equipment of Xia Xueyi.",
     "type": "accessory",
     "element": "fire",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -855,7 +854,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_026",
@@ -863,7 +863,6 @@
     "description": "Exclusive equipment of Hu Fei.",
     "type": "accessory",
     "element": "earth",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -890,7 +889,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_027",
@@ -898,7 +898,6 @@
     "description": "Exclusive equipment of Cheng Lingsu.",
     "type": "armor",
     "element": "none",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -923,7 +922,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_028",
@@ -931,7 +931,6 @@
     "description": "Exclusive equipment of Miao Ruolan.",
     "type": "armor",
     "element": "metal",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -957,7 +956,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_029",
@@ -965,7 +965,6 @@
     "description": "Exclusive equipment of Di Yun.",
     "type": "weapon",
     "element": "wood",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -991,7 +990,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_030",
@@ -999,7 +999,6 @@
     "description": "Exclusive equipment of Qi Fang.",
     "type": "weapon",
     "element": "water",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -1025,7 +1024,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_031",
@@ -1033,7 +1033,6 @@
     "description": "Exclusive equipment of Xuedao Laozu.",
     "type": "weapon",
     "element": "fire",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -1059,7 +1058,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_032",
@@ -1067,7 +1067,6 @@
     "description": "Exclusive equipment of Shi Potian.",
     "type": "accessory",
     "element": "earth",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -1095,7 +1094,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_033",
@@ -1103,7 +1103,6 @@
     "description": "Exclusive equipment of Ding Dang.",
     "type": "accessory",
     "element": "none",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -1130,7 +1129,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_034",
@@ -1138,7 +1138,6 @@
     "description": "Exclusive equipment of Su Xinghe.",
     "type": "armor",
     "element": "metal",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -1163,7 +1162,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_035",
@@ -1171,7 +1171,6 @@
     "description": "Exclusive equipment of Tianshan Tonglao.",
     "type": "armor",
     "element": "wood",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -1197,7 +1196,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_036",
@@ -1205,7 +1205,6 @@
     "description": "Exclusive equipment of Li Qiushui.",
     "type": "weapon",
     "element": "water",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -1231,7 +1230,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_037",
@@ -1239,7 +1239,6 @@
     "description": "Exclusive equipment of Wu Yazi.",
     "type": "weapon",
     "element": "fire",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -1265,7 +1264,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_038",
@@ -1273,7 +1273,6 @@
     "description": "Exclusive equipment of Huang Yaoshi.",
     "type": "weapon",
     "element": "earth",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -1299,7 +1298,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_039",
@@ -1307,7 +1307,6 @@
     "description": "Exclusive equipment of Ouyang Feng.",
     "type": "accessory",
     "element": "none",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -1335,7 +1334,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_040",
@@ -1343,7 +1343,6 @@
     "description": "Exclusive equipment of Hong Qigong.",
     "type": "accessory",
     "element": "metal",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -1370,7 +1369,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_041",
@@ -1378,7 +1378,6 @@
     "description": "Exclusive equipment of Yideng Dashi.",
     "type": "armor",
     "element": "wood",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -1403,7 +1402,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_042",
@@ -1411,7 +1411,6 @@
     "description": "Exclusive equipment of Zhou Botong.",
     "type": "armor",
     "element": "water",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -1437,7 +1436,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_043",
@@ -1445,7 +1445,6 @@
     "description": "Exclusive equipment of Qiu Qianren.",
     "type": "weapon",
     "element": "fire",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -1471,7 +1470,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_044",
@@ -1479,7 +1479,6 @@
     "description": "Exclusive equipment of Mei Chaofeng.",
     "type": "weapon",
     "element": "earth",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -1505,7 +1504,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_045",
@@ -1513,7 +1513,6 @@
     "description": "Exclusive equipment of Li Mochou.",
     "type": "weapon",
     "element": "none",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -1539,7 +1538,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_046",
@@ -1547,7 +1547,6 @@
     "description": "Exclusive equipment of Gongsun Zhi.",
     "type": "accessory",
     "element": "metal",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -1575,7 +1574,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_047",
@@ -1583,7 +1583,6 @@
     "description": "Exclusive equipment of Huo Qingtong.",
     "type": "accessory",
     "element": "wood",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -1610,7 +1609,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_048",
@@ -1618,7 +1618,6 @@
     "description": "Exclusive equipment of Xiangxiang Gongzhu.",
     "type": "armor",
     "element": "water",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -1643,7 +1642,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_049",
@@ -1651,7 +1651,6 @@
     "description": "Exclusive equipment of Chen Jialuo.",
     "type": "armor",
     "element": "fire",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -1677,7 +1676,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_white_050",
@@ -1685,7 +1685,6 @@
     "description": "Exclusive equipment of Mu Wanqing.",
     "type": "weapon",
     "element": "earth",
-    "rarity": "white",
     "shop_visible": true,
     "effects": [
       {
@@ -1711,7 +1710,8 @@
       "bm5.quality.white",
       "bm5.source.jinyong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "white"
   },
   {
     "id": "bm5_eq_green_001",
@@ -1719,7 +1719,6 @@
     "description": "Exclusive equipment of Chu Liuxiang.",
     "type": "weapon",
     "element": "wood",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -1745,7 +1744,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_002",
@@ -1753,7 +1753,6 @@
     "description": "Exclusive equipment of Hu Tiehua.",
     "type": "accessory",
     "element": "water",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -1781,7 +1780,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_003",
@@ -1789,7 +1789,6 @@
     "description": "Exclusive equipment of Ji Bingyan.",
     "type": "accessory",
     "element": "fire",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -1816,7 +1815,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_004",
@@ -1824,7 +1824,6 @@
     "description": "Exclusive equipment of Su Rongrong.",
     "type": "armor",
     "element": "earth",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -1849,7 +1848,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_005",
@@ -1857,7 +1857,6 @@
     "description": "Exclusive equipment of Lu Xiaofeng.",
     "type": "armor",
     "element": "none",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -1883,7 +1882,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_006",
@@ -1891,7 +1891,6 @@
     "description": "Exclusive equipment of Hua Manlou.",
     "type": "weapon",
     "element": "metal",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -1917,7 +1916,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_007",
@@ -1925,7 +1925,6 @@
     "description": "Exclusive equipment of Ximen Chuixue.",
     "type": "weapon",
     "element": "wood",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -1951,7 +1950,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_008",
@@ -1959,7 +1959,6 @@
     "description": "Exclusive equipment of Ye Gucheng.",
     "type": "weapon",
     "element": "water",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -1985,7 +1984,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_009",
@@ -1993,7 +1993,6 @@
     "description": "Exclusive equipment of Sikong Zhaixing.",
     "type": "accessory",
     "element": "fire",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -2021,7 +2020,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_010",
@@ -2029,7 +2029,6 @@
     "description": "Exclusive equipment of Xue Bing.",
     "type": "accessory",
     "element": "earth",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -2056,7 +2055,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_011",
@@ -2064,7 +2064,6 @@
     "description": "Exclusive equipment of Shen Lang.",
     "type": "armor",
     "element": "none",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -2089,7 +2088,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_012",
@@ -2097,7 +2097,6 @@
     "description": "Exclusive equipment of Wang Lianhua.",
     "type": "armor",
     "element": "metal",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -2123,7 +2122,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_013",
@@ -2131,7 +2131,6 @@
     "description": "Exclusive equipment of Zhu Qiqi.",
     "type": "weapon",
     "element": "wood",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -2157,7 +2156,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_014",
@@ -2165,7 +2165,6 @@
     "description": "Exclusive equipment of Li Xunhuan.",
     "type": "weapon",
     "element": "water",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -2191,7 +2190,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_015",
@@ -2199,7 +2199,6 @@
     "description": "Exclusive equipment of A Fei.",
     "type": "weapon",
     "element": "fire",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -2225,7 +2224,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_016",
@@ -2233,7 +2233,6 @@
     "description": "Exclusive equipment of Lin Shiyin.",
     "type": "accessory",
     "element": "earth",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -2261,7 +2260,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_017",
@@ -2269,7 +2269,6 @@
     "description": "Exclusive equipment of Shangguan Jinhong.",
     "type": "accessory",
     "element": "none",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -2296,7 +2295,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_018",
@@ -2304,7 +2304,6 @@
     "description": "Exclusive equipment of Jing Wuming.",
     "type": "armor",
     "element": "metal",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -2329,7 +2328,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_019",
@@ -2337,7 +2337,6 @@
     "description": "Exclusive equipment of Fu Hongxue.",
     "type": "armor",
     "element": "wood",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -2363,7 +2362,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_020",
@@ -2371,7 +2371,6 @@
     "description": "Exclusive equipment of Ye Kai.",
     "type": "weapon",
     "element": "water",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -2397,7 +2396,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_021",
@@ -2405,7 +2405,6 @@
     "description": "Exclusive equipment of Ding Linglin.",
     "type": "weapon",
     "element": "fire",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -2431,7 +2430,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_022",
@@ -2439,7 +2439,6 @@
     "description": "Exclusive equipment of Yan Nantian.",
     "type": "weapon",
     "element": "earth",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -2465,7 +2464,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_023",
@@ -2473,7 +2473,6 @@
     "description": "Exclusive equipment of Hua Wuque.",
     "type": "accessory",
     "element": "none",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -2501,7 +2500,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_024",
@@ -2509,7 +2509,6 @@
     "description": "Exclusive equipment of Xiao Yuer.",
     "type": "accessory",
     "element": "metal",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -2536,7 +2535,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_025",
@@ -2544,7 +2544,6 @@
     "description": "Exclusive equipment of Su Ying.",
     "type": "armor",
     "element": "wood",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -2569,7 +2568,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_026",
@@ -2577,7 +2577,6 @@
     "description": "Exclusive equipment of Xie Xiaofeng.",
     "type": "armor",
     "element": "water",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -2603,7 +2602,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_027",
@@ -2611,7 +2611,6 @@
     "description": "Exclusive equipment of Murong Qiudi.",
     "type": "weapon",
     "element": "fire",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -2637,7 +2636,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_028",
@@ -2645,7 +2645,6 @@
     "description": "Exclusive equipment of Xiao ShiyiLang.",
     "type": "weapon",
     "element": "earth",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -2671,7 +2670,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_029",
@@ -2679,7 +2679,6 @@
     "description": "Exclusive equipment of Feng Siniang.",
     "type": "weapon",
     "element": "none",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -2705,7 +2704,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_030",
@@ -2713,7 +2713,6 @@
     "description": "Exclusive equipment of Lian Chengbi.",
     "type": "accessory",
     "element": "metal",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -2741,7 +2740,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_031",
@@ -2749,7 +2749,6 @@
     "description": "Exclusive equipment of Tie Zhongtang.",
     "type": "accessory",
     "element": "wood",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -2776,7 +2775,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_032",
@@ -2784,7 +2784,6 @@
     "description": "Exclusive equipment of Yun Zheng.",
     "type": "armor",
     "element": "water",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -2809,7 +2808,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_033",
@@ -2817,7 +2817,6 @@
     "description": "Exclusive equipment of Shui Lingguang.",
     "type": "armor",
     "element": "fire",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -2843,7 +2842,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_034",
@@ -2851,7 +2851,6 @@
     "description": "Exclusive equipment of Fang Baoyu.",
     "type": "weapon",
     "element": "earth",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -2877,7 +2876,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_035",
@@ -2885,7 +2885,6 @@
     "description": "Exclusive equipment of Zhuge Shenhou.",
     "type": "weapon",
     "element": "none",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -2911,7 +2910,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_036",
@@ -2919,7 +2919,6 @@
     "description": "Exclusive equipment of Wu Qing.",
     "type": "weapon",
     "element": "metal",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -2945,7 +2944,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_037",
@@ -2953,7 +2953,6 @@
     "description": "Exclusive equipment of Tie Shou.",
     "type": "accessory",
     "element": "wood",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -2981,7 +2980,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_038",
@@ -2989,7 +2989,6 @@
     "description": "Exclusive equipment of Zhui Ming.",
     "type": "accessory",
     "element": "water",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -3016,7 +3015,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_039",
@@ -3024,7 +3024,6 @@
     "description": "Exclusive equipment of Leng Xue.",
     "type": "armor",
     "element": "fire",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -3049,7 +3048,8 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "green"
   },
   {
     "id": "bm5_eq_green_040",
@@ -3057,7 +3057,6 @@
     "description": "Exclusive equipment of Tang Fang.",
     "type": "armor",
     "element": "earth",
-    "rarity": "green",
     "shop_visible": true,
     "effects": [
       {
@@ -3083,6 +3082,7 @@
       "bm5.quality.green",
       "bm5.source.gulong",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "green"
   }
 ]

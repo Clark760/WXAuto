@@ -622,8 +622,6 @@ func _get_quality_tint(q: String) -> Color:
 			return Color(0.9, 0.72, 1.0, 1)
 		"orange":
 			return Color(1.0, 0.86, 0.62, 1)
-		"red":
-			return Color(1.0, 0.62, 0.62, 1)
 		_:
 			return Color(1, 1, 1, 1)
 

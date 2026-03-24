@@ -15,7 +15,7 @@ signal exp_changed(current_exp: int, max_exp: int, level: int)
 signal shop_lock_changed(locked: bool)
 signal assets_changed(snapshot: Dictionary)
 
-const QUALITY_KEYS: Array[String] = ["white", "green", "blue", "purple", "orange", "red"]
+const QUALITY_KEYS: Array[String] = ["white", "green", "blue", "purple", "orange"]
 
 # 默认等级曲线（当 levels 数据缺失或异常时使用）
 # required_exp 采用“累计总经验阈值”语义，逻辑里会自动转换为“本级升下一级所需经验”。
@@ -24,61 +24,61 @@ const DEFAULT_LEVEL_ROWS: Array[Dictionary] = [
 		"level": 1,
 		"required_exp": 0,
 		"max_deploy": 5,
-		"shop_probabilities": {"white": 1.0, "green": 0.0, "blue": 0.0, "purple": 0.0, "orange": 0.0, "red": 0.0}
+		"shop_probabilities": {"white": 1.0, "green": 0.0, "blue": 0.0, "purple": 0.0, "orange": 0.0}
 	},
 	{
 		"level": 2,
 		"required_exp": 2,
 		"max_deploy": 8,
-		"shop_probabilities": {"white": 0.72, "green": 0.24, "blue": 0.04, "purple": 0.0, "orange": 0.0, "red": 0.0}
+		"shop_probabilities": {"white": 0.72, "green": 0.24, "blue": 0.04, "purple": 0.0, "orange": 0.0}
 	},
 	{
 		"level": 3,
 		"required_exp": 6,
 		"max_deploy": 12,
-		"shop_probabilities": {"white": 0.52, "green": 0.30, "blue": 0.14, "purple": 0.04, "orange": 0.0, "red": 0.0}
+		"shop_probabilities": {"white": 0.52, "green": 0.30, "blue": 0.14, "purple": 0.04, "orange": 0.0}
 	},
 	{
 		"level": 4,
 		"required_exp": 10,
 		"max_deploy": 16,
-		"shop_probabilities": {"white": 0.36, "green": 0.34, "blue": 0.20, "purple": 0.10, "orange": 0.0, "red": 0.0}
+		"shop_probabilities": {"white": 0.36, "green": 0.34, "blue": 0.20, "purple": 0.10, "orange": 0.0}
 	},
 	{
 		"level": 5,
 		"required_exp": 20,
 		"max_deploy": 20,
-		"shop_probabilities": {"white": 0.25, "green": 0.34, "blue": 0.25, "purple": 0.14, "orange": 0.02, "red": 0.0}
+		"shop_probabilities": {"white": 0.25, "green": 0.34, "blue": 0.25, "purple": 0.14, "orange": 0.02}
 	},
 	{
 		"level": 6,
 		"required_exp": 36,
 		"max_deploy": 25,
-		"shop_probabilities": {"white": 0.16, "green": 0.28, "blue": 0.31, "purple": 0.20, "orange": 0.05, "red": 0.0}
+		"shop_probabilities": {"white": 0.16, "green": 0.28, "blue": 0.31, "purple": 0.20, "orange": 0.05}
 	},
 	{
 		"level": 7,
 		"required_exp": 56,
 		"max_deploy": 30,
-		"shop_probabilities": {"white": 0.08, "green": 0.24, "blue": 0.33, "purple": 0.25, "orange": 0.10, "red": 0.0}
+		"shop_probabilities": {"white": 0.08, "green": 0.24, "blue": 0.33, "purple": 0.25, "orange": 0.10}
 	},
 	{
 		"level": 8,
 		"required_exp": 80,
 		"max_deploy": 36,
-		"shop_probabilities": {"white": 0.03, "green": 0.17, "blue": 0.32, "purple": 0.31, "orange": 0.15, "red": 0.02}
+		"shop_probabilities": {"white": 0.03, "green": 0.17, "blue": 0.32, "purple": 0.31, "orange": 0.17}
 	},
 	{
 		"level": 9,
 		"required_exp": 110,
 		"max_deploy": 42,
-		"shop_probabilities": {"white": 0.0, "green": 0.10, "blue": 0.28, "purple": 0.36, "orange": 0.21, "red": 0.05}
+		"shop_probabilities": {"white": 0.0, "green": 0.10, "blue": 0.28, "purple": 0.36, "orange": 0.26}
 	},
 	{
 		"level": 10,
 		"required_exp": 150,
 		"max_deploy": 50,
-		"shop_probabilities": {"white": 0.0, "green": 0.05, "blue": 0.22, "purple": 0.35, "orange": 0.28, "red": 0.10}
+		"shop_probabilities": {"white": 0.0, "green": 0.05, "blue": 0.22, "purple": 0.35, "orange": 0.38}
 	}
 ]
 
@@ -319,8 +319,7 @@ func _normalize_probabilities(raw_probabilities: Variant) -> Dictionary:
 		"green": 0.0,
 		"blue": 0.0,
 		"purple": 0.0,
-		"orange": 0.0,
-		"red": 0.0
+		"orange": 0.0
 	}
 	if raw_probabilities is Dictionary:
 		for key in QUALITY_KEYS:

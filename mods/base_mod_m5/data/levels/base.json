@@ -9,8 +9,7 @@
       "green": 0.0,
       "blue": 0.0,
       "purple": 0.0,
-      "orange": 0.0,
-      "red": 0.0
+      "orange": 0.0
     }
   },
   {
@@ -23,8 +22,7 @@
       "green": 0.24,
       "blue": 0.04,
       "purple": 0.0,
-      "orange": 0.0,
-      "red": 0.0
+      "orange": 0.0
     }
   },
   {
@@ -37,8 +35,7 @@
       "green": 0.3,
       "blue": 0.14,
       "purple": 0.04,
-      "orange": 0.0,
-      "red": 0.0
+      "orange": 0.0
     }
   },
   {
@@ -51,8 +48,7 @@
       "green": 0.34,
       "blue": 0.2,
       "purple": 0.1,
-      "orange": 0.0,
-      "red": 0.0
+      "orange": 0.0
     }
   },
   {
@@ -65,8 +61,7 @@
       "green": 0.34,
       "blue": 0.25,
       "purple": 0.14,
-      "orange": 0.02,
-      "red": 0.0
+      "orange": 0.02
     }
   },
   {
@@ -79,8 +74,7 @@
       "green": 0.28,
       "blue": 0.31,
       "purple": 0.2,
-      "orange": 0.05,
-      "red": 0.0
+      "orange": 0.05
     }
   },
   {
@@ -93,8 +87,7 @@
       "green": 0.24,
       "blue": 0.33,
       "purple": 0.25,
-      "orange": 0.1,
-      "red": 0.0
+      "orange": 0.1
     }
   },
   {
@@ -107,8 +100,7 @@
       "green": 0.17,
       "blue": 0.32,
       "purple": 0.31,
-      "orange": 0.15,
-      "red": 0.02
+      "orange": 0.17
     }
   },
   {
@@ -121,8 +113,7 @@
       "green": 0.1,
       "blue": 0.28,
       "purple": 0.36,
-      "orange": 0.21,
-      "red": 0.05
+      "orange": 0.26
     }
   },
   {
@@ -135,8 +126,7 @@
       "green": 0.05,
       "blue": 0.22,
       "purple": 0.35,
-      "orange": 0.28,
-      "red": 0.1
+      "orange": 0.38
     }
   }
 ]

@@ -222,7 +222,8 @@ func _execute_active_op(source: Node, target: Node, effect: Dictionary, context:
 			var heal_radius: float = _cells_to_world_distance(float(effect.get("radius", 3.0)), context)
 			var heal_amount: float = float(effect.get("value", 0.0))
 			var heal_center: Vector2 = _node_pos(source)
-			var allies: Array[Node] = _collect_ally_units_in_radius(source, heal_center, heal_radius, context)
+			var heal_exclude_self: bool = bool(effect.get("exclude_self", false))
+			var allies: Array[Node] = _collect_ally_units_in_radius(source, heal_center, heal_radius, context, heal_exclude_self)
 			for ally in allies:
 				var healed_ally: float = _heal_unit(ally, heal_amount, source)
 				summary["heal_total"] = float(summary.get("heal_total", 0.0)) + healed_ally
@@ -249,7 +250,8 @@ func _execute_active_op(source: Node, target: Node, effect: Dictionary, context:
 
 		"buff_allies_aoe":
 			var buff_radius: float = _cells_to_world_distance(float(effect.get("radius", 3.0)), context)
-			var buff_allies: Array[Node] = _collect_ally_units_in_radius(source, _node_pos(source), buff_radius, context)
+			var buff_exclude_self: bool = bool(effect.get("exclude_self", false))
+			var buff_allies: Array[Node] = _collect_ally_units_in_radius(source, _node_pos(source), buff_radius, context, buff_exclude_self)
 			for ally_buff in buff_allies:
 				if _apply_buff_op(source, ally_buff, effect, context):
 					summary["buff_applied"] = int(summary.get("buff_applied", 0)) + 1
@@ -359,7 +361,8 @@ func _execute_active_op(source: Node, target: Node, effect: Dictionary, context:
 		"shield_allies_aoe":
 			var shield_radius: float = _cells_to_world_distance(float(effect.get("radius", 3.0)), context)
 			var shield_value: float = maxf(float(effect.get("value", 0.0)), 0.0)
-			for ally_shield in _collect_ally_units_in_radius(source, _node_pos(source), shield_radius, context):
+			var shield_exclude_self: bool = bool(effect.get("exclude_self", false))
+			for ally_shield in _collect_ally_units_in_radius(source, _node_pos(source), shield_radius, context, shield_exclude_self):
 				var ally_combat: Node = ally_shield.get_node_or_null("Components/UnitCombat")
 				if ally_combat == null:
 					continue
@@ -1550,11 +1553,13 @@ func _collect_enemy_units_in_radius(source: Node, center: Vector2, radius_world:
 	return enemies
 
 
-func _collect_ally_units_in_radius(source: Node, center: Vector2, radius_world: float, context: Dictionary) -> Array[Node]:
+func _collect_ally_units_in_radius(source: Node, center: Vector2, radius_world: float, context: Dictionary, exclude_self: bool = false) -> Array[Node]:
 	var allies: Array[Node] = []
 	var source_team: int = int(source.get("team_id")) if source != null and is_instance_valid(source) else 0
 	for unit in _get_all_units(context):
 		if unit == null or not is_instance_valid(unit):
+			continue
+		if exclude_self and unit == source:
 			continue
 		if source_team != 0 and int(unit.get("team_id")) != source_team:
 			continue

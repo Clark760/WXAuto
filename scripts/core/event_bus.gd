@@ -31,6 +31,7 @@ signal stage_combat_started(config: Dictionary)
 signal stage_completed(config: Dictionary, rewards: Dictionary)
 signal stage_failed(config: Dictionary)
 signal all_stages_cleared()
+signal global_trigger_fired(trigger_name: String, payload: Dictionary)
 
 # 对象池相关：便于调试池状态与实例生命周期。
 signal object_pool_registered(pool_key: String)
@@ -84,6 +85,13 @@ func emit_stage_failed(config: Dictionary) -> void:
 
 func emit_all_stages_cleared() -> void:
 	all_stages_cleared.emit()
+
+
+func emit_global_trigger(trigger_name: String, payload: Dictionary = {}) -> void:
+	var name_norm: String = trigger_name.strip_edges().to_lower()
+	if name_norm.is_empty():
+		return
+	global_trigger_fired.emit(name_norm, payload.duplicate(true))
 
 
 func emit_object_pool_registered(pool_key: String) -> void:

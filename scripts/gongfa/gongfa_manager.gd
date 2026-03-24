@@ -20,6 +20,8 @@ signal buff_event(event: Dictionary)
 const ALLOWED_SLOTS: Array[String] = ["neigong", "waigong", "qinggong", "zhenfa"]
 const DEFAULT_EQUIP_SLOTS: Array[String] = ["slot_1", "slot_2"]
 const DEFAULT_SKILL_CAST_RANGE_CELLS: float = 2.0
+const COMBAT_TEAM_ALLY: int = 1
+const COMBAT_TEAM_ENEMY: int = 2
 
 var _registry = preload("res://scripts/gongfa/gongfa_registry.gd").new()
 var _effect_engine = preload("res://scripts/gongfa/effect_engine.gd").new()
@@ -527,6 +529,8 @@ func _register_battle_unit(unit: Node) -> void:
 	if unit == null or not is_instance_valid(unit):
 		return
 	var iid: int = unit.get_instance_id()
+	if _unit_lookup.has(iid):
+		return
 	_battle_units.append(unit)
 	_unit_lookup[iid] = unit
 
@@ -638,17 +642,20 @@ func _can_trigger_entry(unit: Node, entry: Dictionary, event_context: Dictionary
 	var trigger_params_value: Variant = entry.get("trigger_params", {})
 	if trigger_params_value is Dictionary:
 		trigger_params = trigger_params_value as Dictionary
+	if not _passes_trigger_team_alive_conditions(unit, trigger_params):
+		return false
 	var skill_data: Dictionary = entry.get("skill_data", {})
 	if trigger == "auto_mp_full" or trigger == "manual":
-		var mp_cost: float = float(entry.get("mp_cost", 0.0))
-		return _get_combat_value(unit, "current_mp") >= mp_cost
+		return _has_enough_mp_for_trigger(unit, entry)
 	if trigger == "auto_hp_below":
 		var threshold: float = 0.3
 		if skill_data.has("threshold"):
 			threshold = clampf(float(skill_data.get("threshold", 0.3)), 0.01, 0.95)
 		var hp: float = _get_combat_value(unit, "current_hp")
 		var max_hp: float = maxf(_get_combat_value(unit, "max_hp"), 1.0)
-		return hp / max_hp <= threshold
+		if hp / max_hp > threshold:
+			return false
+		return _has_enough_mp_for_trigger(unit, entry)
 	if trigger == "on_hp_below":
 		var hp_threshold: float = 0.3
 		if trigger_params.has("threshold"):
@@ -661,10 +668,9 @@ func _can_trigger_entry(unit: Node, entry: Dictionary, event_context: Dictionary
 		var was_below: bool = bool(entry.get("last_hp_below_state", false))
 		entry["last_hp_below_state"] = is_below
 		# 只在“首次跌破阈值”的边沿触发，避免低血期间每轮询都重复触发。
-		if is_below and not was_below:
-			var mp_cost_need: float = float(entry.get("mp_cost", 0.0))
-			return _get_combat_value(unit, "current_mp") >= mp_cost_need
-		return false
+		if not (is_below and not was_below):
+			return false
+		return _has_enough_mp_for_trigger(unit, entry)
 	if trigger == "on_time_elapsed":
 		var at_seconds: float = maxf(float(trigger_params.get("at_seconds", skill_data.get("at_seconds", -1.0))), -1.0)
 		if at_seconds < 0.0:
@@ -674,8 +680,7 @@ func _can_trigger_entry(unit: Node, entry: Dictionary, event_context: Dictionary
 		var fired_once: bool = bool(entry.get("time_elapsed_fired", false))
 		if fired_once:
 			return false
-		var mp_cost_time: float = float(entry.get("mp_cost", 0.0))
-		return _get_combat_value(unit, "current_mp") >= mp_cost_time
+		return _has_enough_mp_for_trigger(unit, entry)
 	if trigger == "periodic_seconds" or trigger == "periodic":
 		var interval: float = maxf(float(trigger_params.get("interval", skill_data.get("interval", 0.0))), 0.05)
 		var next_time: float = float(entry.get("next_periodic_time", interval))
@@ -683,18 +688,15 @@ func _can_trigger_entry(unit: Node, entry: Dictionary, event_context: Dictionary
 			next_time = interval
 		if _battle_elapsed < next_time:
 			return false
-		var mp_cost_periodic: float = float(entry.get("mp_cost", 0.0))
-		return _get_combat_value(unit, "current_mp") >= mp_cost_periodic
+		return _has_enough_mp_for_trigger(unit, entry)
 	if trigger == "on_crit":
 		if not bool(event_context.get("is_crit", false)):
 			return false
-		var mp_cost_crit: float = float(entry.get("mp_cost", 0.0))
-		return _get_combat_value(unit, "current_mp") >= mp_cost_crit
+		return _has_enough_mp_for_trigger(unit, entry)
 	if trigger == "on_dodge":
 		if not bool(event_context.get("is_dodged", false)):
 			return false
-		var mp_cost_dodge: float = float(entry.get("mp_cost", 0.0))
-		return _get_combat_value(unit, "current_mp") >= mp_cost_dodge
+		return _has_enough_mp_for_trigger(unit, entry)
 	if trigger == "on_debuff_applied":
 		var debuff_id: String = str(event_context.get("debuff_id", "")).strip_edges()
 		if debuff_id.is_empty():
@@ -702,8 +704,7 @@ func _can_trigger_entry(unit: Node, entry: Dictionary, event_context: Dictionary
 		var required_debuff: String = str(trigger_params.get("debuff_id", skill_data.get("debuff_id", ""))).strip_edges()
 		if not required_debuff.is_empty() and debuff_id != required_debuff:
 			return false
-		var mp_cost_debuff: float = float(entry.get("mp_cost", 0.0))
-		return _get_combat_value(unit, "current_mp") >= mp_cost_debuff
+		return _has_enough_mp_for_trigger(unit, entry)
 	if trigger == "on_buff_expired":
 		var removed_buff_id: String = str(event_context.get("removed_buff_id", "")).strip_edges()
 		if removed_buff_id.is_empty():
@@ -715,12 +716,185 @@ func _can_trigger_entry(unit: Node, entry: Dictionary, event_context: Dictionary
 			return false
 		if removed_buff_id != watch_buff_id:
 			return false
-		var mp_cost_buff_expired: float = float(entry.get("mp_cost", 0.0))
-		return _get_combat_value(unit, "current_mp") >= mp_cost_buff_expired
+		return _has_enough_mp_for_trigger(unit, entry)
+	if trigger == "on_attack_fail":
+		if not _matches_reason_filter(trigger_params, event_context, "reason"):
+			return false
+		return _has_enough_mp_for_trigger(unit, entry)
+	if trigger == "on_unit_move_failed":
+		if not _matches_reason_filter(trigger_params, event_context, "reason"):
+			return false
+		return _has_enough_mp_for_trigger(unit, entry)
+	if trigger == "on_damage_received":
+		var min_damage: float = maxf(float(trigger_params.get("min_damage", 0.0)), 0.0)
+		var damage_value: float = maxf(float(event_context.get("damage", 0.0)), 0.0)
+		if damage_value < min_damage:
+			return false
+		return _has_enough_mp_for_trigger(unit, entry)
+	if trigger == "on_heal_received":
+		var min_heal: float = maxf(float(trigger_params.get("min_heal", 0.0)), 0.0)
+		var heal_value: float = maxf(float(event_context.get("heal", event_context.get("amount", 0.0))), 0.0)
+		if heal_value < min_heal:
+			return false
+		return _has_enough_mp_for_trigger(unit, entry)
+	if trigger == "on_thorns_triggered":
+		var min_reflect: float = maxf(float(trigger_params.get("min_reflect", 0.0)), 0.0)
+		var reflect_value: float = maxf(float(event_context.get("reflect_damage", event_context.get("damage", 0.0))), 0.0)
+		if reflect_value < min_reflect:
+			return false
+		return _has_enough_mp_for_trigger(unit, entry)
+	if trigger == "on_terrain_created" \
+	or trigger == "on_terrain_enter" \
+	or trigger == "on_terrain_tick" \
+	or trigger == "on_terrain_exit" \
+	or trigger == "on_terrain_expire":
+		if not _passes_terrain_tag_filters(trigger_params, event_context):
+			return false
+		return _has_enough_mp_for_trigger(unit, entry)
 	if trigger == "passive_aura":
 		# passive_aura 依赖冷却节奏持续刷新，默认可触发。
 		return true
+	if trigger.begins_with("on_"):
+		# 事件触发默认走统一基线；特殊触发器按上方分支追加了参数校验。
+		return _has_enough_mp_for_trigger(unit, entry)
 	return false
+
+
+func _has_enough_mp_for_trigger(unit: Node, entry: Dictionary) -> bool:
+	var mp_cost: float = float(entry.get("mp_cost", 0.0))
+	return _get_combat_value(unit, "current_mp") >= mp_cost
+
+
+func _matches_reason_filter(trigger_params: Dictionary, event_context: Dictionary, reason_key: String) -> bool:
+	var reason_value: String = str(event_context.get(reason_key, "")).strip_edges().to_lower()
+	var reasons_value: Variant = trigger_params.get("reasons", [])
+	if not (reasons_value is Array):
+		return true
+	var normalized: Array[String] = []
+	for item in (reasons_value as Array):
+		var reason: String = str(item).strip_edges().to_lower()
+		if reason.is_empty():
+			continue
+		normalized.append(reason)
+	if normalized.is_empty():
+		return true
+	return normalized.has(reason_value)
+
+
+func _passes_terrain_tag_filters(trigger_params: Dictionary, event_context: Dictionary) -> bool:
+	var terrain_tags: Array[String] = []
+	var tags_value: Variant = event_context.get("terrain_tags", [])
+	if tags_value is Array:
+		for tag_value in (tags_value as Array):
+			var tag: String = str(tag_value).strip_edges().to_lower()
+			if tag.is_empty():
+				continue
+			if not terrain_tags.has(tag):
+				terrain_tags.append(tag)
+	var any_filter: Array[String] = _normalize_string_filter_array(trigger_params.get("terrain_tags_any", []))
+	if not any_filter.is_empty():
+		var matched_any: bool = false
+		for tag in any_filter:
+			if terrain_tags.has(tag):
+				matched_any = true
+				break
+		if not matched_any:
+			return false
+	var all_filter: Array[String] = _normalize_string_filter_array(trigger_params.get("terrain_tags_all", []))
+	for tag in all_filter:
+		if not terrain_tags.has(tag):
+			return false
+	return true
+
+
+func _normalize_string_filter_array(value: Variant) -> Array[String]:
+	var output: Array[String] = []
+	if not (value is Array):
+		return output
+	for item in (value as Array):
+		var text: String = str(item).strip_edges().to_lower()
+		if text.is_empty():
+			continue
+		if output.has(text):
+			continue
+		output.append(text)
+	return output
+
+
+func _passes_trigger_team_alive_conditions(unit: Node, trigger_params: Dictionary) -> bool:
+	var has_min: bool = trigger_params.has("team_alive_count_min")
+	var has_max: bool = trigger_params.has("team_alive_count_max")
+	if not has_min and not has_max:
+		return true
+	if unit == null or not is_instance_valid(unit):
+		return false
+	var team_scope: String = str(trigger_params.get("team_scope", "ally")).strip_edges().to_lower()
+	var exclude_self: bool = bool(trigger_params.get("exclude_self", false))
+	var alive_count: int = _resolve_team_alive_count_for_trigger(unit, team_scope, exclude_self)
+	if has_min:
+		var min_count: int = maxi(int(trigger_params.get("team_alive_count_min", 0)), 0)
+		if alive_count < min_count:
+			return false
+	if has_max:
+		var max_count: int = maxi(int(trigger_params.get("team_alive_count_max", 0)), 0)
+		if alive_count > max_count:
+			return false
+	return true
+
+
+func _resolve_team_alive_count_for_trigger(unit: Node, team_scope: String, exclude_self: bool) -> int:
+	var teams: Array[int] = _resolve_trigger_team_ids(unit, team_scope)
+	if teams.is_empty():
+		return 0
+	var count: int = 0
+	if _bound_combat_manager != null \
+	and is_instance_valid(_bound_combat_manager) \
+	and _bound_combat_manager.has_method("get_team_alive_count"):
+		for team_id in teams:
+			count += int(_bound_combat_manager.call("get_team_alive_count", team_id))
+	else:
+		for candidate in _battle_units:
+			if candidate == null or not is_instance_valid(candidate):
+				continue
+			var candidate_team: int = int(candidate.get("team_id"))
+			if not teams.has(candidate_team):
+				continue
+			if not _is_unit_alive(candidate):
+				continue
+			count += 1
+	if exclude_self and _is_unit_alive(unit):
+		var self_team: int = int(unit.get("team_id"))
+		if teams.has(self_team):
+			count -= 1
+	return maxi(count, 0)
+
+
+func _resolve_trigger_team_ids(unit: Node, team_scope: String) -> Array[int]:
+	var ids: Array[int] = []
+	var source_team: int = int(unit.get("team_id"))
+	var scope: String = team_scope
+	if scope == "all":
+		ids.append(COMBAT_TEAM_ALLY)
+		ids.append(COMBAT_TEAM_ENEMY)
+		return ids
+	if scope == "enemy":
+		var enemy_team: int = _resolve_enemy_team(source_team)
+		if enemy_team > 0:
+			ids.append(enemy_team)
+		return ids
+	var ally_team: int = source_team
+	if ally_team != COMBAT_TEAM_ALLY and ally_team != COMBAT_TEAM_ENEMY:
+		ally_team = COMBAT_TEAM_ALLY
+	ids.append(ally_team)
+	return ids
+
+
+func _resolve_enemy_team(team_id: int) -> int:
+	if team_id == COMBAT_TEAM_ALLY:
+		return COMBAT_TEAM_ENEMY
+	if team_id == COMBAT_TEAM_ENEMY:
+		return COMBAT_TEAM_ALLY
+	return 0
 
 
 func _try_fire_skill(source: Node, entry: Dictionary, event_context: Dictionary) -> bool:
@@ -1254,6 +1428,166 @@ func _on_battle_ended(_winner_team: int, _summary: Dictionary) -> void:
 	_battle_running = false
 
 
+func _on_attack_failed(attacker: Node, target: Node, reason: String, event_dict: Dictionary) -> void:
+	if not _battle_running:
+		return
+	if attacker == null or not is_instance_valid(attacker):
+		return
+	var context: Dictionary = {
+		"target": target,
+		"reason": reason.strip_edges().to_lower(),
+		"event": event_dict.duplicate(true)
+	}
+	_fire_trigger_for_unit(attacker, "on_attack_fail", context)
+
+
+func _on_shield_broken(target: Node, source: Node, event_dict: Dictionary) -> void:
+	if not _battle_running:
+		return
+	if target == null or not is_instance_valid(target):
+		return
+	_fire_trigger_for_unit(target, "on_shield_broken", {
+		"target": source,
+		"source": source,
+		"event": event_dict.duplicate(true),
+		"damage": float(event_dict.get("damage", 0.0)),
+		"shield_absorbed": float(event_dict.get("shield_absorbed", 0.0))
+	})
+
+
+func _on_unit_spawned_mid_battle(unit: Node, team_id: int) -> void:
+	if not _battle_running:
+		return
+	if unit == null or not is_instance_valid(unit):
+		return
+	var iid: int = unit.get_instance_id()
+	if not _unit_lookup.has(iid):
+		_register_battle_unit(unit)
+		apply_gongfa(unit, true)
+	if _battle_running:
+		_fire_trigger_for_unit(unit, "on_unit_spawned_mid_battle", {
+			"unit": unit,
+			"team_id": team_id
+		})
+
+
+func _on_damage_received_detail(target: Node, source: Node, event_dict: Dictionary) -> void:
+	if not _battle_running:
+		return
+	if target == null or not is_instance_valid(target):
+		return
+	var context: Dictionary = event_dict.duplicate(true)
+	context["target"] = source
+	context["source"] = source
+	context["damage"] = float(event_dict.get("damage", 0.0))
+	_fire_trigger_for_unit(target, "on_damage_received", context)
+
+
+func _on_heal_received(source: Node, target: Node, amount: float, heal_type: String) -> void:
+	if not _battle_running:
+		return
+	if target == null or not is_instance_valid(target):
+		return
+	_fire_trigger_for_unit(target, "on_heal_received", {
+		"target": source,
+		"source": source,
+		"heal": amount,
+		"amount": amount,
+		"heal_type": heal_type
+	})
+
+
+func _on_thorns_triggered(source: Node, target: Node, event_dict: Dictionary) -> void:
+	if not _battle_running:
+		return
+	if source == null or not is_instance_valid(source):
+		return
+	var context: Dictionary = event_dict.duplicate(true)
+	context["target"] = target
+	context["source"] = source
+	context["reflect_damage"] = float(event_dict.get("damage", 0.0))
+	_fire_trigger_for_unit(source, "on_thorns_triggered", context)
+
+
+func _on_unit_move_success(unit: Node, from_cell: Vector2i, to_cell: Vector2i, steps: int) -> void:
+	if not _battle_running:
+		return
+	if unit == null or not is_instance_valid(unit):
+		return
+	_fire_trigger_for_unit(unit, "on_unit_move_success", {
+		"unit": unit,
+		"from_cell": from_cell,
+		"to_cell": to_cell,
+		"steps": steps
+	})
+
+
+func _on_unit_move_failed(unit: Node, reason: String, context: Dictionary) -> void:
+	if not _battle_running:
+		return
+	if unit == null or not is_instance_valid(unit):
+		return
+	var payload: Dictionary = context.duplicate(true)
+	payload["unit"] = unit
+	payload["reason"] = reason.strip_edges().to_lower()
+	_fire_trigger_for_unit(unit, "on_unit_move_failed", payload)
+
+
+func _on_terrain_created(terrain: Dictionary, reason: String) -> void:
+	if not _battle_running:
+		return
+	var context: Dictionary = {
+		"terrain": terrain.duplicate(true),
+		"terrain_id": str(terrain.get("terrain_id", "")),
+		"terrain_def_id": str(terrain.get("terrain_def_id", "")),
+		"terrain_type": str(terrain.get("terrain_type", "")),
+		"terrain_tags": terrain.get("tags", []),
+		"reason": reason
+	}
+	_fire_trigger_for_all("on_terrain_created", context)
+
+
+func _on_terrain_phase_tick(event_dict: Dictionary) -> void:
+	if not _battle_running:
+		return
+	var phase: String = str(event_dict.get("phase", "")).strip_edges().to_lower()
+	if phase.is_empty():
+		return
+	var trigger_name: String = ""
+	match phase:
+		"enter":
+			trigger_name = "on_terrain_enter"
+		"tick":
+			trigger_name = "on_terrain_tick"
+		"exit":
+			trigger_name = "on_terrain_exit"
+		"expire":
+			trigger_name = "on_terrain_expire"
+		_:
+			return
+	var context: Dictionary = event_dict.duplicate(true)
+	if context.has("terrain"):
+		var terrain_value: Variant = context.get("terrain", {})
+		if terrain_value is Dictionary:
+			var tags_value: Variant = (terrain_value as Dictionary).get("tags", [])
+			if context.get("terrain_tags", null) == null:
+				context["terrain_tags"] = tags_value
+	var target_value: Variant = context.get("target", null)
+	if target_value is Node and is_instance_valid(target_value):
+		_fire_trigger_for_unit(target_value as Node, trigger_name, context)
+	else:
+		_fire_trigger_for_all(trigger_name, context)
+
+
+func _on_team_alive_count_changed(team_id: int, alive_count: int) -> void:
+	if not _battle_running:
+		return
+	_fire_trigger_for_all("on_team_alive_count_changed", {
+		"team_id": team_id,
+		"alive_count": alive_count
+	})
+
+
 func _on_buff_removed(event_dict: Dictionary) -> void:
 	var target_id: int = int(event_dict.get("target_id", -1))
 	if target_id <= 0:
@@ -1518,6 +1852,17 @@ func _connect_combat_signals() -> void:
 	var cb_damage: Callable = Callable(self, "_on_damage_resolved")
 	var cb_dead: Callable = Callable(self, "_on_unit_died")
 	var cb_end: Callable = Callable(self, "_on_battle_ended")
+	var cb_attack_fail: Callable = Callable(self, "_on_attack_failed")
+	var cb_shield_broken: Callable = Callable(self, "_on_shield_broken")
+	var cb_spawn_mid: Callable = Callable(self, "_on_unit_spawned_mid_battle")
+	var cb_damage_detail: Callable = Callable(self, "_on_damage_received_detail")
+	var cb_heal_detail: Callable = Callable(self, "_on_heal_received")
+	var cb_thorns: Callable = Callable(self, "_on_thorns_triggered")
+	var cb_move_success: Callable = Callable(self, "_on_unit_move_success")
+	var cb_move_failed: Callable = Callable(self, "_on_unit_move_failed")
+	var cb_terrain_created: Callable = Callable(self, "_on_terrain_created")
+	var cb_terrain_phase: Callable = Callable(self, "_on_terrain_phase_tick")
+	var cb_team_alive: Callable = Callable(self, "_on_team_alive_count_changed")
 	if not _bound_combat_manager.is_connected("battle_started", cb_start):
 		_bound_combat_manager.connect("battle_started", cb_start)
 	if not _bound_combat_manager.is_connected("damage_resolved", cb_damage):
@@ -1526,6 +1871,28 @@ func _connect_combat_signals() -> void:
 		_bound_combat_manager.connect("unit_died", cb_dead)
 	if not _bound_combat_manager.is_connected("battle_ended", cb_end):
 		_bound_combat_manager.connect("battle_ended", cb_end)
+	if _bound_combat_manager.has_signal("attack_failed") and not _bound_combat_manager.is_connected("attack_failed", cb_attack_fail):
+		_bound_combat_manager.connect("attack_failed", cb_attack_fail)
+	if _bound_combat_manager.has_signal("shield_broken") and not _bound_combat_manager.is_connected("shield_broken", cb_shield_broken):
+		_bound_combat_manager.connect("shield_broken", cb_shield_broken)
+	if _bound_combat_manager.has_signal("unit_spawned_mid_battle") and not _bound_combat_manager.is_connected("unit_spawned_mid_battle", cb_spawn_mid):
+		_bound_combat_manager.connect("unit_spawned_mid_battle", cb_spawn_mid)
+	if _bound_combat_manager.has_signal("damage_received_detail") and not _bound_combat_manager.is_connected("damage_received_detail", cb_damage_detail):
+		_bound_combat_manager.connect("damage_received_detail", cb_damage_detail)
+	if _bound_combat_manager.has_signal("heal_received") and not _bound_combat_manager.is_connected("heal_received", cb_heal_detail):
+		_bound_combat_manager.connect("heal_received", cb_heal_detail)
+	if _bound_combat_manager.has_signal("thorns_triggered") and not _bound_combat_manager.is_connected("thorns_triggered", cb_thorns):
+		_bound_combat_manager.connect("thorns_triggered", cb_thorns)
+	if _bound_combat_manager.has_signal("unit_move_success") and not _bound_combat_manager.is_connected("unit_move_success", cb_move_success):
+		_bound_combat_manager.connect("unit_move_success", cb_move_success)
+	if _bound_combat_manager.has_signal("unit_move_failed") and not _bound_combat_manager.is_connected("unit_move_failed", cb_move_failed):
+		_bound_combat_manager.connect("unit_move_failed", cb_move_failed)
+	if _bound_combat_manager.has_signal("terrain_created") and not _bound_combat_manager.is_connected("terrain_created", cb_terrain_created):
+		_bound_combat_manager.connect("terrain_created", cb_terrain_created)
+	if _bound_combat_manager.has_signal("terrain_phase_tick") and not _bound_combat_manager.is_connected("terrain_phase_tick", cb_terrain_phase):
+		_bound_combat_manager.connect("terrain_phase_tick", cb_terrain_phase)
+	if _bound_combat_manager.has_signal("team_alive_count_changed") and not _bound_combat_manager.is_connected("team_alive_count_changed", cb_team_alive):
+		_bound_combat_manager.connect("team_alive_count_changed", cb_team_alive)
 
 
 func _disconnect_combat_signals() -> void:
@@ -1535,6 +1902,17 @@ func _disconnect_combat_signals() -> void:
 	var cb_damage: Callable = Callable(self, "_on_damage_resolved")
 	var cb_dead: Callable = Callable(self, "_on_unit_died")
 	var cb_end: Callable = Callable(self, "_on_battle_ended")
+	var cb_attack_fail: Callable = Callable(self, "_on_attack_failed")
+	var cb_shield_broken: Callable = Callable(self, "_on_shield_broken")
+	var cb_spawn_mid: Callable = Callable(self, "_on_unit_spawned_mid_battle")
+	var cb_damage_detail: Callable = Callable(self, "_on_damage_received_detail")
+	var cb_heal_detail: Callable = Callable(self, "_on_heal_received")
+	var cb_thorns: Callable = Callable(self, "_on_thorns_triggered")
+	var cb_move_success: Callable = Callable(self, "_on_unit_move_success")
+	var cb_move_failed: Callable = Callable(self, "_on_unit_move_failed")
+	var cb_terrain_created: Callable = Callable(self, "_on_terrain_created")
+	var cb_terrain_phase: Callable = Callable(self, "_on_terrain_phase_tick")
+	var cb_team_alive: Callable = Callable(self, "_on_team_alive_count_changed")
 	if _bound_combat_manager.is_connected("battle_started", cb_start):
 		_bound_combat_manager.disconnect("battle_started", cb_start)
 	if _bound_combat_manager.is_connected("damage_resolved", cb_damage):
@@ -1543,6 +1921,28 @@ func _disconnect_combat_signals() -> void:
 		_bound_combat_manager.disconnect("unit_died", cb_dead)
 	if _bound_combat_manager.is_connected("battle_ended", cb_end):
 		_bound_combat_manager.disconnect("battle_ended", cb_end)
+	if _bound_combat_manager.has_signal("attack_failed") and _bound_combat_manager.is_connected("attack_failed", cb_attack_fail):
+		_bound_combat_manager.disconnect("attack_failed", cb_attack_fail)
+	if _bound_combat_manager.has_signal("shield_broken") and _bound_combat_manager.is_connected("shield_broken", cb_shield_broken):
+		_bound_combat_manager.disconnect("shield_broken", cb_shield_broken)
+	if _bound_combat_manager.has_signal("unit_spawned_mid_battle") and _bound_combat_manager.is_connected("unit_spawned_mid_battle", cb_spawn_mid):
+		_bound_combat_manager.disconnect("unit_spawned_mid_battle", cb_spawn_mid)
+	if _bound_combat_manager.has_signal("damage_received_detail") and _bound_combat_manager.is_connected("damage_received_detail", cb_damage_detail):
+		_bound_combat_manager.disconnect("damage_received_detail", cb_damage_detail)
+	if _bound_combat_manager.has_signal("heal_received") and _bound_combat_manager.is_connected("heal_received", cb_heal_detail):
+		_bound_combat_manager.disconnect("heal_received", cb_heal_detail)
+	if _bound_combat_manager.has_signal("thorns_triggered") and _bound_combat_manager.is_connected("thorns_triggered", cb_thorns):
+		_bound_combat_manager.disconnect("thorns_triggered", cb_thorns)
+	if _bound_combat_manager.has_signal("unit_move_success") and _bound_combat_manager.is_connected("unit_move_success", cb_move_success):
+		_bound_combat_manager.disconnect("unit_move_success", cb_move_success)
+	if _bound_combat_manager.has_signal("unit_move_failed") and _bound_combat_manager.is_connected("unit_move_failed", cb_move_failed):
+		_bound_combat_manager.disconnect("unit_move_failed", cb_move_failed)
+	if _bound_combat_manager.has_signal("terrain_created") and _bound_combat_manager.is_connected("terrain_created", cb_terrain_created):
+		_bound_combat_manager.disconnect("terrain_created", cb_terrain_created)
+	if _bound_combat_manager.has_signal("terrain_phase_tick") and _bound_combat_manager.is_connected("terrain_phase_tick", cb_terrain_phase):
+		_bound_combat_manager.disconnect("terrain_phase_tick", cb_terrain_phase)
+	if _bound_combat_manager.has_signal("team_alive_count_changed") and _bound_combat_manager.is_connected("team_alive_count_changed", cb_team_alive):
+		_bound_combat_manager.disconnect("team_alive_count_changed", cb_team_alive)
 
 
 func _on_data_reloaded(_is_full_reload: bool, _summary: Dictionary) -> void:

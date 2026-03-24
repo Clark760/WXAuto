@@ -16,8 +16,7 @@ const QUALITY_SELL_PRICE: Dictionary = {
 	"green": 2,
 	"blue": 3,
 	"purple": 5,
-	"orange": 8,
-	"red": 15
+	"orange": 8
 }
 
 var drop_enabled: bool = true
@@ -204,7 +203,7 @@ func _calc_price(payload: Dictionary) -> int:
 	var quality_key: String = str(
 		payload.get(
 			"quality",
-			item_data.get("quality", item_data.get("rarity", "white"))
+			item_data.get("quality", "white")
 		)
 	).strip_edges().to_lower()
 	return int(QUALITY_SELL_PRICE.get(quality_key, 1))

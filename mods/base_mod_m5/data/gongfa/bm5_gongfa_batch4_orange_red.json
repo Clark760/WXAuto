@@ -933,7 +933,7 @@
     "type": "zhenfa",
     "description": "达摩祖师??????",
     "element": "metal",
-    "quality": "red",
+    "quality": "orange",
     "shop_visible": true,
     "tags": [
       "bm5.batch.four",
@@ -1008,7 +1008,8 @@
           }
         ]
       }
-    ]
+    ],
+    "cost": 6
   },
   {
     "id": "bm5_gf_red_011_b",
@@ -1016,7 +1017,7 @@
     "type": "neigong",
     "description": "达摩祖师??????",
     "element": "wood",
-    "quality": "red",
+    "quality": "orange",
     "shop_visible": true,
     "tags": [
       "bm5.batch.four",
@@ -1049,7 +1050,8 @@
           }
         ]
       }
-    ]
+    ],
+    "cost": 6
   },
   {
     "id": "bm5_gf_red_012_a",
@@ -1057,7 +1059,7 @@
     "type": "neigong",
     "description": "鬼谷子??????",
     "element": "wood",
-    "quality": "red",
+    "quality": "orange",
     "shop_visible": true,
     "tags": [
       "bm5.batch.four",
@@ -1093,7 +1095,8 @@
           }
         ]
       }
-    ]
+    ],
+    "cost": 6
   },
   {
     "id": "bm5_gf_red_012_b",
@@ -1101,7 +1104,7 @@
     "type": "zhenfa",
     "description": "鬼谷子??????",
     "element": "water",
-    "quality": "red",
+    "quality": "orange",
     "shop_visible": true,
     "tags": [
       "bm5.batch.four",
@@ -1134,7 +1137,8 @@
           }
         ]
       }
-    ]
+    ],
+    "cost": 6
   },
   {
     "id": "bm5_gf_red_013_a",
@@ -1142,7 +1146,7 @@
     "type": "neigong",
     "description": "陈抟老祖??????",
     "element": "water",
-    "quality": "red",
+    "quality": "orange",
     "shop_visible": true,
     "tags": [
       "bm5.batch.four",
@@ -1175,7 +1179,8 @@
           }
         ]
       }
-    ]
+    ],
+    "cost": 6
   },
   {
     "id": "bm5_gf_red_013_b",
@@ -1183,7 +1188,7 @@
     "type": "zhenfa",
     "description": "陈抟老祖??????",
     "element": "fire",
-    "quality": "red",
+    "quality": "orange",
     "shop_visible": true,
     "tags": [
       "bm5.batch.four",
@@ -1222,7 +1227,8 @@
           }
         ]
       }
-    ]
+    ],
+    "cost": 6
   },
   {
     "id": "bm5_gf_red_014_a",
@@ -1230,7 +1236,7 @@
     "type": "waigong",
     "description": "广成子??????",
     "element": "fire",
-    "quality": "red",
+    "quality": "orange",
     "shop_visible": true,
     "tags": [
       "bm5.batch.four",
@@ -1261,7 +1267,8 @@
           }
         ]
       }
-    ]
+    ],
+    "cost": 6
   },
   {
     "id": "bm5_gf_red_014_b",
@@ -1269,7 +1276,7 @@
     "type": "zhenfa",
     "description": "广成子??????",
     "element": "earth",
-    "quality": "red",
+    "quality": "orange",
     "shop_visible": true,
     "tags": [
       "bm5.batch.four",
@@ -1300,7 +1307,8 @@
           }
         ]
       }
-    ]
+    ],
+    "cost": 6
   },
   {
     "id": "bm5_gf_red_015_a",
@@ -1308,7 +1316,7 @@
     "type": "waigong",
     "description": "吕洞宾??????",
     "element": "earth",
-    "quality": "red",
+    "quality": "orange",
     "shop_visible": true,
     "tags": [
       "bm5.batch.four",
@@ -1340,7 +1348,8 @@
           }
         ]
       }
-    ]
+    ],
+    "cost": 6
   },
   {
     "id": "bm5_gf_red_015_b",
@@ -1348,7 +1357,7 @@
     "type": "qinggong",
     "description": "吕洞宾??????",
     "element": "metal",
-    "quality": "red",
+    "quality": "orange",
     "shop_visible": true,
     "tags": [
       "bm5.batch.four",
@@ -1382,6 +1391,7 @@
           }
         ]
       }
-    ]
+    ],
+    "cost": 6
   }
 ]

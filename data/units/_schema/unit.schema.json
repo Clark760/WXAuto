@@ -24,7 +24,7 @@
     },
     "quality": {
       "type": "string",
-      "enum": ["white", "green", "blue", "purple", "orange", "red"]
+      "enum": ["white", "green", "blue", "purple", "orange"]
     },
     "cost": {
       "type": "integer",

@@ -894,8 +894,6 @@ func _quality_color(quality: String) -> Color:
 			return Color(0.54, 0.38, 0.72, 0.95)
 		"orange":
 			return Color(0.76, 0.48, 0.2, 0.95)
-		"red":
-			return Color(0.78, 0.24, 0.24, 0.95)
 		_:
 			return Color(0.5, 0.5, 0.5, 0.95)
 

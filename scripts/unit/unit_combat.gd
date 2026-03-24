@@ -15,6 +15,7 @@ signal healing_performed(source: Node, target: Node, amount: float, heal_type: S
 signal thorns_damage_dealt(source: Node, target: Node, event: Dictionary)
 
 @export var attack_range_min_cells: int = 1
+@export var max_attack_speed_per_sec: float = 4.0
 
 var owner_unit: Node = null
 var is_alive: bool = true
@@ -382,7 +383,8 @@ func _rebuild_attack_interval(runtime_stats: Dictionary) -> void:
 	var base_interval: float = clampf(1.8 - spd / 120.0, 0.24, 2.2)
 	var speed_bonus: float = clampf(float(_external_modifiers.get("attack_speed_bonus", 0.0)), -0.8, 0.9)
 	# 攻速加成为“间隔缩短百分比”，例如 0.2 => 间隔 * 0.8。
-	attack_interval = clampf(base_interval * (1.0 - speed_bonus), 0.08, 3.0)
+	var min_interval_from_cap: float = 1.0 / maxf(max_attack_speed_per_sec, 0.01)
+	attack_interval = clampf(base_interval * (1.0 - speed_bonus), min_interval_from_cap, 3.0)
 
 
 func _get_target_combat(target: Node) -> Node:
@@ -406,7 +408,7 @@ func _calc_crit_rate() -> float:
 	return clampf(
 		0.05 + _get_owner_stat("wis") * 0.001 + float(_external_modifiers.get("crit_bonus", 0.0)),
 		0.05,
-		0.8
+		1.0
 	)
 
 

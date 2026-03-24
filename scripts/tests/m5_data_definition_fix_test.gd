@@ -4,6 +4,7 @@ const SHOP_MANAGER_SCRIPT: Script = preload("res://scripts/economy/shop_manager.
 const STAGE_DATA_SCRIPT: Script = preload("res://scripts/stage/stage_data.gd")
 const UNIT_DATA_SCRIPT: Script = preload("res://scripts/data/unit_data.gd")
 const STAGE_SCHEMA_PATH: String = "res://data/stages/_schema/stage.schema.json"
+const EQUIPMENT_SCHEMA_PATH: String = "res://data/equipment/_schema/equipment.schema.json"
 
 class DummyUnitFactory:
 	extends Node
@@ -57,6 +58,7 @@ func _init() -> void:
 func _run() -> void:
 	_test_unit_normalize_shop_visible_default()
 	_test_shop_filters_hidden_entries()
+	_test_equipment_schema_quality_only()
 	_test_stage_normalizes_enemy_rows_without_inline_build_fields()
 	_test_stage_type_fallback_from_unknown_value()
 	_test_stage_schema_type_enum_values()
@@ -125,14 +127,14 @@ func _test_shop_filters_hidden_entries() -> void:
 				"id": "eq_visible",
 				"name": "Visible Equipment",
 				"type": "weapon",
-				"rarity": "white",
+				"quality": "white",
 				"shop_visible": true
 			},
 			{
 				"id": "eq_hidden",
 				"name": "Hidden Equipment",
 				"type": "weapon",
-				"rarity": "white",
+				"quality": "white",
 				"shop_visible": false
 			}
 		]
@@ -144,8 +146,7 @@ func _test_shop_filters_hidden_entries() -> void:
 		"green": 0.0,
 		"blue": 0.0,
 		"purple": 0.0,
-		"orange": 0.0,
-		"red": 0.0
+		"orange": 0.0
 	}
 
 	for _idx in range(10):
@@ -160,6 +161,28 @@ func _test_shop_filters_hidden_entries() -> void:
 	unit_factory.free()
 	gongfa_manager.free()
 	shop_manager.free()
+
+
+func _test_equipment_schema_quality_only() -> void:
+	var file: FileAccess = FileAccess.open(EQUIPMENT_SCHEMA_PATH, FileAccess.READ)
+	_assert_true(file != null, "equipment schema file should exist")
+	if file == null:
+		return
+	var parsed: Variant = JSON.parse_string(file.get_as_text())
+	_assert_true(parsed is Dictionary, "equipment schema should be a dictionary")
+	if not (parsed is Dictionary):
+		return
+	var schema: Dictionary = parsed as Dictionary
+	var required_fields: Variant = schema.get("required", [])
+	_assert_true(required_fields is Array, "equipment schema required should be an array")
+	if not (required_fields is Array):
+		return
+	var required: Array = required_fields as Array
+	_assert_true(required.has("quality"), "equipment schema should require quality")
+	_assert_true(not required.has("rarity"), "equipment schema should not require rarity")
+	var properties: Dictionary = schema.get("properties", {})
+	_assert_true(properties.has("quality"), "equipment schema should define quality property")
+	_assert_true(not properties.has("rarity"), "equipment schema should not define rarity property")
 
 
 func _test_stage_normalizes_enemy_rows_without_inline_build_fields() -> void:

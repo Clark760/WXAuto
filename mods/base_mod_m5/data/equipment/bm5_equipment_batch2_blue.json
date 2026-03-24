@@ -5,7 +5,6 @@
     "description": "韩立???????",
     "type": "weapon",
     "element": "fire",
-    "rarity": "blue",
     "shop_visible": true,
     "effects": [
       {
@@ -31,7 +30,8 @@
       "bm5.quality.blue",
       "bm5.source.xianxia",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "blue"
   },
   {
     "id": "bm5_eq_blue_002",
@@ -39,7 +39,6 @@
     "description": "南宫婉???????",
     "type": "weapon",
     "element": "earth",
-    "rarity": "blue",
     "shop_visible": true,
     "effects": [
       {
@@ -65,7 +64,8 @@
       "bm5.quality.blue",
       "bm5.source.xianjian",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "blue"
   },
   {
     "id": "bm5_eq_blue_003",
@@ -73,7 +73,6 @@
     "description": "萧炎???????",
     "type": "accessory",
     "element": "none",
-    "rarity": "blue",
     "shop_visible": true,
     "effects": [
       {
@@ -101,7 +100,8 @@
       "bm5.quality.blue",
       "bm5.source.wuxia_novel",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "blue"
   },
   {
     "id": "bm5_eq_blue_004",
@@ -109,7 +109,6 @@
     "description": "美杜莎???????",
     "type": "accessory",
     "element": "metal",
-    "rarity": "blue",
     "shop_visible": true,
     "effects": [
       {
@@ -136,7 +135,8 @@
       "bm5.quality.blue",
       "bm5.source.xianxia",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "blue"
   },
   {
     "id": "bm5_eq_blue_005",
@@ -144,7 +144,6 @@
     "description": "唐三???????",
     "type": "armor",
     "element": "wood",
-    "rarity": "blue",
     "shop_visible": true,
     "effects": [
       {
@@ -169,7 +168,8 @@
       "bm5.quality.blue",
       "bm5.source.xianjian",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "blue"
   },
   {
     "id": "bm5_eq_blue_006",
@@ -177,7 +177,6 @@
     "description": "小舞???????",
     "type": "armor",
     "element": "water",
-    "rarity": "blue",
     "shop_visible": true,
     "effects": [
       {
@@ -203,7 +202,8 @@
       "bm5.quality.blue",
       "bm5.source.wuxia_novel",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "blue"
   },
   {
     "id": "bm5_eq_blue_007",
@@ -211,7 +211,6 @@
     "description": "宁荣荣???????",
     "type": "weapon",
     "element": "fire",
-    "rarity": "blue",
     "shop_visible": true,
     "effects": [
       {
@@ -237,7 +236,8 @@
       "bm5.quality.blue",
       "bm5.source.xianxia",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "blue"
   },
   {
     "id": "bm5_eq_blue_008",
@@ -245,7 +245,6 @@
     "description": "石昊???????",
     "type": "weapon",
     "element": "earth",
-    "rarity": "blue",
     "shop_visible": true,
     "effects": [
       {
@@ -271,7 +270,8 @@
       "bm5.quality.blue",
       "bm5.source.xianjian",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "blue"
   },
   {
     "id": "bm5_eq_blue_009",
@@ -279,7 +279,6 @@
     "description": "孟天正???????",
     "type": "weapon",
     "element": "none",
-    "rarity": "blue",
     "shop_visible": true,
     "effects": [
       {
@@ -305,7 +304,8 @@
       "bm5.quality.blue",
       "bm5.source.wuxia_novel",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "blue"
   },
   {
     "id": "bm5_eq_blue_010",
@@ -313,7 +313,6 @@
     "description": "叶凡???????",
     "type": "accessory",
     "element": "metal",
-    "rarity": "blue",
     "shop_visible": true,
     "effects": [
       {
@@ -341,7 +340,8 @@
       "bm5.quality.blue",
       "bm5.source.xianxia",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "blue"
   },
   {
     "id": "bm5_eq_blue_011",
@@ -349,7 +349,6 @@
     "description": "姬紫月???????",
     "type": "accessory",
     "element": "wood",
-    "rarity": "blue",
     "shop_visible": true,
     "effects": [
       {
@@ -376,7 +375,8 @@
       "bm5.quality.blue",
       "bm5.source.xianjian",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "blue"
   },
   {
     "id": "bm5_eq_blue_012",
@@ -384,7 +384,6 @@
     "description": "段德???????",
     "type": "armor",
     "element": "water",
-    "rarity": "blue",
     "shop_visible": true,
     "effects": [
       {
@@ -409,7 +408,8 @@
       "bm5.quality.blue",
       "bm5.source.wuxia_novel",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "blue"
   },
   {
     "id": "bm5_eq_blue_013",
@@ -417,7 +417,6 @@
     "description": "李逍遥???????",
     "type": "armor",
     "element": "fire",
-    "rarity": "blue",
     "shop_visible": true,
     "effects": [
       {
@@ -443,7 +442,8 @@
       "bm5.quality.blue",
       "bm5.source.xianxia",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "blue"
   },
   {
     "id": "bm5_eq_blue_014",
@@ -451,7 +451,6 @@
     "description": "赵灵儿???????",
     "type": "weapon",
     "element": "earth",
-    "rarity": "blue",
     "shop_visible": true,
     "effects": [
       {
@@ -477,7 +476,8 @@
       "bm5.quality.blue",
       "bm5.source.xianjian",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "blue"
   },
   {
     "id": "bm5_eq_blue_015",
@@ -485,7 +485,6 @@
     "description": "林月如???????",
     "type": "weapon",
     "element": "none",
-    "rarity": "blue",
     "shop_visible": true,
     "effects": [
       {
@@ -511,7 +510,8 @@
       "bm5.quality.blue",
       "bm5.source.wuxia_novel",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "blue"
   },
   {
     "id": "bm5_eq_blue_016",
@@ -519,7 +519,6 @@
     "description": "景天???????",
     "type": "weapon",
     "element": "metal",
-    "rarity": "blue",
     "shop_visible": true,
     "effects": [
       {
@@ -545,7 +544,8 @@
       "bm5.quality.blue",
       "bm5.source.xianxia",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "blue"
   },
   {
     "id": "bm5_eq_blue_017",
@@ -553,7 +553,6 @@
     "description": "徐长卿???????",
     "type": "accessory",
     "element": "wood",
-    "rarity": "blue",
     "shop_visible": true,
     "effects": [
       {
@@ -581,7 +580,8 @@
       "bm5.quality.blue",
       "bm5.source.xianjian",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "blue"
   },
   {
     "id": "bm5_eq_blue_018",
@@ -589,7 +589,6 @@
     "description": "百里屠苏???????",
     "type": "accessory",
     "element": "water",
-    "rarity": "blue",
     "shop_visible": true,
     "effects": [
       {
@@ -616,7 +615,8 @@
       "bm5.quality.blue",
       "bm5.source.wuxia_novel",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "blue"
   },
   {
     "id": "bm5_eq_blue_019",
@@ -624,7 +624,6 @@
     "description": "风晴雪???????",
     "type": "armor",
     "element": "fire",
-    "rarity": "blue",
     "shop_visible": true,
     "effects": [
       {
@@ -649,7 +648,8 @@
       "bm5.quality.blue",
       "bm5.source.xianxia",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "blue"
   },
   {
     "id": "bm5_eq_blue_020",
@@ -657,7 +657,6 @@
     "description": "韩菱纱???????",
     "type": "armor",
     "element": "earth",
-    "rarity": "blue",
     "shop_visible": true,
     "effects": [
       {
@@ -683,7 +682,8 @@
       "bm5.quality.blue",
       "bm5.source.xianjian",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "blue"
   },
   {
     "id": "bm5_eq_blue_021",
@@ -691,7 +691,6 @@
     "description": "云天河???????",
     "type": "weapon",
     "element": "none",
-    "rarity": "blue",
     "shop_visible": true,
     "effects": [
       {
@@ -717,7 +716,8 @@
       "bm5.quality.blue",
       "bm5.source.wuxia_novel",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "blue"
   },
   {
     "id": "bm5_eq_blue_022",
@@ -725,7 +725,6 @@
     "description": "慕容紫英???????",
     "type": "weapon",
     "element": "metal",
-    "rarity": "blue",
     "shop_visible": true,
     "effects": [
       {
@@ -751,7 +750,8 @@
       "bm5.quality.blue",
       "bm5.source.xianxia",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "blue"
   },
   {
     "id": "bm5_eq_blue_023",
@@ -759,7 +759,6 @@
     "description": "谢烟客???????",
     "type": "weapon",
     "element": "wood",
-    "rarity": "blue",
     "shop_visible": true,
     "effects": [
       {
@@ -785,7 +784,8 @@
       "bm5.quality.blue",
       "bm5.source.xianjian",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "blue"
   },
   {
     "id": "bm5_eq_blue_024",
@@ -793,7 +793,6 @@
     "description": "阿青???????",
     "type": "accessory",
     "element": "water",
-    "rarity": "blue",
     "shop_visible": true,
     "effects": [
       {
@@ -821,7 +820,8 @@
       "bm5.quality.blue",
       "bm5.source.wuxia_novel",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "blue"
   },
   {
     "id": "bm5_eq_blue_025",
@@ -829,7 +829,6 @@
     "description": "木桑道长???????",
     "type": "accessory",
     "element": "fire",
-    "rarity": "blue",
     "shop_visible": true,
     "effects": [
       {
@@ -856,7 +855,8 @@
       "bm5.quality.blue",
       "bm5.source.xianxia",
       "bm5.equipment.accessory"
-    ]
+    ],
+    "quality": "blue"
   },
   {
     "id": "bm5_eq_blue_026",
@@ -864,7 +864,6 @@
     "description": "李淳罡???????",
     "type": "armor",
     "element": "earth",
-    "rarity": "blue",
     "shop_visible": true,
     "effects": [
       {
@@ -889,7 +888,8 @@
       "bm5.quality.blue",
       "bm5.source.xianjian",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "blue"
   },
   {
     "id": "bm5_eq_blue_027",
@@ -897,7 +897,6 @@
     "description": "徐凤年???????",
     "type": "armor",
     "element": "none",
-    "rarity": "blue",
     "shop_visible": true,
     "effects": [
       {
@@ -923,7 +922,8 @@
       "bm5.quality.blue",
       "bm5.source.wuxia_novel",
       "bm5.equipment.armor"
-    ]
+    ],
+    "quality": "blue"
   },
   {
     "id": "bm5_eq_blue_028",
@@ -931,7 +931,6 @@
     "description": "王仙芝???????",
     "type": "weapon",
     "element": "metal",
-    "rarity": "blue",
     "shop_visible": true,
     "effects": [
       {
@@ -957,7 +956,8 @@
       "bm5.quality.blue",
       "bm5.source.xianxia",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "blue"
   },
   {
     "id": "bm5_eq_blue_029",
@@ -965,7 +965,6 @@
     "description": "赵玉真???????",
     "type": "weapon",
     "element": "wood",
-    "rarity": "blue",
     "shop_visible": true,
     "effects": [
       {
@@ -991,7 +990,8 @@
       "bm5.quality.blue",
       "bm5.source.xianjian",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "blue"
   },
   {
     "id": "bm5_eq_blue_030",
@@ -999,7 +999,6 @@
     "description": "洪洗象???????",
     "type": "weapon",
     "element": "water",
-    "rarity": "blue",
     "shop_visible": true,
     "effects": [
       {
@@ -1025,6 +1024,7 @@
       "bm5.quality.blue",
       "bm5.source.wuxia_novel",
       "bm5.equipment.weapon"
-    ]
+    ],
+    "quality": "blue"
   }
 ]

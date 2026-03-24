@@ -6,11 +6,23 @@ class_name CombatManager
 # 负责逻辑帧驱动、寻路/占格、攻击结算与战斗生命周期管理。
 signal battle_started(ally_count: int, enemy_count: int)
 signal battle_ended(winner_team: int, summary: Dictionary)
+signal battle_ended_detail(winner_team: int, summary: Dictionary)
 signal damage_resolved(event: Dictionary)
 signal unit_died(unit: Node, killer: Node, team_id: int)
 signal unit_cell_changed(unit: Node, from_cell: Vector2i, to_cell: Vector2i)
 signal unit_spawned(unit: Node, team_id: int)
+signal unit_spawned_mid_battle(unit: Node, team_id: int)
 signal terrain_changed(changed_cells: Array, reason: String)
+signal team_alive_count_changed(team_id: int, alive_count: int)
+signal attack_failed(attacker: Node, target: Node, reason: String, event: Dictionary)
+signal shield_broken(target: Node, source: Node, event: Dictionary)
+signal damage_received_detail(target: Node, source: Node, event: Dictionary)
+signal heal_received(source: Node, target: Node, amount: float, heal_type: String)
+signal thorns_triggered(source: Node, target: Node, event: Dictionary)
+signal unit_move_success(unit: Node, from_cell: Vector2i, to_cell: Vector2i, steps: int)
+signal unit_move_failed(unit: Node, reason: String, context: Dictionary)
+signal terrain_created(terrain: Dictionary, reason: String)
+signal terrain_phase_tick(event: Dictionary)
 
 const TEAM_ALLY: int = 1
 const TEAM_ENEMY: int = 2
@@ -256,6 +268,10 @@ func add_temporary_terrain(config: Dictionary, source: Node = null) -> bool:
 		_apply_terrain_visuals()
 	if bool(result.get("barrier_changed", false)) or bool(result.get("visual_changed", false)):
 		_emit_terrain_changed("add_temporary")
+	if bool(result.get("added", false)):
+		var terrain_value: Variant = result.get("terrain", {})
+		if terrain_value is Dictionary:
+			terrain_created.emit((terrain_value as Dictionary).duplicate(true), "add_temporary")
 	return bool(result.get("added", false))
 
 
@@ -286,6 +302,10 @@ func add_static_terrain(terrain_id: String, cells: Array, extra_config: Dictiona
 		_apply_terrain_visuals()
 	if bool(result.get("barrier_changed", false)) or bool(result.get("visual_changed", false)):
 		_emit_terrain_changed("add_static")
+	if bool(result.get("added", false)):
+		var terrain_value: Variant = result.get("terrain", {})
+		if terrain_value is Dictionary:
+			terrain_created.emit((terrain_value as Dictionary).duplicate(true), "add_static")
 	return bool(result.get("added", false))
 
 
@@ -462,6 +482,8 @@ func swap_unit_cells(unit_a: Node, unit_b: Node) -> bool:
 	_flow_force_rebuild = true
 	unit_cell_changed.emit(unit_a, cell_a, cell_b)
 	unit_cell_changed.emit(unit_b, cell_b, cell_a)
+	unit_move_success.emit(unit_a, cell_a, cell_b, maxi(_hex_distance(cell_a, cell_b), 1))
+	unit_move_success.emit(unit_b, cell_b, cell_a, maxi(_hex_distance(cell_b, cell_a), 1))
 	return true
 
 
@@ -499,10 +521,12 @@ func add_unit_mid_battle(unit: Node) -> bool:
 	var alive_list: Array = _team_alive_cache.get(team_id, [])
 	alive_list.append(unit)
 	_team_alive_cache[team_id] = alive_list
+	_emit_team_alive_count_changed(team_id)
 
 	if _hex_grid != null:
 		_resolve_and_register_unit_cell(unit)
 	unit_spawned.emit(unit, team_id)
+	unit_spawned_mid_battle.emit(unit, team_id)
 	return true
 
 
@@ -517,6 +541,8 @@ func start_battle(ally_units: Array[Node], enemy_units: Array[Node], battle_seed
 	_setup_battle_seed(battle_seed)
 	_begin_battle_loop()
 	_pre_tick_scan()
+	_emit_team_alive_count_changed(TEAM_ALLY)
+	_emit_team_alive_count_changed(TEAM_ENEMY)
 	battle_started.emit(
 		int(_alive_by_team.get(TEAM_ALLY, 0)),
 		int(_alive_by_team.get(TEAM_ENEMY, 0))
@@ -540,10 +566,37 @@ func stop_battle(reason: String = "manual", winner_team: int = 0) -> void:
 		clear_temporary_terrains()
 
 	battle_ended.emit(winner_team, summary)
+	battle_ended_detail.emit(winner_team, summary.duplicate(true))
 
 
 func get_alive_count(team_id: int) -> int:
-	return int(_alive_by_team.get(team_id, 0))
+	return get_team_alive_count(team_id)
+
+
+func get_team_alive_count(team_id: int, exclude_unit: Node = null) -> int:
+	var count: int = 0
+	if team_id == TEAM_ALLY or team_id == TEAM_ENEMY:
+		count = int(_alive_by_team.get(team_id, 0))
+	else:
+		count = int(_alive_by_team.get(TEAM_ALLY, 0)) + int(_alive_by_team.get(TEAM_ENEMY, 0))
+	if exclude_unit == null or not is_instance_valid(exclude_unit):
+		return maxi(count, 0)
+	if not _is_unit_alive(exclude_unit):
+		return maxi(count, 0)
+	var exclude_team: int = int(exclude_unit.get("team_id"))
+	if team_id == TEAM_ALLY or team_id == TEAM_ENEMY:
+		if exclude_team == team_id:
+			count -= 1
+	else:
+		if exclude_team == TEAM_ALLY or exclude_team == TEAM_ENEMY:
+			count -= 1
+	return maxi(count, 0)
+
+
+func _emit_team_alive_count_changed(team_id: int) -> void:
+	if team_id != TEAM_ALLY and team_id != TEAM_ENEMY:
+		return
+	team_alive_count_changed.emit(team_id, int(_alive_by_team.get(team_id, 0)))
 
 
 func get_runtime_metrics_snapshot() -> Dictionary:
@@ -694,6 +747,7 @@ func _trim_runtime_caches(valid_ids: Dictionary) -> void:
 func _remove_unit_runtime_entry(unit: Node) -> void:
 	if not _is_live_unit(unit):
 		return
+	_unbind_combat_component_signals(unit)
 	_remove_runtime_entry_by_id(unit.get_instance_id())
 
 
@@ -769,6 +823,12 @@ func _tick_terrain(delta: float) -> void:
 		"all_units": _all_units,
 		"gongfa_manager": gongfa_manager
 	})
+	var phase_events_value: Variant = tick_result.get("phase_events", [])
+	if phase_events_value is Array:
+		for event_value in (phase_events_value as Array):
+			if not (event_value is Dictionary):
+				continue
+			terrain_phase_tick.emit((event_value as Dictionary).duplicate(true))
 	if bool(tick_result.get("barrier_changed", false)):
 		var barrier_cells: Array[Vector2i] = _terrain_manager.call("get_barrier_cells", "dynamic")
 		set_terrain_blocked_cells(barrier_cells)
@@ -809,6 +869,15 @@ func _clear_unit_move_and_idle(unit: Node) -> void:
 	if movement != null:
 		movement.call("clear_target")
 	unit.call("play_anim_state", 0, {}) # 切换为待机动画
+
+
+func _emit_unit_move_failed(unit: Node, reason: String, context: Dictionary) -> void:
+	if unit == null or not is_instance_valid(unit):
+		return
+	var payload: Dictionary = context.duplicate(true)
+	payload["unit"] = unit
+	payload["reason"] = reason
+	unit_move_failed.emit(unit, reason, payload)
 
 
 func _run_feared_unit_logic(unit: Node, target: Node, enemy_team: int) -> void:
@@ -885,6 +954,7 @@ func _run_unit_logic(unit: Node, delta: float, allow_attack: bool = true, allow_
 	combat.call("tick_logic", delta)
 	if _is_unit_stunned(unit):
 		_clear_unit_move_and_idle(unit)
+		_emit_unit_move_failed(unit, "stunned", {})
 		return
 	var self_team: int = int(unit.get("team_id"))
 	var enemy_team: int = TEAM_ENEMY if self_team == TEAM_ALLY else TEAM_ALLY
@@ -916,6 +986,7 @@ func _run_unit_logic(unit: Node, delta: float, allow_attack: bool = true, allow_
 		_metric_total_move_checks += 1
 		_metric_tick_move_blocked += 1
 		_metric_total_move_blocked += 1
+		_emit_unit_move_failed(unit, "in_range_hold", {"target": target})
 		return
 
 	_metric_tick_move_checks += 1
@@ -928,6 +999,7 @@ func _run_unit_logic(unit: Node, delta: float, allow_attack: bool = true, allow_
 		unit.call("play_anim_state", 0, {}) # 无有效格信息时待机
 		_metric_tick_idle_no_cell += 1
 		_metric_total_idle_no_cell += 1
+		_emit_unit_move_failed(unit, "no_cell", {})
 		return
 
 	var flow_field: FlowField = _flow_to_enemy if int(unit.get("team_id")) == TEAM_ALLY else _flow_to_ally
@@ -950,6 +1022,7 @@ func _run_unit_logic(unit: Node, delta: float, allow_attack: bool = true, allow_
 		unit.call("play_anim_state", 0, {}) # 被阻挡时保持待机
 		_metric_tick_move_blocked += 1
 		_metric_total_move_blocked += 1
+		_emit_unit_move_failed(unit, "block", {"from_cell": current_cell, "to_cell": best_next, "target": target})
 		return
 
 	# 提交移动前再次校验，防止同帧被其他单位抢占目标格。
@@ -960,6 +1033,7 @@ func _run_unit_logic(unit: Node, delta: float, allow_attack: bool = true, allow_
 		unit.call("play_anim_state", 0, {}) # 冲突时待机
 		_metric_tick_move_conflicts += 1
 		_metric_total_move_conflicts += 1
+		_emit_unit_move_failed(unit, "conflict", {"from_cell": current_cell, "to_cell": best_next})
 		return
 
 	# 先占新格再移动，可避免“先释放旧格”导致的竞争态问题。
@@ -970,6 +1044,7 @@ func _run_unit_logic(unit: Node, delta: float, allow_attack: bool = true, allow_
 		unit.call("play_anim_state", 0, {}) # 占格失败时待机
 		_metric_tick_move_conflicts += 1
 		_metric_total_move_conflicts += 1
+		_emit_unit_move_failed(unit, "conflict", {"from_cell": current_cell, "to_cell": best_next})
 		return
 	var movement: Node = _get_movement(unit)
 	if movement != null and _hex_grid != null:
@@ -1066,6 +1141,7 @@ func _handle_unit_death(dead_unit: Node, killer: Node) -> void:
 	var alive_list: Array = _team_alive_cache.get(dead_team, [])
 	alive_list.erase(dead_unit)
 	_team_alive_cache[dead_team] = alive_list
+	_emit_team_alive_count_changed(dead_team)
 	_remove_unit_runtime_entry(dead_unit)
 
 	unit_died.emit(dead_unit, killer, dead_team)
@@ -1108,8 +1184,37 @@ func _bind_combat_component_signals(unit: Node) -> void:
 	if combat == null:
 		return
 	var cb_dead: Callable = Callable(self, "_on_combat_component_died")
+	var cb_damaged: Callable = Callable(self, "_on_combat_component_damaged")
+	var cb_heal: Callable = Callable(self, "_on_combat_component_healing_performed")
+	var cb_thorns: Callable = Callable(self, "_on_combat_component_thorns_damage_dealt")
 	if combat.has_signal("died") and not combat.is_connected("died", cb_dead):
 		combat.connect("died", cb_dead)
+	if combat.has_signal("damaged") and not combat.is_connected("damaged", cb_damaged):
+		combat.connect("damaged", cb_damaged)
+	if combat.has_signal("healing_performed") and not combat.is_connected("healing_performed", cb_heal):
+		combat.connect("healing_performed", cb_heal)
+	if combat.has_signal("thorns_damage_dealt") and not combat.is_connected("thorns_damage_dealt", cb_thorns):
+		combat.connect("thorns_damage_dealt", cb_thorns)
+
+
+func _unbind_combat_component_signals(unit: Node) -> void:
+	if not _is_live_unit(unit):
+		return
+	var combat: Node = _get_combat(unit)
+	if combat == null:
+		return
+	var cb_dead: Callable = Callable(self, "_on_combat_component_died")
+	var cb_damaged: Callable = Callable(self, "_on_combat_component_damaged")
+	var cb_heal: Callable = Callable(self, "_on_combat_component_healing_performed")
+	var cb_thorns: Callable = Callable(self, "_on_combat_component_thorns_damage_dealt")
+	if combat.has_signal("died") and combat.is_connected("died", cb_dead):
+		combat.disconnect("died", cb_dead)
+	if combat.has_signal("damaged") and combat.is_connected("damaged", cb_damaged):
+		combat.disconnect("damaged", cb_damaged)
+	if combat.has_signal("healing_performed") and combat.is_connected("healing_performed", cb_heal):
+		combat.disconnect("healing_performed", cb_heal)
+	if combat.has_signal("thorns_damage_dealt") and combat.is_connected("thorns_damage_dealt", cb_thorns):
+		combat.disconnect("thorns_damage_dealt", cb_thorns)
 
 
 func _on_combat_component_died(dead_unit: Node, killer: Node) -> void:
@@ -1126,6 +1231,38 @@ func _handle_unit_death_from_signal(dead_unit: Node, killer: Node) -> void:
 	if not _battle_running:
 		return
 	_handle_unit_death(dead_unit, killer)
+
+
+func _on_combat_component_damaged(target: Node, source: Node, event: Dictionary) -> void:
+	if not _battle_running:
+		return
+	if target == null or not is_instance_valid(target):
+		return
+	var payload: Dictionary = event.duplicate(true)
+	payload["target_id"] = target.get_instance_id()
+	payload["target_team"] = int(target.get("team_id"))
+	if source != null and is_instance_valid(source):
+		payload["source_id"] = source.get_instance_id()
+		payload["source_team"] = int(source.get("team_id"))
+	damage_received_detail.emit(target, source, payload)
+	if bool(payload.get("shield_broken", false)):
+		shield_broken.emit(target, source, payload)
+
+
+func _on_combat_component_healing_performed(source: Node, target: Node, amount: float, heal_type: String) -> void:
+	if not _battle_running:
+		return
+	if target == null or not is_instance_valid(target):
+		return
+	heal_received.emit(source, target, amount, heal_type)
+
+
+func _on_combat_component_thorns_damage_dealt(source: Node, target: Node, event: Dictionary) -> void:
+	if not _battle_running:
+		return
+	if source == null or not is_instance_valid(source):
+		return
+	thorns_triggered.emit(source, target, event.duplicate(true))
 
 
 func _get_combat(unit: Node) -> Node:
@@ -1180,6 +1317,8 @@ func _notify_unit_cell_changed(unit: Node, from_cell: Vector2i, to_cell: Vector2
 	if unit == null or not is_instance_valid(unit):
 		return
 	unit_cell_changed.emit(unit, from_cell, to_cell)
+	if from_cell.x >= 0 and from_cell.y >= 0 and to_cell.x >= 0 and to_cell.y >= 0 and from_cell != to_cell:
+		unit_move_success.emit(unit, from_cell, to_cell, maxi(_hex_distance(from_cell, to_cell), 1))
 
 
 func _is_cell_free(cell: Vector2i) -> bool:
@@ -1370,15 +1509,20 @@ func _prepare_unit_for_battle(unit: Node, team_id: int) -> void:
 
 func _try_execute_attack(unit: Node, combat: Node, target: Node) -> bool:
 	if target == null:
+		attack_failed.emit(unit, null, "no_target", {"performed": false, "reason": "no_target"})
 		return false
 	if not _is_target_in_attack_range(unit, target):
+		attack_failed.emit(unit, target, "out_of_range", {"performed": false, "reason": "out_of_range"})
 		return false
 
 	var attack_event: Variant = combat.call("try_attack_target", target, _rng)
 	if not (attack_event is Dictionary):
+		attack_failed.emit(unit, target, "invalid_event", {"performed": false, "reason": "invalid_event"})
 		return false
 	var event_dict: Dictionary = attack_event
 	if not bool(event_dict.get("performed", false)):
+		var reason: String = str(event_dict.get("reason", "failed")).strip_edges().to_lower()
+		attack_failed.emit(unit, target, reason, event_dict.duplicate(true))
 		return false
 
 	_on_attack_resolved(unit, target, event_dict)

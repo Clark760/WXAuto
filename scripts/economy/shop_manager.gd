@@ -15,15 +15,14 @@ signal offer_purchased(tab: String, index: int, offer: Dictionary)
 const TAB_RECRUIT: String = "recruit"
 const TAB_GONGFA: String = "gongfa"
 const TAB_EQUIPMENT: String = "equipment"
-const QUALITY_ORDER: Array[String] = ["white", "green", "blue", "purple", "orange", "red"]
+const QUALITY_ORDER: Array[String] = ["white", "green", "blue", "purple", "orange"]
 
 const DEFAULT_QUALITY_PRICE: Dictionary = {
 	"white": 1,
 	"green": 2,
 	"blue": 3,
 	"purple": 4,
-	"orange": 5,
-	"red": 6
+	"orange": 5
 }
 
 @export var recruit_offer_count: int = 5
@@ -176,7 +175,7 @@ func _generate_gongfa_offers(level_probabilities: Dictionary) -> Array[Dictionar
 		if picked.is_empty():
 			offers.append(_build_empty_offer(TAB_GONGFA))
 			continue
-		var quality: String = str(picked.get("quality", "white")).strip_edges()
+		var quality: String = str(picked.get("quality", "white")).strip_edges().to_lower()
 		offers.append({
 			"tab": TAB_GONGFA,
 			"item_type": "gongfa",
@@ -184,7 +183,7 @@ func _generate_gongfa_offers(level_probabilities: Dictionary) -> Array[Dictionar
 			"name": str(picked.get("name", "无名秘籍")),
 			"quality": quality,
 			"slot_type": str(picked.get("type", "")),
-			"price": _price_from_quality(quality),
+			"price": maxi(int(picked.get("cost", _price_from_quality(quality))), 1),
 			"sold": false
 		})
 	return offers
@@ -206,7 +205,7 @@ func _generate_equipment_offers(level_probabilities: Dictionary) -> Array[Dictio
 		if picked.is_empty():
 			offers.append(_build_empty_offer(TAB_EQUIPMENT))
 			continue
-		var quality: String = str(picked.get("rarity", "white")).strip_edges()
+		var quality: String = str(picked.get("quality", "white")).strip_edges().to_lower()
 		offers.append({
 			"tab": TAB_EQUIPMENT,
 			"item_type": "equipment",
@@ -214,7 +213,7 @@ func _generate_equipment_offers(level_probabilities: Dictionary) -> Array[Dictio
 			"name": str(picked.get("name", "无名装备")),
 			"quality": quality,
 			"slot_type": str(picked.get("type", "")),
-			"price": _price_from_quality(quality),
+			"price": maxi(int(picked.get("cost", _price_from_quality(quality))), 1),
 			"sold": false
 		})
 	return offers
@@ -260,7 +259,7 @@ func _pick_equipment_by_quality(level_probabilities: Dictionary) -> Dictionary:
 	var rolled_quality: String = _roll_quality(level_probabilities).to_lower()
 	var bucket: Array[Dictionary] = []
 	for item in _equipment_pool:
-		if str(item.get("rarity", "white")).strip_edges().to_lower() == rolled_quality:
+		if str(item.get("quality", "white")).strip_edges().to_lower() == rolled_quality:
 			bucket.append(item)
 	if bucket.is_empty():
 		return _pick_random_dict(_equipment_pool)
@@ -362,6 +361,8 @@ func _rebuild_gongfa_pool(gongfa_manager: Node) -> void:
 		var row: Dictionary = (item as Dictionary).duplicate(true)
 		if not bool(row.get("shop_visible", true)):
 			continue
+		row["quality"] = str(row.get("quality", "white")).strip_edges().to_lower()
+		row["cost"] = maxi(int(row.get("cost", _price_from_quality(str(row.get("quality", "white"))))), 1)
 		_gongfa_pool.append(row)
 
 
@@ -378,6 +379,8 @@ func _rebuild_equipment_pool(gongfa_manager: Node) -> void:
 		var row: Dictionary = (item as Dictionary).duplicate(true)
 		if not bool(row.get("shop_visible", true)):
 			continue
+		row["quality"] = str(row.get("quality", "white")).strip_edges().to_lower()
+		row["cost"] = maxi(int(row.get("cost", _price_from_quality(str(row.get("quality", "white"))))), 1)
 		_equipment_pool.append(row)
 
 
@@ -391,8 +394,7 @@ func _normalize_probabilities(raw_probabilities: Dictionary) -> Dictionary:
 		"green": 0.0,
 		"blue": 0.0,
 		"purple": 0.0,
-		"orange": 0.0,
-		"red": 0.0
+		"orange": 0.0
 	}
 	for key in QUALITY_ORDER:
 		out_probabilities[key] = maxf(float(raw_probabilities.get(key, 0.0)), 0.0)

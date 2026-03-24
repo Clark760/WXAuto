@@ -131,6 +131,10 @@ func start_stage(stage_id: String) -> bool:
 	stage_prepare_started.emit(config.duplicate(true))
 	_emit_stage_event_to_bus("emit_stage_loaded", [config])
 	_emit_stage_event_to_bus("emit_stage_prepare_started", [config])
+	_emit_global_trigger_to_bus("on_preparation_started", {
+		"stage_id": target_id,
+		"config": config.duplicate(true)
+	})
 	return true
 
 
@@ -186,6 +190,10 @@ func notify_stage_combat_started() -> void:
 		return
 	stage_combat_started.emit(config.duplicate(true))
 	_emit_stage_event_to_bus("emit_stage_combat_started", [config])
+	_emit_global_trigger_to_bus("on_stage_combat_started", {
+		"stage_id": _current_stage_id,
+		"config": config.duplicate(true)
+	})
 
 
 func complete_current_stage_without_battle() -> bool:
@@ -195,6 +203,12 @@ func complete_current_stage_without_battle() -> bool:
 	var rewards: Dictionary = _apply_rewards_for_current_stage(config)
 	stage_completed.emit(config.duplicate(true), rewards.duplicate(true))
 	_emit_stage_event_to_bus("emit_stage_completed", [config, rewards])
+	_emit_global_trigger_to_bus("on_stage_completed", {
+		"stage_id": _current_stage_id,
+		"config": config.duplicate(true),
+		"rewards": rewards.duplicate(true),
+		"without_battle": true
+	})
 	return true
 
 
@@ -206,9 +220,21 @@ func on_battle_ended(winner_team: int, _summary: Dictionary) -> void:
 		var rewards: Dictionary = _apply_rewards_for_current_stage(config)
 		stage_completed.emit(config.duplicate(true), rewards.duplicate(true))
 		_emit_stage_event_to_bus("emit_stage_completed", [config, rewards])
+		_emit_global_trigger_to_bus("on_stage_completed", {
+			"stage_id": _current_stage_id,
+			"config": config.duplicate(true),
+			"rewards": rewards.duplicate(true),
+			"winner_team": winner_team,
+			"without_battle": false
+		})
 		return
 	stage_failed.emit(config.duplicate(true))
 	_emit_stage_event_to_bus("emit_stage_failed", [config])
+	_emit_global_trigger_to_bus("on_stage_failed", {
+		"stage_id": _current_stage_id,
+		"config": config.duplicate(true),
+		"winner_team": winner_team
+	})
 
 
 func _apply_rewards_for_current_stage(config: Dictionary) -> Dictionary:
@@ -233,11 +259,31 @@ func _emit_stage_event_to_bus(method_name: String, args: Array) -> void:
 	event_bus.callv(method_name, args)
 
 
+func _emit_global_trigger_to_bus(trigger_name: String, payload: Dictionary) -> void:
+	var event_bus: Node = _get_event_bus()
+	if event_bus == null or not is_instance_valid(event_bus):
+		return
+	if not event_bus.has_method("emit_global_trigger"):
+		return
+	event_bus.call("emit_global_trigger", trigger_name, payload)
+
+
 func _get_event_bus() -> Node:
+	if is_inside_tree():
+		var tree: SceneTree = get_tree()
+		if tree != null and tree.root != null:
+			var direct: Node = tree.root.get_node_or_null("EventBus")
+			if direct != null:
+				return direct
+			var recursive: Node = tree.root.find_child("EventBus", true, false)
+			if recursive != null:
+				return recursive
 	var main_loop: MainLoop = Engine.get_main_loop()
-	if not (main_loop is SceneTree):
-		return null
-	var tree: SceneTree = main_loop as SceneTree
-	if tree.root == null:
-		return null
-	return tree.root.get_node_or_null("EventBus")
+	if main_loop is SceneTree:
+		var loop_tree: SceneTree = main_loop as SceneTree
+		if loop_tree.root != null:
+			var direct_loop: Node = loop_tree.root.get_node_or_null("EventBus")
+			if direct_loop != null:
+				return direct_loop
+			return loop_tree.root.find_child("EventBus", true, false)
+	return null
