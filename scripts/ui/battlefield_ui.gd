@@ -8,7 +8,7 @@ extends "res://scripts/battle/battlefield_runtime.gd"
 # 2. 与基础战斗运行层分离，避免把大量 UI 逻辑塞回战场核心。
 # 3. 保持输入交互与显示刷新集中在一层维护。
 
-const SLOT_ORDER: Array[String] = ["neigong", "waigong", "qinggong", "zhenfa", "qishu"]
+const SLOT_ORDER: Array[String] = ["neigong", "waigong", "qinggong", "zhenfa"]
 const EQUIP_ORDER: Array[String] = ["weapon", "armor", "accessory"]
 const CLICK_DRAG_THRESHOLD: float = 8.0
 const BATTLE_LOG_MAX_LINES: int = 50
@@ -17,7 +17,6 @@ const DETAIL_REFRESH_INTERVAL_PREP: float = 0.2
 const DETAIL_REFRESH_INTERVAL_COMBAT: float = 0.05
 
 @onready var tooltip_header_name: Label = $HUDLayer/UnitTooltip/TooltipVBox/HeaderRow/HeaderName
-@onready var tooltip_faction_icon: ColorRect = $HUDLayer/UnitTooltip/TooltipVBox/HeaderRow/FactionIcon
 @onready var tooltip_quality_badge: ColorRect = $HUDLayer/UnitTooltip/TooltipVBox/HeaderRow/QualityBadge
 @onready var tooltip_hp_rich: ProgressBar = $HUDLayer/UnitTooltip/TooltipVBox/HPRow/HPBarRich
 @onready var tooltip_hp_text: Label = $HUDLayer/UnitTooltip/TooltipVBox/HPRow/HPText
@@ -41,7 +40,7 @@ const DETAIL_REFRESH_INTERVAL_COMBAT: float = 0.05
 @onready var detail_title: Label = $DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/HeaderRow/DetailTitle
 @onready var detail_portrait_color: ColorRect = $DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/PortraitSection/PortraitColor
 @onready var detail_name_label: Label = $DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/PortraitSection/DetailNameLabel
-@onready var detail_faction_label: Label = $DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/PortraitSection/DetailFactionLabel
+@onready var detail_quality_label: Label = $DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/PortraitSection/DetailQualityLabel
 @onready var detail_stats_value_label: Label = $DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/StatsSection/StatsValueLabel
 @onready var detail_bonus_value_label: Label = $DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/StatsSection/BonusValueLabel
 @onready var detail_slot_list: VBoxContainer = $DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/GongfaSection/SlotList
@@ -323,7 +322,6 @@ func _show_tooltip_for_unit(unit: Node, screen_pos: Vector2) -> void:
 	var unit_name: String = str(unit.get("unit_name"))
 	var star: int = clampi(int(unit.get("star_level")), 1, 3)
 	tooltip_header_name.text = "%s %s" % [unit_name, "★".repeat(star)]
-	tooltip_faction_icon.color = _faction_color(str(unit.get("faction")))
 	tooltip_quality_badge.color = _quality_color(str(unit.get("quality")))
 
 	var combat: Node = unit.get_node_or_null("Components/UnitCombat")
@@ -694,8 +692,7 @@ func _rebuild_inventory_filters() -> void:
 			{"id": "neigong", "name": "内功"},
 			{"id": "waigong", "name": "外功"},
 			{"id": "qinggong", "name": "轻功"},
-			{"id": "zhenfa", "name": "阵法"},
-			{"id": "qishu", "name": "奇术"}
+			{"id": "zhenfa", "name": "阵法"}
 		]
 	else:
 		filters = [
@@ -1108,12 +1105,11 @@ func _update_detail_panel(unit: Node) -> void:
 
 	var name_text: String = str(unit.get("unit_name"))
 	var star: int = clampi(int(unit.get("star_level")), 1, 3)
-	var faction: String = str(unit.get("faction"))
 	var quality: String = str(unit.get("quality"))
 
 	detail_title.text = "角色详情 - %s" % name_text
 	detail_name_label.text = "%s %s" % [name_text, "★".repeat(star)]
-	detail_faction_label.text = "%s · %s" % [_faction_to_cn(faction), _quality_to_cn(quality)]
+	detail_quality_label.text = "品质：%s" % _quality_to_cn(quality)
 	detail_portrait_color.color = _quality_color(quality)
 
 	var base_stats: Dictionary = unit.get("base_stats")
@@ -1819,10 +1815,9 @@ func _build_gongfa_item_tooltip_data(gongfa_id: String) -> Dictionary:
 
 	return {
 		"name": "%s [%s]" % [str(data.get("name", gongfa_id)), _quality_to_cn(str(data.get("quality", "white")))],
-		"type_line": "%s · %s · %s" % [
+		"type_line": "%s · %s" % [
 			_slot_to_cn(str(data.get("type", ""))),
-			_element_to_cn(str(data.get("element", "none"))),
-			_faction_to_cn(str(data.get("faction", "jianghu")))
+			_element_to_cn(str(data.get("element", "none")))
 		],
 		"desc": str(data.get("description", "无描述")),
 		"effects": effects,
@@ -2145,8 +2140,7 @@ func _normalize_unit_slots(raw: Variant) -> Dictionary:
 		"neigong": "",
 		"waigong": "",
 		"qinggong": "",
-		"zhenfa": "",
-		"qishu": ""
+		"zhenfa": ""
 	}
 	if raw is Dictionary:
 		for key in slots.keys():
@@ -2173,8 +2167,6 @@ func _slot_to_cn(slot: String) -> String:
 			return "轻功"
 		"zhenfa":
 			return "阵法"
-		"qishu":
-			return "奇术"
 		_:
 			return slot
 
@@ -2189,8 +2181,6 @@ func _slot_icon(slot: String) -> String:
 			return "🏃"
 		"zhenfa":
 			return "🔷"
-		"qishu":
-			return "✨"
 		_:
 			return "•"
 
@@ -2233,26 +2223,6 @@ func _element_to_cn(element: String) -> String:
 			return "土"
 		_:
 			return "无"
-
-
-func _faction_to_cn(faction: String) -> String:
-	match faction:
-		"wudang":
-			return "武当"
-		"shaolin":
-			return "少林"
-		"emei":
-			return "峨眉"
-		"gaibang":
-			return "丐帮"
-		"xiaoyao":
-			return "逍遥"
-		"mingjiao":
-			return "明教"
-		"xingxiu":
-			return "星宿"
-		_:
-			return faction
 
 
 func _quality_to_cn(quality: String) -> String:
@@ -2303,19 +2273,3 @@ func _stat_key_to_cn(stat_key: String) -> String:
 			return stat_key
 
 
-func _faction_color(faction: String) -> Color:
-	match faction:
-		"wudang":
-			return Color(0.46, 0.66, 0.96, 1.0)
-		"shaolin":
-			return Color(0.88, 0.66, 0.24, 1.0)
-		"emei":
-			return Color(0.84, 0.58, 0.9, 1.0)
-		"gaibang":
-			return Color(0.66, 0.84, 0.42, 1.0)
-		"xiaoyao":
-			return Color(0.52, 0.82, 0.9, 1.0)
-		"mingjiao":
-			return Color(0.92, 0.44, 0.44, 1.0)
-		_:
-			return Color(0.65, 0.65, 0.68, 1.0)

@@ -15,8 +15,9 @@ signal skill_effect_heal(event: Dictionary)
 signal buff_event(event: Dictionary)
 
 @export var trigger_poll_interval: float = 0.12
+@export var tag_linkage_stagger_buckets: int = 8
 
-const ALLOWED_SLOTS: Array[String] = ["neigong", "waigong", "qinggong", "zhenfa", "qishu"]
+const ALLOWED_SLOTS: Array[String] = ["neigong", "waigong", "qinggong", "zhenfa"]
 const ALLOWED_EQUIP_SLOTS: Array[String] = ["weapon", "armor", "accessory"]
 const DEFAULT_SKILL_CAST_RANGE_CELLS: float = 2.0
 
@@ -26,6 +27,7 @@ var _buff_manager = preload("res://scripts/gongfa/buff_manager.gd").new()
 var _trigger_engine = preload("res://scripts/gongfa/trigger_engine.gd").new()
 var _passive_applier = preload("res://scripts/gongfa/passive_applier.gd").new()
 var _tag_linkage_resolver = preload("res://scripts/gongfa/tag_linkage_resolver.gd").new()
+var _tag_linkage_scheduler = preload("res://scripts/gongfa/tag_linkage_runtime_scheduler.gd").new()
 var _unit_data_script: Script = load("res://scripts/data/unit_data.gd")
 
 var _bound_combat_manager: Node = null
@@ -39,6 +41,10 @@ var _unit_states: Dictionary = {} # instance_id -> state
 var _battle_running: bool = false
 var _battle_elapsed: float = 0.0
 var _trigger_accum: float = 0.0
+
+var _tag_to_index: Dictionary = {} # tag(lower) -> int
+var _index_to_tag: Array[String] = []
+var _tag_registry_version: int = 1
 
 
 func _ready() -> void:
@@ -71,6 +77,13 @@ func _process(delta: float) -> void:
 func reload_from_data() -> Dictionary:
 	var data_manager: Node = _get_data_manager()
 	var summary: Dictionary = _registry.reload_from_data_manager(data_manager)
+	_rebuild_tag_registry(data_manager)
+	if _tag_linkage_resolver != null and _tag_linkage_resolver.has_method("configure_tag_registry"):
+		_tag_linkage_resolver.call("configure_tag_registry", _tag_to_index, _tag_registry_version)
+	if _tag_linkage_scheduler != null:
+		_tag_linkage_scheduler.call("mark_all_dirty", "tag_registry_reloaded")
+	summary["tag_count"] = _index_to_tag.size()
+	summary["tag_registry_version"] = _tag_registry_version
 	_buff_manager.set_buff_definitions(_registry.get_buff_map_snapshot())
 	gongfa_data_reloaded.emit(summary)
 	return summary
@@ -84,6 +97,8 @@ func bind_combat_context(combat_manager: Node, hex_grid: Node, vfx_factory: Node
 	_bound_combat_manager = combat_manager
 	_bound_hex_grid = hex_grid
 	_bound_vfx_factory = vfx_factory
+	if _tag_linkage_scheduler != null:
+		_tag_linkage_scheduler.call("bind_combat_manager", combat_manager)
 	_connect_combat_signals()
 
 
@@ -103,6 +118,8 @@ func prepare_battle(
 	_trigger_accum = 0.0
 	_battle_running = false
 	_buff_manager.clear_all()
+	if _tag_linkage_scheduler != null:
+		_tag_linkage_scheduler.call("clear")
 
 	for unit in ally_units:
 		_register_battle_unit(unit)
@@ -207,6 +224,8 @@ func apply_gongfa(unit: Node, defer_apply: bool = false) -> void:
 
 	if not defer_apply:
 		_apply_state_to_unit(iid, false)
+	if _tag_linkage_scheduler != null:
+		_tag_linkage_scheduler.call("notify_unit_tags_changed", unit)
 
 
 func remove_gongfa(unit: Node) -> void:
@@ -310,6 +329,58 @@ func get_unit_runtime_equip_ids(unit: Node) -> Array[String]:
 	return _resolve_equipped_equip_ids(unit)
 
 
+func get_tag_registry_snapshot() -> Dictionary:
+	return {
+		"tag_to_index": _tag_to_index.duplicate(true),
+		"index_to_tag": _index_to_tag.duplicate(),
+		"version": _tag_registry_version
+	}
+
+
+func get_tag_registry_version() -> int:
+	return _tag_registry_version
+
+
+func evaluate_tag_linkage_gate(owner: Node, effect: Dictionary, context: Dictionary) -> Dictionary:
+	if _tag_linkage_scheduler == null:
+		return {"allowed": true, "reason": "no_scheduler"}
+	var eval_context: Dictionary = context.duplicate(false)
+	if not eval_context.has("hex_grid"):
+		eval_context["hex_grid"] = _bound_hex_grid
+	if not eval_context.has("combat_manager"):
+		eval_context["combat_manager"] = _bound_combat_manager
+	if not eval_context.has("tag_linkage_stagger_buckets"):
+		eval_context["tag_linkage_stagger_buckets"] = tag_linkage_stagger_buckets
+	return _tag_linkage_scheduler.call("should_evaluate", owner, effect, eval_context)
+
+
+func get_tag_linkage_state(owner: Node, effect: Dictionary) -> Dictionary:
+	if _tag_linkage_scheduler == null:
+		return {"last_case_id": "", "stateful_buff_ids": []}
+	return {
+		"last_case_id": _tag_linkage_scheduler.call("get_last_case_id", owner, effect),
+		"stateful_buff_ids": _tag_linkage_scheduler.call("get_stateful_buff_ids", owner, effect)
+	}
+
+
+func set_tag_linkage_state(owner: Node, effect: Dictionary, case_id: String, buff_ids: Array[String]) -> void:
+	if _tag_linkage_scheduler == null:
+		return
+	_tag_linkage_scheduler.call("set_last_case_id", owner, effect, case_id)
+	_tag_linkage_scheduler.call("set_stateful_buff_ids", owner, effect, buff_ids)
+
+
+func notify_tag_linkage_evaluated(owner: Node, effect: Dictionary, context: Dictionary, result: Dictionary) -> void:
+	if _tag_linkage_scheduler == null:
+		return
+	var eval_context: Dictionary = context.duplicate(false)
+	if not eval_context.has("hex_grid"):
+		eval_context["hex_grid"] = _bound_hex_grid
+	if not eval_context.has("combat_manager"):
+		eval_context["combat_manager"] = _bound_combat_manager
+	_tag_linkage_scheduler.call("on_evaluated", owner, effect, eval_context, result)
+
+
 func evaluate_tag_linkage_branch(owner: Node, config: Dictionary, context: Dictionary) -> Dictionary:
 	if _tag_linkage_resolver == null:
 		return {}
@@ -322,6 +393,8 @@ func evaluate_tag_linkage_branch(owner: Node, config: Dictionary, context: Dicti
 		eval_context["hex_grid"] = _bound_hex_grid
 	if not eval_context.has("hex_size"):
 		eval_context["hex_size"] = _bound_hex_grid.get("hex_size") if _bound_hex_grid != null else 26.0
+	if not eval_context.has("tag_linkage_stagger_buckets"):
+		eval_context["tag_linkage_stagger_buckets"] = tag_linkage_stagger_buckets
 	eval_context["gongfa_manager"] = self
 	return _tag_linkage_resolver.call("evaluate", owner, config, eval_context)
 
@@ -362,6 +435,10 @@ func execute_external_effects(
 		execution_context["buff_manager"] = _buff_manager
 	if not execution_context.has("battle_elapsed"):
 		execution_context["battle_elapsed"] = _battle_elapsed
+	if not execution_context.has("tag_linkage_scheduler"):
+		execution_context["tag_linkage_scheduler"] = _tag_linkage_scheduler
+	if not execution_context.has("tag_linkage_stagger_buckets"):
+		execution_context["tag_linkage_stagger_buckets"] = tag_linkage_stagger_buckets
 	execution_context["gongfa_manager"] = self
 
 	var summary: Dictionary = _effect_engine.execute_active_effects(source, target, effects, execution_context)
@@ -684,6 +761,13 @@ func _try_fire_skill(source: Node, entry: Dictionary, event_context: Dictionary)
 		if target == null or not is_instance_valid(target):
 			target = source
 
+	var execution_context: Dictionary = _build_effect_context(source, target, event_context)
+	var linkage_gate_result: Dictionary = _build_tag_linkage_gate_map(source, effect_list, execution_context)
+	execution_context["tag_linkage_gate_map"] = linkage_gate_result.get("gate_map", {})
+	if bool(linkage_gate_result.get("has_only_tag_linkage", false)) \
+	and not bool(linkage_gate_result.get("has_allowed_tag_linkage", false)):
+		return false
+
 	var mp_cost: float = float(entry.get("mp_cost", 0.0))
 	if mp_cost > 0.0:
 		var combat: Node = source.get_node_or_null("Components/UnitCombat")
@@ -693,7 +777,6 @@ func _try_fire_skill(source: Node, entry: Dictionary, event_context: Dictionary)
 			return false
 		combat.call("add_mp", -mp_cost)
 
-	var execution_context: Dictionary = _build_effect_context(source, target, event_context)
 	var execution_summary: Dictionary = _effect_engine.execute_active_effects(source, target, effect_list, execution_context)
 	_emit_effect_log_events(
 		execution_summary,
@@ -750,8 +833,45 @@ func _build_effect_context(source: Node, target: Node, event_context: Dictionary
 		"battlefield": battlefield_node,
 		"combat_manager": _bound_combat_manager,
 		"unit_factory": unit_factory_node,
-		"battle_elapsed": _battle_elapsed
+		"battle_elapsed": _battle_elapsed,
+		"tag_linkage_scheduler": _tag_linkage_scheduler,
+		"tag_linkage_stagger_buckets": tag_linkage_stagger_buckets
 	}
+
+
+func _build_tag_linkage_gate_map(source: Node, effect_list: Array, context: Dictionary) -> Dictionary:
+	var gate_map: Dictionary = {}
+	var has_tag_linkage: bool = false
+	var has_non_tag: bool = false
+	var has_allowed: bool = false
+	for effect_value in effect_list:
+		if not (effect_value is Dictionary):
+			continue
+		var effect: Dictionary = effect_value as Dictionary
+		if not _is_tag_linkage_effect_entry(effect):
+			has_non_tag = true
+			continue
+		has_tag_linkage = true
+		var effect_key: String = _tag_linkage_effect_key(effect)
+		var gate: Dictionary = evaluate_tag_linkage_gate(source, effect, context)
+		var allowed: bool = bool(gate.get("allowed", true))
+		gate_map[effect_key] = allowed
+		if allowed:
+			has_allowed = true
+	return {
+		"gate_map": gate_map,
+		"has_tag_linkage": has_tag_linkage,
+		"has_only_tag_linkage": has_tag_linkage and not has_non_tag,
+		"has_allowed_tag_linkage": has_allowed
+	}
+
+
+func _is_tag_linkage_effect_entry(effect: Dictionary) -> bool:
+	return str(effect.get("op", "")).strip_edges() == "tag_linkage_branch"
+
+
+func _tag_linkage_effect_key(effect: Dictionary) -> String:
+	return var_to_str(effect)
 
 
 func _execute_buff_tick_requests(tick_requests_variant: Variant) -> void:
@@ -1176,8 +1296,7 @@ func _normalize_slots_dict(raw: Variant) -> Dictionary:
 		"neigong": "",
 		"waigong": "",
 		"qinggong": "",
-		"zhenfa": "",
-		"qishu": ""
+		"zhenfa": ""
 	}
 	if raw is Dictionary:
 		for slot in ALLOWED_SLOTS:
@@ -1218,6 +1337,59 @@ func _normalize_tag_array(raw: Variant) -> Array[String]:
 			seen[text] = true
 			out.append(text)
 	return out
+
+
+func _rebuild_tag_registry(data_manager: Node) -> void:
+	var next_tag_to_index: Dictionary = {}
+	var next_index_to_tag: Array[String] = []
+	_collect_tags_from_rows(_registry.get_all_gongfa(), next_tag_to_index, next_index_to_tag)
+	_collect_tags_from_rows(_registry.get_all_equipment(), next_tag_to_index, next_index_to_tag)
+	if data_manager != null and is_instance_valid(data_manager) and data_manager.has_method("get_all_records"):
+		_collect_tags_from_rows(data_manager.call("get_all_records", "units"), next_tag_to_index, next_index_to_tag)
+		_collect_tags_from_rows(data_manager.call("get_all_records", "terrains"), next_tag_to_index, next_index_to_tag)
+	for unit in _battle_units:
+		if unit == null or not is_instance_valid(unit):
+			continue
+		_register_tags(_normalize_tag_array(unit.get("tags")), next_tag_to_index, next_index_to_tag)
+		var traits_value: Variant = unit.get("traits")
+		if not (traits_value is Array):
+			continue
+		for trait_value in (traits_value as Array):
+			if not (trait_value is Dictionary):
+				continue
+			_register_tags(_normalize_tag_array((trait_value as Dictionary).get("tags", [])), next_tag_to_index, next_index_to_tag)
+	_tag_to_index = next_tag_to_index
+	_index_to_tag = next_index_to_tag
+	_tag_registry_version += 1
+
+
+func _collect_tags_from_rows(rows_value: Variant, tag_to_index: Dictionary, index_to_tag: Array[String]) -> void:
+	if not (rows_value is Array):
+		return
+	for row_value in (rows_value as Array):
+		if not (row_value is Dictionary):
+			continue
+		var row: Dictionary = row_value as Dictionary
+		_register_tags(_normalize_tag_array(row.get("tags", [])), tag_to_index, index_to_tag)
+		var traits_value: Variant = row.get("traits", [])
+		if not (traits_value is Array):
+			continue
+		for trait_value in (traits_value as Array):
+			if not (trait_value is Dictionary):
+				continue
+			_register_tags(_normalize_tag_array((trait_value as Dictionary).get("tags", [])), tag_to_index, index_to_tag)
+
+
+func _register_tags(tags: Array[String], tag_to_index: Dictionary, index_to_tag: Array[String]) -> void:
+	for tag in tags:
+		var key: String = tag.strip_edges().to_lower()
+		if key.is_empty():
+			continue
+		if tag_to_index.has(key):
+			continue
+		var index: int = index_to_tag.size()
+		tag_to_index[key] = index
+		index_to_tag.append(key)
 
 
 func _normalize_string_array(raw: Variant) -> Array[String]:

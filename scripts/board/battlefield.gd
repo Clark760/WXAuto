@@ -21,17 +21,6 @@ const QUALITY_SELL_PRICE: Dictionary = {
 	"red": 15
 }
 
-const HEALER_ROLE_KEY: String = "healer"
-const HEALER_FALLBACK_GONGFA_BY_QUALITY: Dictionary = {
-	# 低品质补“保底治疗”功法，保证医者最基础治疗职责可用。
-	"white": ["gf_baicao_jiushi", "gongfa_taiji_neigong"],
-	"green": ["gf_yangchun_huixin", "gongfa_taiji_neigong"],
-	"blue": ["gongfa_taiji_neigong", "gf_wudang_heal"],
-	"purple": ["gf_emei_heal", "gf_wudang_heal", "gongfa_huagong"],
-	"orange": ["gf_jiuyang_heal", "gf_huqingniu", "gf_yideng_heal"],
-	"red": ["gf_shennong", "gf_yijin", "gf_xisui"]
-}
-
 const ECONOMY_MANAGER_SCRIPT: Script = preload("res://scripts/economy/economy_manager.gd")
 const SHOP_MANAGER_SCRIPT: Script = preload("res://scripts/economy/shop_manager.gd")
 const RECYCLE_DROP_ZONE_SCRIPT: Script = preload("res://scripts/ui/recycle_drop_zone.gd")
@@ -1722,7 +1711,7 @@ func _create_shop_offer_card(offer: Dictionary, index: int, tab_id: String) -> P
 
 	name_label.text = item_name
 	if tab_id == SHOP_TAB_RECRUIT:
-		type_label.text = "[%s] %s" % [_quality_to_cn(quality), _role_to_cn(slot_type)]
+		type_label.text = "[%s] 侠客" % _quality_to_cn(quality)
 	else:
 		type_label.text = "[%s] %s" % [_quality_to_cn(quality), _slot_or_equip_cn(tab_id, slot_type)]
 
@@ -1800,7 +1789,6 @@ func _grant_recruit_unit(unit_id: String) -> bool:
 	unit_node.call("set_team", 1)
 	unit_node.call("set_on_bench_state", true, -1)
 	unit_node.set("is_in_combat", false)
-	_ensure_healer_default_skill(unit_node)
 	if not bench_ui.add_unit(unit_node):
 		unit_factory.call("release_unit", unit_node)
 		debug_label.text = "备战区已满，无法招募。"
@@ -1810,9 +1798,7 @@ func _grant_recruit_unit(unit_id: String) -> bool:
 
 
 func _spawn_random_units_to_bench(count: int) -> void:
-	# 在通用生成逻辑后，补一轮“医者保底治疗功法”。
 	super._spawn_random_units_to_bench(count)
-	_apply_default_healer_skills_for_bench()
 
 
 func grant_stage_reward_item(item_type: String, item_id: String, count: int = 1) -> bool:
@@ -1849,7 +1835,6 @@ func grant_stage_reward_unit(unit_id: String, star: int = 1) -> Dictionary:
 	unit_node.call("set_team", TEAM_ALLY)
 	unit_node.call("set_on_bench_state", true, -1)
 	unit_node.set("is_in_combat", false)
-	_ensure_healer_default_skill(unit_node)
 
 	# 优先放备战席；满员时退化为“棋盘部署区随机空格”。
 	if bench_ui != null and bench_ui.has_method("add_unit") and bool(bench_ui.call("add_unit", unit_node)):
@@ -2048,133 +2033,10 @@ func _layout_bench_recycle_wrap() -> void:
 			_recycle_drop_zone.visible = _stage == Stage.PREPARATION
 
 
-func _apply_default_healer_skills_for_bench() -> void:
-	if bench_ui == null or not is_instance_valid(bench_ui):
-		return
-	if not bench_ui.has_method("get_all_units"):
-		return
-	var units_value: Variant = bench_ui.call("get_all_units")
-	if not (units_value is Array):
-		return
-	for unit in units_value:
-		_ensure_healer_default_skill(unit as Node)
-
-
-func _ensure_healer_default_skill(unit: Node) -> void:
-	if unit == null or not _is_valid_unit(unit):
-		return
-	if gongfa_manager == null:
-		return
-	var role: String = str(_safe_node_prop(unit, "role", "")).strip_edges().to_lower()
-	if role != HEALER_ROLE_KEY:
-		return
-	if _unit_has_healing_gongfa(unit):
-		return
-	var quality: String = str(_safe_node_prop(unit, "quality", "white")).strip_edges().to_lower()
-	var fallback_id: String = _pick_healer_fallback_gongfa_id(quality)
-	if fallback_id.is_empty():
-		return
-	var fallback_data: Dictionary = gongfa_manager.call("get_gongfa_data", fallback_id)
-	if fallback_data.is_empty():
-		return
-	var slot: String = str(fallback_data.get("type", "qishu")).strip_edges()
-	if slot.is_empty():
-		return
-	var slots: Dictionary = _normalize_unit_slots(unit.get("gongfa_slots"))
-	slots[slot] = fallback_id
-	unit.set("gongfa_slots", slots)
-	gongfa_manager.call("apply_gongfa", unit)
-
-
-func _unit_has_healing_gongfa(unit: Node) -> bool:
-	if unit == null or not _is_valid_unit(unit):
-		return false
-	var slots: Dictionary = _normalize_unit_slots(unit.get("gongfa_slots"))
-	for slot in SLOT_ORDER:
-		var gongfa_id: String = str(slots.get(slot, "")).strip_edges()
-		if gongfa_id.is_empty():
-			continue
-		var data: Dictionary = gongfa_manager.call("get_gongfa_data", gongfa_id)
-		if _is_healing_gongfa_data(data):
-			return true
-	return false
-
-
-func _pick_healer_fallback_gongfa_id(quality: String) -> String:
-	var preferred: Variant = HEALER_FALLBACK_GONGFA_BY_QUALITY.get(quality, [])
-	if preferred is Array:
-		for id_value in preferred:
-			var gongfa_id: String = str(id_value).strip_edges()
-			if gongfa_id.is_empty():
-				continue
-			var data: Dictionary = gongfa_manager.call("get_gongfa_data", gongfa_id)
-			if not data.is_empty():
-				return gongfa_id
-	# 兜底：按全部映射遍历，拿到任意可用治疗功法。
-	for key in HEALER_FALLBACK_GONGFA_BY_QUALITY.keys():
-		var arr: Variant = HEALER_FALLBACK_GONGFA_BY_QUALITY[key]
-		if not (arr is Array):
-			continue
-		for id_value in arr:
-			var gongfa_id: String = str(id_value).strip_edges()
-			if gongfa_id.is_empty():
-				continue
-			var data: Dictionary = gongfa_manager.call("get_gongfa_data", gongfa_id)
-			if not data.is_empty():
-				return gongfa_id
-	return ""
-
-
-func _is_healing_gongfa_data(data: Dictionary) -> bool:
-	if data.is_empty():
-		return false
-	var tags_value: Variant = data.get("tags", [])
-	if tags_value is Array:
-		for tag in tags_value:
-			var tag_str: String = str(tag).to_lower()
-			if tag_str == "heal" or tag_str == "recovery" or tag_str == "support":
-				return true
-	var skills_value: Variant = data.get("skills", [])
-	if skills_value is Array:
-		for skill_value in (skills_value as Array):
-			if not (skill_value is Dictionary):
-				continue
-			var effects_value: Variant = (skill_value as Dictionary).get("effects", [])
-			if not (effects_value is Array):
-				continue
-			for effect_value in effects_value:
-				if not (effect_value is Dictionary):
-					continue
-				var op: String = str((effect_value as Dictionary).get("op", "")).strip_edges()
-				if op == "heal_self" or op == "heal_self_percent" or op == "heal_allies_aoe" or op == "buff_allies_aoe":
-					return true
-	return false
-
-
 func _slot_or_equip_cn(tab_id: String, slot_type: String) -> String:
 	if tab_id == SHOP_TAB_GONGFA:
 		return _slot_to_cn(slot_type)
 	return _equip_type_to_cn(slot_type)
-
-
-func _role_to_cn(role: String) -> String:
-	match role:
-		"vanguard":
-			return "先锋"
-		"swordsman":
-			return "剑客"
-		"assassin":
-			return "刺客"
-		"archer":
-			return "射手"
-		"caster":
-			return "术师"
-		"healer":
-			return "医者"
-		"commander":
-			return "统领"
-		_:
-			return role
 
 
 func _on_assets_changed(_snapshot: Dictionary) -> void:

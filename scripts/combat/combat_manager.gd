@@ -8,6 +8,9 @@ signal battle_started(ally_count: int, enemy_count: int)
 signal battle_ended(winner_team: int, summary: Dictionary)
 signal damage_resolved(event: Dictionary)
 signal unit_died(unit: Node, killer: Node, team_id: int)
+signal unit_cell_changed(unit: Node, from_cell: Vector2i, to_cell: Vector2i)
+signal unit_spawned(unit: Node, team_id: int)
+signal terrain_changed(changed_cells: Array, reason: String)
 
 const TEAM_ALLY: int = 1
 const TEAM_ENEMY: int = 2
@@ -109,6 +112,7 @@ var _terrain_blocked_cells: Dictionary = {} # int(cell_key) -> true（临时地�
 var _flow_force_rebuild: bool = false
 var _terrain_manager = TERRAIN_MANAGER_SCRIPT.new()
 var _terrain_registry_loaded: bool = false
+var _last_terrain_cells: Dictionary = {} # int(cell_key) -> true
 
 # 拆分子模块（M5）：
 # - 占格系统
@@ -250,6 +254,8 @@ func add_temporary_terrain(config: Dictionary, source: Node = null) -> bool:
 		set_terrain_blocked_cells(barrier_cells)
 	if bool(result.get("visual_changed", false)):
 		_apply_terrain_visuals()
+	if bool(result.get("barrier_changed", false)) or bool(result.get("visual_changed", false)):
+		_emit_terrain_changed("add_temporary")
 	return bool(result.get("added", false))
 
 
@@ -258,6 +264,7 @@ func clear_temporary_terrains() -> void:
 		_terrain_manager.call("clear_temporary_terrains")
 	clear_terrain_blocked_cells()
 	_apply_terrain_visuals()
+	_emit_terrain_changed("clear_temporary")
 
 
 func add_static_terrain(terrain_id: String, cells: Array, extra_config: Dictionary = {}) -> bool:
@@ -277,6 +284,8 @@ func add_static_terrain(terrain_id: String, cells: Array, extra_config: Dictiona
 		set_static_blocked_cells(static_cells)
 	if bool(result.get("visual_changed", false)):
 		_apply_terrain_visuals()
+	if bool(result.get("barrier_changed", false)) or bool(result.get("visual_changed", false)):
+		_emit_terrain_changed("add_static")
 	return bool(result.get("added", false))
 
 
@@ -285,6 +294,7 @@ func clear_static_terrains() -> void:
 		_terrain_manager.call("clear_static_terrains")
 	clear_static_blocked_cells()
 	_apply_terrain_visuals()
+	_emit_terrain_changed("clear_static")
 
 
 func is_cell_blocked(cell: Vector2i) -> bool:
@@ -312,6 +322,42 @@ func _apply_terrain_visuals() -> void:
 	if _terrain_manager != null:
 		visual_cells = _terrain_manager.call("get_visual_cells", _hex_grid)
 	_hex_grid.call("set_terrain_cells", visual_cells)
+
+
+func _emit_terrain_changed(reason: String) -> void:
+	if _terrain_manager == null or _hex_grid == null or not is_instance_valid(_hex_grid):
+		terrain_changed.emit([], reason)
+		return
+	var visual_cells: Dictionary = _terrain_manager.call("get_visual_cells", _hex_grid)
+	var next_cells: Dictionary = {}
+	for key_value in visual_cells.keys():
+		next_cells[int(key_value)] = true
+	var changed_cells: Array[Vector2i] = []
+	var changed_map: Dictionary = {}
+	for key_value in _last_terrain_cells.keys():
+		var key_before: int = int(key_value)
+		if next_cells.has(key_before):
+			continue
+		changed_map[key_before] = true
+	for key_value in next_cells.keys():
+		var key_after: int = int(key_value)
+		if _last_terrain_cells.has(key_after):
+			continue
+		changed_map[key_after] = true
+	for key_value in changed_map.keys():
+		changed_cells.append(_cell_from_key_int(int(key_value)))
+	_last_terrain_cells = next_cells
+	terrain_changed.emit(changed_cells, reason)
+
+
+func _cell_from_key_int(key: int) -> Vector2i:
+	var x: int = (key >> 16) & 0xFFFF
+	var y: int = key & 0xFFFF
+	if x > 32767:
+		x -= 65536
+	if y > 32767:
+		y -= 65536
+	return Vector2i(x, y)
 
 
 func force_move_unit_to_cell(unit: Node, target_cell: Vector2i) -> bool:
@@ -414,6 +460,8 @@ func swap_unit_cells(unit_a: Node, unit_b: Node) -> bool:
 	if move_b != null:
 		move_b.call("clear_target")
 	_flow_force_rebuild = true
+	unit_cell_changed.emit(unit_a, cell_a, cell_b)
+	unit_cell_changed.emit(unit_b, cell_b, cell_a)
 	return true
 
 
@@ -454,6 +502,7 @@ func add_unit_mid_battle(unit: Node) -> bool:
 
 	if _hex_grid != null:
 		_resolve_and_register_unit_cell(unit)
+	unit_spawned.emit(unit, team_id)
 	return true
 
 
@@ -725,6 +774,8 @@ func _tick_terrain(delta: float) -> void:
 		set_terrain_blocked_cells(barrier_cells)
 	if bool(tick_result.get("visual_changed", false)):
 		_apply_terrain_visuals()
+	if bool(tick_result.get("barrier_changed", false)) or bool(tick_result.get("visual_changed", false)):
+		_emit_terrain_changed("tick")
 
 
 func _get_gongfa_manager() -> Node:
@@ -1125,6 +1176,12 @@ func _vacate_unit(unit: Node) -> void:
 	_occupancy.vacate_unit(self, unit)
 
 
+func _notify_unit_cell_changed(unit: Node, from_cell: Vector2i, to_cell: Vector2i) -> void:
+	if unit == null or not is_instance_valid(unit):
+		return
+	unit_cell_changed.emit(unit, from_cell, to_cell)
+
+
 func _is_cell_free(cell: Vector2i) -> bool:
 	return _occupancy.is_cell_free(self, cell)
 
@@ -1194,6 +1251,7 @@ func _reset_battle_runtime_state() -> void:
 	_cell_occupancy.clear()
 	_unit_cell.clear()
 	_terrain_blocked_cells.clear()
+	_last_terrain_cells.clear()
 	_flow_force_rebuild = true
 	if _terrain_manager != null:
 		clear_temporary_terrains()

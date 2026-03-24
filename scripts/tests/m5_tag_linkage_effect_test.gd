@@ -2,12 +2,11 @@
 
 const TAG_LINKAGE_RESOLVER_SCRIPT: Script = preload("res://scripts/gongfa/tag_linkage_resolver.gd")
 const EFFECT_ENGINE_SCRIPT: Script = preload("res://scripts/gongfa/effect_engine.gd")
-const DATA_MANAGER_SCRIPT: Script = preload("res://scripts/data/data_manager.gd")
 
-const GONGFA_TEST_DATA_PATH: String = "res://data/gongfa/gongfa_m5_tag_linkage_test.json"
-const EQUIPMENT_TEST_DATA_PATH: String = "res://data/equipment/equipment_m5_tag_linkage_test.json"
-const UNIT_TEST_DATA_PATH: String = "res://data/units/units_m5_tag_linkage_test.json"
-const TERRAIN_TEST_DATA_PATH: String = "res://data/terrains/terrains_m5_tag_linkage_test.json"
+const GONGFA_TEST_DATA_PATH: String = "res://scripts/tests/fixtures/tag_linkage/gongfa_m5_tag_linkage_test.json"
+const EQUIPMENT_TEST_DATA_PATH: String = "res://scripts/tests/fixtures/tag_linkage/equipment_m5_tag_linkage_test.json"
+const UNIT_TEST_DATA_PATH: String = "res://scripts/tests/fixtures/tag_linkage/units_m5_tag_linkage_test.json"
+const TERRAIN_TEST_DATA_PATH: String = "res://scripts/tests/fixtures/tag_linkage/terrains_m5_tag_linkage_test.json"
 
 
 class MockUnit:
@@ -167,6 +166,21 @@ class MockGongfaManager:
 	func set_tag_maps(gongfa_map: Dictionary, equipment_map: Dictionary) -> void:
 		gongfa_tag_map = gongfa_map.duplicate(true)
 		equipment_tag_map = equipment_map.duplicate(true)
+		var tag_to_index: Dictionary = {}
+		var next_index: int = 0
+		for tags_value in gongfa_tag_map.values():
+			for tag in _normalize_tags(tags_value):
+				if tag_to_index.has(tag):
+					continue
+				tag_to_index[tag] = next_index
+				next_index += 1
+		for tags_value in equipment_tag_map.values():
+			for tag in _normalize_tags(tags_value):
+				if tag_to_index.has(tag):
+					continue
+				tag_to_index[tag] = next_index
+				next_index += 1
+		resolver.call("configure_tag_registry", tag_to_index, 1)
 
 	func get_gongfa_tags(gongfa_id: String) -> Array[String]:
 		return _normalize_tags(gongfa_tag_map.get(gongfa_id, []))
@@ -230,7 +244,6 @@ func _init() -> void:
 
 
 func _run() -> void:
-	_test_data_files_are_loaded()
 	_build_test_tag_maps()
 	_test_range_zero_only_self_and_ground()
 	_test_range_and_tag_match_any_all()
@@ -239,19 +252,6 @@ func _run() -> void:
 	_test_static_and_dynamic_terrain_tags()
 	_test_wandu_ground_poison_fire_else()
 	_test_effect_engine_dispatch_tag_linkage_branch()
-
-
-func _test_data_files_are_loaded() -> void:
-	var data_manager: Node = DATA_MANAGER_SCRIPT.new()
-	var summary: Dictionary = data_manager.call("load_base_data")
-	_assert_true(int(summary.get("total_records", 0)) > 0, "data manager should load records")
-
-	_assert_true(not data_manager.call("get_record", "gongfa", "gongfa_tag_linkage_array_test").is_empty(), "gongfa test record should be loaded")
-	_assert_true(not data_manager.call("get_record", "gongfa", "gongfa_tag_linkage_ground_test").is_empty(), "ground gongfa test record should be loaded")
-	_assert_true(not data_manager.call("get_record", "equipment", "eq_m5_tag_array_token").is_empty(), "equipment test record should be loaded")
-	_assert_true(not data_manager.call("get_record", "units", "unit_m5_tag_anchor").is_empty(), "unit test record should be loaded")
-	_assert_true(not data_manager.call("get_record", "terrains", "terrain_m5_tag_poison_pool").is_empty(), "terrain test record should be loaded")
-	data_manager.free()
 
 
 func _build_test_tag_maps() -> void:
@@ -344,7 +344,7 @@ func _test_range_zero_only_self_and_ground() -> void:
 func _test_range_and_tag_match_any_all() -> void:
 	var bundle: Dictionary = _build_context_bundle()
 	var owner: MockUnit = _make_unit("owner_range", 1, [], [], [], [])
-	var ally_a: MockUnit = _make_unit("ally_a", 1, ["array.zhenwu", "faction.wudang"], [], [], [])
+	var ally_a: MockUnit = _make_unit("ally_a", 1, ["array.zhenwu", "school.wudang"], [], [], [])
 	var ally_b: MockUnit = _make_unit("ally_b", 1, ["array.zhenwu"], [], [], [])
 	var enemy_a: MockUnit = _make_unit("enemy_a", 2, ["array.zhenwu", "enemy.flag"], [], [], [])
 
@@ -359,9 +359,10 @@ func _test_range_and_tag_match_any_all() -> void:
 		"team_scope": "ally",
 		"source_types": ["unit"],
 		"queries": [
-			{"id": "q_any", "tags": ["array.zhenwu", "faction.wudang"], "tag_match": "any", "source_types": ["unit"]},
-			{"id": "q_all", "tags": ["array.zhenwu", "faction.wudang"], "tag_match": "all", "source_types": ["unit"]},
-			{"id": "q_enemy", "tags": ["enemy.flag"], "tag_match": "any", "source_types": ["unit"], "team_scope": "enemy"}
+			{"id": "q_any", "tags": ["array.zhenwu", "school.wudang"], "tag_match": "any", "source_types": ["unit"]},
+			{"id": "q_all", "tags": ["array.zhenwu", "school.wudang"], "tag_match": "all", "source_types": ["unit"]},
+			{"id": "q_enemy", "tags": ["enemy.flag"], "tag_match": "any", "source_types": ["unit"], "team_scope": "enemy"},
+			{"id": "q_all_scope", "tags": ["array.zhenwu"], "tag_match": "any", "source_types": ["unit"], "team_scope": "all"}
 		]
 	}
 
@@ -370,6 +371,7 @@ func _test_range_and_tag_match_any_all() -> void:
 	_assert_true(int(query_counts.get("q_any", 0)) == 2, "tag_match any should count two allies")
 	_assert_true(int(query_counts.get("q_all", 0)) == 1, "tag_match all should count one ally")
 	_assert_true(int(query_counts.get("q_enemy", 0)) == 1, "query-level enemy scope should work")
+	_assert_true(int(query_counts.get("q_all_scope", 0)) == 3, "query-level all scope should include ally and enemy")
 
 	_free_bundle(bundle, [owner, ally_a, ally_b, enemy_a])
 

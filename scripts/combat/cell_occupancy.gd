@@ -27,8 +27,11 @@ func occupy_cell(owner: Node, cell: Vector2i, unit: Node) -> bool:
 	if cell_occupancy.has(key) and int(cell_occupancy[key]) != iid:
 		return false
 
+	var old_cell: Vector2i = Vector2i(-1, -1)
+	var had_old_cell: bool = false
 	if unit_cell.has(iid):
-		var old_cell: Vector2i = unit_cell[iid]
+		old_cell = unit_cell[iid]
+		had_old_cell = true
 		if old_cell != cell:
 			var old_key: int = cell_key_int(old_cell)
 			if cell_occupancy.has(old_key) and int(cell_occupancy[old_key]) == iid:
@@ -36,6 +39,9 @@ func occupy_cell(owner: Node, cell: Vector2i, unit: Node) -> bool:
 
 	cell_occupancy[key] = iid
 	unit_cell[iid] = cell
+	var from_cell: Vector2i = old_cell if had_old_cell else Vector2i(-1, -1)
+	if from_cell != cell and owner.has_method("_notify_unit_cell_changed"):
+		owner.call("_notify_unit_cell_changed", unit, from_cell, cell)
 	return true
 
 
@@ -51,6 +57,9 @@ func vacate_cell(owner: Node, cell: Vector2i) -> void:
 		var occupied_cell: Vector2i = unit_cell[iid]
 		if occupied_cell == cell:
 			unit_cell.erase(iid)
+			if owner.has_method("_notify_unit_cell_changed"):
+				var unit: Node = owner.call("get_unit_by_instance_id", iid)
+				owner.call("_notify_unit_cell_changed", unit, occupied_cell, Vector2i(-1, -1))
 
 
 func vacate_unit(owner: Node, unit: Node) -> void:
@@ -66,6 +75,8 @@ func vacate_unit(owner: Node, unit: Node) -> void:
 	if cell_occupancy.has(key) and int(cell_occupancy[key]) == iid:
 		cell_occupancy.erase(key)
 	unit_cell.erase(iid)
+	if owner.has_method("_notify_unit_cell_changed"):
+		owner.call("_notify_unit_cell_changed", unit, cell, Vector2i(-1, -1))
 
 
 func is_cell_free(owner: Node, cell: Vector2i) -> bool:

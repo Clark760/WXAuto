@@ -153,8 +153,7 @@ func _generate_recruit_offers(level_probabilities: Dictionary) -> Array[Dictiona
 			"item_id": str(picked.get("id", "")),
 			"name": str(picked.get("name", "未知侠客")),
 			"quality": item_quality,
-			"slot_type": str(picked.get("role", "")),
-			"faction": str(picked.get("faction", "")),
+			"slot_type": "",
 			"price": maxi(int(picked.get("cost", _price_from_quality(item_quality))), 1),
 			"sold": false
 		})
@@ -340,8 +339,7 @@ func _rebuild_unit_pool(unit_factory: Node) -> void:
 			"name": str(record.get("name", unit_id)),
 			"quality": quality,
 			"cost": maxi(int(record.get("cost", _price_from_quality(quality))), 1),
-			"role": str(record.get("role", "")),
-			"faction": str(record.get("faction", ""))
+			"slot_type": ""
 		}
 		_unit_pool_all.append(normalized)
 		if not _unit_pool_by_quality.has(quality):

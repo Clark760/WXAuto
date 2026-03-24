@@ -153,11 +153,6 @@ size_flags_vertical = 3
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="FactionIcon" type="ColorRect" parent="HUDLayer/UnitTooltip/TooltipVBox/HeaderRow" unique_id=860706839]
-custom_minimum_size = Vector2(16, 16)
-layout_mode = 2
-color = Color(0.5, 0.5, 0.5, 1)
-
 [node name="HeaderName" type="Label" parent="HUDLayer/UnitTooltip/TooltipVBox/HeaderRow" unique_id=1149262385]
 layout_mode = 2
 size_flags_horizontal = 3
@@ -454,9 +449,9 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "角色名 ★"
 
-[node name="DetailFactionLabel" type="Label" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/PortraitSection" unique_id=433568539]
+[node name="DetailQualityLabel" type="Label" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/PortraitSection" unique_id=433568539]
 layout_mode = 2
-text = "门派/品质"
+text = "品质"
 
 [node name="StatsSection" type="VBoxContainer" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow" unique_id=1411928601]
 layout_mode = 2

@@ -2,11 +2,9 @@
   {
     "id": "bm5_u_purple_001",
     "name": "令狐冲",
-    "faction": "bm5_faction_purple_0",
     "quality": "purple",
     "cost": 4,
     "shop_visible": true,
-    "role": "swordsman",
     "base_star": 1,
     "max_star": 3,
     "base_stats": {
@@ -38,7 +36,6 @@
         "skills": [],
         "tags": [
           "bm5.trait.core",
-          "bm5.role.swordsman",
           "bm5.trait.purple"
         ]
       }
@@ -47,10 +44,8 @@
       "neigong": "",
       "waigong": "bm5_gf_purple_001",
       "qinggong": "",
-      "zhenfa": "",
-      "qishu": ""
+      "zhenfa": ""
     },
-    "max_gongfa_count": 4,
     "equip_slots": {
       "weapon": "bm5_eq_purple_001",
       "armor": "",
@@ -62,7 +57,6 @@
     "tags": [
       "bm5.batch.three",
       "bm5.quality.purple",
-      "bm5.role.swordsman",
       "bm5.source.wuxia_novel",
       "bm5.shop.buyable",
       "bm5.unit.purple.001"
@@ -71,11 +65,9 @@
   {
     "id": "bm5_u_purple_002",
     "name": "任盈盈",
-    "faction": "bm5_faction_purple_1",
     "quality": "purple",
     "cost": 4,
     "shop_visible": true,
-    "role": "healer",
     "base_star": 1,
     "max_star": 3,
     "base_stats": {
@@ -107,7 +99,6 @@
         "skills": [],
         "tags": [
           "bm5.trait.core",
-          "bm5.role.healer",
           "bm5.trait.purple"
         ]
       }
@@ -116,10 +107,8 @@
       "neigong": "bm5_gf_purple_002",
       "waigong": "",
       "qinggong": "",
-      "zhenfa": "",
-      "qishu": ""
+      "zhenfa": ""
     },
-    "max_gongfa_count": 4,
     "equip_slots": {
       "weapon": "",
       "armor": "",
@@ -131,7 +120,6 @@
     "tags": [
       "bm5.batch.three",
       "bm5.quality.purple",
-      "bm5.role.healer",
       "bm5.source.wuxia_novel",
       "bm5.shop.buyable",
       "bm5.unit.purple.002"
@@ -140,11 +128,9 @@
   {
     "id": "bm5_u_purple_003",
     "name": "东方不败",
-    "faction": "bm5_faction_purple_2",
     "quality": "purple",
     "cost": 4,
     "shop_visible": true,
-    "role": "assassin",
     "base_star": 1,
     "max_star": 3,
     "base_stats": {
@@ -176,7 +162,6 @@
         "skills": [],
         "tags": [
           "bm5.trait.core",
-          "bm5.role.assassin",
           "bm5.trait.purple"
         ]
       }
@@ -185,10 +170,8 @@
       "neigong": "",
       "waigong": "",
       "qinggong": "bm5_gf_purple_003",
-      "zhenfa": "",
-      "qishu": ""
+      "zhenfa": ""
     },
-    "max_gongfa_count": 4,
     "equip_slots": {
       "weapon": "bm5_eq_purple_003",
       "armor": "",
@@ -200,7 +183,6 @@
     "tags": [
       "bm5.batch.three",
       "bm5.quality.purple",
-      "bm5.role.assassin",
       "bm5.source.wuxia_novel",
       "bm5.shop.buyable",
       "bm5.unit.purple.003"
@@ -209,11 +191,9 @@
   {
     "id": "bm5_u_purple_004",
     "name": "岳不群",
-    "faction": "bm5_faction_purple_3",
     "quality": "purple",
     "cost": 4,
     "shop_visible": true,
-    "role": "leader",
     "base_star": 1,
     "max_star": 3,
     "base_stats": {
@@ -246,7 +226,6 @@
         "skills": [],
         "tags": [
           "bm5.trait.core",
-          "bm5.role.leader",
           "bm5.trait.purple"
         ]
       }
@@ -255,10 +234,8 @@
       "neigong": "",
       "waigong": "",
       "qinggong": "",
-      "zhenfa": "bm5_gf_purple_004",
-      "qishu": ""
+      "zhenfa": "bm5_gf_purple_004"
     },
-    "max_gongfa_count": 4,
     "equip_slots": {
       "weapon": "",
       "armor": "bm5_eq_purple_004",
@@ -270,7 +247,6 @@
     "tags": [
       "bm5.batch.three",
       "bm5.quality.purple",
-      "bm5.role.leader",
       "bm5.source.wuxia_novel",
       "bm5.shop.buyable",
       "bm5.unit.purple.004"
@@ -279,11 +255,9 @@
   {
     "id": "bm5_u_purple_005",
     "name": "左冷禅",
-    "faction": "bm5_faction_purple_4",
     "quality": "purple",
     "cost": 4,
     "shop_visible": true,
-    "role": "vanguard",
     "base_star": 1,
     "max_star": 3,
     "base_stats": {
@@ -315,7 +289,6 @@
         "skills": [],
         "tags": [
           "bm5.trait.core",
-          "bm5.role.vanguard",
           "bm5.trait.purple"
         ]
       }
@@ -324,10 +297,8 @@
       "neigong": "",
       "waigong": "bm5_gf_purple_005",
       "qinggong": "",
-      "zhenfa": "",
-      "qishu": ""
+      "zhenfa": ""
     },
-    "max_gongfa_count": 4,
     "equip_slots": {
       "weapon": "",
       "armor": "bm5_eq_purple_005",
@@ -339,7 +310,6 @@
     "tags": [
       "bm5.batch.three",
       "bm5.quality.purple",
-      "bm5.role.vanguard",
       "bm5.source.wuxia_novel",
       "bm5.shop.buyable",
       "bm5.unit.purple.005"
@@ -348,11 +318,9 @@
   {
     "id": "bm5_u_purple_006",
     "name": "乔峰",
-    "faction": "bm5_faction_purple_0",
     "quality": "purple",
     "cost": 4,
     "shop_visible": true,
-    "role": "vanguard",
     "base_star": 1,
     "max_star": 3,
     "base_stats": {
@@ -384,7 +352,6 @@
         "skills": [],
         "tags": [
           "bm5.trait.core",
-          "bm5.role.vanguard",
           "bm5.trait.purple"
         ]
       }
@@ -393,10 +360,8 @@
       "neigong": "",
       "waigong": "bm5_gf_purple_006",
       "qinggong": "",
-      "zhenfa": "",
-      "qishu": ""
+      "zhenfa": ""
     },
-    "max_gongfa_count": 4,
     "equip_slots": {
       "weapon": "",
       "armor": "bm5_eq_purple_006",
@@ -408,7 +373,6 @@
     "tags": [
       "bm5.batch.three",
       "bm5.quality.purple",
-      "bm5.role.vanguard",
       "bm5.source.wuxia_novel",
       "bm5.shop.buyable",
       "bm5.unit.purple.006"
@@ -417,11 +381,9 @@
   {
     "id": "bm5_u_purple_007",
     "name": "段誉",
-    "faction": "bm5_faction_purple_1",
     "quality": "purple",
     "cost": 4,
     "shop_visible": true,
-    "role": "caster",
     "base_star": 1,
     "max_star": 3,
     "base_stats": {
@@ -453,7 +415,6 @@
         "skills": [],
         "tags": [
           "bm5.trait.core",
-          "bm5.role.caster",
           "bm5.trait.purple"
         ]
       }
@@ -462,10 +423,8 @@
       "neigong": "bm5_gf_purple_007",
       "waigong": "",
       "qinggong": "",
-      "zhenfa": "",
-      "qishu": ""
+      "zhenfa": ""
     },
-    "max_gongfa_count": 4,
     "equip_slots": {
       "weapon": "",
       "armor": "",
@@ -477,7 +436,6 @@
     "tags": [
       "bm5.batch.three",
       "bm5.quality.purple",
-      "bm5.role.caster",
       "bm5.source.wuxia_novel",
       "bm5.shop.buyable",
       "bm5.unit.purple.007"
@@ -486,11 +444,9 @@
   {
     "id": "bm5_u_purple_008",
     "name": "虚竹",
-    "faction": "bm5_faction_purple_2",
     "quality": "purple",
     "cost": 4,
     "shop_visible": true,
-    "role": "healer",
     "base_star": 1,
     "max_star": 3,
     "base_stats": {
@@ -522,7 +478,6 @@
         "skills": [],
         "tags": [
           "bm5.trait.core",
-          "bm5.role.healer",
           "bm5.trait.purple"
         ]
       }
@@ -531,10 +486,8 @@
       "neigong": "bm5_gf_purple_008",
       "waigong": "",
       "qinggong": "",
-      "zhenfa": "",
-      "qishu": ""
+      "zhenfa": ""
     },
-    "max_gongfa_count": 4,
     "equip_slots": {
       "weapon": "",
       "armor": "",
@@ -546,7 +499,6 @@
     "tags": [
       "bm5.batch.three",
       "bm5.quality.purple",
-      "bm5.role.healer",
       "bm5.source.wuxia_novel",
       "bm5.shop.buyable",
       "bm5.unit.purple.008"
@@ -555,11 +507,9 @@
   {
     "id": "bm5_u_purple_009",
     "name": "王语嫣",
-    "faction": "bm5_faction_purple_3",
     "quality": "purple",
     "cost": 4,
     "shop_visible": true,
-    "role": "leader",
     "base_star": 1,
     "max_star": 3,
     "base_stats": {
@@ -592,7 +542,6 @@
         "skills": [],
         "tags": [
           "bm5.trait.core",
-          "bm5.role.leader",
           "bm5.trait.purple"
         ]
       }
@@ -601,10 +550,8 @@
       "neigong": "",
       "waigong": "",
       "qinggong": "",
-      "zhenfa": "bm5_gf_purple_009",
-      "qishu": ""
+      "zhenfa": "bm5_gf_purple_009"
     },
-    "max_gongfa_count": 4,
     "equip_slots": {
       "weapon": "",
       "armor": "bm5_eq_purple_009",
@@ -616,7 +563,6 @@
     "tags": [
       "bm5.batch.three",
       "bm5.quality.purple",
-      "bm5.role.leader",
       "bm5.source.wuxia_novel",
       "bm5.shop.buyable",
       "bm5.unit.purple.009"
@@ -625,11 +571,9 @@
   {
     "id": "bm5_u_purple_010",
     "name": "慕容复",
-    "faction": "bm5_faction_purple_4",
     "quality": "purple",
     "cost": 4,
     "shop_visible": true,
-    "role": "swordsman",
     "base_star": 1,
     "max_star": 3,
     "base_stats": {
@@ -661,7 +605,6 @@
         "skills": [],
         "tags": [
           "bm5.trait.core",
-          "bm5.role.swordsman",
           "bm5.trait.purple"
         ]
       }
@@ -670,10 +613,8 @@
       "neigong": "",
       "waigong": "bm5_gf_purple_010",
       "qinggong": "",
-      "zhenfa": "",
-      "qishu": ""
+      "zhenfa": ""
     },
-    "max_gongfa_count": 4,
     "equip_slots": {
       "weapon": "bm5_eq_purple_010",
       "armor": "",
@@ -685,7 +626,6 @@
     "tags": [
       "bm5.batch.three",
       "bm5.quality.purple",
-      "bm5.role.swordsman",
       "bm5.source.wuxia_novel",
       "bm5.shop.buyable",
       "bm5.unit.purple.010"
@@ -694,11 +634,9 @@
   {
     "id": "bm5_u_purple_011",
     "name": "张无忌",
-    "faction": "bm5_faction_purple_0",
     "quality": "purple",
     "cost": 4,
     "shop_visible": true,
-    "role": "leader",
     "base_star": 1,
     "max_star": 3,
     "base_stats": {
@@ -731,7 +669,6 @@
         "skills": [],
         "tags": [
           "bm5.trait.core",
-          "bm5.role.leader",
           "bm5.trait.purple"
         ]
       }
@@ -740,10 +677,8 @@
       "neigong": "",
       "waigong": "",
       "qinggong": "",
-      "zhenfa": "bm5_gf_purple_011",
-      "qishu": ""
+      "zhenfa": "bm5_gf_purple_011"
     },
-    "max_gongfa_count": 4,
     "equip_slots": {
       "weapon": "",
       "armor": "bm5_eq_purple_011",
@@ -755,7 +690,6 @@
     "tags": [
       "bm5.batch.three",
       "bm5.quality.purple",
-      "bm5.role.leader",
       "bm5.source.wuxia_novel",
       "bm5.shop.buyable",
       "bm5.unit.purple.011"
@@ -764,11 +698,9 @@
   {
     "id": "bm5_u_purple_012",
     "name": "周芙若",
-    "faction": "bm5_faction_purple_1",
     "quality": "purple",
     "cost": 4,
     "shop_visible": true,
-    "role": "assassin",
     "base_star": 1,
     "max_star": 3,
     "base_stats": {
@@ -800,7 +732,6 @@
         "skills": [],
         "tags": [
           "bm5.trait.core",
-          "bm5.role.assassin",
           "bm5.trait.purple"
         ]
       }
@@ -809,10 +740,8 @@
       "neigong": "",
       "waigong": "",
       "qinggong": "bm5_gf_purple_012",
-      "zhenfa": "",
-      "qishu": ""
+      "zhenfa": ""
     },
-    "max_gongfa_count": 4,
     "equip_slots": {
       "weapon": "bm5_eq_purple_012",
       "armor": "",
@@ -824,7 +753,6 @@
     "tags": [
       "bm5.batch.three",
       "bm5.quality.purple",
-      "bm5.role.assassin",
       "bm5.source.wuxia_novel",
       "bm5.shop.buyable",
       "bm5.unit.purple.012"
@@ -833,11 +761,9 @@
   {
     "id": "bm5_u_purple_013",
     "name": "赵敏",
-    "faction": "bm5_faction_purple_2",
     "quality": "purple",
     "cost": 4,
     "shop_visible": true,
-    "role": "archer",
     "base_star": 1,
     "max_star": 3,
     "base_stats": {
@@ -869,7 +795,6 @@
         "skills": [],
         "tags": [
           "bm5.trait.core",
-          "bm5.role.archer",
           "bm5.trait.purple"
         ]
       }
@@ -878,10 +803,8 @@
       "neigong": "",
       "waigong": "",
       "qinggong": "",
-      "zhenfa": "",
-      "qishu": "bm5_gf_purple_013"
+      "zhenfa": ""
     },
-    "max_gongfa_count": 4,
     "equip_slots": {
       "weapon": "bm5_eq_purple_013",
       "armor": "",
@@ -893,7 +816,6 @@
     "tags": [
       "bm5.batch.three",
       "bm5.quality.purple",
-      "bm5.role.archer",
       "bm5.source.wuxia_novel",
       "bm5.shop.buyable",
       "bm5.unit.purple.013"
@@ -902,11 +824,9 @@
   {
     "id": "bm5_u_purple_014",
     "name": "小龙女",
-    "faction": "bm5_faction_purple_3",
     "quality": "purple",
     "cost": 4,
     "shop_visible": true,
-    "role": "assassin",
     "base_star": 1,
     "max_star": 3,
     "base_stats": {
@@ -938,7 +858,6 @@
         "skills": [],
         "tags": [
           "bm5.trait.core",
-          "bm5.role.assassin",
           "bm5.trait.purple"
         ]
       }
@@ -947,10 +866,8 @@
       "neigong": "",
       "waigong": "",
       "qinggong": "bm5_gf_purple_014",
-      "zhenfa": "",
-      "qishu": ""
+      "zhenfa": ""
     },
-    "max_gongfa_count": 4,
     "equip_slots": {
       "weapon": "bm5_eq_purple_014",
       "armor": "",
@@ -962,7 +879,6 @@
     "tags": [
       "bm5.batch.three",
       "bm5.quality.purple",
-      "bm5.role.assassin",
       "bm5.source.wuxia_novel",
       "bm5.shop.buyable",
       "bm5.unit.purple.014"
@@ -971,11 +887,9 @@
   {
     "id": "bm5_u_purple_015",
     "name": "杨过",
-    "faction": "bm5_faction_purple_4",
     "quality": "purple",
     "cost": 4,
     "shop_visible": true,
-    "role": "swordsman",
     "base_star": 1,
     "max_star": 3,
     "base_stats": {
@@ -1007,7 +921,6 @@
         "skills": [],
         "tags": [
           "bm5.trait.core",
-          "bm5.role.swordsman",
           "bm5.trait.purple"
         ]
       }
@@ -1016,10 +929,8 @@
       "neigong": "",
       "waigong": "bm5_gf_purple_015",
       "qinggong": "",
-      "zhenfa": "",
-      "qishu": ""
+      "zhenfa": ""
     },
-    "max_gongfa_count": 4,
     "equip_slots": {
       "weapon": "bm5_eq_purple_015",
       "armor": "",
@@ -1031,7 +942,6 @@
     "tags": [
       "bm5.batch.three",
       "bm5.quality.purple",
-      "bm5.role.swordsman",
       "bm5.source.wuxia_novel",
       "bm5.shop.buyable",
       "bm5.unit.purple.015"
@@ -1040,11 +950,9 @@
   {
     "id": "bm5_u_purple_016",
     "name": "李寻欢",
-    "faction": "bm5_faction_purple_0",
     "quality": "purple",
     "cost": 4,
     "shop_visible": true,
-    "role": "archer",
     "base_star": 1,
     "max_star": 3,
     "base_stats": {
@@ -1076,7 +984,6 @@
         "skills": [],
         "tags": [
           "bm5.trait.core",
-          "bm5.role.archer",
           "bm5.trait.purple"
         ]
       }
@@ -1085,10 +992,8 @@
       "neigong": "",
       "waigong": "",
       "qinggong": "",
-      "zhenfa": "",
-      "qishu": "bm5_gf_purple_016"
+      "zhenfa": ""
     },
-    "max_gongfa_count": 4,
     "equip_slots": {
       "weapon": "bm5_eq_purple_016",
       "armor": "",
@@ -1100,7 +1005,6 @@
     "tags": [
       "bm5.batch.three",
       "bm5.quality.purple",
-      "bm5.role.archer",
       "bm5.source.wuxia_novel",
       "bm5.shop.buyable",
       "bm5.unit.purple.016"
@@ -1109,11 +1013,9 @@
   {
     "id": "bm5_u_purple_017",
     "name": "楚留香",
-    "faction": "bm5_faction_purple_1",
     "quality": "purple",
     "cost": 4,
     "shop_visible": true,
-    "role": "assassin",
     "base_star": 1,
     "max_star": 3,
     "base_stats": {
@@ -1145,7 +1047,6 @@
         "skills": [],
         "tags": [
           "bm5.trait.core",
-          "bm5.role.assassin",
           "bm5.trait.purple"
         ]
       }
@@ -1154,10 +1055,8 @@
       "neigong": "",
       "waigong": "",
       "qinggong": "bm5_gf_purple_017",
-      "zhenfa": "",
-      "qishu": ""
+      "zhenfa": ""
     },
-    "max_gongfa_count": 4,
     "equip_slots": {
       "weapon": "bm5_eq_purple_017",
       "armor": "",
@@ -1169,7 +1068,6 @@
     "tags": [
       "bm5.batch.three",
       "bm5.quality.purple",
-      "bm5.role.assassin",
       "bm5.source.wuxia_novel",
       "bm5.shop.buyable",
       "bm5.unit.purple.017"
@@ -1178,11 +1076,9 @@
   {
     "id": "bm5_u_purple_018",
     "name": "陆小凤",
-    "faction": "bm5_faction_purple_2",
     "quality": "purple",
     "cost": 4,
     "shop_visible": true,
-    "role": "swordsman",
     "base_star": 1,
     "max_star": 3,
     "base_stats": {
@@ -1214,7 +1110,6 @@
         "skills": [],
         "tags": [
           "bm5.trait.core",
-          "bm5.role.swordsman",
           "bm5.trait.purple"
         ]
       }
@@ -1223,10 +1118,8 @@
       "neigong": "",
       "waigong": "bm5_gf_purple_018",
       "qinggong": "",
-      "zhenfa": "",
-      "qishu": ""
+      "zhenfa": ""
     },
-    "max_gongfa_count": 4,
     "equip_slots": {
       "weapon": "bm5_eq_purple_018",
       "armor": "",
@@ -1238,7 +1131,6 @@
     "tags": [
       "bm5.batch.three",
       "bm5.quality.purple",
-      "bm5.role.swordsman",
       "bm5.source.wuxia_novel",
       "bm5.shop.buyable",
       "bm5.unit.purple.018"
@@ -1247,11 +1139,9 @@
   {
     "id": "bm5_u_purple_019",
     "name": "花满楼",
-    "faction": "bm5_faction_purple_3",
     "quality": "purple",
     "cost": 4,
     "shop_visible": true,
-    "role": "healer",
     "base_star": 1,
     "max_star": 3,
     "base_stats": {
@@ -1283,7 +1173,6 @@
         "skills": [],
         "tags": [
           "bm5.trait.core",
-          "bm5.role.healer",
           "bm5.trait.purple"
         ]
       }
@@ -1292,10 +1181,8 @@
       "neigong": "bm5_gf_purple_019",
       "waigong": "",
       "qinggong": "",
-      "zhenfa": "",
-      "qishu": ""
+      "zhenfa": ""
     },
-    "max_gongfa_count": 4,
     "equip_slots": {
       "weapon": "",
       "armor": "",
@@ -1307,7 +1194,6 @@
     "tags": [
       "bm5.batch.three",
       "bm5.quality.purple",
-      "bm5.role.healer",
       "bm5.source.wuxia_novel",
       "bm5.shop.buyable",
       "bm5.unit.purple.019"
@@ -1316,11 +1202,9 @@
   {
     "id": "bm5_u_purple_020",
     "name": "西门吹雪",
-    "faction": "bm5_faction_purple_4",
     "quality": "purple",
     "cost": 4,
     "shop_visible": true,
-    "role": "swordsman",
     "base_star": 1,
     "max_star": 3,
     "base_stats": {
@@ -1352,7 +1236,6 @@
         "skills": [],
         "tags": [
           "bm5.trait.core",
-          "bm5.role.swordsman",
           "bm5.trait.purple"
         ]
       }
@@ -1361,10 +1244,8 @@
       "neigong": "",
       "waigong": "bm5_gf_purple_020",
       "qinggong": "",
-      "zhenfa": "",
-      "qishu": ""
+      "zhenfa": ""
     },
-    "max_gongfa_count": 4,
     "equip_slots": {
       "weapon": "bm5_eq_purple_020",
       "armor": "",
@@ -1376,7 +1257,6 @@
     "tags": [
       "bm5.batch.three",
       "bm5.quality.purple",
-      "bm5.role.swordsman",
       "bm5.source.wuxia_novel",
       "bm5.shop.buyable",
       "bm5.unit.purple.020"

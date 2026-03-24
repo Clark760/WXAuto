@@ -1,0 +1,17 @@
+[
+  {
+    "id": "gongfa_tag_linkage_array_test",
+    "name": "阵列联动测试功法",
+    "tags": ["array.zhenwu", "school.wudang"]
+  },
+  {
+    "id": "gongfa_tag_linkage_ground_test",
+    "name": "地面联动测试功法",
+    "tags": ["trait.wandu_guxin", "element.poison"]
+  },
+  {
+    "id": "gongfa_tag_linkage_support_test",
+    "name": "辅助联动测试功法",
+    "tags": ["support.heal"]
+  }
+]

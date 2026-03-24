@@ -48,12 +48,6 @@
     "description": "BaseMod M5 tag: bm5.gongfa.qinggong"
   },
   {
-    "id": "bm5_tag_0009",
-    "tag": "bm5.gongfa.qishu",
-    "name": "bm5.gongfa.qishu",
-    "description": "BaseMod M5 tag: bm5.gongfa.qishu"
-  },
-  {
     "id": "bm5_tag_0010",
     "tag": "bm5.gongfa.waigong",
     "name": "bm5.gongfa.waigong",
@@ -76,48 +70,6 @@
     "tag": "bm5.quality.white",
     "name": "bm5.quality.white",
     "description": "BaseMod M5 tag: bm5.quality.white"
-  },
-  {
-    "id": "bm5_tag_0014",
-    "tag": "bm5.role.archer",
-    "name": "bm5.role.archer",
-    "description": "BaseMod M5 tag: bm5.role.archer"
-  },
-  {
-    "id": "bm5_tag_0015",
-    "tag": "bm5.role.assassin",
-    "name": "bm5.role.assassin",
-    "description": "BaseMod M5 tag: bm5.role.assassin"
-  },
-  {
-    "id": "bm5_tag_0016",
-    "tag": "bm5.role.caster",
-    "name": "bm5.role.caster",
-    "description": "BaseMod M5 tag: bm5.role.caster"
-  },
-  {
-    "id": "bm5_tag_0017",
-    "tag": "bm5.role.healer",
-    "name": "bm5.role.healer",
-    "description": "BaseMod M5 tag: bm5.role.healer"
-  },
-  {
-    "id": "bm5_tag_0018",
-    "tag": "bm5.role.leader",
-    "name": "bm5.role.leader",
-    "description": "BaseMod M5 tag: bm5.role.leader"
-  },
-  {
-    "id": "bm5_tag_0019",
-    "tag": "bm5.role.swordsman",
-    "name": "bm5.role.swordsman",
-    "description": "BaseMod M5 tag: bm5.role.swordsman"
-  },
-  {
-    "id": "bm5_tag_0020",
-    "tag": "bm5.role.vanguard",
-    "name": "bm5.role.vanguard",
-    "description": "BaseMod M5 tag: bm5.role.vanguard"
   },
   {
     "id": "bm5_tag_0021",

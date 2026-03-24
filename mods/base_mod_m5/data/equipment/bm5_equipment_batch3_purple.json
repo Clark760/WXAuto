@@ -29,7 +29,6 @@
       "bm5.batch.three",
       "bm5.equipment",
       "bm5.quality.purple",
-      "bm5.role.swordsman",
       "bm5.source.wuxia_novel",
       "bm5.equipment.weapon"
     ]
@@ -65,7 +64,6 @@
       "bm5.batch.three",
       "bm5.equipment",
       "bm5.quality.purple",
-      "bm5.role.healer",
       "bm5.source.wuxia_novel",
       "bm5.equipment.accessory"
     ]
@@ -100,7 +98,6 @@
       "bm5.batch.three",
       "bm5.equipment",
       "bm5.quality.purple",
-      "bm5.role.assassin",
       "bm5.source.wuxia_novel",
       "bm5.equipment.weapon"
     ]
@@ -134,7 +131,6 @@
       "bm5.batch.three",
       "bm5.equipment",
       "bm5.quality.purple",
-      "bm5.role.leader",
       "bm5.source.wuxia_novel",
       "bm5.equipment.armor"
     ]
@@ -169,7 +165,6 @@
       "bm5.batch.three",
       "bm5.equipment",
       "bm5.quality.purple",
-      "bm5.role.vanguard",
       "bm5.source.wuxia_novel",
       "bm5.equipment.armor"
     ]
@@ -204,7 +199,6 @@
       "bm5.batch.three",
       "bm5.equipment",
       "bm5.quality.purple",
-      "bm5.role.vanguard",
       "bm5.source.wuxia_novel",
       "bm5.equipment.armor"
     ]
@@ -241,7 +235,6 @@
       "bm5.batch.three",
       "bm5.equipment",
       "bm5.quality.purple",
-      "bm5.role.caster",
       "bm5.source.wuxia_novel",
       "bm5.equipment.accessory"
     ]
@@ -277,7 +270,6 @@
       "bm5.batch.three",
       "bm5.equipment",
       "bm5.quality.purple",
-      "bm5.role.healer",
       "bm5.source.wuxia_novel",
       "bm5.equipment.accessory"
     ]
@@ -311,7 +303,6 @@
       "bm5.batch.three",
       "bm5.equipment",
       "bm5.quality.purple",
-      "bm5.role.leader",
       "bm5.source.wuxia_novel",
       "bm5.equipment.armor"
     ]
@@ -346,7 +337,6 @@
       "bm5.batch.three",
       "bm5.equipment",
       "bm5.quality.purple",
-      "bm5.role.swordsman",
       "bm5.source.wuxia_novel",
       "bm5.equipment.weapon"
     ]
@@ -380,7 +370,6 @@
       "bm5.batch.three",
       "bm5.equipment",
       "bm5.quality.purple",
-      "bm5.role.leader",
       "bm5.source.wuxia_novel",
       "bm5.equipment.armor"
     ]
@@ -415,7 +404,6 @@
       "bm5.batch.three",
       "bm5.equipment",
       "bm5.quality.purple",
-      "bm5.role.assassin",
       "bm5.source.wuxia_novel",
       "bm5.equipment.weapon"
     ]
@@ -450,7 +438,6 @@
       "bm5.batch.three",
       "bm5.equipment",
       "bm5.quality.purple",
-      "bm5.role.archer",
       "bm5.source.wuxia_novel",
       "bm5.equipment.weapon"
     ]
@@ -485,7 +472,6 @@
       "bm5.batch.three",
       "bm5.equipment",
       "bm5.quality.purple",
-      "bm5.role.assassin",
       "bm5.source.wuxia_novel",
       "bm5.equipment.weapon"
     ]
@@ -520,7 +506,6 @@
       "bm5.batch.three",
       "bm5.equipment",
       "bm5.quality.purple",
-      "bm5.role.swordsman",
       "bm5.source.wuxia_novel",
       "bm5.equipment.weapon"
     ]
@@ -555,7 +540,6 @@
       "bm5.batch.three",
       "bm5.equipment",
       "bm5.quality.purple",
-      "bm5.role.archer",
       "bm5.source.wuxia_novel",
       "bm5.equipment.weapon"
     ]
@@ -590,7 +574,6 @@
       "bm5.batch.three",
       "bm5.equipment",
       "bm5.quality.purple",
-      "bm5.role.assassin",
       "bm5.source.wuxia_novel",
       "bm5.equipment.weapon"
     ]
@@ -625,7 +608,6 @@
       "bm5.batch.three",
       "bm5.equipment",
       "bm5.quality.purple",
-      "bm5.role.swordsman",
       "bm5.source.wuxia_novel",
       "bm5.equipment.weapon"
     ]
@@ -661,7 +643,6 @@
       "bm5.batch.three",
       "bm5.equipment",
       "bm5.quality.purple",
-      "bm5.role.healer",
       "bm5.source.wuxia_novel",
       "bm5.equipment.accessory"
     ]
@@ -696,7 +677,6 @@
       "bm5.batch.three",
       "bm5.equipment",
       "bm5.quality.purple",
-      "bm5.role.swordsman",
       "bm5.source.wuxia_novel",
       "bm5.equipment.weapon"
     ]

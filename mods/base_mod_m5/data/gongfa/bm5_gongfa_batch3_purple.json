@@ -4,7 +4,6 @@
     "name": "令狐冲??",
     "type": "waigong",
     "description": "令狐冲?????",
-    "faction": "bm5_faction_purple_0",
     "element": "metal",
     "quality": "purple",
     "shop_visible": true,
@@ -12,7 +11,6 @@
       "bm5.batch.three",
       "bm5.gongfa",
       "bm5.quality.purple",
-      "bm5.role.swordsman",
       "bm5.source.wuxia_novel",
       "bm5.gongfa.waigong"
     ],
@@ -46,7 +44,6 @@
     "name": "任盈盈??",
     "type": "neigong",
     "description": "任盈盈?????",
-    "faction": "bm5_faction_purple_1",
     "element": "wood",
     "quality": "purple",
     "shop_visible": true,
@@ -54,7 +51,6 @@
       "bm5.batch.three",
       "bm5.gongfa",
       "bm5.quality.purple",
-      "bm5.role.healer",
       "bm5.source.wuxia_novel",
       "bm5.gongfa.neigong"
     ],
@@ -89,7 +85,6 @@
     "name": "东方不败??",
     "type": "qinggong",
     "description": "东方不败?????",
-    "faction": "bm5_faction_purple_2",
     "element": "water",
     "quality": "purple",
     "shop_visible": true,
@@ -97,7 +92,6 @@
       "bm5.batch.three",
       "bm5.gongfa",
       "bm5.quality.purple",
-      "bm5.role.assassin",
       "bm5.source.wuxia_novel",
       "bm5.gongfa.qinggong"
     ],
@@ -137,7 +131,6 @@
     "name": "岳不群??",
     "type": "zhenfa",
     "description": "岳不群?????",
-    "faction": "bm5_faction_purple_3",
     "element": "fire",
     "quality": "purple",
     "shop_visible": true,
@@ -145,7 +138,6 @@
       "bm5.batch.three",
       "bm5.gongfa",
       "bm5.quality.purple",
-      "bm5.role.leader",
       "bm5.source.wuxia_novel",
       "bm5.gongfa.zhenfa"
     ],
@@ -212,7 +204,6 @@
     "name": "左冷禅??",
     "type": "waigong",
     "description": "左冷禅?????",
-    "faction": "bm5_faction_purple_4",
     "element": "earth",
     "quality": "purple",
     "shop_visible": true,
@@ -220,7 +211,6 @@
       "bm5.batch.three",
       "bm5.gongfa",
       "bm5.quality.purple",
-      "bm5.role.vanguard",
       "bm5.source.wuxia_novel",
       "bm5.gongfa.waigong"
     ],
@@ -253,7 +243,6 @@
     "name": "乔峰??",
     "type": "waigong",
     "description": "乔峰?????",
-    "faction": "bm5_faction_purple_0",
     "element": "metal",
     "quality": "purple",
     "shop_visible": true,
@@ -261,7 +250,6 @@
       "bm5.batch.three",
       "bm5.gongfa",
       "bm5.quality.purple",
-      "bm5.role.vanguard",
       "bm5.source.wuxia_novel",
       "bm5.gongfa.waigong"
     ],
@@ -294,7 +282,6 @@
     "name": "段誉??",
     "type": "neigong",
     "description": "段誉?????",
-    "faction": "bm5_faction_purple_1",
     "element": "wood",
     "quality": "purple",
     "shop_visible": true,
@@ -302,7 +289,6 @@
       "bm5.batch.three",
       "bm5.gongfa",
       "bm5.quality.purple",
-      "bm5.role.caster",
       "bm5.source.wuxia_novel",
       "bm5.gongfa.neigong"
     ],
@@ -340,7 +326,6 @@
     "name": "虚竹??",
     "type": "neigong",
     "description": "虚竹?????",
-    "faction": "bm5_faction_purple_2",
     "element": "water",
     "quality": "purple",
     "shop_visible": true,
@@ -348,7 +333,6 @@
       "bm5.batch.three",
       "bm5.gongfa",
       "bm5.quality.purple",
-      "bm5.role.healer",
       "bm5.source.wuxia_novel",
       "bm5.gongfa.neigong"
     ],
@@ -383,7 +367,6 @@
     "name": "王语嫣??",
     "type": "zhenfa",
     "description": "王语嫣?????",
-    "faction": "bm5_faction_purple_3",
     "element": "fire",
     "quality": "purple",
     "shop_visible": true,
@@ -391,7 +374,6 @@
       "bm5.batch.three",
       "bm5.gongfa",
       "bm5.quality.purple",
-      "bm5.role.leader",
       "bm5.source.wuxia_novel",
       "bm5.gongfa.zhenfa"
     ],
@@ -458,7 +440,6 @@
     "name": "慕容复??",
     "type": "waigong",
     "description": "慕容复?????",
-    "faction": "bm5_faction_purple_4",
     "element": "earth",
     "quality": "purple",
     "shop_visible": true,
@@ -466,7 +447,6 @@
       "bm5.batch.three",
       "bm5.gongfa",
       "bm5.quality.purple",
-      "bm5.role.swordsman",
       "bm5.source.wuxia_novel",
       "bm5.gongfa.waigong"
     ],
@@ -500,7 +480,6 @@
     "name": "张无忌??",
     "type": "zhenfa",
     "description": "张无忌?????",
-    "faction": "bm5_faction_purple_0",
     "element": "metal",
     "quality": "purple",
     "shop_visible": true,
@@ -508,7 +487,6 @@
       "bm5.batch.three",
       "bm5.gongfa",
       "bm5.quality.purple",
-      "bm5.role.leader",
       "bm5.source.wuxia_novel",
       "bm5.gongfa.zhenfa"
     ],
@@ -575,7 +553,6 @@
     "name": "周芙若??",
     "type": "qinggong",
     "description": "周芙若?????",
-    "faction": "bm5_faction_purple_1",
     "element": "wood",
     "quality": "purple",
     "shop_visible": true,
@@ -583,7 +560,6 @@
       "bm5.batch.three",
       "bm5.gongfa",
       "bm5.quality.purple",
-      "bm5.role.assassin",
       "bm5.source.wuxia_novel",
       "bm5.gongfa.qinggong"
     ],
@@ -621,9 +597,8 @@
   {
     "id": "bm5_gf_purple_013",
     "name": "赵敏??",
-    "type": "qishu",
+    "type": "zhenfa",
     "description": "赵敏?????",
-    "faction": "bm5_faction_purple_2",
     "element": "water",
     "quality": "purple",
     "shop_visible": true,
@@ -631,9 +606,7 @@
       "bm5.batch.three",
       "bm5.gongfa",
       "bm5.quality.purple",
-      "bm5.role.archer",
-      "bm5.source.wuxia_novel",
-      "bm5.gongfa.qishu"
+      "bm5.source.wuxia_novel"
     ],
     "passive_effects": [
       {
@@ -668,7 +641,6 @@
     "name": "小龙女??",
     "type": "qinggong",
     "description": "小龙女?????",
-    "faction": "bm5_faction_purple_3",
     "element": "fire",
     "quality": "purple",
     "shop_visible": true,
@@ -676,7 +648,6 @@
       "bm5.batch.three",
       "bm5.gongfa",
       "bm5.quality.purple",
-      "bm5.role.assassin",
       "bm5.source.wuxia_novel",
       "bm5.gongfa.qinggong"
     ],
@@ -716,7 +687,6 @@
     "name": "杨过??",
     "type": "waigong",
     "description": "杨过?????",
-    "faction": "bm5_faction_purple_4",
     "element": "earth",
     "quality": "purple",
     "shop_visible": true,
@@ -724,7 +694,6 @@
       "bm5.batch.three",
       "bm5.gongfa",
       "bm5.quality.purple",
-      "bm5.role.swordsman",
       "bm5.source.wuxia_novel",
       "bm5.gongfa.waigong"
     ],
@@ -756,9 +725,8 @@
   {
     "id": "bm5_gf_purple_016",
     "name": "李寻欢??",
-    "type": "qishu",
+    "type": "zhenfa",
     "description": "李寻欢?????",
-    "faction": "bm5_faction_purple_0",
     "element": "metal",
     "quality": "purple",
     "shop_visible": true,
@@ -766,9 +734,7 @@
       "bm5.batch.three",
       "bm5.gongfa",
       "bm5.quality.purple",
-      "bm5.role.archer",
-      "bm5.source.wuxia_novel",
-      "bm5.gongfa.qishu"
+      "bm5.source.wuxia_novel"
     ],
     "passive_effects": [
       {
@@ -803,7 +769,6 @@
     "name": "楚留香??",
     "type": "qinggong",
     "description": "楚留香?????",
-    "faction": "bm5_faction_purple_1",
     "element": "wood",
     "quality": "purple",
     "shop_visible": true,
@@ -811,7 +776,6 @@
       "bm5.batch.three",
       "bm5.gongfa",
       "bm5.quality.purple",
-      "bm5.role.assassin",
       "bm5.source.wuxia_novel",
       "bm5.gongfa.qinggong"
     ],
@@ -851,7 +815,6 @@
     "name": "陆小凤??",
     "type": "waigong",
     "description": "陆小凤?????",
-    "faction": "bm5_faction_purple_2",
     "element": "water",
     "quality": "purple",
     "shop_visible": true,
@@ -859,7 +822,6 @@
       "bm5.batch.three",
       "bm5.gongfa",
       "bm5.quality.purple",
-      "bm5.role.swordsman",
       "bm5.source.wuxia_novel",
       "bm5.gongfa.waigong"
     ],
@@ -893,7 +855,6 @@
     "name": "花满楼??",
     "type": "neigong",
     "description": "花满楼?????",
-    "faction": "bm5_faction_purple_3",
     "element": "fire",
     "quality": "purple",
     "shop_visible": true,
@@ -901,7 +862,6 @@
       "bm5.batch.three",
       "bm5.gongfa",
       "bm5.quality.purple",
-      "bm5.role.healer",
       "bm5.source.wuxia_novel",
       "bm5.gongfa.neigong"
     ],
@@ -936,7 +896,6 @@
     "name": "西门吹雪??",
     "type": "waigong",
     "description": "西门吹雪?????",
-    "faction": "bm5_faction_purple_4",
     "element": "earth",
     "quality": "purple",
     "shop_visible": true,
@@ -944,7 +903,6 @@
       "bm5.batch.three",
       "bm5.gongfa",
       "bm5.quality.purple",
-      "bm5.role.swordsman",
       "bm5.source.wuxia_novel",
       "bm5.gongfa.waigong"
     ],

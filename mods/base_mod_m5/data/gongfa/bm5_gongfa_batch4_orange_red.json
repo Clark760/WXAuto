@@ -4,7 +4,6 @@
     "name": "张三丰???",
     "type": "zhenfa",
     "description": "张三丰??????",
-    "faction": "bm5_faction_batch4_0",
     "element": "metal",
     "quality": "orange",
     "shop_visible": true,
@@ -12,7 +11,6 @@
       "bm5.batch.four",
       "bm5.gongfa",
       "bm5.quality.orange",
-      "bm5.role.leader",
       "bm5.source.wuxia_novel",
       "bm5.gongfa.zhenfa"
     ],
@@ -89,7 +87,6 @@
     "name": "张三丰???",
     "type": "neigong",
     "description": "张三丰??????",
-    "faction": "bm5_faction_batch4_0",
     "element": "wood",
     "quality": "orange",
     "shop_visible": true,
@@ -97,7 +94,6 @@
       "bm5.batch.four",
       "bm5.gongfa",
       "bm5.quality.orange",
-      "bm5.role.leader",
       "bm5.source.wuxia_novel",
       "bm5.gongfa.neigong"
     ],
@@ -132,7 +128,6 @@
     "name": "王重阳???",
     "type": "zhenfa",
     "description": "王重阳??????",
-    "faction": "bm5_faction_batch4_1",
     "element": "wood",
     "quality": "orange",
     "shop_visible": true,
@@ -140,7 +135,6 @@
       "bm5.batch.four",
       "bm5.gongfa",
       "bm5.quality.orange",
-      "bm5.role.leader",
       "bm5.source.wuxia_novel",
       "bm5.gongfa.zhenfa"
     ],
@@ -217,7 +211,6 @@
     "name": "王重阳???",
     "type": "neigong",
     "description": "王重阳??????",
-    "faction": "bm5_faction_batch4_1",
     "element": "water",
     "quality": "orange",
     "shop_visible": true,
@@ -225,7 +218,6 @@
       "bm5.batch.four",
       "bm5.gongfa",
       "bm5.quality.orange",
-      "bm5.role.leader",
       "bm5.source.wuxia_novel",
       "bm5.gongfa.neigong"
     ],
@@ -260,7 +252,6 @@
     "name": "独孤求败???",
     "type": "waigong",
     "description": "独孤求败??????",
-    "faction": "bm5_faction_batch4_2",
     "element": "water",
     "quality": "orange",
     "shop_visible": true,
@@ -268,7 +259,6 @@
       "bm5.batch.four",
       "bm5.gongfa",
       "bm5.quality.orange",
-      "bm5.role.swordsman",
       "bm5.source.wuxia_novel",
       "bm5.gongfa.waigong"
     ],
@@ -302,7 +292,6 @@
     "name": "独孤求败???",
     "type": "qinggong",
     "description": "独孤求败??????",
-    "faction": "bm5_faction_batch4_2",
     "element": "fire",
     "quality": "orange",
     "shop_visible": true,
@@ -310,7 +299,6 @@
       "bm5.batch.four",
       "bm5.gongfa",
       "bm5.quality.orange",
-      "bm5.role.swordsman",
       "bm5.source.wuxia_novel",
       "bm5.gongfa.qinggong"
     ],
@@ -346,7 +334,6 @@
     "name": "黄裳???",
     "type": "neigong",
     "description": "黄裳??????",
-    "faction": "bm5_faction_batch4_3",
     "element": "fire",
     "quality": "orange",
     "shop_visible": true,
@@ -354,7 +341,6 @@
       "bm5.batch.four",
       "bm5.gongfa",
       "bm5.quality.orange",
-      "bm5.role.caster",
       "bm5.source.wuxia_novel",
       "bm5.gongfa.neigong"
     ],
@@ -390,9 +376,8 @@
   {
     "id": "bm5_gf_orange_004_b",
     "name": "黄裳???",
-    "type": "qishu",
+    "type": "zhenfa",
     "description": "黄裳??????",
-    "faction": "bm5_faction_batch4_3",
     "element": "earth",
     "quality": "orange",
     "shop_visible": true,
@@ -400,9 +385,7 @@
       "bm5.batch.four",
       "bm5.gongfa",
       "bm5.quality.orange",
-      "bm5.role.caster",
-      "bm5.source.wuxia_novel",
-      "bm5.gongfa.qishu"
+      "bm5.source.wuxia_novel"
     ],
     "passive_effects": [
       {
@@ -436,7 +419,6 @@
     "name": "逍遥子???",
     "type": "neigong",
     "description": "逍遥子??????",
-    "faction": "bm5_faction_batch4_4",
     "element": "earth",
     "quality": "orange",
     "shop_visible": true,
@@ -444,7 +426,6 @@
       "bm5.batch.four",
       "bm5.gongfa",
       "bm5.quality.orange",
-      "bm5.role.caster",
       "bm5.source.wuxia_novel",
       "bm5.gongfa.neigong"
     ],
@@ -480,9 +461,8 @@
   {
     "id": "bm5_gf_orange_005_b",
     "name": "逍遥子???",
-    "type": "qishu",
+    "type": "zhenfa",
     "description": "逍遥子??????",
-    "faction": "bm5_faction_batch4_4",
     "element": "metal",
     "quality": "orange",
     "shop_visible": true,
@@ -490,9 +470,7 @@
       "bm5.batch.four",
       "bm5.gongfa",
       "bm5.quality.orange",
-      "bm5.role.caster",
-      "bm5.source.wuxia_novel",
-      "bm5.gongfa.qishu"
+      "bm5.source.wuxia_novel"
     ],
     "passive_effects": [
       {
@@ -526,7 +504,6 @@
     "name": "令东来???",
     "type": "qinggong",
     "description": "令东来??????",
-    "faction": "bm5_faction_batch4_5",
     "element": "metal",
     "quality": "orange",
     "shop_visible": true,
@@ -534,7 +511,6 @@
       "bm5.batch.four",
       "bm5.gongfa",
       "bm5.quality.orange",
-      "bm5.role.assassin",
       "bm5.source.wuxia_novel",
       "bm5.gongfa.qinggong"
     ],
@@ -574,7 +550,6 @@
     "name": "令东来???",
     "type": "waigong",
     "description": "令东来??????",
-    "faction": "bm5_faction_batch4_5",
     "element": "wood",
     "quality": "orange",
     "shop_visible": true,
@@ -582,7 +557,6 @@
       "bm5.batch.four",
       "bm5.gongfa",
       "bm5.quality.orange",
-      "bm5.role.assassin",
       "bm5.source.wuxia_novel",
       "bm5.gongfa.waigong"
     ],
@@ -620,7 +594,6 @@
     "name": "石破天???",
     "type": "waigong",
     "description": "石破天??????",
-    "faction": "bm5_faction_batch4_0",
     "element": "wood",
     "quality": "orange",
     "shop_visible": true,
@@ -628,7 +601,6 @@
       "bm5.batch.four",
       "bm5.gongfa",
       "bm5.quality.orange",
-      "bm5.role.vanguard",
       "bm5.source.wuxia_novel",
       "bm5.gongfa.waigong"
     ],
@@ -661,7 +633,6 @@
     "name": "石破天???",
     "type": "zhenfa",
     "description": "石破天??????",
-    "faction": "bm5_faction_batch4_0",
     "element": "water",
     "quality": "orange",
     "shop_visible": true,
@@ -669,7 +640,6 @@
       "bm5.batch.four",
       "bm5.gongfa",
       "bm5.quality.orange",
-      "bm5.role.vanguard",
       "bm5.source.wuxia_novel",
       "bm5.gongfa.zhenfa"
     ],
@@ -702,7 +672,6 @@
     "name": "风清扬???",
     "type": "waigong",
     "description": "风清扬??????",
-    "faction": "bm5_faction_batch4_1",
     "element": "water",
     "quality": "orange",
     "shop_visible": true,
@@ -710,7 +679,6 @@
       "bm5.batch.four",
       "bm5.gongfa",
       "bm5.quality.orange",
-      "bm5.role.swordsman",
       "bm5.source.wuxia_novel",
       "bm5.gongfa.waigong"
     ],
@@ -744,7 +712,6 @@
     "name": "风清扬???",
     "type": "qinggong",
     "description": "风清扬??????",
-    "faction": "bm5_faction_batch4_1",
     "element": "fire",
     "quality": "orange",
     "shop_visible": true,
@@ -752,7 +719,6 @@
       "bm5.batch.four",
       "bm5.gongfa",
       "bm5.quality.orange",
-      "bm5.role.swordsman",
       "bm5.source.wuxia_novel",
       "bm5.gongfa.qinggong"
     ],
@@ -788,7 +754,6 @@
     "name": "阿青???",
     "type": "qinggong",
     "description": "阿青??????",
-    "faction": "bm5_faction_batch4_2",
     "element": "fire",
     "quality": "orange",
     "shop_visible": true,
@@ -796,7 +761,6 @@
       "bm5.batch.four",
       "bm5.gongfa",
       "bm5.quality.orange",
-      "bm5.role.assassin",
       "bm5.source.wuxia_novel",
       "bm5.gongfa.qinggong"
     ],
@@ -836,7 +800,6 @@
     "name": "阿青???",
     "type": "waigong",
     "description": "阿青??????",
-    "faction": "bm5_faction_batch4_2",
     "element": "earth",
     "quality": "orange",
     "shop_visible": true,
@@ -844,7 +807,6 @@
       "bm5.batch.four",
       "bm5.gongfa",
       "bm5.quality.orange",
-      "bm5.role.assassin",
       "bm5.source.wuxia_novel",
       "bm5.gongfa.waigong"
     ],
@@ -882,7 +844,6 @@
     "name": "孙思邈???",
     "type": "neigong",
     "description": "孙思邈??????",
-    "faction": "bm5_faction_batch4_3",
     "element": "earth",
     "quality": "orange",
     "shop_visible": true,
@@ -890,7 +851,6 @@
       "bm5.batch.four",
       "bm5.gongfa",
       "bm5.quality.orange",
-      "bm5.role.healer",
       "bm5.source.ancient_legend",
       "bm5.gongfa.neigong"
     ],
@@ -925,7 +885,6 @@
     "name": "孙思邈???",
     "type": "zhenfa",
     "description": "孙思邈??????",
-    "faction": "bm5_faction_batch4_3",
     "element": "metal",
     "quality": "orange",
     "shop_visible": true,
@@ -933,7 +892,6 @@
       "bm5.batch.four",
       "bm5.gongfa",
       "bm5.quality.orange",
-      "bm5.role.healer",
       "bm5.source.ancient_legend",
       "bm5.gongfa.zhenfa"
     ],
@@ -974,7 +932,6 @@
     "name": "达摩祖师???",
     "type": "zhenfa",
     "description": "达摩祖师??????",
-    "faction": "bm5_faction_batch4_4",
     "element": "metal",
     "quality": "red",
     "shop_visible": true,
@@ -982,7 +939,6 @@
       "bm5.batch.four",
       "bm5.gongfa",
       "bm5.quality.red",
-      "bm5.role.leader",
       "bm5.source.ancient_legend",
       "bm5.gongfa.zhenfa"
     ],
@@ -1059,7 +1015,6 @@
     "name": "达摩祖师???",
     "type": "neigong",
     "description": "达摩祖师??????",
-    "faction": "bm5_faction_batch4_4",
     "element": "wood",
     "quality": "red",
     "shop_visible": true,
@@ -1067,7 +1022,6 @@
       "bm5.batch.four",
       "bm5.gongfa",
       "bm5.quality.red",
-      "bm5.role.leader",
       "bm5.source.ancient_legend",
       "bm5.gongfa.neigong"
     ],
@@ -1102,7 +1056,6 @@
     "name": "鬼谷子???",
     "type": "neigong",
     "description": "鬼谷子??????",
-    "faction": "bm5_faction_batch4_5",
     "element": "wood",
     "quality": "red",
     "shop_visible": true,
@@ -1110,7 +1063,6 @@
       "bm5.batch.four",
       "bm5.gongfa",
       "bm5.quality.red",
-      "bm5.role.caster",
       "bm5.source.ancient_legend",
       "bm5.gongfa.neigong"
     ],
@@ -1146,9 +1098,8 @@
   {
     "id": "bm5_gf_red_012_b",
     "name": "鬼谷子???",
-    "type": "qishu",
+    "type": "zhenfa",
     "description": "鬼谷子??????",
-    "faction": "bm5_faction_batch4_5",
     "element": "water",
     "quality": "red",
     "shop_visible": true,
@@ -1156,9 +1107,7 @@
       "bm5.batch.four",
       "bm5.gongfa",
       "bm5.quality.red",
-      "bm5.role.caster",
-      "bm5.source.ancient_legend",
-      "bm5.gongfa.qishu"
+      "bm5.source.ancient_legend"
     ],
     "passive_effects": [
       {
@@ -1192,7 +1141,6 @@
     "name": "陈抟老祖???",
     "type": "neigong",
     "description": "陈抟老祖??????",
-    "faction": "bm5_faction_batch4_0",
     "element": "water",
     "quality": "red",
     "shop_visible": true,
@@ -1200,7 +1148,6 @@
       "bm5.batch.four",
       "bm5.gongfa",
       "bm5.quality.red",
-      "bm5.role.healer",
       "bm5.source.ancient_legend",
       "bm5.gongfa.neigong"
     ],
@@ -1235,7 +1182,6 @@
     "name": "陈抟老祖???",
     "type": "zhenfa",
     "description": "陈抟老祖??????",
-    "faction": "bm5_faction_batch4_0",
     "element": "fire",
     "quality": "red",
     "shop_visible": true,
@@ -1243,7 +1189,6 @@
       "bm5.batch.four",
       "bm5.gongfa",
       "bm5.quality.red",
-      "bm5.role.healer",
       "bm5.source.ancient_legend",
       "bm5.gongfa.zhenfa"
     ],
@@ -1284,7 +1229,6 @@
     "name": "广成子???",
     "type": "waigong",
     "description": "广成子??????",
-    "faction": "bm5_faction_batch4_1",
     "element": "fire",
     "quality": "red",
     "shop_visible": true,
@@ -1292,7 +1236,6 @@
       "bm5.batch.four",
       "bm5.gongfa",
       "bm5.quality.red",
-      "bm5.role.vanguard",
       "bm5.source.ancient_legend",
       "bm5.gongfa.waigong"
     ],
@@ -1325,7 +1268,6 @@
     "name": "广成子???",
     "type": "zhenfa",
     "description": "广成子??????",
-    "faction": "bm5_faction_batch4_1",
     "element": "earth",
     "quality": "red",
     "shop_visible": true,
@@ -1333,7 +1275,6 @@
       "bm5.batch.four",
       "bm5.gongfa",
       "bm5.quality.red",
-      "bm5.role.vanguard",
       "bm5.source.ancient_legend",
       "bm5.gongfa.zhenfa"
     ],
@@ -1366,7 +1307,6 @@
     "name": "吕洞宾???",
     "type": "waigong",
     "description": "吕洞宾??????",
-    "faction": "bm5_faction_batch4_2",
     "element": "earth",
     "quality": "red",
     "shop_visible": true,
@@ -1374,7 +1314,6 @@
       "bm5.batch.four",
       "bm5.gongfa",
       "bm5.quality.red",
-      "bm5.role.swordsman",
       "bm5.source.ancient_legend",
       "bm5.gongfa.waigong"
     ],
@@ -1408,7 +1347,6 @@
     "name": "吕洞宾???",
     "type": "qinggong",
     "description": "吕洞宾??????",
-    "faction": "bm5_faction_batch4_2",
     "element": "metal",
     "quality": "red",
     "shop_visible": true,
@@ -1416,7 +1354,6 @@
       "bm5.batch.four",
       "bm5.gongfa",
       "bm5.quality.red",
-      "bm5.role.swordsman",
       "bm5.source.ancient_legend",
       "bm5.gongfa.qinggong"
     ],

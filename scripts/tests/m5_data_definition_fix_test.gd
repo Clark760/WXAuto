@@ -88,8 +88,6 @@ func _test_shop_filters_hidden_entries() -> void:
 			"name": "Visible Unit",
 			"quality": "white",
 			"cost": 1,
-			"role": "vanguard",
-			"faction": "none",
 			"shop_visible": true
 		},
 		"unit_hidden": {
@@ -97,8 +95,6 @@ func _test_shop_filters_hidden_entries() -> void:
 			"name": "Hidden Unit",
 			"quality": "white",
 			"cost": 1,
-			"role": "vanguard",
-			"faction": "none",
 			"shop_visible": false
 		}
 	})

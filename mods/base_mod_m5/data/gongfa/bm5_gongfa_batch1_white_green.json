@@ -4,7 +4,6 @@
     "name": "Guo Jing Gongfa",
     "type": "waigong",
     "description": "Exclusive gongfa of Guo Jing.",
-    "faction": "bm5_faction_jinyong",
     "element": "metal",
     "quality": "white",
     "shop_visible": true,
@@ -12,7 +11,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.swordsman",
       "bm5.source.jinyong",
       "bm5.gongfa.waigong"
     ],
@@ -46,7 +44,6 @@
     "name": "Huang Rong Gongfa",
     "type": "qinggong",
     "description": "Exclusive gongfa of Huang Rong.",
-    "faction": "bm5_faction_jinyong",
     "element": "wood",
     "quality": "white",
     "shop_visible": true,
@@ -54,7 +51,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.assassin",
       "bm5.source.jinyong",
       "bm5.gongfa.qinggong"
     ],
@@ -87,9 +83,8 @@
   {
     "id": "bm5_gf_white_003",
     "name": "Yang Guo Gongfa",
-    "type": "qishu",
+    "type": "zhenfa",
     "description": "Exclusive gongfa of Yang Guo.",
-    "faction": "bm5_faction_jinyong",
     "element": "water",
     "quality": "white",
     "shop_visible": true,
@@ -97,9 +92,7 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.archer",
-      "bm5.source.jinyong",
-      "bm5.gongfa.qishu"
+      "bm5.source.jinyong"
     ],
     "passive_effects": [
       {
@@ -134,7 +127,6 @@
     "name": "Xiao Longnu Gongfa",
     "type": "neigong",
     "description": "Exclusive gongfa of Xiao Longnu.",
-    "faction": "bm5_faction_jinyong",
     "element": "fire",
     "quality": "white",
     "shop_visible": true,
@@ -142,7 +134,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.caster",
       "bm5.source.jinyong",
       "bm5.gongfa.neigong"
     ],
@@ -180,7 +171,6 @@
     "name": "Zhang Wuji Gongfa",
     "type": "neigong",
     "description": "Exclusive gongfa of Zhang Wuji.",
-    "faction": "bm5_faction_jinyong",
     "element": "earth",
     "quality": "white",
     "shop_visible": true,
@@ -188,7 +178,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.healer",
       "bm5.source.jinyong",
       "bm5.gongfa.neigong"
     ],
@@ -224,7 +213,6 @@
     "name": "Zhao Min Gongfa",
     "type": "zhenfa",
     "description": "Exclusive gongfa of Zhao Min.",
-    "faction": "bm5_faction_jinyong",
     "element": "none",
     "quality": "white",
     "shop_visible": true,
@@ -232,7 +220,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.leader",
       "bm5.source.jinyong",
       "bm5.gongfa.zhenfa"
     ],
@@ -263,7 +250,6 @@
     "name": "Zhou Zhiruo Gongfa",
     "type": "waigong",
     "description": "Exclusive gongfa of Zhou Zhiruo.",
-    "faction": "bm5_faction_jinyong",
     "element": "metal",
     "quality": "white",
     "shop_visible": true,
@@ -271,7 +257,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.vanguard",
       "bm5.source.jinyong",
       "bm5.gongfa.waigong"
     ],
@@ -305,7 +290,6 @@
     "name": "Linghu Chong Gongfa",
     "type": "waigong",
     "description": "Exclusive gongfa of Linghu Chong.",
-    "faction": "bm5_faction_jinyong",
     "element": "wood",
     "quality": "white",
     "shop_visible": true,
@@ -313,7 +297,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.swordsman",
       "bm5.source.jinyong",
       "bm5.gongfa.waigong"
     ],
@@ -347,7 +330,6 @@
     "name": "Ren Yingying Gongfa",
     "type": "qinggong",
     "description": "Exclusive gongfa of Ren Yingying.",
-    "faction": "bm5_faction_jinyong",
     "element": "water",
     "quality": "white",
     "shop_visible": true,
@@ -355,7 +337,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.assassin",
       "bm5.source.jinyong",
       "bm5.gongfa.qinggong"
     ],
@@ -388,9 +369,8 @@
   {
     "id": "bm5_gf_white_010",
     "name": "Yue Buqun Gongfa",
-    "type": "qishu",
+    "type": "zhenfa",
     "description": "Exclusive gongfa of Yue Buqun.",
-    "faction": "bm5_faction_jinyong",
     "element": "fire",
     "quality": "white",
     "shop_visible": true,
@@ -398,9 +378,7 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.archer",
-      "bm5.source.jinyong",
-      "bm5.gongfa.qishu"
+      "bm5.source.jinyong"
     ],
     "passive_effects": [
       {
@@ -435,7 +413,6 @@
     "name": "Lin Pingzhi Gongfa",
     "type": "neigong",
     "description": "Exclusive gongfa of Lin Pingzhi.",
-    "faction": "bm5_faction_jinyong",
     "element": "earth",
     "quality": "white",
     "shop_visible": true,
@@ -443,7 +420,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.caster",
       "bm5.source.jinyong",
       "bm5.gongfa.neigong"
     ],
@@ -481,7 +457,6 @@
     "name": "Dongfang Bubai Gongfa",
     "type": "neigong",
     "description": "Exclusive gongfa of Dongfang Bubai.",
-    "faction": "bm5_faction_jinyong",
     "element": "none",
     "quality": "white",
     "shop_visible": true,
@@ -489,7 +464,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.healer",
       "bm5.source.jinyong",
       "bm5.gongfa.neigong"
     ],
@@ -525,7 +499,6 @@
     "name": "Wei Xiaobao Gongfa",
     "type": "zhenfa",
     "description": "Exclusive gongfa of Wei Xiaobao.",
-    "faction": "bm5_faction_jinyong",
     "element": "metal",
     "quality": "white",
     "shop_visible": true,
@@ -533,7 +506,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.leader",
       "bm5.source.jinyong",
       "bm5.gongfa.zhenfa"
     ],
@@ -564,7 +536,6 @@
     "name": "Chen Jinnan Gongfa",
     "type": "waigong",
     "description": "Exclusive gongfa of Chen Jinnan.",
-    "faction": "bm5_faction_jinyong",
     "element": "wood",
     "quality": "white",
     "shop_visible": true,
@@ -572,7 +543,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.vanguard",
       "bm5.source.jinyong",
       "bm5.gongfa.waigong"
     ],
@@ -606,7 +576,6 @@
     "name": "Qiao Feng Gongfa",
     "type": "waigong",
     "description": "Exclusive gongfa of Qiao Feng.",
-    "faction": "bm5_faction_jinyong",
     "element": "water",
     "quality": "white",
     "shop_visible": true,
@@ -614,7 +583,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.swordsman",
       "bm5.source.jinyong",
       "bm5.gongfa.waigong"
     ],
@@ -648,7 +616,6 @@
     "name": "Duan Yu Gongfa",
     "type": "qinggong",
     "description": "Exclusive gongfa of Duan Yu.",
-    "faction": "bm5_faction_jinyong",
     "element": "fire",
     "quality": "white",
     "shop_visible": true,
@@ -656,7 +623,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.assassin",
       "bm5.source.jinyong",
       "bm5.gongfa.qinggong"
     ],
@@ -689,9 +655,8 @@
   {
     "id": "bm5_gf_white_017",
     "name": "Xu Zhu Gongfa",
-    "type": "qishu",
+    "type": "zhenfa",
     "description": "Exclusive gongfa of Xu Zhu.",
-    "faction": "bm5_faction_jinyong",
     "element": "earth",
     "quality": "white",
     "shop_visible": true,
@@ -699,9 +664,7 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.archer",
-      "bm5.source.jinyong",
-      "bm5.gongfa.qishu"
+      "bm5.source.jinyong"
     ],
     "passive_effects": [
       {
@@ -736,7 +699,6 @@
     "name": "Wang Yuyan Gongfa",
     "type": "neigong",
     "description": "Exclusive gongfa of Wang Yuyan.",
-    "faction": "bm5_faction_jinyong",
     "element": "none",
     "quality": "white",
     "shop_visible": true,
@@ -744,7 +706,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.caster",
       "bm5.source.jinyong",
       "bm5.gongfa.neigong"
     ],
@@ -782,7 +743,6 @@
     "name": "Murong Fu Gongfa",
     "type": "neigong",
     "description": "Exclusive gongfa of Murong Fu.",
-    "faction": "bm5_faction_jinyong",
     "element": "metal",
     "quality": "white",
     "shop_visible": true,
@@ -790,7 +750,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.healer",
       "bm5.source.jinyong",
       "bm5.gongfa.neigong"
     ],
@@ -826,7 +785,6 @@
     "name": "A Zhu Gongfa",
     "type": "zhenfa",
     "description": "Exclusive gongfa of A Zhu.",
-    "faction": "bm5_faction_jinyong",
     "element": "wood",
     "quality": "white",
     "shop_visible": true,
@@ -834,7 +792,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.leader",
       "bm5.source.jinyong",
       "bm5.gongfa.zhenfa"
     ],
@@ -865,7 +822,6 @@
     "name": "A Zi Gongfa",
     "type": "waigong",
     "description": "Exclusive gongfa of A Zi.",
-    "faction": "bm5_faction_jinyong",
     "element": "water",
     "quality": "white",
     "shop_visible": true,
@@ -873,7 +829,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.vanguard",
       "bm5.source.jinyong",
       "bm5.gongfa.waigong"
     ],
@@ -907,7 +862,6 @@
     "name": "Ding Chunqiu Gongfa",
     "type": "waigong",
     "description": "Exclusive gongfa of Ding Chunqiu.",
-    "faction": "bm5_faction_jinyong",
     "element": "fire",
     "quality": "white",
     "shop_visible": true,
@@ -915,7 +869,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.swordsman",
       "bm5.source.jinyong",
       "bm5.gongfa.waigong"
     ],
@@ -949,7 +902,6 @@
     "name": "You Tanzhi Gongfa",
     "type": "qinggong",
     "description": "Exclusive gongfa of You Tanzhi.",
-    "faction": "bm5_faction_jinyong",
     "element": "earth",
     "quality": "white",
     "shop_visible": true,
@@ -957,7 +909,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.assassin",
       "bm5.source.jinyong",
       "bm5.gongfa.qinggong"
     ],
@@ -990,9 +941,8 @@
   {
     "id": "bm5_gf_white_024",
     "name": "Yuan Chengzhi Gongfa",
-    "type": "qishu",
+    "type": "zhenfa",
     "description": "Exclusive gongfa of Yuan Chengzhi.",
-    "faction": "bm5_faction_jinyong",
     "element": "none",
     "quality": "white",
     "shop_visible": true,
@@ -1000,9 +950,7 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.archer",
-      "bm5.source.jinyong",
-      "bm5.gongfa.qishu"
+      "bm5.source.jinyong"
     ],
     "passive_effects": [
       {
@@ -1037,7 +985,6 @@
     "name": "Xia Xueyi Gongfa",
     "type": "neigong",
     "description": "Exclusive gongfa of Xia Xueyi.",
-    "faction": "bm5_faction_jinyong",
     "element": "metal",
     "quality": "white",
     "shop_visible": true,
@@ -1045,7 +992,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.caster",
       "bm5.source.jinyong",
       "bm5.gongfa.neigong"
     ],
@@ -1083,7 +1029,6 @@
     "name": "Hu Fei Gongfa",
     "type": "neigong",
     "description": "Exclusive gongfa of Hu Fei.",
-    "faction": "bm5_faction_jinyong",
     "element": "wood",
     "quality": "white",
     "shop_visible": true,
@@ -1091,7 +1036,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.healer",
       "bm5.source.jinyong",
       "bm5.gongfa.neigong"
     ],
@@ -1127,7 +1071,6 @@
     "name": "Cheng Lingsu Gongfa",
     "type": "zhenfa",
     "description": "Exclusive gongfa of Cheng Lingsu.",
-    "faction": "bm5_faction_jinyong",
     "element": "water",
     "quality": "white",
     "shop_visible": true,
@@ -1135,7 +1078,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.leader",
       "bm5.source.jinyong",
       "bm5.gongfa.zhenfa"
     ],
@@ -1166,7 +1108,6 @@
     "name": "Miao Ruolan Gongfa",
     "type": "waigong",
     "description": "Exclusive gongfa of Miao Ruolan.",
-    "faction": "bm5_faction_jinyong",
     "element": "fire",
     "quality": "white",
     "shop_visible": true,
@@ -1174,7 +1115,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.vanguard",
       "bm5.source.jinyong",
       "bm5.gongfa.waigong"
     ],
@@ -1208,7 +1148,6 @@
     "name": "Di Yun Gongfa",
     "type": "waigong",
     "description": "Exclusive gongfa of Di Yun.",
-    "faction": "bm5_faction_jinyong",
     "element": "earth",
     "quality": "white",
     "shop_visible": true,
@@ -1216,7 +1155,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.swordsman",
       "bm5.source.jinyong",
       "bm5.gongfa.waigong"
     ],
@@ -1250,7 +1188,6 @@
     "name": "Qi Fang Gongfa",
     "type": "qinggong",
     "description": "Exclusive gongfa of Qi Fang.",
-    "faction": "bm5_faction_jinyong",
     "element": "none",
     "quality": "white",
     "shop_visible": true,
@@ -1258,7 +1195,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.assassin",
       "bm5.source.jinyong",
       "bm5.gongfa.qinggong"
     ],
@@ -1291,9 +1227,8 @@
   {
     "id": "bm5_gf_white_031",
     "name": "Xuedao Laozu Gongfa",
-    "type": "qishu",
+    "type": "zhenfa",
     "description": "Exclusive gongfa of Xuedao Laozu.",
-    "faction": "bm5_faction_jinyong",
     "element": "metal",
     "quality": "white",
     "shop_visible": true,
@@ -1301,9 +1236,7 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.archer",
-      "bm5.source.jinyong",
-      "bm5.gongfa.qishu"
+      "bm5.source.jinyong"
     ],
     "passive_effects": [
       {
@@ -1338,7 +1271,6 @@
     "name": "Shi Potian Gongfa",
     "type": "neigong",
     "description": "Exclusive gongfa of Shi Potian.",
-    "faction": "bm5_faction_jinyong",
     "element": "wood",
     "quality": "white",
     "shop_visible": true,
@@ -1346,7 +1278,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.caster",
       "bm5.source.jinyong",
       "bm5.gongfa.neigong"
     ],
@@ -1384,7 +1315,6 @@
     "name": "Ding Dang Gongfa",
     "type": "neigong",
     "description": "Exclusive gongfa of Ding Dang.",
-    "faction": "bm5_faction_jinyong",
     "element": "water",
     "quality": "white",
     "shop_visible": true,
@@ -1392,7 +1322,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.healer",
       "bm5.source.jinyong",
       "bm5.gongfa.neigong"
     ],
@@ -1428,7 +1357,6 @@
     "name": "Su Xinghe Gongfa",
     "type": "zhenfa",
     "description": "Exclusive gongfa of Su Xinghe.",
-    "faction": "bm5_faction_jinyong",
     "element": "fire",
     "quality": "white",
     "shop_visible": true,
@@ -1436,7 +1364,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.leader",
       "bm5.source.jinyong",
       "bm5.gongfa.zhenfa"
     ],
@@ -1467,7 +1394,6 @@
     "name": "Tianshan Tonglao Gongfa",
     "type": "waigong",
     "description": "Exclusive gongfa of Tianshan Tonglao.",
-    "faction": "bm5_faction_jinyong",
     "element": "earth",
     "quality": "white",
     "shop_visible": true,
@@ -1475,7 +1401,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.vanguard",
       "bm5.source.jinyong",
       "bm5.gongfa.waigong"
     ],
@@ -1509,7 +1434,6 @@
     "name": "Li Qiushui Gongfa",
     "type": "waigong",
     "description": "Exclusive gongfa of Li Qiushui.",
-    "faction": "bm5_faction_jinyong",
     "element": "none",
     "quality": "white",
     "shop_visible": true,
@@ -1517,7 +1441,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.swordsman",
       "bm5.source.jinyong",
       "bm5.gongfa.waigong"
     ],
@@ -1551,7 +1474,6 @@
     "name": "Wu Yazi Gongfa",
     "type": "qinggong",
     "description": "Exclusive gongfa of Wu Yazi.",
-    "faction": "bm5_faction_jinyong",
     "element": "metal",
     "quality": "white",
     "shop_visible": true,
@@ -1559,7 +1481,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.assassin",
       "bm5.source.jinyong",
       "bm5.gongfa.qinggong"
     ],
@@ -1592,9 +1513,8 @@
   {
     "id": "bm5_gf_white_038",
     "name": "Huang Yaoshi Gongfa",
-    "type": "qishu",
+    "type": "zhenfa",
     "description": "Exclusive gongfa of Huang Yaoshi.",
-    "faction": "bm5_faction_jinyong",
     "element": "wood",
     "quality": "white",
     "shop_visible": true,
@@ -1602,9 +1522,7 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.archer",
-      "bm5.source.jinyong",
-      "bm5.gongfa.qishu"
+      "bm5.source.jinyong"
     ],
     "passive_effects": [
       {
@@ -1639,7 +1557,6 @@
     "name": "Ouyang Feng Gongfa",
     "type": "neigong",
     "description": "Exclusive gongfa of Ouyang Feng.",
-    "faction": "bm5_faction_jinyong",
     "element": "water",
     "quality": "white",
     "shop_visible": true,
@@ -1647,7 +1564,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.caster",
       "bm5.source.jinyong",
       "bm5.gongfa.neigong"
     ],
@@ -1685,7 +1601,6 @@
     "name": "Hong Qigong Gongfa",
     "type": "neigong",
     "description": "Exclusive gongfa of Hong Qigong.",
-    "faction": "bm5_faction_jinyong",
     "element": "fire",
     "quality": "white",
     "shop_visible": true,
@@ -1693,7 +1608,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.healer",
       "bm5.source.jinyong",
       "bm5.gongfa.neigong"
     ],
@@ -1729,7 +1643,6 @@
     "name": "Yideng Dashi Gongfa",
     "type": "zhenfa",
     "description": "Exclusive gongfa of Yideng Dashi.",
-    "faction": "bm5_faction_jinyong",
     "element": "earth",
     "quality": "white",
     "shop_visible": true,
@@ -1737,7 +1650,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.leader",
       "bm5.source.jinyong",
       "bm5.gongfa.zhenfa"
     ],
@@ -1768,7 +1680,6 @@
     "name": "Zhou Botong Gongfa",
     "type": "waigong",
     "description": "Exclusive gongfa of Zhou Botong.",
-    "faction": "bm5_faction_jinyong",
     "element": "none",
     "quality": "white",
     "shop_visible": true,
@@ -1776,7 +1687,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.vanguard",
       "bm5.source.jinyong",
       "bm5.gongfa.waigong"
     ],
@@ -1810,7 +1720,6 @@
     "name": "Qiu Qianren Gongfa",
     "type": "waigong",
     "description": "Exclusive gongfa of Qiu Qianren.",
-    "faction": "bm5_faction_jinyong",
     "element": "metal",
     "quality": "white",
     "shop_visible": true,
@@ -1818,7 +1727,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.swordsman",
       "bm5.source.jinyong",
       "bm5.gongfa.waigong"
     ],
@@ -1852,7 +1760,6 @@
     "name": "Mei Chaofeng Gongfa",
     "type": "qinggong",
     "description": "Exclusive gongfa of Mei Chaofeng.",
-    "faction": "bm5_faction_jinyong",
     "element": "wood",
     "quality": "white",
     "shop_visible": true,
@@ -1860,7 +1767,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.assassin",
       "bm5.source.jinyong",
       "bm5.gongfa.qinggong"
     ],
@@ -1893,9 +1799,8 @@
   {
     "id": "bm5_gf_white_045",
     "name": "Li Mochou Gongfa",
-    "type": "qishu",
+    "type": "zhenfa",
     "description": "Exclusive gongfa of Li Mochou.",
-    "faction": "bm5_faction_jinyong",
     "element": "water",
     "quality": "white",
     "shop_visible": true,
@@ -1903,9 +1808,7 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.archer",
-      "bm5.source.jinyong",
-      "bm5.gongfa.qishu"
+      "bm5.source.jinyong"
     ],
     "passive_effects": [
       {
@@ -1940,7 +1843,6 @@
     "name": "Gongsun Zhi Gongfa",
     "type": "neigong",
     "description": "Exclusive gongfa of Gongsun Zhi.",
-    "faction": "bm5_faction_jinyong",
     "element": "fire",
     "quality": "white",
     "shop_visible": true,
@@ -1948,7 +1850,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.caster",
       "bm5.source.jinyong",
       "bm5.gongfa.neigong"
     ],
@@ -1986,7 +1887,6 @@
     "name": "Huo Qingtong Gongfa",
     "type": "neigong",
     "description": "Exclusive gongfa of Huo Qingtong.",
-    "faction": "bm5_faction_jinyong",
     "element": "earth",
     "quality": "white",
     "shop_visible": true,
@@ -1994,7 +1894,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.healer",
       "bm5.source.jinyong",
       "bm5.gongfa.neigong"
     ],
@@ -2030,7 +1929,6 @@
     "name": "Xiangxiang Gongzhu Gongfa",
     "type": "zhenfa",
     "description": "Exclusive gongfa of Xiangxiang Gongzhu.",
-    "faction": "bm5_faction_jinyong",
     "element": "none",
     "quality": "white",
     "shop_visible": true,
@@ -2038,7 +1936,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.leader",
       "bm5.source.jinyong",
       "bm5.gongfa.zhenfa"
     ],
@@ -2069,7 +1966,6 @@
     "name": "Chen Jialuo Gongfa",
     "type": "waigong",
     "description": "Exclusive gongfa of Chen Jialuo.",
-    "faction": "bm5_faction_jinyong",
     "element": "metal",
     "quality": "white",
     "shop_visible": true,
@@ -2077,7 +1973,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.vanguard",
       "bm5.source.jinyong",
       "bm5.gongfa.waigong"
     ],
@@ -2111,7 +2006,6 @@
     "name": "Mu Wanqing Gongfa",
     "type": "waigong",
     "description": "Exclusive gongfa of Mu Wanqing.",
-    "faction": "bm5_faction_jinyong",
     "element": "wood",
     "quality": "white",
     "shop_visible": true,
@@ -2119,7 +2013,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.white",
-      "bm5.role.swordsman",
       "bm5.source.jinyong",
       "bm5.gongfa.waigong"
     ],
@@ -2151,9 +2044,8 @@
   {
     "id": "bm5_gf_green_001",
     "name": "Chu Liuxiang Gongfa",
-    "type": "qishu",
+    "type": "zhenfa",
     "description": "Exclusive gongfa of Chu Liuxiang.",
-    "faction": "bm5_faction_gulong",
     "element": "earth",
     "quality": "green",
     "shop_visible": true,
@@ -2161,9 +2053,7 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.archer",
-      "bm5.source.gulong",
-      "bm5.gongfa.qishu"
+      "bm5.source.gulong"
     ],
     "passive_effects": [
       {
@@ -2198,7 +2088,6 @@
     "name": "Hu Tiehua Gongfa",
     "type": "neigong",
     "description": "Exclusive gongfa of Hu Tiehua.",
-    "faction": "bm5_faction_gulong",
     "element": "none",
     "quality": "green",
     "shop_visible": true,
@@ -2206,7 +2095,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.caster",
       "bm5.source.gulong",
       "bm5.gongfa.neigong"
     ],
@@ -2244,7 +2132,6 @@
     "name": "Ji Bingyan Gongfa",
     "type": "neigong",
     "description": "Exclusive gongfa of Ji Bingyan.",
-    "faction": "bm5_faction_gulong",
     "element": "metal",
     "quality": "green",
     "shop_visible": true,
@@ -2252,7 +2139,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.healer",
       "bm5.source.gulong",
       "bm5.gongfa.neigong"
     ],
@@ -2288,7 +2174,6 @@
     "name": "Su Rongrong Gongfa",
     "type": "zhenfa",
     "description": "Exclusive gongfa of Su Rongrong.",
-    "faction": "bm5_faction_gulong",
     "element": "wood",
     "quality": "green",
     "shop_visible": true,
@@ -2296,7 +2181,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.leader",
       "bm5.source.gulong",
       "bm5.gongfa.zhenfa"
     ],
@@ -2327,7 +2211,6 @@
     "name": "Lu Xiaofeng Gongfa",
     "type": "waigong",
     "description": "Exclusive gongfa of Lu Xiaofeng.",
-    "faction": "bm5_faction_gulong",
     "element": "water",
     "quality": "green",
     "shop_visible": true,
@@ -2335,7 +2218,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.vanguard",
       "bm5.source.gulong",
       "bm5.gongfa.waigong"
     ],
@@ -2369,7 +2251,6 @@
     "name": "Hua Manlou Gongfa",
     "type": "waigong",
     "description": "Exclusive gongfa of Hua Manlou.",
-    "faction": "bm5_faction_gulong",
     "element": "fire",
     "quality": "green",
     "shop_visible": true,
@@ -2377,7 +2258,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.swordsman",
       "bm5.source.gulong",
       "bm5.gongfa.waigong"
     ],
@@ -2411,7 +2291,6 @@
     "name": "Ximen Chuixue Gongfa",
     "type": "qinggong",
     "description": "Exclusive gongfa of Ximen Chuixue.",
-    "faction": "bm5_faction_gulong",
     "element": "earth",
     "quality": "green",
     "shop_visible": true,
@@ -2419,7 +2298,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.assassin",
       "bm5.source.gulong",
       "bm5.gongfa.qinggong"
     ],
@@ -2452,9 +2330,8 @@
   {
     "id": "bm5_gf_green_008",
     "name": "Ye Gucheng Gongfa",
-    "type": "qishu",
+    "type": "zhenfa",
     "description": "Exclusive gongfa of Ye Gucheng.",
-    "faction": "bm5_faction_gulong",
     "element": "none",
     "quality": "green",
     "shop_visible": true,
@@ -2462,9 +2339,7 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.archer",
-      "bm5.source.gulong",
-      "bm5.gongfa.qishu"
+      "bm5.source.gulong"
     ],
     "passive_effects": [
       {
@@ -2499,7 +2374,6 @@
     "name": "Sikong Zhaixing Gongfa",
     "type": "neigong",
     "description": "Exclusive gongfa of Sikong Zhaixing.",
-    "faction": "bm5_faction_gulong",
     "element": "metal",
     "quality": "green",
     "shop_visible": true,
@@ -2507,7 +2381,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.caster",
       "bm5.source.gulong",
       "bm5.gongfa.neigong"
     ],
@@ -2545,7 +2418,6 @@
     "name": "Xue Bing Gongfa",
     "type": "neigong",
     "description": "Exclusive gongfa of Xue Bing.",
-    "faction": "bm5_faction_gulong",
     "element": "wood",
     "quality": "green",
     "shop_visible": true,
@@ -2553,7 +2425,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.healer",
       "bm5.source.gulong",
       "bm5.gongfa.neigong"
     ],
@@ -2589,7 +2460,6 @@
     "name": "Shen Lang Gongfa",
     "type": "zhenfa",
     "description": "Exclusive gongfa of Shen Lang.",
-    "faction": "bm5_faction_gulong",
     "element": "water",
     "quality": "green",
     "shop_visible": true,
@@ -2597,7 +2467,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.leader",
       "bm5.source.gulong",
       "bm5.gongfa.zhenfa"
     ],
@@ -2628,7 +2497,6 @@
     "name": "Wang Lianhua Gongfa",
     "type": "waigong",
     "description": "Exclusive gongfa of Wang Lianhua.",
-    "faction": "bm5_faction_gulong",
     "element": "fire",
     "quality": "green",
     "shop_visible": true,
@@ -2636,7 +2504,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.vanguard",
       "bm5.source.gulong",
       "bm5.gongfa.waigong"
     ],
@@ -2670,7 +2537,6 @@
     "name": "Zhu Qiqi Gongfa",
     "type": "waigong",
     "description": "Exclusive gongfa of Zhu Qiqi.",
-    "faction": "bm5_faction_gulong",
     "element": "earth",
     "quality": "green",
     "shop_visible": true,
@@ -2678,7 +2544,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.swordsman",
       "bm5.source.gulong",
       "bm5.gongfa.waigong"
     ],
@@ -2712,7 +2577,6 @@
     "name": "Li Xunhuan Gongfa",
     "type": "qinggong",
     "description": "Exclusive gongfa of Li Xunhuan.",
-    "faction": "bm5_faction_gulong",
     "element": "none",
     "quality": "green",
     "shop_visible": true,
@@ -2720,7 +2584,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.assassin",
       "bm5.source.gulong",
       "bm5.gongfa.qinggong"
     ],
@@ -2753,9 +2616,8 @@
   {
     "id": "bm5_gf_green_015",
     "name": "A Fei Gongfa",
-    "type": "qishu",
+    "type": "zhenfa",
     "description": "Exclusive gongfa of A Fei.",
-    "faction": "bm5_faction_gulong",
     "element": "metal",
     "quality": "green",
     "shop_visible": true,
@@ -2763,9 +2625,7 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.archer",
-      "bm5.source.gulong",
-      "bm5.gongfa.qishu"
+      "bm5.source.gulong"
     ],
     "passive_effects": [
       {
@@ -2800,7 +2660,6 @@
     "name": "Lin Shiyin Gongfa",
     "type": "neigong",
     "description": "Exclusive gongfa of Lin Shiyin.",
-    "faction": "bm5_faction_gulong",
     "element": "wood",
     "quality": "green",
     "shop_visible": true,
@@ -2808,7 +2667,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.caster",
       "bm5.source.gulong",
       "bm5.gongfa.neigong"
     ],
@@ -2846,7 +2704,6 @@
     "name": "Shangguan Jinhong Gongfa",
     "type": "neigong",
     "description": "Exclusive gongfa of Shangguan Jinhong.",
-    "faction": "bm5_faction_gulong",
     "element": "water",
     "quality": "green",
     "shop_visible": true,
@@ -2854,7 +2711,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.healer",
       "bm5.source.gulong",
       "bm5.gongfa.neigong"
     ],
@@ -2890,7 +2746,6 @@
     "name": "Jing Wuming Gongfa",
     "type": "zhenfa",
     "description": "Exclusive gongfa of Jing Wuming.",
-    "faction": "bm5_faction_gulong",
     "element": "fire",
     "quality": "green",
     "shop_visible": true,
@@ -2898,7 +2753,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.leader",
       "bm5.source.gulong",
       "bm5.gongfa.zhenfa"
     ],
@@ -2929,7 +2783,6 @@
     "name": "Fu Hongxue Gongfa",
     "type": "waigong",
     "description": "Exclusive gongfa of Fu Hongxue.",
-    "faction": "bm5_faction_gulong",
     "element": "earth",
     "quality": "green",
     "shop_visible": true,
@@ -2937,7 +2790,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.vanguard",
       "bm5.source.gulong",
       "bm5.gongfa.waigong"
     ],
@@ -2971,7 +2823,6 @@
     "name": "Ye Kai Gongfa",
     "type": "waigong",
     "description": "Exclusive gongfa of Ye Kai.",
-    "faction": "bm5_faction_gulong",
     "element": "none",
     "quality": "green",
     "shop_visible": true,
@@ -2979,7 +2830,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.swordsman",
       "bm5.source.gulong",
       "bm5.gongfa.waigong"
     ],
@@ -3013,7 +2863,6 @@
     "name": "Ding Linglin Gongfa",
     "type": "qinggong",
     "description": "Exclusive gongfa of Ding Linglin.",
-    "faction": "bm5_faction_gulong",
     "element": "metal",
     "quality": "green",
     "shop_visible": true,
@@ -3021,7 +2870,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.assassin",
       "bm5.source.gulong",
       "bm5.gongfa.qinggong"
     ],
@@ -3054,9 +2902,8 @@
   {
     "id": "bm5_gf_green_022",
     "name": "Yan Nantian Gongfa",
-    "type": "qishu",
+    "type": "zhenfa",
     "description": "Exclusive gongfa of Yan Nantian.",
-    "faction": "bm5_faction_gulong",
     "element": "wood",
     "quality": "green",
     "shop_visible": true,
@@ -3064,9 +2911,7 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.archer",
-      "bm5.source.gulong",
-      "bm5.gongfa.qishu"
+      "bm5.source.gulong"
     ],
     "passive_effects": [
       {
@@ -3101,7 +2946,6 @@
     "name": "Hua Wuque Gongfa",
     "type": "neigong",
     "description": "Exclusive gongfa of Hua Wuque.",
-    "faction": "bm5_faction_gulong",
     "element": "water",
     "quality": "green",
     "shop_visible": true,
@@ -3109,7 +2953,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.caster",
       "bm5.source.gulong",
       "bm5.gongfa.neigong"
     ],
@@ -3147,7 +2990,6 @@
     "name": "Xiao Yuer Gongfa",
     "type": "neigong",
     "description": "Exclusive gongfa of Xiao Yuer.",
-    "faction": "bm5_faction_gulong",
     "element": "fire",
     "quality": "green",
     "shop_visible": true,
@@ -3155,7 +2997,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.healer",
       "bm5.source.gulong",
       "bm5.gongfa.neigong"
     ],
@@ -3191,7 +3032,6 @@
     "name": "Su Ying Gongfa",
     "type": "zhenfa",
     "description": "Exclusive gongfa of Su Ying.",
-    "faction": "bm5_faction_gulong",
     "element": "earth",
     "quality": "green",
     "shop_visible": true,
@@ -3199,7 +3039,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.leader",
       "bm5.source.gulong",
       "bm5.gongfa.zhenfa"
     ],
@@ -3230,7 +3069,6 @@
     "name": "Xie Xiaofeng Gongfa",
     "type": "waigong",
     "description": "Exclusive gongfa of Xie Xiaofeng.",
-    "faction": "bm5_faction_gulong",
     "element": "none",
     "quality": "green",
     "shop_visible": true,
@@ -3238,7 +3076,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.vanguard",
       "bm5.source.gulong",
       "bm5.gongfa.waigong"
     ],
@@ -3272,7 +3109,6 @@
     "name": "Murong Qiudi Gongfa",
     "type": "waigong",
     "description": "Exclusive gongfa of Murong Qiudi.",
-    "faction": "bm5_faction_gulong",
     "element": "metal",
     "quality": "green",
     "shop_visible": true,
@@ -3280,7 +3116,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.swordsman",
       "bm5.source.gulong",
       "bm5.gongfa.waigong"
     ],
@@ -3314,7 +3149,6 @@
     "name": "Xiao ShiyiLang Gongfa",
     "type": "qinggong",
     "description": "Exclusive gongfa of Xiao ShiyiLang.",
-    "faction": "bm5_faction_gulong",
     "element": "wood",
     "quality": "green",
     "shop_visible": true,
@@ -3322,7 +3156,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.assassin",
       "bm5.source.gulong",
       "bm5.gongfa.qinggong"
     ],
@@ -3355,9 +3188,8 @@
   {
     "id": "bm5_gf_green_029",
     "name": "Feng Siniang Gongfa",
-    "type": "qishu",
+    "type": "zhenfa",
     "description": "Exclusive gongfa of Feng Siniang.",
-    "faction": "bm5_faction_gulong",
     "element": "water",
     "quality": "green",
     "shop_visible": true,
@@ -3365,9 +3197,7 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.archer",
-      "bm5.source.gulong",
-      "bm5.gongfa.qishu"
+      "bm5.source.gulong"
     ],
     "passive_effects": [
       {
@@ -3402,7 +3232,6 @@
     "name": "Lian Chengbi Gongfa",
     "type": "neigong",
     "description": "Exclusive gongfa of Lian Chengbi.",
-    "faction": "bm5_faction_gulong",
     "element": "fire",
     "quality": "green",
     "shop_visible": true,
@@ -3410,7 +3239,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.caster",
       "bm5.source.gulong",
       "bm5.gongfa.neigong"
     ],
@@ -3448,7 +3276,6 @@
     "name": "Tie Zhongtang Gongfa",
     "type": "neigong",
     "description": "Exclusive gongfa of Tie Zhongtang.",
-    "faction": "bm5_faction_gulong",
     "element": "earth",
     "quality": "green",
     "shop_visible": true,
@@ -3456,7 +3283,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.healer",
       "bm5.source.gulong",
       "bm5.gongfa.neigong"
     ],
@@ -3492,7 +3318,6 @@
     "name": "Yun Zheng Gongfa",
     "type": "zhenfa",
     "description": "Exclusive gongfa of Yun Zheng.",
-    "faction": "bm5_faction_gulong",
     "element": "none",
     "quality": "green",
     "shop_visible": true,
@@ -3500,7 +3325,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.leader",
       "bm5.source.gulong",
       "bm5.gongfa.zhenfa"
     ],
@@ -3531,7 +3355,6 @@
     "name": "Shui Lingguang Gongfa",
     "type": "waigong",
     "description": "Exclusive gongfa of Shui Lingguang.",
-    "faction": "bm5_faction_gulong",
     "element": "metal",
     "quality": "green",
     "shop_visible": true,
@@ -3539,7 +3362,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.vanguard",
       "bm5.source.gulong",
       "bm5.gongfa.waigong"
     ],
@@ -3573,7 +3395,6 @@
     "name": "Fang Baoyu Gongfa",
     "type": "waigong",
     "description": "Exclusive gongfa of Fang Baoyu.",
-    "faction": "bm5_faction_gulong",
     "element": "wood",
     "quality": "green",
     "shop_visible": true,
@@ -3581,7 +3402,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.swordsman",
       "bm5.source.gulong",
       "bm5.gongfa.waigong"
     ],
@@ -3615,7 +3435,6 @@
     "name": "Zhuge Shenhou Gongfa",
     "type": "qinggong",
     "description": "Exclusive gongfa of Zhuge Shenhou.",
-    "faction": "bm5_faction_gulong",
     "element": "water",
     "quality": "green",
     "shop_visible": true,
@@ -3623,7 +3442,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.assassin",
       "bm5.source.gulong",
       "bm5.gongfa.qinggong"
     ],
@@ -3656,9 +3474,8 @@
   {
     "id": "bm5_gf_green_036",
     "name": "Wu Qing Gongfa",
-    "type": "qishu",
+    "type": "zhenfa",
     "description": "Exclusive gongfa of Wu Qing.",
-    "faction": "bm5_faction_gulong",
     "element": "fire",
     "quality": "green",
     "shop_visible": true,
@@ -3666,9 +3483,7 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.archer",
-      "bm5.source.gulong",
-      "bm5.gongfa.qishu"
+      "bm5.source.gulong"
     ],
     "passive_effects": [
       {
@@ -3703,7 +3518,6 @@
     "name": "Tie Shou Gongfa",
     "type": "neigong",
     "description": "Exclusive gongfa of Tie Shou.",
-    "faction": "bm5_faction_gulong",
     "element": "earth",
     "quality": "green",
     "shop_visible": true,
@@ -3711,7 +3525,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.caster",
       "bm5.source.gulong",
       "bm5.gongfa.neigong"
     ],
@@ -3749,7 +3562,6 @@
     "name": "Zhui Ming Gongfa",
     "type": "neigong",
     "description": "Exclusive gongfa of Zhui Ming.",
-    "faction": "bm5_faction_gulong",
     "element": "none",
     "quality": "green",
     "shop_visible": true,
@@ -3757,7 +3569,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.healer",
       "bm5.source.gulong",
       "bm5.gongfa.neigong"
     ],
@@ -3793,7 +3604,6 @@
     "name": "Leng Xue Gongfa",
     "type": "zhenfa",
     "description": "Exclusive gongfa of Leng Xue.",
-    "faction": "bm5_faction_gulong",
     "element": "metal",
     "quality": "green",
     "shop_visible": true,
@@ -3801,7 +3611,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.leader",
       "bm5.source.gulong",
       "bm5.gongfa.zhenfa"
     ],
@@ -3832,7 +3641,6 @@
     "name": "Tang Fang Gongfa",
     "type": "waigong",
     "description": "Exclusive gongfa of Tang Fang.",
-    "faction": "bm5_faction_gulong",
     "element": "wood",
     "quality": "green",
     "shop_visible": true,
@@ -3840,7 +3648,6 @@
       "bm5.batch.one",
       "bm5.gongfa",
       "bm5.quality.green",
-      "bm5.role.vanguard",
       "bm5.source.gulong",
       "bm5.gongfa.waigong"
     ],

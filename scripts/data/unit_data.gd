@@ -40,13 +40,11 @@ static func normalize_unit_record(raw_record: Dictionary) -> Dictionary:
 	var result: Dictionary = {}
 	result["id"] = unit_id
 	result["name"] = str(raw_record.get("name", unit_id))
-	result["faction"] = str(raw_record.get("faction", "jianghu"))
 	result["quality"] = _normalize_quality(str(raw_record.get("quality", "white")))
 
 	var default_cost: int = int(QUALITY_TO_COST.get(result["quality"], 1))
 	result["cost"] = int(raw_record.get("cost", default_cost))
 	result["shop_visible"] = bool(raw_record.get("shop_visible", true))
-	result["role"] = str(raw_record.get("role", "vanguard"))
 
 	result["base_stats"] = _normalize_stats(raw_record.get("base_stats", {}))
 	result["traits"] = _normalize_traits(raw_record.get("traits", []))
@@ -58,7 +56,6 @@ static func normalize_unit_record(raw_record: Dictionary) -> Dictionary:
 			initial_gongfa.append(str(gongfa_id))
 	result["initial_gongfa"] = initial_gongfa
 	result["gongfa_slots"] = _normalize_gongfa_slots(raw_record.get("gongfa_slots", {}), initial_gongfa)
-	result["max_gongfa_count"] = clampi(int(raw_record.get("max_gongfa_count", 3)), 1, 5)
 
 	# 装备槽位与功法槽位一样，统一在数据层补齐默认值，
 	# 这样战斗层/详情面板可以直接读取，避免每个调用点各自兜底。
@@ -178,8 +175,7 @@ static func _normalize_gongfa_slots(value: Variant, _initial_gongfa: Array[Strin
 		"neigong": "",
 		"waigong": "",
 		"qinggong": "",
-		"zhenfa": "",
-		"qishu": ""
+		"zhenfa": ""
 	}
 	if value is Dictionary:
 		for key in slots.keys():

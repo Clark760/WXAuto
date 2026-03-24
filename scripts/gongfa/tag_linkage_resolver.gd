@@ -2,6 +2,34 @@ extends RefCounted
 class_name TagLinkageResolver
 
 const DEFAULT_SOURCE_TYPES: Array[String] = ["trait", "gongfa", "equipment", "terrain", "unit"]
+const COMPILE_CACHE_MAX: int = 256
+
+var _tag_to_index: Dictionary = {}
+var _tag_registry_version: int = 0
+var _mask_word_count: int = 0
+var _compiled_cache: Dictionary = {} # cache_key -> compiled config
+
+
+func configure_tag_registry(tag_to_index: Dictionary, version: int) -> void:
+	var incoming: Dictionary = {}
+	for key_value in tag_to_index.keys():
+		var key: String = str(key_value).strip_edges().to_lower()
+		if key.is_empty():
+			continue
+		incoming[key] = int(tag_to_index[key_value])
+	var changed: bool = version != _tag_registry_version
+	if not changed and incoming.size() == _tag_to_index.size():
+		for key in incoming.keys():
+			if not _tag_to_index.has(key) or int(_tag_to_index[key]) != int(incoming[key]):
+				changed = true
+				break
+	else:
+		changed = true
+	_tag_to_index = incoming
+	_tag_registry_version = maxi(version, 0)
+	_mask_word_count = int(ceili(float(_tag_to_index.size()) / 64.0))
+	if changed:
+		_compiled_cache.clear()
 
 
 func evaluate(owner: Node, config: Dictionary, context: Dictionary) -> Dictionary:
@@ -15,11 +43,12 @@ func evaluate(owner: Node, config: Dictionary, context: Dictionary) -> Dictionar
 	if owner == null or not is_instance_valid(owner):
 		return output
 
-	var global_source_types: Array[String] = _normalize_source_types(config.get("source_types", DEFAULT_SOURCE_TYPES))
-	var global_team_scope: String = _normalize_team_scope(str(config.get("team_scope", "ally")))
+	var compiled: Dictionary = _get_compiled_config(config)
+	var global_source_types: Array[String] = compiled.get("global_source_types", DEFAULT_SOURCE_TYPES)
+	var global_team_scope: String = str(compiled.get("global_team_scope", "ally"))
 	var include_self: bool = bool(config.get("include_self", true))
 	var range_cells: int = maxi(int(config.get("range", 0)), 0)
-	var count_mode: String = _normalize_count_mode(str(config.get("count_mode", "provider")))
+	var count_mode: String = str(compiled.get("count_mode", "provider"))
 
 	var scan_context: Dictionary = _build_scan_context(owner, context, range_cells)
 	var providers: Array[Dictionary] = _collect_providers(
@@ -38,7 +67,8 @@ func evaluate(owner: Node, config: Dictionary, context: Dictionary) -> Dictionar
 		providers,
 		global_source_types,
 		global_team_scope,
-		count_mode
+		count_mode,
+		compiled.get("compiled_queries", [])
 	)
 	output["query_counts"] = query_counts
 
@@ -73,11 +103,18 @@ func evaluate(owner: Node, config: Dictionary, context: Dictionary) -> Dictionar
 
 	output["matched_case_ids"] = matched_case_ids
 	output["effects"] = effects_to_execute
+	var compiled_queries_value: Variant = compiled.get("compiled_queries", [])
+	var compiled_query_count: int = 0
+	if compiled_queries_value is Array:
+		compiled_query_count = (compiled_queries_value as Array).size()
 	output["debug"] = {
 		"range": range_cells,
 		"count_mode": count_mode,
 		"team_scope": global_team_scope,
-		"source_types": global_source_types
+		"source_types": global_source_types,
+		"compiled_query_count": compiled_query_count,
+		"tag_registry_version": _tag_registry_version,
+		"scan_cells": scan_context.get("cells", [])
 	}
 	return output
 
@@ -149,6 +186,7 @@ func _collect_unit_providers(
 					"key": "unit:%d" % iid,
 					"source_type": "unit",
 					"tags": unit_tags,
+					"tag_mask": _build_mask_from_tags(unit_tags),
 					"unit_id": iid,
 					"is_self": is_self,
 					"is_self_cell": false,
@@ -166,6 +204,7 @@ func _collect_unit_providers(
 					"key": "trait:%d:%s:%d" % [iid, trait_id, trait_idx],
 					"source_type": "trait",
 					"tags": trait_tags,
+					"tag_mask": _build_mask_from_tags(trait_tags),
 					"unit_id": iid,
 					"is_self": is_self,
 					"is_self_cell": false,
@@ -181,6 +220,7 @@ func _collect_unit_providers(
 					"key": "gongfa:%d:%s" % [iid, gongfa_id],
 					"source_type": "gongfa",
 					"tags": gongfa_tags,
+					"tag_mask": _build_mask_from_tags(gongfa_tags),
 					"unit_id": iid,
 					"is_self": is_self,
 					"is_self_cell": false,
@@ -196,6 +236,7 @@ func _collect_unit_providers(
 					"key": "equipment:%d:%s" % [iid, equip_id],
 					"source_type": "equipment",
 					"tags": equip_tags,
+					"tag_mask": _build_mask_from_tags(equip_tags),
 					"unit_id": iid,
 					"is_self": is_self,
 					"is_self_cell": false,
@@ -228,6 +269,7 @@ func _collect_terrain_providers(
 			"key": "terrain:%d,%d" % [cell.x, cell.y],
 			"source_type": "terrain",
 			"tags": terrain_tags,
+			"tag_mask": _build_mask_from_tags(terrain_tags),
 			"unit_id": -1,
 			"is_self": false,
 			"is_self_cell": cell == origin_cell and origin_cell.x >= 0,
@@ -241,42 +283,26 @@ func _count_queries(
 	providers: Array[Dictionary],
 	global_source_types: Array[String],
 	global_team_scope: String,
-	count_mode: String
+	count_mode: String,
+	compiled_queries: Variant = []
 ) -> Dictionary:
 	var query_counts: Dictionary = {}
-	if not (queries_value is Array):
-		return query_counts
-	var query_items: Array = queries_value as Array
-	for query_idx in range(query_items.size()):
-		var query_value: Variant = query_items[query_idx]
+	var query_items: Array = _resolve_query_items(queries_value, global_source_types, global_team_scope, compiled_queries)
+	for query_value in query_items:
 		if not (query_value is Dictionary):
 			continue
 		var query: Dictionary = query_value as Dictionary
-		var query_id: String = str(query.get("id", "q_%d" % query_idx)).strip_edges()
+		var query_id: String = str(query.get("id", "")).strip_edges()
 		if query_id.is_empty():
-			query_id = "q_%d" % query_idx
-
-		var query_tags: Array[String] = _normalize_tags(query.get("tags", []))
+			continue
+		var query_tags: Array[String] = query.get("tags", [])
 		if query_tags.is_empty():
 			query_counts[query_id] = 0
 			continue
-
-		var query_tag_match: String = str(query.get("tag_match", "any")).strip_edges().to_lower()
-		if query_tag_match != "all":
-			query_tag_match = "any"
-
-		var query_source_types: Array[String] = global_source_types
-		if query.has("source_types"):
-			query_source_types = _normalize_source_types(query.get("source_types", global_source_types))
-
-		var query_team_scope: String = global_team_scope
-		if query.has("team_scope"):
-			query_team_scope = _normalize_team_scope(str(query.get("team_scope", global_team_scope)))
-
+		var query_source_types: Array[String] = query.get("source_types", global_source_types)
+		var query_team_scope: String = str(query.get("team_scope", global_team_scope))
 		var origin_scope: String = str(query.get("origin_scope", "all")).strip_edges().to_lower()
-		if origin_scope != "self" and origin_scope != "nearby":
-			origin_scope = "all"
-
+		var query_tag_match: String = str(query.get("tag_match", "any")).strip_edges().to_lower()
 		var provider_seen: Dictionary = {}
 		var unit_seen: Dictionary = {}
 		var count: int = 0
@@ -296,8 +322,7 @@ func _count_queries(
 				if not _team_scope_accepts(query_team_scope, relation):
 					continue
 
-			var provider_tags: Array[String] = provider.get("tags", [])
-			if not _provider_matches_tags(provider_tags, query_tags, query_tag_match):
+			if not _provider_matches_query(provider, query, query_tag_match):
 				continue
 
 			match count_mode:
@@ -482,6 +507,51 @@ func _team_scope_accepts(scope: String, relation: String) -> bool:
 			return relation == "ally"
 
 
+func _resolve_query_items(
+	queries_value: Variant,
+	global_source_types: Array[String],
+	global_team_scope: String,
+	compiled_queries: Variant
+) -> Array:
+	var query_items: Array = []
+	if compiled_queries is Array and not (compiled_queries as Array).is_empty():
+		return (compiled_queries as Array).duplicate(true)
+	if not (queries_value is Array):
+		return query_items
+	for query_idx in range((queries_value as Array).size()):
+		var query_value: Variant = (queries_value as Array)[query_idx]
+		if not (query_value is Dictionary):
+			continue
+		query_items.append(_compile_single_query(query_value as Dictionary, query_idx, global_source_types, global_team_scope))
+	return query_items
+
+
+func _provider_matches_query(provider: Dictionary, query: Dictionary, query_tag_match: String) -> bool:
+	var provider_tags: Array[String] = provider.get("tags", [])
+	var query_tags: Array[String] = query.get("tags", [])
+	if provider_tags.is_empty() or query_tags.is_empty():
+		return false
+	var provider_mask: PackedInt64Array = provider.get("tag_mask", PackedInt64Array())
+	var query_mask: PackedInt64Array = query.get("tag_mask", PackedInt64Array())
+	var indexed_tags: Array[String] = query.get("indexed_tags", [])
+	var fallback_tags: Array[String] = query.get("fallback_tags", [])
+	if query_tag_match == "all":
+		if not _mask_matches_all(provider_mask, query_mask):
+			return false
+		for tag in fallback_tags:
+			if not provider_tags.has(tag):
+				return false
+		return true
+	if _mask_matches_any(provider_mask, query_mask):
+		return true
+	for tag in fallback_tags:
+		if provider_tags.has(tag):
+			return true
+	if not indexed_tags.is_empty():
+		return false
+	return _provider_matches_tags(provider_tags, query_tags, "any")
+
+
 func _provider_matches_tags(provider_tags: Array[String], query_tags: Array[String], tag_match: String) -> bool:
 	if provider_tags.is_empty() or query_tags.is_empty():
 		return false
@@ -583,6 +653,131 @@ func _normalize_ids(value: Variant) -> Array[String]:
 			seen[text] = true
 			out.append(text)
 	return out
+
+
+func _get_compiled_config(config: Dictionary) -> Dictionary:
+	var cache_key: String = "%d|%s" % [_tag_registry_version, var_to_str(config)]
+	if _compiled_cache.has(cache_key):
+		return (_compiled_cache[cache_key] as Dictionary).duplicate(true)
+	var compiled: Dictionary = _compile_config(config)
+	if _compiled_cache.size() >= COMPILE_CACHE_MAX:
+		_compiled_cache.clear()
+	compiled["cache_key"] = cache_key
+	compiled["tag_registry_version"] = _tag_registry_version
+	_compiled_cache[cache_key] = compiled.duplicate(true)
+	return compiled
+
+
+func _compile_config(config: Dictionary) -> Dictionary:
+	var global_source_types: Array[String] = _normalize_source_types(config.get("source_types", DEFAULT_SOURCE_TYPES))
+	var global_team_scope: String = _normalize_team_scope(str(config.get("team_scope", "ally")))
+	var count_mode: String = _normalize_count_mode(str(config.get("count_mode", "provider")))
+	var compiled_queries: Array = []
+	var queries_value: Variant = config.get("queries", [])
+	if queries_value is Array:
+		for query_idx in range((queries_value as Array).size()):
+			var query_value: Variant = (queries_value as Array)[query_idx]
+			if not (query_value is Dictionary):
+				continue
+			compiled_queries.append(_compile_single_query(query_value as Dictionary, query_idx, global_source_types, global_team_scope))
+	return {
+		"global_source_types": global_source_types,
+		"global_team_scope": global_team_scope,
+		"count_mode": count_mode,
+		"compiled_queries": compiled_queries
+	}
+
+
+func _compile_single_query(query: Dictionary, query_idx: int, global_source_types: Array[String], global_team_scope: String) -> Dictionary:
+	var query_id: String = str(query.get("id", "q_%d" % query_idx)).strip_edges()
+	if query_id.is_empty():
+		query_id = "q_%d" % query_idx
+	var query_tags: Array[String] = _normalize_tags(query.get("tags", []))
+	var query_tag_match: String = str(query.get("tag_match", "any")).strip_edges().to_lower()
+	if query_tag_match != "all":
+		query_tag_match = "any"
+	var query_source_types: Array[String] = global_source_types
+	if query.has("source_types"):
+		query_source_types = _normalize_source_types(query.get("source_types", global_source_types))
+	var query_team_scope: String = global_team_scope
+	if query.has("team_scope"):
+		query_team_scope = _normalize_team_scope(str(query.get("team_scope", global_team_scope)))
+	var origin_scope: String = str(query.get("origin_scope", "all")).strip_edges().to_lower()
+	if origin_scope != "self" and origin_scope != "nearby":
+		origin_scope = "all"
+	var indexed_tags: Array[String] = []
+	var fallback_tags: Array[String] = []
+	for tag in query_tags:
+		if _tag_to_index.has(tag):
+			indexed_tags.append(tag)
+		else:
+			fallback_tags.append(tag)
+	return {
+		"id": query_id,
+		"tags": query_tags,
+		"indexed_tags": indexed_tags,
+		"fallback_tags": fallback_tags,
+		"tag_mask": _build_mask_from_tags(indexed_tags),
+		"tag_match": query_tag_match,
+		"source_types": query_source_types,
+		"team_scope": query_team_scope,
+		"origin_scope": origin_scope
+	}
+
+
+func _build_mask_from_tags(tags: Array[String]) -> PackedInt64Array:
+	var mask: PackedInt64Array = _create_empty_mask()
+	if mask.is_empty():
+		return mask
+	for tag in tags:
+		if not _tag_to_index.has(tag):
+			continue
+		var index: int = int(_tag_to_index[tag])
+		if index < 0:
+			continue
+		var word: int = index >> 6
+		var bit: int = index & 63
+		if word < 0 or word >= mask.size():
+			continue
+		mask[word] = int(mask[word]) | (1 << bit)
+	return mask
+
+
+func _create_empty_mask() -> PackedInt64Array:
+	var word_count: int = maxi(_mask_word_count, 0)
+	var mask: PackedInt64Array = PackedInt64Array()
+	if word_count <= 0:
+		return mask
+	mask.resize(word_count)
+	for i in range(word_count):
+		mask[i] = 0
+	return mask
+
+
+func _mask_matches_any(provider_mask: PackedInt64Array, query_mask: PackedInt64Array) -> bool:
+	if provider_mask.is_empty() or query_mask.is_empty():
+		return false
+	var count: int = mini(provider_mask.size(), query_mask.size())
+	for idx in range(count):
+		if (int(provider_mask[idx]) & int(query_mask[idx])) != 0:
+			return true
+	return false
+
+
+func _mask_matches_all(provider_mask: PackedInt64Array, query_mask: PackedInt64Array) -> bool:
+	if query_mask.is_empty():
+		return true
+	if provider_mask.is_empty():
+		return false
+	if provider_mask.size() < query_mask.size():
+		return false
+	for idx in range(query_mask.size()):
+		var qword: int = int(query_mask[idx])
+		if qword == 0:
+			continue
+		if (int(provider_mask[idx]) & qword) != qword:
+			return false
+	return true
 
 
 func _normalize_source_types(value: Variant) -> Array[String]:

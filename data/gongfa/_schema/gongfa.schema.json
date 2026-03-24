@@ -28,14 +28,10 @@
         "neigong",
         "waigong",
         "qinggong",
-        "zhenfa",
-        "qishu"
+        "zhenfa"
       ]
     },
     "description": {
-      "type": "string"
-    },
-    "faction": {
       "type": "string"
     },
     "element": {

@@ -1,0 +1,17 @@
+[
+  {
+    "id": "eq_m5_tag_array_token",
+    "name": "阵眼令",
+    "tags": ["array.zhenwu"]
+  },
+  {
+    "id": "eq_m5_tag_poison_ring",
+    "name": "毒瘴戒",
+    "tags": ["element.poison"]
+  },
+  {
+    "id": "eq_m5_tag_fire_talisman",
+    "name": "离火符",
+    "tags": ["element.fire"]
+  }
+]

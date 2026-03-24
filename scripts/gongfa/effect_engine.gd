@@ -732,19 +732,163 @@ func _execute_tag_linkage_branch_op(source: Node, target: Node, effect: Dictiona
 	var gongfa_manager: Node = context.get("gongfa_manager", null)
 	if gongfa_manager == null or not is_instance_valid(gongfa_manager):
 		return
+	var effect_key: String = _tag_linkage_effect_key(effect)
+	var gate_allowed: bool = true
+	var gate_decided: bool = false
+	var gate_map_value: Variant = context.get("tag_linkage_gate_map", {})
+	if gate_map_value is Dictionary:
+		var gate_map: Dictionary = gate_map_value as Dictionary
+		if gate_map.has(effect_key):
+			gate_allowed = bool(gate_map.get(effect_key, true))
+			gate_decided = true
+	if not gate_decided and gongfa_manager.has_method("evaluate_tag_linkage_gate"):
+		var gate_result_value: Variant = gongfa_manager.call("evaluate_tag_linkage_gate", source, effect, context)
+		if gate_result_value is Dictionary:
+			gate_allowed = bool((gate_result_value as Dictionary).get("allowed", true))
+	if not gate_allowed:
+		return
 	if not gongfa_manager.has_method("evaluate_tag_linkage_branch"):
 		return
 	var result_value: Variant = gongfa_manager.call("evaluate_tag_linkage_branch", source, effect, context)
 	if not (result_value is Dictionary):
 		return
 	var result: Dictionary = result_value as Dictionary
+	if gongfa_manager.has_method("notify_tag_linkage_evaluated"):
+		gongfa_manager.call("notify_tag_linkage_evaluated", source, effect, context, result)
 	var branch_effects_value: Variant = result.get("effects", [])
 	if not (branch_effects_value is Array):
 		return
-	for child_effect_value in (branch_effects_value as Array):
+	var branch_effects: Array = branch_effects_value as Array
+	var execution_mode: String = str(effect.get("execution_mode", "continuous")).strip_edges().to_lower()
+	if execution_mode != "stateful":
+		_execute_tag_linkage_child_effects(source, target, branch_effects, context, summary)
+		return
+	_execute_tag_linkage_stateful(source, target, effect, result, branch_effects, context, summary, gongfa_manager, effect_key)
+
+
+func _execute_tag_linkage_child_effects(source: Node, target: Node, branch_effects: Array, context: Dictionary, summary: Dictionary) -> void:
+	for child_effect_value in branch_effects:
 		if not (child_effect_value is Dictionary):
 			continue
 		_execute_active_op(source, target, child_effect_value as Dictionary, context, summary)
+
+
+func _execute_tag_linkage_stateful(
+	source: Node,
+	target: Node,
+	effect: Dictionary,
+	result: Dictionary,
+	branch_effects: Array,
+	context: Dictionary,
+	summary: Dictionary,
+	gongfa_manager: Node,
+	effect_key: String
+) -> void:
+	var state: Dictionary = _get_tag_linkage_state(gongfa_manager, source, effect, effect_key)
+	var previous_case_id: String = str(state.get("last_case_id", "")).strip_edges()
+	var previous_buff_ids: Array[String] = _normalize_id_array(state.get("stateful_buff_ids", []))
+	var next_case_id: String = _resolve_tag_linkage_case_id(result, branch_effects)
+	var case_changed: bool = previous_case_id != next_case_id
+	var next_buff_ids: Array[String] = previous_buff_ids.duplicate()
+	if case_changed:
+		_remove_stateful_buffs(source, previous_buff_ids, context)
+		next_buff_ids.clear()
+		var prepared_effects: Array[Dictionary] = _build_stateful_branch_effects(branch_effects, next_buff_ids)
+		_execute_tag_linkage_child_effects(source, target, prepared_effects, context, summary)
+	_set_tag_linkage_state(gongfa_manager, source, effect, effect_key, next_case_id, next_buff_ids)
+
+
+func _build_stateful_branch_effects(branch_effects: Array, next_buff_ids: Array[String]) -> Array[Dictionary]:
+	var prepared: Array[Dictionary] = []
+	for child_effect_value in branch_effects:
+		if not (child_effect_value is Dictionary):
+			continue
+		var child_effect: Dictionary = (child_effect_value as Dictionary).duplicate(true)
+		var op: String = str(child_effect.get("op", "")).strip_edges()
+		if op == "buff_self":
+			var buff_id: String = str(child_effect.get("buff_id", "")).strip_edges()
+			if not buff_id.is_empty() and not next_buff_ids.has(buff_id):
+				next_buff_ids.append(buff_id)
+			child_effect["duration"] = -1.0
+		prepared.append(child_effect)
+	return prepared
+
+
+func _remove_stateful_buffs(source: Node, buff_ids: Array[String], context: Dictionary) -> void:
+	if source == null or not is_instance_valid(source):
+		return
+	var buff_manager: Variant = context.get("buff_manager", null)
+	if buff_manager == null or not buff_manager.has_method("remove_buff"):
+		return
+	for buff_id in buff_ids:
+		var bid: String = buff_id.strip_edges()
+		if bid.is_empty():
+			continue
+		buff_manager.call("remove_buff", source, bid, "tag_linkage_state_switch")
+
+
+func _resolve_tag_linkage_case_id(result: Dictionary, branch_effects: Array) -> String:
+	var matched_value: Variant = result.get("matched_case_ids", [])
+	if matched_value is Array and not (matched_value as Array).is_empty():
+		return str((matched_value as Array)[0]).strip_edges()
+	if not branch_effects.is_empty():
+		return "__else__"
+	return ""
+
+
+func _get_tag_linkage_state(gongfa_manager: Node, source: Node, effect: Dictionary, effect_key: String) -> Dictionary:
+	if gongfa_manager != null and is_instance_valid(gongfa_manager) and gongfa_manager.has_method("get_tag_linkage_state"):
+		var state_value: Variant = gongfa_manager.call("get_tag_linkage_state", source, effect)
+		if state_value is Dictionary:
+			return (state_value as Dictionary).duplicate(true)
+	if source == null or not is_instance_valid(source):
+		return {"last_case_id": "", "stateful_buff_ids": []}
+	var meta_map: Dictionary = source.get_meta("tag_linkage_stateful_state", {})
+	if not meta_map.has(effect_key):
+		return {"last_case_id": "", "stateful_buff_ids": []}
+	var state: Variant = meta_map.get(effect_key, {})
+	if state is Dictionary:
+		return (state as Dictionary).duplicate(true)
+	return {"last_case_id": "", "stateful_buff_ids": []}
+
+
+func _set_tag_linkage_state(
+	gongfa_manager: Node,
+	source: Node,
+	effect: Dictionary,
+	effect_key: String,
+	case_id: String,
+	buff_ids: Array[String]
+) -> void:
+	var normalized_ids: Array[String] = _normalize_id_array(buff_ids)
+	if gongfa_manager != null and is_instance_valid(gongfa_manager) and gongfa_manager.has_method("set_tag_linkage_state"):
+		gongfa_manager.call("set_tag_linkage_state", source, effect, case_id, normalized_ids)
+		return
+	if source == null or not is_instance_valid(source):
+		return
+	var meta_map: Dictionary = source.get_meta("tag_linkage_stateful_state", {})
+	meta_map[effect_key] = {
+		"last_case_id": case_id,
+		"stateful_buff_ids": normalized_ids
+	}
+	source.set_meta("tag_linkage_stateful_state", meta_map)
+
+
+func _tag_linkage_effect_key(effect: Dictionary) -> String:
+	return var_to_str(effect)
+
+
+func _normalize_id_array(raw: Variant) -> Array[String]:
+	var out: Array[String] = []
+	var seen: Dictionary = {}
+	if raw is Array:
+		for value in (raw as Array):
+			var text: String = str(value).strip_edges()
+			if text.is_empty() or seen.has(text):
+				continue
+			seen[text] = true
+			out.append(text)
+	return out
 
 
 func _apply_taunt_state(target: Node, source: Node, duration: float, context: Dictionary) -> void:

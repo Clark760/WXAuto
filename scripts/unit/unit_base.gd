@@ -28,9 +28,7 @@ var pool_key: String = ""
 
 var unit_id: String = ""
 var unit_name: String = ""
-var faction: String = ""
 var quality: String = "white"
-var role: String = "vanguard"
 var cost: int = 1
 
 var initial_gongfa: Array[String] = []
@@ -39,10 +37,8 @@ var gongfa_slots: Dictionary = {
 	"neigong": "",
 	"waigong": "",
 	"qinggong": "",
-	"zhenfa": "",
-	"qishu": ""
+	"zhenfa": ""
 }
-var max_gongfa_count: int = 5
 var equip_slots: Dictionary = {
 	"weapon": "",
 	"armor": "",
@@ -107,9 +103,7 @@ func refresh_process_state() -> void:
 func setup_from_unit_record(unit_record: Dictionary, forced_star: int = -1) -> void:
 	unit_id = str(unit_record.get("id", ""))
 	unit_name = str(unit_record.get("name", unit_id))
-	faction = str(unit_record.get("faction", "jianghu"))
 	quality = str(unit_record.get("quality", "white"))
-	role = str(unit_record.get("role", "vanguard"))
 	cost = int(unit_record.get("cost", 1))
 
 	base_stats = (unit_record.get("base_stats", {}) as Dictionary).duplicate(true)
@@ -128,14 +122,12 @@ func setup_from_unit_record(unit_record: Dictionary, forced_star: int = -1) -> v
 		"neigong": "",
 		"waigong": "",
 		"qinggong": "",
-		"zhenfa": "",
-		"qishu": ""
+		"zhenfa": ""
 	}
 	if unit_record.get("gongfa_slots", {}) is Dictionary:
 		var slots_raw: Dictionary = unit_record["gongfa_slots"]
 		for slot in gongfa_slots.keys():
 			gongfa_slots[slot] = str(slots_raw.get(slot, ""))
-	max_gongfa_count = clampi(int(unit_record.get("max_gongfa_count", 5)), 1, 5)
 
 	# 装备槽位与功法槽位一样常驻在角色实例上，便于管理器直接读写。
 	equip_slots = {
@@ -414,7 +406,7 @@ func get_equipped_gongfa_ids() -> Array[String]:
 	# 槽位顺序固定，保证 UI 展示和触发优先级稳定可预期。
 	# 规则修正：功法按“类型槽位”装备，不再按总数量上限截断。
 	var ids: Array[String] = []
-	var ordered_slots: Array[String] = ["neigong", "waigong", "qinggong", "zhenfa", "qishu"]
+	var ordered_slots: Array[String] = ["neigong", "waigong", "qinggong", "zhenfa"]
 	for slot in ordered_slots:
 		var gid: String = str(gongfa_slots.get(slot, "")).strip_edges()
 		if gid.is_empty():

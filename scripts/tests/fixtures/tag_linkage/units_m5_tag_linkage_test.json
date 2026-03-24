@@ -1,0 +1,25 @@
+[
+  {
+    "id": "unit_m5_tag_anchor",
+    "name": "联动锚点",
+    "tags": ["unit.anchor"],
+    "traits": [
+      {
+        "id": "trait_wandu_guxin",
+        "tags": ["trait.wandu_guxin", "element.poison"]
+      }
+    ]
+  },
+  {
+    "id": "unit_m5_tag_array_ally",
+    "name": "阵法友军",
+    "tags": ["array.zhenwu", "school.wudang"],
+    "traits": []
+  },
+  {
+    "id": "unit_m5_tag_enemy",
+    "name": "阵法敌军",
+    "tags": ["array.zhenwu", "enemy.flag"],
+    "traits": []
+  }
+]

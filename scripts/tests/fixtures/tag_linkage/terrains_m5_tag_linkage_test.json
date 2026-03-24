@@ -1,0 +1,17 @@
+[
+  {
+    "id": "terrain_m5_tag_poison_pool",
+    "name": "毒潭",
+    "tags": ["element.poison", "terrain.poison"]
+  },
+  {
+    "id": "terrain_m5_tag_fire_floor",
+    "name": "火域",
+    "tags": ["element.fire", "terrain.fire"]
+  },
+  {
+    "id": "terrain_m5_tag_rock",
+    "name": "岩地",
+    "tags": ["terrain.rock"]
+  }
+]
