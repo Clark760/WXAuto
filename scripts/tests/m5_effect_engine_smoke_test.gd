@@ -148,7 +148,7 @@ class MockBattlefield:
 	extends Node
 	var spawned_rows: Array = []
 
-	func spawn_mechanic_enemy_wave(wave_units_value: Variant) -> int:
+	func spawn_enemy_wave(wave_units_value: Variant) -> int:
 		if not (wave_units_value is Array):
 			return 0
 		var wave_units: Array = wave_units_value

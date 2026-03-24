@@ -555,7 +555,7 @@ func _apply_stage_enemy_overrides(unit_node: Node, enemy_cfg: Dictionary) -> voi
 		gongfa_manager.call("apply_gongfa", unit_node)
 
 
-func spawn_mechanic_enemy_wave(wave_units_value: Variant) -> int:
+func spawn_enemy_wave(wave_units_value: Variant) -> int:
 	if not (wave_units_value is Array):
 		return 0
 	var wave_units: Array = wave_units_value
@@ -906,7 +906,7 @@ func _bootstrap_battle_services() -> void:
 			TEAM_ALLY
 		)
 		_stage_manager.call("load_stage_sequence", data_manager)
-	# M5 合并后 Boss 机制改由 GongfaManager 统一执行，这里不再挂载旧 runner。
+	# M5：战斗扩展统一由 GongfaManager 执行，这里不再挂载旧 runner。
 
 
 func _rebuild_battle_data_caches() -> void:

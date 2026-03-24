@@ -244,7 +244,7 @@ func set_team(value: int) -> void:
 
 
 func enter_combat() -> void:
-	# M5-FIX: 上一局死亡后可能被隐藏，这里入战前强制恢复可见。
+	# 上一局死亡后可能被隐藏，这里入战前强制恢复可见。
 	visible = true
 	is_in_combat = true
 	is_on_bench = false
@@ -310,7 +310,6 @@ func contains_point(world_position: Vector2) -> bool:
 
 
 func set_compact_visual_mode(is_compact: bool) -> void:
-	# M4：紧凑模式下不再“一刀切”隐藏文本。
 	# 战斗中强制显示名称/星级，非战斗时按 compact 规则显示。
 	_compact_visual_mode = is_compact
 	_apply_label_visibility()

@@ -21,7 +21,7 @@ func bind_unit(unit: Node) -> void:
 
 
 func reset_from_stats(_runtime_stats: Dictionary) -> void:
-	# M5: 移动速度统一由组件固定参数控制。
+	# 移动速度统一由组件固定参数控制。
 	move_speed = maxf(base_move_speed, 10.0)
 	move_target = Vector2.ZERO
 	has_target = false
@@ -29,7 +29,7 @@ func reset_from_stats(_runtime_stats: Dictionary) -> void:
 
 
 func refresh_runtime_stats(_runtime_stats: Dictionary) -> void:
-	# M5: 刷新时保持固定移速。
+	# 刷新时保持固定移速。
 	move_speed = maxf(base_move_speed, 10.0)
 
 

@@ -5,7 +5,7 @@ class_name StageData
 # 关卡配置解析器（M5）
 # 1. 对 data/stages 的原始 JSON 做最小校验与默认值补齐；
 # 2. 输出稳定结构供 StageManager / Battlefield 直接消费。
-const STAGE_TYPES: Array[String] = ["normal", "elite", "boss", "rest", "event"]
+const STAGE_TYPES: Array[String] = ["normal", "elite", "rest", "event"]
 const ENEMY_DEPLOY_ZONES: Array[String] = ["front", "back", "center", "random", "fixed"]
 const DROP_TYPES: Array[String] = ["gongfa", "equipment", "unit"]
 
@@ -25,21 +25,6 @@ func normalize_stage_record(raw: Dictionary) -> Dictionary:
 	var stage_id: String = str(raw.get("id", "")).strip_edges()
 	if stage_id.is_empty():
 		return {}
-	if raw.has("boss_gongfa_ids") or raw.has("boss_mechanics"):
-		push_error("StageData: stage=%s contains removed boss fields. Define boss data in unit records only." % stage_id)
-		return {}
-	var raw_enemies: Variant = raw.get("enemies", [])
-	if raw_enemies is Array:
-		for enemy_value in (raw_enemies as Array):
-			if not (enemy_value is Dictionary):
-				continue
-			var enemy_row: Dictionary = enemy_value as Dictionary
-			if enemy_row.has("is_boss"):
-				push_error("StageData: stage=%s contains removed enemies[].is_boss. Define boss data in unit records only." % stage_id)
-				return {}
-			if enemy_row.has("gongfa_ids") or enemy_row.has("equip_ids") or enemy_row.has("traits"):
-				push_error("StageData: stage=%s contains removed enemies inline boss data (gongfa_ids/equip_ids/traits)." % stage_id)
-				return {}
 
 	var stage_type: String = str(raw.get("type", "normal")).strip_edges().to_lower()
 	if not STAGE_TYPES.has(stage_type):
@@ -320,4 +305,3 @@ func _parse_cells(value: Variant) -> Array[Vector2i]:
 			var d: Dictionary = item
 			cells.append(Vector2i(int(d.get("x", 0)), int(d.get("y", 0))))
 	return cells
-

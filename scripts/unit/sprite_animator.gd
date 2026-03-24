@@ -410,7 +410,7 @@ func _play_death() -> void:
 	_tween.finished.connect(func() -> void:
 		# 死亡状态通常由外部管理，不自动切回 IDLE。
 		_stop_tween()
-		# M5-FIX: 死亡动画结束后隐藏单位根节点，防止后续状态切换把尸体重新显示。
+		# FIX: 死亡动画结束后隐藏单位根节点，防止后续状态切换把尸体重新显示。
 		var unit_root: Node = _target.get_parent() if _target != null else null
 		if unit_root != null and unit_root is CanvasItem:
 			(unit_root as CanvasItem).visible = false

@@ -23,7 +23,7 @@ var current_hp: float = 0.0
 var current_mp: float = 0.0
 var max_hp: float = 1.0
 var max_mp: float = 0.0
-# M5：护盾池（独立于生命值），受击时优先扣除。
+# 护盾池（独立于生命值），受击时优先扣除。
 var shield_hp: float = 0.0
 var max_shield_hp: float = 0.0
 
@@ -187,10 +187,6 @@ func try_attack_target(target: Node, rng_source: Variant = null) -> Dictionary:
 		if execute_threshold > 0.0 and target_hp_before / target_max_hp <= execute_threshold:
 			raw_damage *= 2.0
 
-		# M5-Boss 机制扩展：允许关卡机制给特定单位施加“额外输出系数”。
-		var stage_outgoing_bonus: float = _get_stage_meta_float("stage_outgoing_damage_bonus", 0.0)
-		raw_damage *= maxf(1.0 + stage_outgoing_bonus, 0.0)
-
 	var receive_result: Dictionary = target_combat.call(
 		"receive_damage",
 		raw_damage,
@@ -236,7 +232,7 @@ func receive_damage(
 			"immune_absorbed": 0.0
 		}
 
-	# M5：护盾优先吸收伤害。
+	# 护盾优先吸收伤害。
 	var total_shield_before: float = get_current_shield()
 	var shield_absorbed: float = 0.0
 	var shield_broken: bool = false
@@ -262,30 +258,12 @@ func receive_damage(
 			damaged.emit(owner_unit, source, shield_event)
 			return shield_event
 
-	# M5-Boss 机制扩展：免伤开关（例如部分 Boss 相位）。
-	if _get_stage_meta_bool("stage_damage_immune", false):
-		var immune_absorbed: float = maxf(amount, 0.0)
-		var immune_event: Dictionary = {
-			"damage": 0.0,
-			"target_died": false,
-			"target_hp_after": current_hp,
-			"target_mp_after": current_mp,
-			"shield_absorbed": shield_absorbed,
-			"shield_hp_after": get_current_shield(),
-			"shield_broken": shield_broken,
-			"immune_absorbed": immune_absorbed
-		}
-		damaged.emit(owner_unit, source, immune_event)
-		return immune_event
-
 	var final_damage: float = 0.0
 	if not _is_dodged:
 		final_damage = maxf(amount, 0.0)
 		final_damage = maxf(final_damage - float(_external_modifiers.get("damage_reduce_flat", 0.0)), 0.0)
 		var reduce_ratio: float = clampf(float(_external_modifiers.get("damage_reduce_percent", 0.0)), -0.95, 0.95)
 		final_damage *= (1.0 - reduce_ratio)
-		# M5-Boss 机制扩展：易伤/减伤倍率（默认 1.0）。
-		final_damage *= maxf(_get_stage_meta_float("stage_damage_taken_multiplier", 1.0), 0.0)
 		current_hp = maxf(current_hp - final_damage, 0.0)
 		add_mp(mp_gain_on_hit)
 
@@ -353,14 +331,14 @@ func get_attack_range_world(hex_size: float = 26.0) -> float:
 
 func get_attack_range_cells() -> int:
 	# 严格六角格战斗：攻击距离统一按“格子数”判定。
-	# M5：RNG 只保留最小值约束，不做上限裁剪。
+	# RNG 只保留最小值约束，不做上限裁剪。
 	var range_cells: float = _get_owner_stat("rng") + float(_external_modifiers.get("range_add", 0.0))
 	var min_cells: int = maxi(attack_range_min_cells, 1)
 	return maxi(int(range_cells), min_cells)
 
 
 func get_max_effective_range_cells() -> int:
-	# M5 预留接口：
+	# 预留接口：
 	# 目标是把“可立即释放的技能射程”也纳入有效射程判定，避免角色已能放远程技能
 	# 却继续贴脸移动的错误行为。当前阶段先回落到普攻射程，后续接 GongfaManager。
 	return get_attack_range_cells()
@@ -656,18 +634,6 @@ func _randf(rng_source: Variant) -> float:
 		if rng != null:
 			return rng.randf()
 	return randf()
-
-
-func _get_stage_meta_float(meta_key: String, fallback: float) -> float:
-	if owner_unit == null or not is_instance_valid(owner_unit):
-		return fallback
-	return float(owner_unit.get_meta(meta_key, fallback))
-
-
-func _get_stage_meta_bool(meta_key: String, fallback: bool) -> bool:
-	if owner_unit == null or not is_instance_valid(owner_unit):
-		return fallback
-	return bool(owner_unit.get_meta(meta_key, fallback))
 
 
 func _set_shield_value(value: float) -> void:

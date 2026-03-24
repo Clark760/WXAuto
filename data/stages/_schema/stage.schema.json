@@ -12,7 +12,7 @@
     "description": { "type": "string" },
     "type": {
       "type": "string",
-      "enum": ["normal", "elite", "boss", "rest", "event"]
+      "enum": ["normal", "elite", "rest", "event"]
     },
     "grid": {
       "type": "object",

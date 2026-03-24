@@ -1171,7 +1171,7 @@ func _apply_shield_self_op(source: Node, effect: Dictionary, context: Dictionary
 		combat.call("add_shield", shield_value)
 
 	var buff_manager: Variant = context.get("buff_manager", null)
-	var shield_buff_id: String = str(effect.get("shield_buff_id", effect.get("buff_id", "boss_shield"))).strip_edges()
+	var shield_buff_id: String = str(effect.get("shield_buff_id", effect.get("buff_id", "buff_qi_shield"))).strip_edges()
 	var shield_duration: float = float(effect.get("duration", -1.0))
 	if buff_manager != null and not shield_buff_id.is_empty():
 		if bool(buff_manager.call("apply_buff", source, shield_buff_id, shield_duration, source)):
@@ -1192,7 +1192,7 @@ func _apply_shield_self_op(source: Node, effect: Dictionary, context: Dictionary
 func _apply_immunity_self_op(source: Node, effect: Dictionary, context: Dictionary, summary: Dictionary) -> void:
 	if source == null or not is_instance_valid(source):
 		return
-	# 推荐走 Buff 实现（可自动过期、可被 on_buff_expired 监听）。
+	# 仅通过 Buff 实现免疫，避免写入战斗元数据造成无过期状态。
 	var buff_id: String = str(effect.get("buff_id", "")).strip_edges()
 	var duration: float = float(effect.get("duration", 0.0))
 	if not buff_id.is_empty():
@@ -1200,15 +1200,14 @@ func _apply_immunity_self_op(source: Node, effect: Dictionary, context: Dictiona
 			summary["buff_applied"] = int(summary.get("buff_applied", 0)) + 1
 			_append_buff_event(summary, source, source, buff_id, duration, "immunity_self")
 		return
-	source.set_meta("stage_damage_immune", true)
-	source.set_meta("stage_damage_immune", true)
+	push_warning("EffectEngine: immunity_self missing buff_id, skipped.")
 
 
 func _execute_summon_units_op(source: Node, effect: Dictionary, context: Dictionary) -> int:
 	var battlefield: Node = context.get("battlefield", null)
 	if battlefield == null or not is_instance_valid(battlefield):
 		return 0
-	if not battlefield.has_method("spawn_mechanic_enemy_wave"):
+	if not battlefield.has_method("spawn_enemy_wave"):
 		return 0
 	var units_value: Variant = effect.get("units", [])
 	if not (units_value is Array):
@@ -1249,7 +1248,7 @@ func _execute_summon_units_op(source: Node, effect: Dictionary, context: Diction
 		rows.append(row)
 	if rows.is_empty():
 		return 0
-	return int(battlefield.call("spawn_mechanic_enemy_wave", rows))
+	return int(battlefield.call("spawn_enemy_wave", rows))
 
 
 func _execute_hazard_zone_op(source: Node, effect: Dictionary, context: Dictionary) -> int:

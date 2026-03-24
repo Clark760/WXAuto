@@ -723,7 +723,7 @@ func _on_unit_died(dead_unit: Node, _killer: Node, team_id: int) -> void:
 	_ui_dirty = true
 
 func _on_battle_ended(winner_team: int, _summary: Dictionary) -> void:
-	# M4 规则：结算 = 暂停。这里只切阶段标记与最小 HUD，不触发棋盘重排。
+	# 规则：结算 = 暂停。这里只切阶段标记与最小 HUD，不触发棋盘重排。
 	# 注意：不能走 _set_stage(Stage.RESULT)，否则会调用：
 	# _apply_visual_to_all_units() / _refit_hex_grid() / _refresh_deployed_positions()
 	# 从而导致单位缩放重算、位置重排和结算瞬间闪跳。

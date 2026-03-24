@@ -80,7 +80,7 @@
     "chapter": 5,
     "index": 3,
     "name": "迷沼困杀",
-    "type": "boss",
+    "type": "normal",
     "description": "以迷雾沼泽测试无伤害地形标签在联动中的可见性。",
     "grid": {
       "width": 32,

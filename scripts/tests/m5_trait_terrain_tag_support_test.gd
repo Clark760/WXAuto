@@ -128,11 +128,11 @@ func _test_terrain_manager_tags_support() -> void:
 		"fire",
 		[Vector2i(5, 6)],
 		{},
-		{"tags": ["BossField", "burn"]}
+		{"tags": ["StoneField", "burn"]}
 	)
 	_assert_true(bool(added_static_override.get("added", false)), "static terrain with override tags should be added")
-	_assert_true(bool(terrain_manager.call("cell_has_terrain_tag", Vector2i(5, 6), "bossfield", "all", null)), "override tags should be normalized and queryable")
-	_assert_true(not bool(terrain_manager.call("cell_has_terrain_tag", Vector2i(5, 6), "bossfield", "dynamic", null)), "dynamic scope should exclude static terrains")
+	_assert_true(bool(terrain_manager.call("cell_has_terrain_tag", Vector2i(5, 6), "stonefield", "all", null)), "override tags should be normalized and queryable")
+	_assert_true(not bool(terrain_manager.call("cell_has_terrain_tag", Vector2i(5, 6), "stonefield", "dynamic", null)), "dynamic scope should exclude static terrains")
 
 	var added_dynamic: Dictionary = terrain_manager.call(
 		"add_terrain",
