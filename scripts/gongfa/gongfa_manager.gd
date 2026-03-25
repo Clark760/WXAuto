@@ -43,6 +43,8 @@ var _unit_states: Dictionary = {} # instance_id -> state
 var _battle_running: bool = false
 var _battle_elapsed: float = 0.0
 var _trigger_accum: float = 0.0
+var _next_trigger_entry_uid: int = 1
+var _next_source_bound_aura_scope_token: int = 1
 
 var _tag_to_index: Dictionary = {} # tag(lower) -> int
 var _index_to_tag: Array[String] = []
@@ -119,6 +121,8 @@ func prepare_battle(
 	_battle_elapsed = 0.0
 	_trigger_accum = 0.0
 	_battle_running = false
+	_next_trigger_entry_uid = 1
+	_next_source_bound_aura_scope_token = 1
 	_buff_manager.clear_all()
 	if _tag_linkage_scheduler != null:
 		_tag_linkage_scheduler.call("clear")
@@ -566,6 +570,7 @@ func _build_trigger_entry(owner_id: String, skill_data: Dictionary) -> Dictionar
 	var periodic_interval: float = maxf(float(trigger_params.get("interval", skill_data.get("interval", 0.0))), 0.0)
 	var entry: Dictionary = {
 		"gongfa_id": owner_id,
+		"entry_uid": _next_trigger_entry_uid,
 		"trigger": trigger_name,
 		"trigger_params": trigger_params,
 		"chance": clampf(float(skill_data.get("chance", 1.0)), 0.0, 1.0),
@@ -582,6 +587,7 @@ func _build_trigger_entry(owner_id: String, skill_data: Dictionary) -> Dictionar
 		# 浅拷贝即可，skill_data 在执行阶段只读。
 		"skill_data": skill_data.duplicate(false)
 	}
+	_next_trigger_entry_uid += 1
 	return entry
 
 
@@ -620,15 +626,15 @@ func _resolve_equipped_equip_ids(unit: Node) -> Array[String]:
 
 func _apply_state_to_unit(unit_id: int, preserve_health_ratio: bool) -> void:
 	if _passive_applier != null:
-		_passive_applier.call("apply_state_to_unit", self, unit_id, preserve_health_ratio)
+		_passive_applier.apply_state_to_unit(self, unit_id, preserve_health_ratio)
 
 func _reapply_changed_units(changed_ids_variant: Variant) -> void:
 	if _passive_applier != null:
-		_passive_applier.call("reapply_changed_units", self, changed_ids_variant)
+		_passive_applier.reapply_changed_units(self, changed_ids_variant)
 
 func _poll_auto_triggers() -> void:
 	if _trigger_engine != null:
-		_trigger_engine.call("poll_auto_triggers", self)
+		_trigger_engine.poll_auto_triggers(self)
 
 func _can_trigger_entry(unit: Node, entry: Dictionary, event_context: Dictionary = {}) -> bool:
 	if _battle_elapsed < float(entry.get("next_ready_time", 0.0)):
@@ -902,6 +908,7 @@ func _try_fire_skill(source: Node, entry: Dictionary, event_context: Dictionary)
 		return false
 	if not _is_unit_alive(source):
 		return false
+	var trigger_name: String = str(entry.get("trigger", "")).strip_edges().to_lower()
 
 	var chance: float = clampf(float(entry.get("chance", 1.0)), 0.0, 1.0)
 	if chance < 1.0 and randf() > chance:
@@ -937,6 +944,15 @@ func _try_fire_skill(source: Node, entry: Dictionary, event_context: Dictionary)
 			target = source
 
 	var execution_context: Dictionary = _build_effect_context(source, target, event_context)
+	if trigger_name == "passive_aura":
+		var entry_uid: int = int(entry.get("entry_uid", 0))
+		if entry_uid <= 0:
+			entry_uid = _next_trigger_entry_uid
+			_next_trigger_entry_uid += 1
+			entry["entry_uid"] = entry_uid
+		execution_context["source_bound_aura_scope_key"] = "%d|%d" % [source.get_instance_id(), entry_uid]
+		execution_context["source_bound_aura_scope_token"] = _next_source_bound_aura_scope_token
+		_next_source_bound_aura_scope_token += 1
 	var linkage_gate_result: Dictionary = _build_tag_linkage_gate_map(source, effect_list, execution_context)
 	execution_context["tag_linkage_gate_map"] = linkage_gate_result.get("gate_map", {})
 	if bool(linkage_gate_result.get("has_only_tag_linkage", false)) \
@@ -953,6 +969,13 @@ func _try_fire_skill(source: Node, entry: Dictionary, event_context: Dictionary)
 		combat.call("add_mp", -mp_cost)
 
 	var execution_summary: Dictionary = _effect_engine.execute_active_effects(source, target, effect_list, execution_context)
+	if trigger_name == "passive_aura" and _buff_manager != null and _buff_manager.has_method("finalize_source_bound_aura_scope"):
+		_buff_manager.call(
+			"finalize_source_bound_aura_scope",
+			str(execution_context.get("source_bound_aura_scope_key", "")).strip_edges(),
+			int(execution_context.get("source_bound_aura_scope_token", 0)),
+			execution_context
+		)
 	_emit_effect_log_events(
 		execution_summary,
 		source,
@@ -971,7 +994,6 @@ func _try_fire_skill(source: Node, entry: Dictionary, event_context: Dictionary)
 
 	source.call("play_anim_state", 3, {}) # SKILL
 
-	var trigger_name: String = str(entry.get("trigger", "")).strip_edges().to_lower()
 	if trigger_name == "periodic_seconds" or trigger_name == "periodic":
 		var trigger_params: Dictionary = {}
 		var trigger_params_value: Variant = entry.get("trigger_params", {})
@@ -1421,6 +1443,8 @@ func _on_unit_died(dead_unit: Node, killer: Node, team_id: int) -> void:
 			continue
 		_fire_trigger_for_unit(ally, "on_ally_death", {"target": dead_unit})
 
+	if _buff_manager != null and _buff_manager.has_method("remove_source_bound_auras_from_source"):
+		_buff_manager.call("remove_source_bound_auras_from_source", dead_unit, {"all_units": _battle_units})
 	_buff_manager.remove_all_for_unit(dead_unit)
 
 
@@ -1611,11 +1635,11 @@ func _on_buff_removed(event_dict: Dictionary) -> void:
 
 func _fire_trigger_for_all(trigger: String, context: Dictionary) -> void:
 	if _trigger_engine != null:
-		_trigger_engine.call("fire_trigger_for_all", self, trigger, context)
+		_trigger_engine.fire_trigger_for_all(self, trigger, context)
 
 func _fire_trigger_for_unit(unit: Node, trigger: String, context: Dictionary) -> void:
 	if _trigger_engine != null:
-		_trigger_engine.call("fire_trigger_for_unit", self, unit, trigger, context)
+		_trigger_engine.fire_trigger_for_unit(self, unit, trigger, context)
 
 func _clamp_runtime_stats(runtime_stats: Dictionary) -> void:
 	var min_positive_keys: Array[String] = ["hp", "rng"]

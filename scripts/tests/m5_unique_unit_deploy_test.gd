@@ -137,10 +137,13 @@ func _test_auto_deploy_skips_duplicate_ids() -> void:
 	manager.call("configure", owner)
 
 	var existing: MockUnit = _make_unit("unit_hero_a")
+	owner.add_child(existing)
 	manager.call("deploy_ally_unit_to_cell", existing, Vector2i(0, 0))
 
 	var bench_duplicate: MockUnit = _make_unit("unit_hero_a")
 	var bench_other: MockUnit = _make_unit("unit_hero_b")
+	owner.add_child(bench_duplicate)
+	owner.add_child(bench_other)
 	owner.bench_ui.add_unit(bench_duplicate)
 	owner.bench_ui.add_unit(bench_other)
 

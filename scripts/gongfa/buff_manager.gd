@@ -15,11 +15,13 @@ var _buff_defs: Dictionary = {}      # buff_id -> buff_data
 var _active_by_unit: Dictionary = {} # unit_instance_id -> Array[Dictionary]
 # 战场级效果（例如 hazard_zone）：不绑定单个单位，按区域与时间驱动。
 var _battlefield_effects: Array[Dictionary] = []
+var _source_bound_auras: Dictionary = {} # aura_key -> Dictionary
 
 
 func clear_all() -> void:
 	_active_by_unit.clear()
 	_battlefield_effects.clear()
+	_source_bound_auras.clear()
 
 
 func set_buff_definitions(buff_defs: Dictionary) -> void:
@@ -27,6 +29,16 @@ func set_buff_definitions(buff_defs: Dictionary) -> void:
 
 
 func apply_buff(target: Node, buff_id: String, duration: float, source: Node = null) -> bool:
+	return apply_buff_with_options(target, buff_id, duration, source, {})
+
+
+func apply_buff_with_options(
+	target: Node,
+	buff_id: String,
+	duration: float,
+	source: Node = null,
+	options: Dictionary = {}
+) -> bool:
 	if target == null or not is_instance_valid(target):
 		return false
 	if not _buff_defs.has(buff_id):
@@ -38,6 +50,7 @@ func apply_buff(target: Node, buff_id: String, duration: float, source: Node = n
 	var buff_data: Dictionary = (_buff_defs[buff_id] as Dictionary).duplicate(true)
 	var source_meta: Dictionary = _build_source_meta(source)
 	var source_id: int = int(source_meta.get("source_id", -1))
+	var application_key: String = _normalize_application_key(options.get("application_key", ""))
 
 	var stackable: bool = bool(buff_data.get("stackable", false))
 	var max_stacks: int = maxi(int(buff_data.get("max_stacks", 1)), 1)
@@ -54,6 +67,8 @@ func apply_buff(target: Node, buff_id: String, duration: float, source: Node = n
 			continue
 		if int(entry.get("source_id", -1)) != source_id:
 			continue
+		if _normalize_application_key(entry.get("application_key", "")) != application_key:
+			continue
 
 		if stackable:
 			entry["stacks"] = mini(int(entry.get("stacks", 1)) + 1, max_stacks)
@@ -68,6 +83,7 @@ func apply_buff(target: Node, buff_id: String, duration: float, source: Node = n
 		entry["source_unit_id"] = str(source_meta.get("source_unit_id", "")).strip_edges()
 		entry["source_name"] = str(source_meta.get("source_name", "")).strip_edges()
 		entry["source_team"] = int(source_meta.get("source_team", 0))
+		entry["application_key"] = application_key
 		unit_entries[i] = entry
 		_active_by_unit[iid] = unit_entries
 		_sync_unit_runtime_meta(target, unit_entries)
@@ -82,7 +98,8 @@ func apply_buff(target: Node, buff_id: String, duration: float, source: Node = n
 		"source_id": int(source_meta.get("source_id", -1)),
 		"source_unit_id": str(source_meta.get("source_unit_id", "")).strip_edges(),
 		"source_name": str(source_meta.get("source_name", "")).strip_edges(),
-		"source_team": int(source_meta.get("source_team", 0))
+		"source_team": int(source_meta.get("source_team", 0)),
+		"application_key": application_key
 	}
 	if str(buff_data.get("type", "buff")).strip_edges().to_lower() == "debuff" and final_duration > 0.0:
 		new_entry["remaining"] = _apply_tenacity_duration_scale(target, final_duration)
@@ -93,6 +110,23 @@ func apply_buff(target: Node, buff_id: String, duration: float, source: Node = n
 
 
 func remove_buff(target: Node, buff_id: String, reason: String = "manual") -> int:
+	return _remove_buff_internal(target, buff_id, reason, "", false)
+
+
+func remove_buff_instance(target: Node, buff_id: String, application_key: String, reason: String = "manual") -> int:
+	var normalized_application_key: String = _normalize_application_key(application_key)
+	if normalized_application_key.is_empty():
+		return 0
+	return _remove_buff_internal(target, buff_id, reason, normalized_application_key, true)
+
+
+func _remove_buff_internal(
+	target: Node,
+	buff_id: String,
+	reason: String,
+	application_key: String,
+	match_application_key: bool
+) -> int:
 	if target == null or not is_instance_valid(target):
 		return 0
 	var normalized_buff_id: String = buff_id.strip_edges()
@@ -111,7 +145,11 @@ func remove_buff(target: Node, buff_id: String, reason: String = "manual") -> in
 		if str(entry.get("buff_id", "")).strip_edges() != normalized_buff_id:
 			next_entries.append(entry)
 			continue
+		if match_application_key and _normalize_application_key(entry.get("application_key", "")) != application_key:
+			next_entries.append(entry)
+			continue
 		removed_count += 1
+		_on_buff_entry_removed(iid, entry, reason)
 		_emit_buff_removed(iid, normalized_buff_id, int(entry.get("source_id", -1)), reason)
 	if next_entries.is_empty():
 		_active_by_unit.erase(iid)
@@ -133,6 +171,7 @@ func remove_all_for_unit(target: Node) -> void:
 		var buff_id: String = str(entry.get("buff_id", "")).strip_edges()
 		if buff_id.is_empty():
 			continue
+		_on_buff_entry_removed(iid, entry, "unit_removed")
 		_emit_buff_removed(iid, buff_id, int(entry.get("source_id", -1)), "unit_removed")
 	_active_by_unit.erase(iid)
 	_clear_unit_runtime_meta(target)
@@ -241,6 +280,7 @@ func cleanse_debuffs(target: Node) -> int:
 			next_entries.append(entry)
 			continue
 		removed += 1
+		_on_buff_entry_removed(iid, entry, "cleanse")
 		_emit_buff_removed(iid, str(entry.get("buff_id", "")).strip_edges(), int(entry.get("source_id", -1)), "cleanse")
 	if next_entries.is_empty():
 		_active_by_unit.erase(iid)
@@ -287,6 +327,7 @@ func dispel_buffs(target: Node, count: int) -> int:
 			next_entries.append(entry2)
 			continue
 		removed += 1
+		_on_buff_entry_removed(iid, entry2, "dispel")
 		_emit_buff_removed(iid, str(entry2.get("buff_id", "")).strip_edges(), int(entry2.get("source_id", -1)), "dispel")
 	if next_entries.is_empty():
 		_active_by_unit.erase(iid)
@@ -339,6 +380,7 @@ func steal_buffs(source_target: Node, receiver: Node, count: int, source: Node =
 		var remaining: float = float(entry2.get("remaining", 0.0))
 		var duration: float = remaining if remaining != 0.0 else float((entry2.get("data", {}) as Dictionary).get("default_duration", 3.0))
 		apply_buff(receiver, buff_id, duration, source)
+		_on_buff_entry_removed(source_iid, entry2, "stolen")
 		_emit_buff_removed(source_iid, buff_id, int(entry2.get("source_id", -1)), "stolen")
 	if next_entries.is_empty():
 		_active_by_unit.erase(source_iid)
@@ -397,6 +439,116 @@ func add_battlefield_effect(effect_config: Dictionary, source: Node = null) -> b
 	return true
 
 
+func refresh_source_bound_aura(
+	source: Node,
+	buff_id: String,
+	aura_key: String,
+	scope_key: String,
+	scope_refresh_token: int,
+	targets: Array,
+	context: Dictionary = {}
+) -> Dictionary:
+	var normalized_aura_key: String = aura_key.strip_edges()
+	var normalized_scope_key: String = scope_key.strip_edges()
+	if source == null or not is_instance_valid(source):
+		return {"applied_count": 0, "applied_targets": []}
+	if normalized_aura_key.is_empty() or normalized_scope_key.is_empty():
+		return {"applied_count": 0, "applied_targets": []}
+	if not _buff_defs.has(buff_id):
+		return {"applied_count": 0, "applied_targets": []}
+
+	var source_id: int = source.get_instance_id()
+	var aura_record: Dictionary = _source_bound_auras.get(normalized_aura_key, {
+		"aura_key": normalized_aura_key,
+		"scope_key": normalized_scope_key,
+		"source_id": source_id,
+		"buff_id": buff_id,
+		"application_key": normalized_aura_key,
+		"target_ids": {},
+		"last_refresh_token": 0
+	})
+	var previous_target_ids: Dictionary = (aura_record.get("target_ids", {}) as Dictionary).duplicate(true)
+	var next_target_ids: Dictionary = {}
+	var applied_targets: Array[Node] = []
+	var seen_target_ids: Dictionary = {}
+
+	for target_value in targets:
+		if not (target_value is Node):
+			continue
+		var target: Node = target_value as Node
+		if target == null or not is_instance_valid(target):
+			continue
+		var target_iid: int = target.get_instance_id()
+		if seen_target_ids.has(target_iid):
+			continue
+		seen_target_ids[target_iid] = true
+		next_target_ids[target_iid] = true
+		var has_instance: bool = _has_buff_instance(target, buff_id, normalized_aura_key)
+		if previous_target_ids.has(target_iid) and has_instance:
+			continue
+		if apply_buff_with_options(target, buff_id, -1.0, source, {"application_key": normalized_aura_key}):
+			applied_targets.append(target)
+
+	for previous_target_id in previous_target_ids.keys():
+		var target_iid: int = int(previous_target_id)
+		if next_target_ids.has(target_iid):
+			continue
+		var removed_target: Node = _find_unit_in_context(target_iid, context)
+		if removed_target != null and is_instance_valid(removed_target):
+			remove_buff_instance(removed_target, buff_id, normalized_aura_key, "aura_condition_lost")
+
+	aura_record["scope_key"] = normalized_scope_key
+	aura_record["source_id"] = source_id
+	aura_record["buff_id"] = buff_id
+	aura_record["application_key"] = normalized_aura_key
+	aura_record["target_ids"] = next_target_ids
+	aura_record["last_refresh_token"] = scope_refresh_token
+	_source_bound_auras[normalized_aura_key] = aura_record
+
+	return {
+		"applied_count": applied_targets.size(),
+		"applied_targets": applied_targets
+	}
+
+
+func finalize_source_bound_aura_scope(scope_key: String, scope_refresh_token: int, context: Dictionary = {}) -> int:
+	var normalized_scope_key: String = scope_key.strip_edges()
+	if normalized_scope_key.is_empty() or scope_refresh_token <= 0:
+		return 0
+	var removed_total: int = 0
+	var stale_aura_keys: Array[String] = []
+	for aura_key_value in _source_bound_auras.keys():
+		var aura_key: String = str(aura_key_value).strip_edges()
+		var aura_record: Dictionary = _source_bound_auras.get(aura_key, {})
+		if str(aura_record.get("scope_key", "")).strip_edges() != normalized_scope_key:
+			continue
+		if int(aura_record.get("last_refresh_token", 0)) == scope_refresh_token:
+			continue
+		removed_total += _remove_source_bound_aura_record(aura_key, aura_record, "aura_condition_lost", context)
+		stale_aura_keys.append(aura_key)
+	for aura_key in stale_aura_keys:
+		_source_bound_auras.erase(aura_key)
+	return removed_total
+
+
+func remove_source_bound_auras_from_source(source: Node, context: Dictionary = {}) -> int:
+	if source == null or not is_instance_valid(source):
+		return 0
+	var source_id: int = source.get_instance_id()
+	var removed_total: int = 0
+	var stale_aura_keys: Array[String] = []
+	for aura_key_value in _source_bound_auras.keys():
+		var aura_key: String = str(aura_key_value).strip_edges()
+		var aura_record: Dictionary = _source_bound_auras.get(aura_key, {})
+		if int(aura_record.get("source_id", -1)) != source_id:
+			continue
+		removed_total += _remove_source_bound_aura_record(aura_key, aura_record, "aura_source_dead", context)
+		stale_aura_keys.append(aura_key)
+	for aura_key in stale_aura_keys:
+		_source_bound_auras.erase(aura_key)
+	return removed_total
+
+
 func tick(delta: float, context: Dictionary = {}) -> Dictionary:
 	# 返回值包含两类信息：
 	# 1) tick_requests：到点需要触发的周期效果。
@@ -445,6 +597,7 @@ func tick(delta: float, context: Dictionary = {}) -> Dictionary:
 			if expired:
 				var expired_buff_id: String = str(entry.get("buff_id", "")).strip_edges()
 				if not expired_buff_id.is_empty():
+					_on_buff_entry_removed(iid, entry, "expired")
 					_emit_buff_removed(iid, expired_buff_id, int(entry.get("source_id", -1)), "expired")
 				changed_units[iid] = true
 				continue
@@ -662,3 +815,60 @@ func _build_source_meta(source: Node) -> Dictionary:
 		"source_name": str(source.get("unit_name")) if source != null and is_instance_valid(source) else "",
 		"source_team": int(source.get("team_id")) if source != null and is_instance_valid(source) else 0
 	}
+
+
+func _normalize_application_key(value: Variant) -> String:
+	return str(value).strip_edges()
+
+
+func _has_buff_instance(target: Node, buff_id: String, application_key: String) -> bool:
+	if target == null or not is_instance_valid(target):
+		return false
+	var normalized_buff_id: String = buff_id.strip_edges()
+	var normalized_application_key: String = _normalize_application_key(application_key)
+	if normalized_buff_id.is_empty() or normalized_application_key.is_empty():
+		return false
+	var entries: Array = _active_by_unit.get(target.get_instance_id(), [])
+	for entry_value in entries:
+		if not (entry_value is Dictionary):
+			continue
+		var entry: Dictionary = entry_value
+		if str(entry.get("buff_id", "")).strip_edges() != normalized_buff_id:
+			continue
+		if _normalize_application_key(entry.get("application_key", "")) != normalized_application_key:
+			continue
+		return true
+	return false
+
+
+func _remove_source_bound_aura_record(
+	aura_key: String,
+	aura_record: Dictionary,
+	reason: String,
+	context: Dictionary
+) -> int:
+	var removed_total: int = 0
+	var buff_id: String = str(aura_record.get("buff_id", "")).strip_edges()
+	if buff_id.is_empty():
+		return 0
+	var target_ids: Dictionary = (aura_record.get("target_ids", {}) as Dictionary).duplicate(true)
+	for target_id_value in target_ids.keys():
+		var target_iid: int = int(target_id_value)
+		var target: Node = _find_unit_in_context(target_iid, context)
+		if target == null or not is_instance_valid(target):
+			continue
+		removed_total += remove_buff_instance(target, buff_id, aura_key, reason)
+	return removed_total
+
+
+func _on_buff_entry_removed(target_id: int, entry: Dictionary, _reason: String) -> void:
+	var application_key: String = _normalize_application_key(entry.get("application_key", ""))
+	if application_key.is_empty():
+		return
+	if not _source_bound_auras.has(application_key):
+		return
+	var aura_record: Dictionary = _source_bound_auras.get(application_key, {})
+	var target_ids: Dictionary = (aura_record.get("target_ids", {}) as Dictionary).duplicate(true)
+	target_ids.erase(target_id)
+	aura_record["target_ids"] = target_ids
+	_source_bound_auras[application_key] = aura_record

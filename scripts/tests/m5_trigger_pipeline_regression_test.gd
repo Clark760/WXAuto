@@ -65,10 +65,12 @@ class MockAliveCounter:
 
 
 var _failed: int = 0
+var _owned_nodes: Array[Node] = []
 
 
 func _init() -> void:
 	_run()
+	_cleanup_owned_nodes()
 	if _failed > 0:
 		push_error("M5 trigger pipeline regression tests failed: %d" % _failed)
 		quit(1)
@@ -397,7 +399,7 @@ func _test_trigger_param_filters() -> void:
 func _test_team_alive_condition_variants() -> void:
 	var manager: Node = _build_manager_with_buff_defs()
 	var owner: MockUnit = _make_unit("owner", TEAM_ALLY, true)
-	var counter: MockAliveCounter = MockAliveCounter.new()
+	var counter: MockAliveCounter = _track_node(MockAliveCounter.new()) as MockAliveCounter
 	counter.set_counts(2, 3)
 	manager.set("_bound_combat_manager", counter)
 
@@ -446,7 +448,7 @@ func _test_team_alive_condition_variants() -> void:
 
 func _test_last_ally_stun_enemy_5s() -> void:
 	var manager: Node = _build_manager_with_buff_defs()
-	var counter: MockAliveCounter = MockAliveCounter.new()
+	var counter: MockAliveCounter = _track_node(MockAliveCounter.new()) as MockAliveCounter
 	counter.set_counts(1, 2)
 	manager.set("_bound_combat_manager", counter)
 
@@ -486,7 +488,7 @@ func _test_last_ally_stun_enemy_5s() -> void:
 
 	# Negative case: ally alive count excludes self -> 1, should fail max=0.
 	var manager_fail: Node = _build_manager_with_buff_defs()
-	var counter_fail: MockAliveCounter = MockAliveCounter.new()
+	var counter_fail: MockAliveCounter = _track_node(MockAliveCounter.new()) as MockAliveCounter
 	counter_fail.set_counts(2, 1)
 	manager_fail.set("_bound_combat_manager", counter_fail)
 
@@ -518,7 +520,7 @@ func _test_last_ally_stun_enemy_5s() -> void:
 
 
 func _build_manager_with_buff_defs() -> Node:
-	var manager: Node = GONGFA_MANAGER_SCRIPT.new()
+	var manager: Node = _track_node(GONGFA_MANAGER_SCRIPT.new())
 	var buff_manager: Variant = manager.get("_buff_manager")
 	buff_manager.call("set_buff_definitions", {
 		"buff_test": {
@@ -583,7 +585,7 @@ func _get_trigger_count(manager: Node, unit: Node, trigger_name: String) -> int:
 
 
 func _make_unit(id_value: String, team_id: int, is_alive: bool) -> MockUnit:
-	var unit: MockUnit = MockUnit.new()
+	var unit: MockUnit = _track_node(MockUnit.new()) as MockUnit
 	unit.unit_id = id_value
 	unit.unit_name = id_value
 	unit.team_id = team_id
@@ -609,3 +611,17 @@ func _assert_eq_int(actual: int, expected: int, message: String) -> void:
 		return
 	_failed += 1
 	push_error("ASSERT FAILED: %s (actual=%d expected=%d)" % [message, actual, expected])
+
+
+func _track_node(node: Node) -> Node:
+	if node != null and is_instance_valid(node):
+		_owned_nodes.append(node)
+	return node
+
+
+func _cleanup_owned_nodes() -> void:
+	for i in range(_owned_nodes.size() - 1, -1, -1):
+		var node: Node = _owned_nodes[i]
+		if node != null and is_instance_valid(node):
+			node.free()
+	_owned_nodes.clear()

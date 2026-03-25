@@ -1,565 +1,27 @@
 ﻿extends RefCounted
 class_name GongfaEffectEngine
-
-# ===========================
-# 功法效果执行引擎
-# ===========================
-# 设计说明：
-# 1. 将“效果字典(op + 参数)”翻译为可执行逻辑，避免业务层硬编码分散。
-# 2. 被动效果与主动效果分离，便于战前构建属性、战中即时结算。
-# 3. 对未实现 op 采用安全降级（打印告警 + 跳过），保证 Mod 异常不致崩溃。
-
 const DEFAULT_HEX_SIZE: float = 26.0
+const PASSIVE_EFFECT_APPLIER_SCRIPT: Script = preload("res://scripts/domain/gongfa/effects/passive_effect_applier.gd")
+const ACTIVE_EFFECT_DISPATCHER_SCRIPT: Script = preload("res://scripts/domain/gongfa/effects/active_effect_dispatcher.gd")
+const EFFECT_OP_HANDLERS_SCRIPT: Script = preload("res://scripts/domain/gongfa/effects/effect_op_handlers.gd")
+var _passive_effect_applier = PASSIVE_EFFECT_APPLIER_SCRIPT.new()
+var _effect_op_handlers = EFFECT_OP_HANDLERS_SCRIPT.new()
+var _active_effect_dispatcher = ACTIVE_EFFECT_DISPATCHER_SCRIPT.new(_effect_op_handlers)
 var _last_damage_meta: Dictionary = {}
-
-
 func create_empty_modifier_bundle() -> Dictionary:
-	# 这些字段是 UnitCombat 的“外部修正层”，不会直接写回 runtime_stats。
-	return {
-		"mp_regen_add": 0.0,
-		# 生命回复同样放在外部修正层，按秒结算，避免污染基础面板数值。
-		"hp_regen_add": 0.0,
-		"damage_reduce_flat": 0.0,
-		"damage_reduce_percent": 0.0,
-		"damage_amp_percent": 0.0,
-		"damage_amp_vs_any_debuff": 0.0,
-		"damage_amp_vs_debuff_map": {},
-		"dodge_bonus": 0.0,
-		"crit_bonus": 0.0,
-		"crit_damage_bonus": 0.0,
-		"vampire": 0.0,
-		"tenacity": 0.0,
-		"thorns_percent": 0.0,
-		"thorns_flat": 0.0,
-		"shield_on_combat_start": 0.0,
-		"execute_threshold": 0.0,
-		"healing_amp": 0.0,
-		"mp_on_kill": 0.0,
-		"conditional_stats": [],
-		"attack_speed_bonus": 0.0,
-		"range_add": 0.0
-	}
-
-
-func apply_passive_effects(
-	runtime_stats: Dictionary,
-	modifier_bundle: Dictionary,
-	effects: Array,
-	stack_multiplier: float = 1.0
-) -> void:
-	for effect_value in effects:
-		if not (effect_value is Dictionary):
-			continue
-		var effect: Dictionary = effect_value as Dictionary
-		_apply_passive_op(runtime_stats, modifier_bundle, effect, stack_multiplier)
-
-
+	return _passive_effect_applier.create_empty_modifier_bundle()
+func apply_passive_effects(runtime_stats: Dictionary, modifier_bundle: Dictionary, effects: Array, stack_multiplier: float = 1.0) -> void:
+	_passive_effect_applier.apply_passive_effects(runtime_stats, modifier_bundle, effects, stack_multiplier)
 func execute_active_effects(source: Node, target: Node, effects: Array, context: Dictionary = {}) -> Dictionary:
-	var summary: Dictionary = {
-		"damage_total": 0.0,
-		"heal_total": 0.0,
-		"mp_total": 0.0,
-		"summon_total": 0,
-		"hazard_total": 0,
-		"buff_applied": 0,
-		"debuff_applied": 0,
-		# 详细事件列表用于外层日志系统：
-		# - damage_events：记录每次实际造成的伤害目标/数值/类型/来源 op
-		# - heal_events：记录每次实际治疗目标/数值/来源 op
-		# - buff_events：记录每次实际施加的 Buff 目标/ID/持续时间/来源 op
-		"damage_events": [],
-		"heal_events": [],
-		"mp_events": [],
-		"buff_events": []
-	}
+	var summary: Dictionary = _effect_op_handlers.create_empty_summary()
 	for effect_value in effects:
 		if not (effect_value is Dictionary):
 			continue
 		var effect: Dictionary = effect_value as Dictionary
-		_execute_active_op(source, target, effect, context, summary)
+		_dispatch_active_op(source, target, effect, context, summary)
 	return summary
-
-
-func _apply_passive_op(runtime_stats: Dictionary, modifier_bundle: Dictionary, effect: Dictionary, stack_multiplier: float) -> void:
-	var op: String = str(effect.get("op", "")).strip_edges()
-	if op.is_empty():
-		return
-
-	match op:
-		"stat_add":
-			var stat_key: String = str(effect.get("stat", "")).strip_edges()
-			if stat_key.is_empty():
-				return
-			var value: float = float(effect.get("value", 0.0)) * stack_multiplier
-			runtime_stats[stat_key] = float(runtime_stats.get(stat_key, 0.0)) + value
-
-		"stat_percent":
-			var stat_key_p: String = str(effect.get("stat", "")).strip_edges()
-			if stat_key_p.is_empty():
-				return
-			var ratio: float = 1.0 + float(effect.get("value", 0.0)) * stack_multiplier
-			runtime_stats[stat_key_p] = float(runtime_stats.get(stat_key_p, 0.0)) * ratio
-
-		"mp_regen_add":
-			_add_modifier(modifier_bundle, "mp_regen_add", float(effect.get("value", 0.0)) * stack_multiplier)
-
-		# 每秒生命回复外部修正（仅支持 hp_regen_add）。
-		"hp_regen_add":
-			_add_modifier(modifier_bundle, "hp_regen_add", float(effect.get("value", 0.0)) * stack_multiplier)
-
-		"damage_reduce_flat":
-			_add_modifier(modifier_bundle, "damage_reduce_flat", float(effect.get("value", 0.0)) * stack_multiplier)
-
-		"damage_reduce_percent":
-			_add_modifier(modifier_bundle, "damage_reduce_percent", float(effect.get("value", 0.0)) * stack_multiplier)
-
-		"dodge_bonus":
-			_add_modifier(modifier_bundle, "dodge_bonus", float(effect.get("value", 0.0)) * stack_multiplier)
-
-		"crit_bonus":
-			_add_modifier(modifier_bundle, "crit_bonus", float(effect.get("value", 0.0)) * stack_multiplier)
-
-		"crit_damage_bonus":
-			_add_modifier(modifier_bundle, "crit_damage_bonus", float(effect.get("value", 0.0)) * stack_multiplier)
-
-		"attack_speed_bonus":
-			_add_modifier(modifier_bundle, "attack_speed_bonus", float(effect.get("value", 0.0)) * stack_multiplier)
-
-		"range_add":
-			_add_modifier(modifier_bundle, "range_add", float(effect.get("value", 0.0)) * stack_multiplier)
-
-		"vampire":
-			_add_modifier(modifier_bundle, "vampire", float(effect.get("value", 0.0)) * stack_multiplier)
-
-		"damage_amp_percent":
-			_add_modifier(modifier_bundle, "damage_amp_percent", float(effect.get("value", 0.0)) * stack_multiplier)
-
-		"damage_amp_vs_debuffed":
-			var vs_value: float = float(effect.get("value", 0.0)) * stack_multiplier
-			var require_debuff: String = str(effect.get("require_debuff", "")).strip_edges()
-			if require_debuff.is_empty():
-				_add_modifier(modifier_bundle, "damage_amp_vs_any_debuff", vs_value)
-			else:
-				var amp_map: Dictionary = modifier_bundle.get("damage_amp_vs_debuff_map", {})
-				amp_map[require_debuff] = float(amp_map.get(require_debuff, 0.0)) + vs_value
-				modifier_bundle["damage_amp_vs_debuff_map"] = amp_map
-
-		"tenacity":
-			_add_modifier(modifier_bundle, "tenacity", float(effect.get("value", 0.0)) * stack_multiplier)
-
-		"thorns_percent":
-			_add_modifier(modifier_bundle, "thorns_percent", float(effect.get("value", 0.0)) * stack_multiplier)
-
-		"thorns_flat":
-			_add_modifier(modifier_bundle, "thorns_flat", float(effect.get("value", 0.0)) * stack_multiplier)
-
-		"shield_on_combat_start":
-			_add_modifier(modifier_bundle, "shield_on_combat_start", float(effect.get("value", 0.0)) * stack_multiplier)
-
-		"execute_threshold":
-			_add_modifier(modifier_bundle, "execute_threshold", float(effect.get("value", 0.0)) * stack_multiplier)
-
-		"healing_amp":
-			_add_modifier(modifier_bundle, "healing_amp", float(effect.get("value", 0.0)) * stack_multiplier)
-
-		"mp_on_kill":
-			_add_modifier(modifier_bundle, "mp_on_kill", float(effect.get("value", 0.0)) * stack_multiplier)
-
-		"conditional_stat":
-			var conditional_entries: Array = modifier_bundle.get("conditional_stats", [])
-			conditional_entries.append({
-				"stat": str(effect.get("stat", "")).strip_edges(),
-				"value": float(effect.get("value", 0.0)) * stack_multiplier,
-				"condition": str(effect.get("condition", "")).strip_edges().to_lower(),
-				"threshold": float(effect.get("threshold", 0.0))
-			})
-			modifier_bundle["conditional_stats"] = conditional_entries
-
-		_:
-			push_warning("EffectEngine: 未实现的被动 op=%s" % op)
-
-
-func _execute_active_op(source: Node, target: Node, effect: Dictionary, context: Dictionary, summary: Dictionary) -> void:
-	var op: String = str(effect.get("op", "")).strip_edges()
-	if op.is_empty():
-		return
-
-	match op:
-		"damage_target":
-			var dmg: float = float(effect.get("value", 0.0))
-			var mul: float = float(effect.get("multiplier", 1.0))
-			var damage_type: String = str(effect.get("damage_type", "internal"))
-			var dealt: float = _deal_damage(source, target, dmg * mul, damage_type)
-			summary["damage_total"] = float(summary.get("damage_total", 0.0)) + dealt
-			_append_damage_event(summary, source, target, dealt, damage_type, op)
-
-		"damage_aoe":
-			var radius_cells: float = float(effect.get("radius", 2.0))
-			var base_damage: float = float(effect.get("value", 0.0))
-			var damage_type_aoe: String = str(effect.get("damage_type", "internal"))
-			var radius_world: float = _cells_to_world_distance(radius_cells, context)
-			var center: Vector2 = _node_pos(source)
-			var targets: Array[Node] = _collect_enemy_units_in_radius(source, center, radius_world, context)
-			for enemy in targets:
-				var dealt_aoe: float = _deal_damage(source, enemy, base_damage, damage_type_aoe)
-				summary["damage_total"] = float(summary.get("damage_total", 0.0)) + dealt_aoe
-				_append_damage_event(summary, source, enemy, dealt_aoe, damage_type_aoe, op)
-
-		"heal_self":
-			var heal_value: float = float(effect.get("value", 0.0))
-			var healed: float = _heal_unit(source, heal_value, source)
-			summary["heal_total"] = float(summary.get("heal_total", 0.0)) + healed
-			_append_heal_event(summary, source, source, healed, op)
-
-		"heal_self_percent":
-			var ratio: float = float(effect.get("value", 0.0))
-			var max_hp: float = _get_combat_value(source, "max_hp")
-			var healed_percent: float = _heal_unit(source, max_hp * ratio, source)
-			summary["heal_total"] = float(summary.get("heal_total", 0.0)) + healed_percent
-			_append_heal_event(summary, source, source, healed_percent, op)
-
-		"heal_allies_aoe":
-			var heal_radius: float = _cells_to_world_distance(float(effect.get("radius", 3.0)), context)
-			var heal_amount: float = float(effect.get("value", 0.0))
-			var heal_center: Vector2 = _node_pos(source)
-			var heal_exclude_self: bool = bool(effect.get("exclude_self", false))
-			var allies: Array[Node] = _collect_ally_units_in_radius(source, heal_center, heal_radius, context, heal_exclude_self)
-			for ally in allies:
-				var healed_ally: float = _heal_unit(ally, heal_amount, source)
-				summary["heal_total"] = float(summary.get("heal_total", 0.0)) + healed_ally
-				_append_heal_event(summary, source, ally, healed_ally, op)
-
-		"heal_target_flat":
-			var heal_target_flat: Node = target if target != null and is_instance_valid(target) else source
-			var heal_flat_amount: float = float(effect.get("value", 0.0))
-			var healed_flat: float = _heal_unit(heal_target_flat, heal_flat_amount, source)
-			summary["heal_total"] = float(summary.get("heal_total", 0.0)) + healed_flat
-			_append_heal_event(summary, source, heal_target_flat, healed_flat, op)
-
-		# 周期回蓝效果会走主动执行链路；这里按“立即回复内力”处理。
-		"mp_regen_add":
-			var mp_target: Node = target if target != null and is_instance_valid(target) else source
-			var restored_mp: float = _restore_mp_unit(mp_target, float(effect.get("value", 0.0)))
-			summary["mp_total"] = float(summary.get("mp_total", 0.0)) + restored_mp
-			_append_mp_event(summary, source, mp_target, restored_mp, op)
-
-		"buff_self":
-			if _apply_buff_op(source, source, effect, context):
-				summary["buff_applied"] = int(summary.get("buff_applied", 0)) + 1
-				_append_buff_event(summary, source, source, str(effect.get("buff_id", "")), float(effect.get("duration", 0.0)), op)
-
-		"buff_allies_aoe":
-			var buff_radius: float = _cells_to_world_distance(float(effect.get("radius", 3.0)), context)
-			var buff_exclude_self: bool = bool(effect.get("exclude_self", false))
-			var buff_allies: Array[Node] = _collect_ally_units_in_radius(source, _node_pos(source), buff_radius, context, buff_exclude_self)
-			for ally_buff in buff_allies:
-				if _apply_buff_op(source, ally_buff, effect, context):
-					summary["buff_applied"] = int(summary.get("buff_applied", 0)) + 1
-					_append_buff_event(summary, source, ally_buff, str(effect.get("buff_id", "")), float(effect.get("duration", 0.0)), op)
-
-		"debuff_target":
-			if _apply_buff_op(source, target, effect, context):
-				summary["debuff_applied"] = int(summary.get("debuff_applied", 0)) + 1
-				_append_buff_event(summary, source, target, str(effect.get("buff_id", "")), float(effect.get("duration", 0.0)), op)
-
-		"buff_target":
-			if _apply_buff_op(source, target, effect, context):
-				summary["buff_applied"] = int(summary.get("buff_applied", 0)) + 1
-				_append_buff_event(summary, source, target, str(effect.get("buff_id", "")), float(effect.get("duration", 0.0)), op)
-
-		"debuff_aoe":
-			var debuff_radius: float = _cells_to_world_distance(float(effect.get("radius", 3.0)), context)
-			var enemies: Array[Node] = _collect_enemy_units_in_radius(source, _node_pos(source), debuff_radius, context)
-			for enemy in enemies:
-				if _apply_buff_op(source, enemy, effect, context):
-					summary["debuff_applied"] = int(summary.get("debuff_applied", 0)) + 1
-					_append_buff_event(summary, source, enemy, str(effect.get("buff_id", "")), float(effect.get("duration", 0.0)), op)
-
-		"damage_target_scaling":
-			var scale_base: float = float(effect.get("value", 0.0))
-			var scale_stat: String = str(effect.get("scale_stat", "max_hp")).strip_edges().to_lower()
-			var scale_ratio: float = float(effect.get("scale_ratio", 0.0))
-			var scale_source_pref: String = str(effect.get("scale_source", "auto")).strip_edges().to_lower()
-			var scale_node: Node = source
-			if scale_source_pref == "target" or ((scale_stat == "max_hp" or scale_stat == "current_hp") and target != null and is_instance_valid(target)):
-				scale_node = target
-			var scale_value: float = _resolve_scale_stat_value(scale_node, scale_stat)
-			var scaled_damage: float = maxf(scale_base + scale_value * scale_ratio, 0.0)
-			var scaling_type: String = str(effect.get("damage_type", "internal"))
-			var dealt_scaling: float = _deal_damage(source, target, scaled_damage, scaling_type)
-			summary["damage_total"] = float(summary.get("damage_total", 0.0)) + dealt_scaling
-			_append_damage_event(summary, source, target, dealt_scaling, scaling_type, op)
-
-		"damage_if_debuffed":
-			var base_if_debuffed: float = float(effect.get("value", 0.0))
-			var bonus_mul: float = maxf(float(effect.get("bonus_multiplier", 1.0)), 0.0)
-			var need_debuff: String = str(effect.get("require_debuff", "")).strip_edges()
-			if _target_has_debuff(target, need_debuff):
-				base_if_debuffed *= bonus_mul
-			var if_debuff_type: String = str(effect.get("damage_type", "internal"))
-			var dealt_if_debuffed: float = _deal_damage(source, target, base_if_debuffed, if_debuff_type)
-			summary["damage_total"] = float(summary.get("damage_total", 0.0)) + dealt_if_debuffed
-			_append_damage_event(summary, source, target, dealt_if_debuffed, if_debuff_type, op)
-
-		"damage_chain":
-			var chain_base: float = float(effect.get("value", 0.0))
-			var chain_count: int = maxi(int(effect.get("chain_count", 0)), 0)
-			var decay_ratio: float = clampf(float(effect.get("decay", 0.0)), 0.0, 0.95)
-			var chain_type: String = str(effect.get("damage_type", "internal"))
-			var visited: Dictionary = {}
-			var current_target: Node = target
-			if current_target == null or not is_instance_valid(current_target):
-				current_target = _pick_nearest_enemy_unit(source, context, _node_pos(source), INF, visited)
-			for hop in range(chain_count + 1):
-				if current_target == null or not is_instance_valid(current_target):
-					break
-				var hop_damage: float = chain_base * pow(1.0 - decay_ratio, float(hop))
-				var dealt_chain: float = _deal_damage(source, current_target, hop_damage, chain_type)
-				summary["damage_total"] = float(summary.get("damage_total", 0.0)) + dealt_chain
-				_append_damage_event(summary, source, current_target, dealt_chain, chain_type, op)
-				visited[current_target.get_instance_id()] = true
-				if hop >= chain_count:
-					break
-				current_target = _pick_nearest_enemy_unit(source, context, _node_pos(current_target), _cells_to_world_distance(3.0, context), visited)
-
-		"damage_cone":
-			var cone_value: float = float(effect.get("value", 0.0))
-			var cone_type: String = str(effect.get("damage_type", "internal"))
-			var cone_angle_deg: float = clampf(float(effect.get("angle", 60.0)), 1.0, 180.0)
-			var cone_range_world: float = _cells_to_world_distance(float(effect.get("range", 2.0)), context)
-			var cone_origin: Vector2 = _node_pos(source)
-			var cone_dir: Vector2 = (_node_pos(target) - cone_origin).normalized() if target != null and is_instance_valid(target) else Vector2.RIGHT
-			if cone_dir.is_zero_approx():
-				cone_dir = Vector2.RIGHT
-			var cone_half_cos: float = cos(deg_to_rad(cone_angle_deg * 0.5))
-			for enemy_cone in _collect_enemy_units_in_radius(source, cone_origin, cone_range_world, context):
-				var offset: Vector2 = _node_pos(enemy_cone) - cone_origin
-				if offset.is_zero_approx():
-					continue
-				var dir: Vector2 = offset.normalized()
-				if cone_dir.dot(dir) < cone_half_cos:
-					continue
-				var dealt_cone: float = _deal_damage(source, enemy_cone, cone_value, cone_type)
-				summary["damage_total"] = float(summary.get("damage_total", 0.0)) + dealt_cone
-				_append_damage_event(summary, source, enemy_cone, dealt_cone, cone_type, op)
-
-		"heal_lowest_ally":
-			var lowest_ally: Node = _find_lowest_hp_ally(source, context)
-			if lowest_ally != null and is_instance_valid(lowest_ally):
-				var heal_lowest_amount: float = _heal_unit(lowest_ally, float(effect.get("value", 0.0)), source)
-				summary["heal_total"] = float(summary.get("heal_total", 0.0)) + heal_lowest_amount
-				_append_heal_event(summary, source, lowest_ally, heal_lowest_amount, op)
-
-		"heal_percent_missing_hp":
-			var heal_target: Node = target if target != null and is_instance_valid(target) else source
-			var missing_ratio: float = clampf(float(effect.get("value", 0.0)), 0.0, 5.0)
-			var missing_hp: float = maxf(_get_combat_value(heal_target, "max_hp") - _get_combat_value(heal_target, "current_hp"), 0.0)
-			var healed_missing: float = _heal_unit(heal_target, missing_hp * missing_ratio, source)
-			summary["heal_total"] = float(summary.get("heal_total", 0.0)) + healed_missing
-			_append_heal_event(summary, source, heal_target, healed_missing, op)
-
-		"shield_allies_aoe":
-			var shield_radius: float = _cells_to_world_distance(float(effect.get("radius", 3.0)), context)
-			var shield_value: float = maxf(float(effect.get("value", 0.0)), 0.0)
-			var shield_exclude_self: bool = bool(effect.get("exclude_self", false))
-			for ally_shield in _collect_ally_units_in_radius(source, _node_pos(source), shield_radius, context, shield_exclude_self):
-				var ally_combat: Node = ally_shield.get_node_or_null("Components/UnitCombat")
-				if ally_combat == null:
-					continue
-				if ally_combat.has_method("add_shield"):
-					ally_combat.call("add_shield", shield_value)
-				var shield_duration: float = float(effect.get("duration", 0.0))
-				if shield_duration > 0.0 and _apply_buff_op(source, ally_shield, {
-					"buff_id": str(effect.get("shield_buff_id", "buff_qi_shield")).strip_edges(),
-					"duration": shield_duration
-				}, context):
-					summary["buff_applied"] = int(summary.get("buff_applied", 0)) + 1
-					_append_buff_event(summary, source, ally_shield, str(effect.get("shield_buff_id", "buff_qi_shield")), shield_duration, op)
-
-		"cleanse_self":
-			var buff_manager_cleanse: Variant = context.get("buff_manager", null)
-			if buff_manager_cleanse != null and buff_manager_cleanse.has_method("cleanse_debuffs"):
-				buff_manager_cleanse.call("cleanse_debuffs", source)
-
-		"cleanse_ally":
-			var buff_manager_cleanse_ally: Variant = context.get("buff_manager", null)
-			if buff_manager_cleanse_ally != null and buff_manager_cleanse_ally.has_method("cleanse_debuffs"):
-				var ally_to_cleanse: Node = _find_lowest_hp_ally(source, context)
-				if ally_to_cleanse != null and is_instance_valid(ally_to_cleanse):
-					buff_manager_cleanse_ally.call("cleanse_debuffs", ally_to_cleanse)
-
-		"steal_buff":
-			var buff_manager_steal: Variant = context.get("buff_manager", null)
-			if buff_manager_steal != null and buff_manager_steal.has_method("steal_buffs"):
-				buff_manager_steal.call("steal_buffs", target, source, maxi(int(effect.get("count", 1)), 1), source)
-
-		"dispel_target":
-			var buff_manager_dispel: Variant = context.get("buff_manager", null)
-			if buff_manager_dispel != null and buff_manager_dispel.has_method("dispel_buffs"):
-				buff_manager_dispel.call("dispel_buffs", target, maxi(int(effect.get("count", 1)), 1))
-
-		"pull_target":
-			var combat_manager_pull: Node = context.get("combat_manager", null)
-			if combat_manager_pull != null and combat_manager_pull.has_method("move_unit_steps_towards"):
-				var source_cell: Vector2i = combat_manager_pull.call("get_unit_cell_of", source)
-				var pull_distance: int = maxi(int(effect.get("distance", 1)), 1)
-				combat_manager_pull.call("move_unit_steps_towards", target, source_cell, pull_distance)
-
-		"knockback_aoe":
-			var combat_manager_knock: Node = context.get("combat_manager", null)
-			if combat_manager_knock != null and combat_manager_knock.has_method("move_unit_steps_away"):
-				var kb_radius: float = _cells_to_world_distance(float(effect.get("radius", 2.0)), context)
-				var kb_distance: int = maxi(int(effect.get("distance", 1)), 1)
-				var kb_center_cell: Vector2i = combat_manager_knock.call("get_unit_cell_of", source)
-				for enemy_kb in _collect_enemy_units_in_radius(source, _node_pos(source), kb_radius, context):
-					combat_manager_knock.call("move_unit_steps_away", enemy_kb, kb_center_cell, kb_distance)
-
-		"swap_position":
-			var combat_manager_swap: Node = context.get("combat_manager", null)
-			if combat_manager_swap != null and combat_manager_swap.has_method("swap_unit_cells"):
-				combat_manager_swap.call("swap_unit_cells", source, target)
-
-		"create_terrain":
-			_apply_create_terrain_op(source, target, effect, context)
-
-		"mark_target":
-			if _apply_mark_target_op(source, target, effect, context):
-				summary["debuff_applied"] = int(summary.get("debuff_applied", 0)) + 1
-				_append_buff_event(summary, source, target, str(effect.get("mark_id", "")), float(effect.get("duration", 0.0)), op)
-
-		"damage_if_marked":
-			var mark_id: String = str(effect.get("mark_id", "")).strip_edges()
-			var marked_damage: float = float(effect.get("value", 0.0))
-			if _target_has_mark(target, mark_id, context):
-				marked_damage *= maxf(float(effect.get("bonus_multiplier", 1.0)), 0.0)
-			var marked_type: String = str(effect.get("damage_type", "internal"))
-			var dealt_marked: float = _deal_damage(source, target, marked_damage, marked_type)
-			summary["damage_total"] = float(summary.get("damage_total", 0.0)) + dealt_marked
-			_append_damage_event(summary, source, target, dealt_marked, marked_type, op)
-
-		"execute_target":
-			var hp_threshold: float = clampf(float(effect.get("hp_threshold", 0.15)), 0.0, 0.95)
-			var target_hp_ratio: float = _get_hp_ratio(target)
-			if target_hp_ratio <= hp_threshold:
-				var execute_damage: float = maxf(float(effect.get("value", 0.0)), 0.0)
-				var execute_type: String = str(effect.get("damage_type", "external"))
-				var dealt_execute: float = _deal_damage(source, target, execute_damage, execute_type)
-				summary["damage_total"] = float(summary.get("damage_total", 0.0)) + dealt_execute
-				_append_damage_event(summary, source, target, dealt_execute, execute_type, op)
-
-		"drain_mp":
-			var drain_target: Node = target if target != null and is_instance_valid(target) else null
-			if drain_target != null:
-				var drain_amount: float = maxf(float(effect.get("value", 0.0)), 0.0)
-				var target_combat_drain: Node = drain_target.get_node_or_null("Components/UnitCombat")
-				var source_combat_drain: Node = source.get_node_or_null("Components/UnitCombat") if source != null else null
-				if target_combat_drain != null and source_combat_drain != null:
-					var before_mp: float = float(target_combat_drain.get("current_mp"))
-					target_combat_drain.call("add_mp", -drain_amount)
-					var after_mp: float = float(target_combat_drain.get("current_mp"))
-					var drained: float = maxf(before_mp - after_mp, 0.0)
-					source_combat_drain.call("add_mp", drained)
-					summary["mp_total"] = float(summary.get("mp_total", 0.0)) + drained
-					_append_mp_event(summary, source, source, drained, op)
-
-		"silence_target":
-			_apply_control_state(target, "silence", float(effect.get("duration", 2.0)), context)
-			if _apply_buff_op(source, target, {"buff_id": "debuff_silence", "duration": float(effect.get("duration", 2.0))}, context):
-				summary["debuff_applied"] = int(summary.get("debuff_applied", 0)) + 1
-				_append_buff_event(summary, source, target, "debuff_silence", float(effect.get("duration", 2.0)), op)
-
-		"stun_target":
-			_apply_control_state(target, "stun", float(effect.get("duration", 1.5)), context)
-			if _apply_buff_op(source, target, {"buff_id": "debuff_freeze", "duration": float(effect.get("duration", 1.5))}, context):
-				summary["debuff_applied"] = int(summary.get("debuff_applied", 0)) + 1
-				_append_buff_event(summary, source, target, "debuff_freeze", float(effect.get("duration", 1.5)), op)
-
-		"fear_aoe":
-			var fear_radius: float = _cells_to_world_distance(float(effect.get("radius", 2.0)), context)
-			var fear_duration: float = float(effect.get("duration", 2.0))
-			for enemy_fear in _collect_enemy_units_in_radius(source, _node_pos(source), fear_radius, context):
-				_apply_control_state(enemy_fear, "fear", fear_duration, context)
-				if _apply_buff_op(source, enemy_fear, {"buff_id": "debuff_fear", "duration": fear_duration}, context):
-					summary["debuff_applied"] = int(summary.get("debuff_applied", 0)) + 1
-					_append_buff_event(summary, source, enemy_fear, "debuff_fear", fear_duration, op)
-
-		"freeze_target":
-			_apply_control_state(target, "stun", float(effect.get("duration", 2.0)), context)
-			if target != null and is_instance_valid(target):
-				target.set_meta("status_frozen_force_crit", true)
-			if _apply_buff_op(source, target, {"buff_id": "debuff_freeze", "duration": float(effect.get("duration", 2.0))}, context):
-				summary["debuff_applied"] = int(summary.get("debuff_applied", 0)) + 1
-				_append_buff_event(summary, source, target, "debuff_freeze", float(effect.get("duration", 2.0)), op)
-
-		"resurrect_self":
-			var resurrect_key: String = "resurrect_used_%s" % str(effect.get("resurrect_key", "default"))
-			if source != null and is_instance_valid(source) and not bool(source.get_meta(resurrect_key, false)):
-				var source_combat_res: Node = source.get_node_or_null("Components/UnitCombat")
-				if source_combat_res != null:
-					var hp_percent: float = clampf(float(effect.get("hp_percent", 0.3)), 0.01, 1.0)
-					var max_hp_res: float = maxf(float(source_combat_res.get("max_hp")), 1.0)
-					source_combat_res.call("restore_hp", max_hp_res * hp_percent)
-					source.set_meta(resurrect_key, true)
-
-		"aoe_percent_hp_damage":
-			var aoe_radius: float = _cells_to_world_distance(float(effect.get("radius", 2.0)), context)
-			var percent: float = clampf(float(effect.get("percent", 0.05)), 0.0, 1.0)
-			var aoe_type: String = str(effect.get("damage_type", "internal"))
-			for enemy_percent in _collect_enemy_units_in_radius(source, _node_pos(source), aoe_radius, context):
-				var enemy_max_hp: float = _get_combat_value(enemy_percent, "max_hp")
-				var percent_damage: float = maxf(enemy_max_hp * percent, 0.0)
-				var dealt_percent: float = _deal_damage(source, enemy_percent, percent_damage, aoe_type)
-				summary["damage_total"] = float(summary.get("damage_total", 0.0)) + dealt_percent
-				_append_damage_event(summary, source, enemy_percent, dealt_percent, aoe_type, op)
-
-		"shield_self":
-			_apply_shield_self_op(source, effect, context, summary)
-
-		"immunity_self":
-			_apply_immunity_self_op(source, effect, context, summary)
-
-		"summon_units":
-			var summoned_count: int = _execute_summon_units_op(source, effect, context)
-			summary["summon_total"] = int(summary.get("summon_total", 0)) + summoned_count
-
-		"hazard_zone":
-			var hazard_count: int = _execute_hazard_zone_op(source, effect, context)
-			summary["hazard_total"] = int(summary.get("hazard_total", 0)) + hazard_count
-
-		"spawn_vfx":
-			_spawn_vfx_by_effect(source, target, effect, context)
-
-		"teleport_behind":
-			_execute_teleport_behind_op(source, target, effect, context)
-
-		"dash_forward":
-			_execute_dash_forward_op(source, target, effect, context)
-
-		"knockback_target":
-			_execute_knockback_target_op(source, target, effect, context)
-
-		"summon_clone":
-			var clone_count: int = _execute_summon_clone_op(source, effect, context)
-			summary["summon_total"] = int(summary.get("summon_total", 0)) + clone_count
-
-		"revive_random_ally":
-			var revive_result: Dictionary = _execute_revive_random_ally_op(source, effect, context)
-			var revived_heal: float = float(revive_result.get("healed", 0.0))
-			if revived_heal > 0.0:
-				summary["heal_total"] = float(summary.get("heal_total", 0.0)) + revived_heal
-				var revived_unit: Node = revive_result.get("unit", null)
-				_append_heal_event(summary, source, revived_unit, revived_heal, op)
-
-		"taunt_aoe":
-			_execute_taunt_aoe_op(source, effect, context, summary)
-
-		"tag_linkage_branch":
-			_execute_tag_linkage_branch_op(source, target, effect, context, summary)
-
-		_:
-			push_warning("EffectEngine: 未实现效果?op=%s" % op)
-
-
+func _dispatch_active_op(source: Node, target: Node, effect: Dictionary, context: Dictionary, summary: Dictionary) -> void:
+	_active_effect_dispatcher.execute_active_op(self, source, target, effect, context, summary)
 func _execute_teleport_behind_op(source: Node, target: Node, effect: Dictionary, context: Dictionary) -> bool:
 	if source == null or not is_instance_valid(source):
 		return false
@@ -592,8 +54,6 @@ func _execute_teleport_behind_op(source: Node, target: Node, effect: Dictionary,
 		n2d_source.position = target_pos + dir * teleport_world_distance
 		return true
 	return false
-
-
 func _execute_dash_forward_op(source: Node, target: Node, effect: Dictionary, context: Dictionary) -> bool:
 	if source == null or not is_instance_valid(source):
 		return false
@@ -616,8 +76,6 @@ func _execute_dash_forward_op(source: Node, target: Node, effect: Dictionary, co
 		return false
 	source_node.position += dir * _cells_to_world_distance(float(distance_steps), context)
 	return true
-
-
 func _execute_knockback_target_op(source: Node, target: Node, effect: Dictionary, context: Dictionary) -> bool:
 	if source == null or not is_instance_valid(source):
 		return false
@@ -640,8 +98,6 @@ func _execute_knockback_target_op(source: Node, target: Node, effect: Dictionary
 		dir = Vector2.RIGHT
 	target_node.position += dir * _cells_to_world_distance(float(distance_steps), context)
 	return true
-
-
 func _execute_summon_clone_op(source: Node, effect: Dictionary, context: Dictionary) -> int:
 	if source == null or not is_instance_valid(source):
 		return 0
@@ -666,8 +122,6 @@ func _execute_summon_clone_op(source: Node, effect: Dictionary, context: Diction
 		"radius": maxi(int(effect.get("radius", 2)), 0)
 	}
 	return _execute_summon_units_op(source, summon_effect, context)
-
-
 func _execute_revive_random_ally_op(source: Node, effect: Dictionary, context: Dictionary) -> Dictionary:
 	var result: Dictionary = {
 		"unit": null,
@@ -710,8 +164,6 @@ func _execute_revive_random_ally_op(source: Node, effect: Dictionary, context: D
 	result["unit"] = revived_unit
 	result["healed"] = healed
 	return result
-
-
 func _execute_taunt_aoe_op(source: Node, effect: Dictionary, context: Dictionary, summary: Dictionary) -> int:
 	if source == null or not is_instance_valid(source):
 		return 0
@@ -725,10 +177,8 @@ func _execute_taunt_aoe_op(source: Node, effect: Dictionary, context: Dictionary
 		if not taunt_buff_id.is_empty():
 			if _apply_buff_op(source, enemy, {"buff_id": taunt_buff_id, "duration": taunt_duration}, context):
 				summary["debuff_applied"] = int(summary.get("debuff_applied", 0)) + 1
-				_append_buff_event(summary, source, enemy, taunt_buff_id, taunt_duration, "taunt_aoe")
+				_effect_op_handlers.append_buff_event(summary, source, enemy, taunt_buff_id, taunt_duration, "taunt_aoe")
 	return taunted_count
-
-
 func _execute_tag_linkage_branch_op(source: Node, target: Node, effect: Dictionary, context: Dictionary, summary: Dictionary) -> void:
 	if source == null or not is_instance_valid(source):
 		return
@@ -767,15 +217,11 @@ func _execute_tag_linkage_branch_op(source: Node, target: Node, effect: Dictiona
 		_execute_tag_linkage_child_effects(source, target, branch_effects, context, summary)
 		return
 	_execute_tag_linkage_stateful(source, target, effect, result, branch_effects, context, summary, gongfa_manager, effect_key)
-
-
 func _execute_tag_linkage_child_effects(source: Node, target: Node, branch_effects: Array, context: Dictionary, summary: Dictionary) -> void:
 	for child_effect_value in branch_effects:
 		if not (child_effect_value is Dictionary):
 			continue
-		_execute_active_op(source, target, child_effect_value as Dictionary, context, summary)
-
-
+		_dispatch_active_op(source, target, child_effect_value as Dictionary, context, summary)
 func _execute_tag_linkage_stateful(
 	source: Node,
 	target: Node,
@@ -799,8 +245,6 @@ func _execute_tag_linkage_stateful(
 		var prepared_effects: Array[Dictionary] = _build_stateful_branch_effects(branch_effects, next_buff_ids)
 		_execute_tag_linkage_child_effects(source, target, prepared_effects, context, summary)
 	_set_tag_linkage_state(gongfa_manager, source, effect, effect_key, next_case_id, next_buff_ids)
-
-
 func _build_stateful_branch_effects(branch_effects: Array, next_buff_ids: Array[String]) -> Array[Dictionary]:
 	var prepared: Array[Dictionary] = []
 	for child_effect_value in branch_effects:
@@ -815,8 +259,6 @@ func _build_stateful_branch_effects(branch_effects: Array, next_buff_ids: Array[
 			child_effect["duration"] = -1.0
 		prepared.append(child_effect)
 	return prepared
-
-
 func _remove_stateful_buffs(source: Node, buff_ids: Array[String], context: Dictionary) -> void:
 	if source == null or not is_instance_valid(source):
 		return
@@ -828,8 +270,6 @@ func _remove_stateful_buffs(source: Node, buff_ids: Array[String], context: Dict
 		if bid.is_empty():
 			continue
 		buff_manager.call("remove_buff", source, bid, "tag_linkage_state_switch")
-
-
 func _resolve_tag_linkage_case_id(result: Dictionary, branch_effects: Array) -> String:
 	var matched_value: Variant = result.get("matched_case_ids", [])
 	if matched_value is Array and not (matched_value as Array).is_empty():
@@ -837,50 +277,19 @@ func _resolve_tag_linkage_case_id(result: Dictionary, branch_effects: Array) -> 
 	if not branch_effects.is_empty():
 		return "__else__"
 	return ""
-
-
-func _get_tag_linkage_state(gongfa_manager: Node, source: Node, effect: Dictionary, effect_key: String) -> Dictionary:
+func _get_tag_linkage_state(gongfa_manager: Node, source: Node, effect: Dictionary, _effect_key: String) -> Dictionary:
 	if gongfa_manager != null and is_instance_valid(gongfa_manager) and gongfa_manager.has_method("get_tag_linkage_state"):
 		var state_value: Variant = gongfa_manager.call("get_tag_linkage_state", source, effect)
 		if state_value is Dictionary:
 			return (state_value as Dictionary).duplicate(true)
-	if source == null or not is_instance_valid(source):
-		return {"last_case_id": "", "stateful_buff_ids": []}
-	var meta_map: Dictionary = source.get_meta("tag_linkage_stateful_state", {})
-	if not meta_map.has(effect_key):
-		return {"last_case_id": "", "stateful_buff_ids": []}
-	var state: Variant = meta_map.get(effect_key, {})
-	if state is Dictionary:
-		return (state as Dictionary).duplicate(true)
 	return {"last_case_id": "", "stateful_buff_ids": []}
-
-
-func _set_tag_linkage_state(
-	gongfa_manager: Node,
-	source: Node,
-	effect: Dictionary,
-	effect_key: String,
-	case_id: String,
-	buff_ids: Array[String]
-) -> void:
+func _set_tag_linkage_state(gongfa_manager: Node, source: Node, effect: Dictionary, _effect_key: String, case_id: String, buff_ids: Array[String]) -> void:
 	var normalized_ids: Array[String] = _normalize_id_array(buff_ids)
 	if gongfa_manager != null and is_instance_valid(gongfa_manager) and gongfa_manager.has_method("set_tag_linkage_state"):
 		gongfa_manager.call("set_tag_linkage_state", source, effect, case_id, normalized_ids)
-		return
-	if source == null or not is_instance_valid(source):
-		return
-	var meta_map: Dictionary = source.get_meta("tag_linkage_stateful_state", {})
-	meta_map[effect_key] = {
-		"last_case_id": case_id,
-		"stateful_buff_ids": normalized_ids
-	}
-	source.set_meta("tag_linkage_stateful_state", meta_map)
-
-
+	return
 func _tag_linkage_effect_key(effect: Dictionary) -> String:
 	return var_to_str(effect)
-
-
 func _normalize_id_array(raw: Variant) -> Array[String]:
 	var out: Array[String] = []
 	var seen: Dictionary = {}
@@ -892,8 +301,6 @@ func _normalize_id_array(raw: Variant) -> Array[String]:
 			seen[text] = true
 			out.append(text)
 	return out
-
-
 func _apply_taunt_state(target: Node, source: Node, duration: float, context: Dictionary) -> void:
 	if target == null or not is_instance_valid(target):
 		return
@@ -903,15 +310,7 @@ func _apply_taunt_state(target: Node, source: Node, duration: float, context: Di
 	if source != null and is_instance_valid(source):
 		target.set_meta("status_taunt_source_id", source.get_instance_id())
 		target.set_meta("status_taunt_source_team", int(source.get("team_id")))
-
-
-func _find_cell_behind_target(
-	target_cell: Vector2i,
-	source_cell: Vector2i,
-	distance_steps: int,
-	combat_manager: Node,
-	hex_grid: Node
-) -> Vector2i:
+func _find_cell_behind_target(target_cell: Vector2i, source_cell: Vector2i, distance_steps: int, combat_manager: Node, hex_grid: Node) -> Vector2i:
 	var current: Vector2i = target_cell
 	for _i in range(maxi(distance_steps, 1)):
 		var next: Vector2i = _pick_neighbor_away_from_anchor(current, source_cell, combat_manager, hex_grid)
@@ -919,8 +318,6 @@ func _find_cell_behind_target(
 			break
 		current = next
 	return current
-
-
 func _pick_neighbor_away_from_anchor(current: Vector2i, anchor: Vector2i, combat_manager: Node, hex_grid: Node) -> Vector2i:
 	var neighbors: Array[Vector2i] = _get_neighbor_cells(current, hex_grid)
 	if neighbors.is_empty():
@@ -935,8 +332,6 @@ func _pick_neighbor_away_from_anchor(current: Vector2i, anchor: Vector2i, combat
 			best_dist = dist
 			best = neighbor
 	return best
-
-
 func _get_neighbor_cells(cell: Vector2i, hex_grid: Node) -> Array[Vector2i]:
 	var out: Array[Vector2i] = []
 	if hex_grid == null or not is_instance_valid(hex_grid):
@@ -950,8 +345,6 @@ func _get_neighbor_cells(cell: Vector2i, hex_grid: Node) -> Array[Vector2i]:
 		if neighbor_value is Vector2i:
 			out.append(neighbor_value as Vector2i)
 	return out
-
-
 func _is_cell_walkable_for_effect(cell: Vector2i, combat_manager: Node, hex_grid: Node) -> bool:
 	if hex_grid != null and is_instance_valid(hex_grid) and hex_grid.has_method("is_inside_grid"):
 		if not bool(hex_grid.call("is_inside_grid", cell)):
@@ -960,9 +353,6 @@ func _is_cell_walkable_for_effect(cell: Vector2i, combat_manager: Node, hex_grid
 		if bool(combat_manager.call("is_cell_blocked", cell)):
 			return false
 	return true
-
-
-
 func _resolve_scale_stat_value(node: Node, scale_stat: String) -> float:
 	match scale_stat:
 		"max_hp":
@@ -978,8 +368,6 @@ func _resolve_scale_stat_value(node: Node, scale_stat: String) -> float:
 			return 0.0
 		_:
 			return 0.0
-
-
 func _target_has_debuff(target: Node, debuff_id: String = "") -> bool:
 	if target == null or not is_instance_valid(target):
 		return false
@@ -993,8 +381,6 @@ func _target_has_debuff(target: Node, debuff_id: String = "") -> bool:
 		if str(debuff).strip_edges() == debuff_id.strip_edges():
 			return true
 	return false
-
-
 func _pick_nearest_enemy_unit(source: Node, context: Dictionary, center: Vector2, max_radius_world: float, visited: Dictionary = {}) -> Node:
 	var best: Node = null
 	var best_d2: float = INF
@@ -1017,8 +403,6 @@ func _pick_nearest_enemy_unit(source: Node, context: Dictionary, center: Vector2
 			best_d2 = d2
 			best = unit
 	return best
-
-
 func _find_lowest_hp_ally(source: Node, context: Dictionary) -> Node:
 	var source_team: int = int(source.get("team_id")) if source != null and is_instance_valid(source) else 0
 	var best: Node = null
@@ -1036,8 +420,6 @@ func _find_lowest_hp_ally(source: Node, context: Dictionary) -> Node:
 			best_ratio = hp_ratio
 			best = unit
 	return best
-
-
 func _apply_create_terrain_op(source: Node, target: Node, effect: Dictionary, context: Dictionary) -> bool:
 	var combat_manager: Node = context.get("combat_manager", null)
 	var hex_grid: Node = context.get("hex_grid", null)
@@ -1096,8 +478,6 @@ func _apply_create_terrain_op(source: Node, target: Node, effect: Dictionary, co
 	if effect.has("effects_on_expire"):
 		terrain_config["effects_on_expire"] = effect.get("effects_on_expire", [])
 	return bool(combat_manager.call("add_temporary_terrain", terrain_config, source))
-
-
 func _apply_mark_target_op(source: Node, target: Node, effect: Dictionary, context: Dictionary) -> bool:
 	if target == null or not is_instance_valid(target):
 		return false
@@ -1113,8 +493,6 @@ func _apply_mark_target_op(source: Node, target: Node, effect: Dictionary, conte
 	marks[mark_id] = expire_time
 	target.set_meta("runtime_marks", marks)
 	return true
-
-
 func _target_has_mark(target: Node, mark_id: String, context: Dictionary) -> bool:
 	if target == null or not is_instance_valid(target):
 		return false
@@ -1133,16 +511,12 @@ func _target_has_mark(target: Node, mark_id: String, context: Dictionary) -> boo
 		target.set_meta("runtime_marks", marks)
 		return false
 	return true
-
-
 func _get_hp_ratio(unit: Node) -> float:
 	if unit == null or not is_instance_valid(unit):
 		return 1.0
 	var max_hp: float = maxf(_get_combat_value(unit, "max_hp"), 1.0)
 	var hp: float = _get_combat_value(unit, "current_hp")
 	return clampf(hp / max_hp, 0.0, 1.0)
-
-
 func _apply_control_state(target: Node, control_type: String, duration: float, context: Dictionary = {}) -> void:
 	if target == null or not is_instance_valid(target):
 		return
@@ -1159,8 +533,6 @@ func _apply_control_state(target: Node, control_type: String, duration: float, c
 			target.set_meta("status_fear_until", maxf(float(target.get_meta("status_fear_until", 0.0)), until_logic))
 		_:
 			return
-
-
 func _apply_shield_self_op(source: Node, effect: Dictionary, context: Dictionary, summary: Dictionary) -> void:
 	if source == null or not is_instance_valid(source):
 		return
@@ -1172,26 +544,22 @@ func _apply_shield_self_op(source: Node, effect: Dictionary, context: Dictionary
 		return
 	if combat.has_method("add_shield"):
 		combat.call("add_shield", shield_value)
-
 	var buff_manager: Variant = context.get("buff_manager", null)
 	var shield_buff_id: String = str(effect.get("shield_buff_id", effect.get("buff_id", "buff_qi_shield"))).strip_edges()
 	var shield_duration: float = float(effect.get("duration", -1.0))
 	if buff_manager != null and not shield_buff_id.is_empty():
 		if bool(buff_manager.call("apply_buff", source, shield_buff_id, shield_duration, source)):
 			summary["buff_applied"] = int(summary.get("buff_applied", 0)) + 1
-			_append_buff_event(summary, source, source, shield_buff_id, shield_duration, "shield_self")
+			_effect_op_handlers.append_buff_event(summary, source, source, shield_buff_id, shield_duration, "shield_self")
 			source.set_meta("shield_bound_buff_id", shield_buff_id)
-
 	# 可选：护盾开启时同步挂“免疫类 Buff”，便于按 Buff 时长自动过期。
 	var immunity_buff_id: String = str(effect.get("immunity_buff_id", "")).strip_edges()
 	if buff_manager != null and not immunity_buff_id.is_empty():
 		var immunity_duration: float = float(effect.get("immunity_duration", shield_duration))
 		if bool(buff_manager.call("apply_buff", source, immunity_buff_id, immunity_duration, source)):
 			summary["buff_applied"] = int(summary.get("buff_applied", 0)) + 1
-			_append_buff_event(summary, source, source, immunity_buff_id, immunity_duration, "shield_self")
+			_effect_op_handlers.append_buff_event(summary, source, source, immunity_buff_id, immunity_duration, "shield_self")
 			source.set_meta("shield_immunity_buff_id", immunity_buff_id)
-
-
 func _apply_immunity_self_op(source: Node, effect: Dictionary, context: Dictionary, summary: Dictionary) -> void:
 	if source == null or not is_instance_valid(source):
 		return
@@ -1201,11 +569,9 @@ func _apply_immunity_self_op(source: Node, effect: Dictionary, context: Dictiona
 	if not buff_id.is_empty():
 		if _apply_buff_op(source, source, {"buff_id": buff_id, "duration": duration}, context):
 			summary["buff_applied"] = int(summary.get("buff_applied", 0)) + 1
-			_append_buff_event(summary, source, source, buff_id, duration, "immunity_self")
+			_effect_op_handlers.append_buff_event(summary, source, source, buff_id, duration, "immunity_self")
 		return
 	push_warning("EffectEngine: immunity_self missing buff_id, skipped.")
-
-
 func _execute_summon_units_op(source: Node, effect: Dictionary, context: Dictionary) -> int:
 	var battlefield: Node = context.get("battlefield", null)
 	if battlefield == null or not is_instance_valid(battlefield):
@@ -1252,8 +618,6 @@ func _execute_summon_units_op(source: Node, effect: Dictionary, context: Diction
 	if rows.is_empty():
 		return 0
 	return int(battlefield.call("spawn_enemy_wave", rows))
-
-
 func _execute_hazard_zone_op(source: Node, effect: Dictionary, context: Dictionary) -> int:
 	var buff_manager: Variant = context.get("buff_manager", null)
 	if buff_manager == null:
@@ -1299,8 +663,6 @@ func _execute_hazard_zone_op(source: Node, effect: Dictionary, context: Dictiona
 		if ok:
 			created += 1
 	return created
-
-
 func _pick_hazard_center_cell(mode: String, source: Node, hex_grid: Node, radius_cells: int) -> Vector2i:
 	if mode == "around_self" and source != null and is_instance_valid(source):
 		var source_cell: Vector2i = hex_grid.call("world_to_axial", _node_pos(source))
@@ -1312,8 +674,6 @@ func _pick_hazard_center_cell(mode: String, source: Node, hex_grid: Node, radius
 	var width: int = maxi(int(hex_grid.get("grid_width")), 1)
 	var height: int = maxi(int(hex_grid.get("grid_height")), 1)
 	return Vector2i(randi() % width, randi() % height)
-
-
 func _collect_cells_in_radius(hex_grid: Node, center_cell: Vector2i, radius_cells: int) -> Array[Vector2i]:
 	var out: Array[Vector2i] = []
 	if hex_grid == null or not is_instance_valid(hex_grid):
@@ -1344,8 +704,6 @@ func _collect_cells_in_radius(hex_grid: Node, center_cell: Vector2i, radius_cell
 			visited[key] = true
 			queue.append(neighbor)
 	return out
-
-
 func _hex_distance_by_cell(a: Vector2i, b: Vector2i, hex_grid: Node) -> int:
 	if hex_grid != null and is_instance_valid(hex_grid) and hex_grid.has_method("get_cell_distance"):
 		return int(hex_grid.call("get_cell_distance", a, b))
@@ -1353,97 +711,6 @@ func _hex_distance_by_cell(a: Vector2i, b: Vector2i, hex_grid: Node) -> int:
 	var dr: int = b.y - a.y
 	var distance_sum: int = absi(dq) + absi(dq + dr) + absi(dr)
 	return int(distance_sum / 2.0)
-
-
-func _add_modifier(modifier_bundle: Dictionary, key: String, value: float) -> void:
-	modifier_bundle[key] = float(modifier_bundle.get(key, 0.0)) + value
-
-
-func _append_damage_event(
-	summary: Dictionary,
-	source: Node,
-	target: Node,
-	damage: float,
-	damage_type: String,
-	op: String
-) -> void:
-	var shield_absorbed: float = float(_last_damage_meta.get("shield_absorbed", 0.0))
-	var immune_absorbed: float = float(_last_damage_meta.get("immune_absorbed", 0.0))
-	if damage <= 0.0 and shield_absorbed <= 0.0 and immune_absorbed <= 0.0:
-		return
-	var damage_events: Array = summary.get("damage_events", [])
-	damage_events.append({
-		"source": source,
-		"target": target,
-		"damage": damage,
-		"shield_absorbed": shield_absorbed,
-		"immune_absorbed": immune_absorbed,
-		"damage_type": damage_type,
-		"op": op
-	})
-	summary["damage_events"] = damage_events
-	_last_damage_meta = {}
-
-
-func _append_buff_event(
-	summary: Dictionary,
-	source: Node,
-	target: Node,
-	buff_id: String,
-	duration: float,
-	op: String
-) -> void:
-	if buff_id.strip_edges().is_empty():
-		return
-	var buff_events: Array = summary.get("buff_events", [])
-	buff_events.append({
-		"source": source,
-		"target": target,
-		"buff_id": buff_id,
-		"duration": duration,
-		"op": op
-	})
-	summary["buff_events"] = buff_events
-
-
-func _append_heal_event(
-	summary: Dictionary,
-	source: Node,
-	target: Node,
-	heal: float,
-	op: String
-) -> void:
-	if heal <= 0.0:
-		return
-	var heal_events: Array = summary.get("heal_events", [])
-	heal_events.append({
-		"source": source,
-		"target": target,
-		"heal": heal,
-		"op": op
-	})
-	summary["heal_events"] = heal_events
-
-
-func _append_mp_event(
-	summary: Dictionary,
-	source: Node,
-	target: Node,
-	mp: float,
-	op: String
-) -> void:
-	if mp <= 0.0:
-		return
-	var mp_events: Array = summary.get("mp_events", [])
-	mp_events.append({
-		"source": source,
-		"target": target,
-		"mp": mp,
-		"op": op
-	})
-	summary["mp_events"] = mp_events
-
-
 func _deal_damage(source: Node, target: Node, amount: float, damage_type: String) -> float:
 	_last_damage_meta = {"shield_absorbed": 0.0, "immune_absorbed": 0.0}
 	if target == null or not is_instance_valid(target):
@@ -1463,8 +730,6 @@ func _deal_damage(source: Node, target: Node, amount: float, damage_type: String
 	_last_damage_meta["shield_absorbed"] = float(result.get("shield_absorbed", 0.0))
 	_last_damage_meta["immune_absorbed"] = float(result.get("immune_absorbed", 0.0))
 	return float(result.get("damage", 0.0))
-
-
 func _heal_unit(target: Node, amount: float, source: Node = null) -> float:
 	if target == null or not is_instance_valid(target):
 		return 0.0
@@ -1483,8 +748,6 @@ func _heal_unit(target: Node, amount: float, source: Node = null) -> float:
 	combat.call("restore_hp", final_amount)
 	var after: float = float(combat.get("current_hp"))
 	return maxf(after - before, 0.0)
-
-
 func _restore_mp_unit(target: Node, amount: float) -> float:
 	if target == null or not is_instance_valid(target):
 		return 0.0
@@ -1495,8 +758,6 @@ func _restore_mp_unit(target: Node, amount: float) -> float:
 	combat.call("add_mp", maxf(amount, 0.0))
 	var after: float = float(combat.get("current_mp"))
 	return maxf(after - before, 0.0)
-
-
 func _apply_buff_op(source: Node, target: Node, effect: Dictionary, context: Dictionary) -> bool:
 	if target == null or not is_instance_valid(target):
 		return false
@@ -1507,9 +768,50 @@ func _apply_buff_op(source: Node, target: Node, effect: Dictionary, context: Dic
 	if buff_id.is_empty():
 		return false
 	var duration: float = float(effect.get("duration", 0.0))
+	var application_key: String = str(effect.get("application_key", "")).strip_edges()
+	if not application_key.is_empty() and buff_manager.has_method("apply_buff_with_options"):
+		return bool(buff_manager.call(
+			"apply_buff_with_options",
+			target,
+			buff_id,
+			duration,
+			source,
+			{"application_key": application_key}
+		))
 	return bool(buff_manager.call("apply_buff", target, buff_id, duration, source))
-
-
+func _is_source_bound_aura_binding(effect: Dictionary) -> bool:
+	return str(effect.get("binding_mode", "default")).strip_edges().to_lower() == "source_bound_aura"
+func _execute_source_bound_aura_op(source: Node, effect: Dictionary, targets: Array[Node], context: Dictionary) -> Dictionary:
+	if source == null or not is_instance_valid(source):
+		return {"applied_count": 0, "applied_targets": []}
+	var buff_manager: Variant = context.get("buff_manager", null)
+	if buff_manager == null or not buff_manager.has_method("refresh_source_bound_aura"):
+		return {"applied_count": 0, "applied_targets": []}
+	var buff_id: String = str(effect.get("buff_id", "")).strip_edges()
+	if buff_id.is_empty():
+		return {"applied_count": 0, "applied_targets": []}
+	var scope_key: String = str(context.get("source_bound_aura_scope_key", "")).strip_edges()
+	if scope_key.is_empty():
+		scope_key = "%d|fallback_scope" % source.get_instance_id()
+	var scope_refresh_token: int = int(context.get("source_bound_aura_scope_token", 0))
+	var aura_key: String = _build_source_bound_aura_key(source, effect, scope_key)
+	return buff_manager.call(
+		"refresh_source_bound_aura",
+		source,
+		buff_id,
+		aura_key,
+		scope_key,
+		scope_refresh_token,
+		targets,
+		context
+	)
+func _build_source_bound_aura_key(source: Node, effect: Dictionary, scope_key: String) -> String:
+	var effect_signature: String = var_to_str(effect)
+	if not scope_key.is_empty():
+		return "%s|%s" % [scope_key, effect_signature]
+	if source == null or not is_instance_valid(source):
+		return effect_signature
+	return "%d|%s" % [source.get_instance_id(), effect_signature]
 func _spawn_vfx_by_effect(source: Node, target: Node, effect: Dictionary, context: Dictionary) -> void:
 	var vfx_factory: Node = context.get("vfx_factory", null)
 	if vfx_factory == null:
@@ -1517,7 +819,6 @@ func _spawn_vfx_by_effect(source: Node, target: Node, effect: Dictionary, contex
 	var vfx_id: String = str(effect.get("vfx_id", "")).strip_edges()
 	if vfx_id.is_empty():
 		return
-
 	var at: String = str(effect.get("at", "self"))
 	var from_pos: Vector2 = _node_pos(source)
 	var to_pos: Vector2 = _node_pos(target)
@@ -1531,10 +832,7 @@ func _spawn_vfx_by_effect(source: Node, target: Node, effect: Dictionary, contex
 		_:
 			from_pos = _node_pos(source)
 			to_pos = _node_pos(source)
-
 	vfx_factory.call("play_attack_vfx", vfx_id, from_pos, to_pos)
-
-
 func _collect_enemy_units_in_radius(source: Node, center: Vector2, radius_world: float, context: Dictionary) -> Array[Node]:
 	var enemies: Array[Node] = []
 	var source_team: int = int(source.get("team_id")) if source != null and is_instance_valid(source) else 0
@@ -1551,8 +849,6 @@ func _collect_enemy_units_in_radius(source: Node, center: Vector2, radius_world:
 			continue
 		enemies.append(unit)
 	return enemies
-
-
 func _collect_ally_units_in_radius(source: Node, center: Vector2, radius_world: float, context: Dictionary, exclude_self: bool = false) -> Array[Node]:
 	var allies: Array[Node] = []
 	var source_team: int = int(source.get("team_id")) if source != null and is_instance_valid(source) else 0
@@ -1569,8 +865,6 @@ func _collect_ally_units_in_radius(source: Node, center: Vector2, radius_world: 
 			continue
 		allies.append(unit)
 	return allies
-
-
 func _get_all_units(context: Dictionary) -> Array[Node]:
 	var output: Array[Node] = []
 	var all_units: Variant = context.get("all_units", [])
@@ -1578,20 +872,14 @@ func _get_all_units(context: Dictionary) -> Array[Node]:
 		for unit in all_units:
 			output.append(unit)
 	return output
-
-
 func _cells_to_world_distance(cells: float, context: Dictionary) -> float:
 	var hex_size: float = float(context.get("hex_size", DEFAULT_HEX_SIZE))
 	return maxf(cells, 0.0) * maxf(hex_size, 1.0) * 1.2
-
-
 func _is_unit_alive(unit: Node) -> bool:
 	var combat: Node = unit.get_node_or_null("Components/UnitCombat")
 	if combat == null:
 		return false
 	return bool(combat.get("is_alive"))
-
-
 func _get_combat_value(unit: Node, key: String) -> float:
 	if unit == null or not is_instance_valid(unit):
 		return 0.0
@@ -1599,8 +887,6 @@ func _get_combat_value(unit: Node, key: String) -> float:
 	if combat == null:
 		return 0.0
 	return float(combat.get(key))
-
-
 func _node_pos(node: Node) -> Vector2:
 	if node == null or not is_instance_valid(node):
 		return Vector2.ZERO
@@ -1608,7 +894,5 @@ func _node_pos(node: Node) -> Vector2:
 	if n2d == null:
 		return Vector2.ZERO
 	return n2d.position
-
-
 func _distance_sq(a: Vector2, b: Vector2) -> float:
 	return a.distance_squared_to(b)

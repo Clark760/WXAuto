@@ -528,6 +528,7 @@ func _test_summon_clone_op() -> void:
 	var engine = EFFECT_ENGINE_SCRIPT.new()
 	var source: MockUnit = _make_test_unit(1, "unit_test_clone_source")
 	var battlefield: MockBattlefield = MockBattlefield.new()
+	var hex_grid: MockHexGrid = MockHexGrid.new()
 	var summary: Dictionary = engine.call("execute_active_effects", source, null, [{
 		"op": "summon_clone",
 		"count": 2,
@@ -537,7 +538,7 @@ func _test_summon_clone_op() -> void:
 		"radius": 2
 	}], {
 		"battlefield": battlefield,
-		"hex_grid": MockHexGrid.new()
+		"hex_grid": hex_grid
 	})
 	_assert_true(int(summary.get("summon_total", 0)) == 2, "summon_clone summary count")
 	_assert_true(battlefield.spawned_rows.size() == 1, "summon_clone spawned row recorded")
@@ -545,6 +546,7 @@ func _test_summon_clone_op() -> void:
 	_assert_true(str(first_row.get("clone_source", "")) == "self", "summon_clone row uses self source")
 	source.free()
 	battlefield.free()
+	hex_grid.free()
 
 
 func _test_revive_random_ally_op() -> void:

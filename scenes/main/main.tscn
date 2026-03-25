@@ -30,25 +30,30 @@ theme_override_font_sizes/font_size = 16
 text = "按 F6/Enter 进入战斗，按 F5 重载数据"
 
 [node name="StageListPanel" type="PanelContainer" parent="CanvasLayer" unique_id=2118262177]
-offset_left = 20.0
-offset_top = 360.0
-offset_right = 520.0
-offset_bottom = 690.0
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -500.0
+offset_top = -120.0
+grow_horizontal = 0
+grow_vertical = 0
 
-[node name="StageListRoot" type="VBoxContainer" parent="CanvasLayer/StageListPanel"]
-offset_left = 12.0
-offset_top = 10.0
-offset_right = 488.0
-offset_bottom = 320.0
+[node name="StageListRoot" type="VBoxContainer" parent="CanvasLayer/StageListPanel" unique_id=1774325850]
+layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="StageListTitle" type="Label" parent="CanvasLayer/StageListPanel/StageListRoot"]
+[node name="StageListTitle" type="Label" parent="CanvasLayer/StageListPanel/StageListRoot" unique_id=1327520485]
+layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "选择章节序列（点击直接进入）"
 
-[node name="StageListScroll" type="ScrollContainer" parent="CanvasLayer/StageListPanel/StageListRoot"]
+[node name="StageListScroll" type="ScrollContainer" parent="CanvasLayer/StageListPanel/StageListRoot" unique_id=1589180741]
+layout_mode = 2
 size_flags_vertical = 3
 
-[node name="StageListVBox" type="VBoxContainer" parent="CanvasLayer/StageListPanel/StageListRoot/StageListScroll"]
+[node name="StageListVBox" type="VBoxContainer" parent="CanvasLayer/StageListPanel/StageListRoot/StageListScroll" unique_id=1558015004]
+layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 6
