@@ -1,7 +1,7 @@
 extends SceneTree
 
 const TERRAIN_MANAGER_SCRIPT: Script = preload("res://scripts/board/terrain_manager.gd")
-const TERRAIN_TEST_DATA_PATH: String = "res://data/terrains/terrains_m5_effect_rework_test.json"
+const TERRAIN_TEST_DATA_PATH: String = "res://mods/test/data/terrains/m5_terrain_effect_rework_terrains.json"
 
 
 class MockHexGrid:
@@ -68,7 +68,7 @@ class MockCombatManager:
 		return null
 
 
-class MockGongfaManager:
+class MockUnitAugmentManager:
 	extends Node
 	var calls: Array[Dictionary] = []
 
@@ -110,7 +110,7 @@ func _run() -> void:
 
 	var hex_grid: MockHexGrid = MockHexGrid.new()
 	var combat_manager: MockCombatManager = MockCombatManager.new()
-	var gongfa_manager: MockGongfaManager = MockGongfaManager.new()
+	var unit_augment_manager: MockUnitAugmentManager = MockUnitAugmentManager.new()
 
 	var source: DummyUnit = _create_unit(1, "unit_source", "Source")
 	var enemy: DummyUnit = _create_unit(2, "unit_enemy", "Enemy")
@@ -118,16 +118,16 @@ func _run() -> void:
 	combat_manager.register(enemy, Vector2i(1, 1))
 	combat_manager.register(ally, Vector2i(1, 1))
 
-	_test_enter_and_tick(terrain_manager, hex_grid, combat_manager, gongfa_manager, source, enemy, ally)
-	_test_exit_phase(terrain_manager, hex_grid, combat_manager, gongfa_manager, source, enemy)
-	_test_expire_phase(terrain_manager, hex_grid, combat_manager, gongfa_manager, source, enemy)
-	_test_source_fallback(terrain_manager, hex_grid, combat_manager, gongfa_manager, enemy)
+	_test_enter_and_tick(terrain_manager, hex_grid, combat_manager, unit_augment_manager, source, enemy, ally)
+	_test_exit_phase(terrain_manager, hex_grid, combat_manager, unit_augment_manager, source, enemy)
+	_test_expire_phase(terrain_manager, hex_grid, combat_manager, unit_augment_manager, source, enemy)
+	_test_source_fallback(terrain_manager, hex_grid, combat_manager, unit_augment_manager, enemy)
 
 	enemy.free()
 	ally.free()
 	source.free()
 	combat_manager.free()
-	gongfa_manager.free()
+	unit_augment_manager.free()
 	hex_grid.free()
 
 
@@ -135,13 +135,13 @@ func _test_enter_and_tick(
 	terrain_manager: Object,
 	hex_grid: Node,
 	combat_manager: MockCombatManager,
-	gongfa_manager: MockGongfaManager,
+	unit_augment_manager: MockUnitAugmentManager,
 	source: Node,
 	enemy: Node,
 	ally: Node
 ) -> void:
 	terrain_manager.call("clear_all")
-	gongfa_manager.clear_calls()
+	unit_augment_manager.clear_calls()
 	combat_manager.set_unit_cell(enemy, Vector2i(1, 1))
 	combat_manager.set_unit_cell(ally, Vector2i(1, 1))
 
@@ -152,26 +152,26 @@ func _test_enter_and_tick(
 	}, source, {"hex_grid": hex_grid})
 	_assert_true(bool(added.get("added", false)), "enter/tick terrain should be added")
 
-	terrain_manager.call("tick", 0.25, _build_context(hex_grid, combat_manager, gongfa_manager, [enemy, ally]))
-	_assert_true(_count_phase_calls(gongfa_manager.calls, "enter") == 1, "enter should trigger exactly once on first tick")
-	_assert_true(_count_phase_calls(gongfa_manager.calls, "tick") == 0, "tick should not trigger before interval")
-	_assert_true(_all_phase_targets_team(gongfa_manager.calls, "enter", 2), "enter should only target enemies")
+	terrain_manager.call("tick", 0.25, _build_context(hex_grid, combat_manager, unit_augment_manager, [enemy, ally]))
+	_assert_true(_count_phase_calls(unit_augment_manager.calls, "enter") == 1, "enter should trigger exactly once on first tick")
+	_assert_true(_count_phase_calls(unit_augment_manager.calls, "tick") == 0, "tick should not trigger before interval")
+	_assert_true(_all_phase_targets_team(unit_augment_manager.calls, "enter", 2), "enter should only target enemies")
 
-	terrain_manager.call("tick", 0.30, _build_context(hex_grid, combat_manager, gongfa_manager, [enemy, ally]))
-	_assert_true(_count_phase_calls(gongfa_manager.calls, "enter") == 1, "enter should not retrigger while staying in terrain")
-	_assert_true(_count_phase_calls(gongfa_manager.calls, "tick") == 1, "tick should trigger once after interval reached")
+	terrain_manager.call("tick", 0.30, _build_context(hex_grid, combat_manager, unit_augment_manager, [enemy, ally]))
+	_assert_true(_count_phase_calls(unit_augment_manager.calls, "enter") == 1, "enter should not retrigger while staying in terrain")
+	_assert_true(_count_phase_calls(unit_augment_manager.calls, "tick") == 1, "tick should trigger once after interval reached")
 
 
 func _test_exit_phase(
 	terrain_manager: Object,
 	hex_grid: Node,
 	combat_manager: MockCombatManager,
-	gongfa_manager: MockGongfaManager,
+	unit_augment_manager: MockUnitAugmentManager,
 	source: Node,
 	enemy: Node
 ) -> void:
 	terrain_manager.call("clear_all")
-	gongfa_manager.clear_calls()
+	unit_augment_manager.clear_calls()
 	combat_manager.set_unit_cell(enemy, Vector2i(2, 2))
 
 	var added: Dictionary = terrain_manager.call("add_terrain", {
@@ -181,22 +181,22 @@ func _test_exit_phase(
 	}, source, {"hex_grid": hex_grid})
 	_assert_true(bool(added.get("added", false)), "exit terrain should be added")
 
-	terrain_manager.call("tick", 0.10, _build_context(hex_grid, combat_manager, gongfa_manager, [enemy]))
+	terrain_manager.call("tick", 0.10, _build_context(hex_grid, combat_manager, unit_augment_manager, [enemy]))
 	combat_manager.set_unit_cell(enemy, Vector2i(6, 6))
-	terrain_manager.call("tick", 0.10, _build_context(hex_grid, combat_manager, gongfa_manager, [enemy]))
-	_assert_true(_count_phase_calls(gongfa_manager.calls, "exit") == 1, "exit should trigger once when unit leaves")
+	terrain_manager.call("tick", 0.10, _build_context(hex_grid, combat_manager, unit_augment_manager, [enemy]))
+	_assert_true(_count_phase_calls(unit_augment_manager.calls, "exit") == 1, "exit should trigger once when unit leaves")
 
 
 func _test_expire_phase(
 	terrain_manager: Object,
 	hex_grid: Node,
 	combat_manager: MockCombatManager,
-	gongfa_manager: MockGongfaManager,
+	unit_augment_manager: MockUnitAugmentManager,
 	source: Node,
 	enemy: Node
 ) -> void:
 	terrain_manager.call("clear_all")
-	gongfa_manager.clear_calls()
+	unit_augment_manager.clear_calls()
 	combat_manager.set_unit_cell(enemy, Vector2i(3, 3))
 
 	var added: Dictionary = terrain_manager.call("add_terrain", {
@@ -206,23 +206,23 @@ func _test_expire_phase(
 	}, source, {"hex_grid": hex_grid})
 	_assert_true(bool(added.get("added", false)), "expire terrain should be added")
 
-	terrain_manager.call("tick", 0.20, _build_context(hex_grid, combat_manager, gongfa_manager, [enemy]))
-	_assert_true(_count_phase_calls(gongfa_manager.calls, "expire") == 1, "expire should trigger once when terrain expires")
+	terrain_manager.call("tick", 0.20, _build_context(hex_grid, combat_manager, unit_augment_manager, [enemy]))
+	_assert_true(_count_phase_calls(unit_augment_manager.calls, "expire") == 1, "expire should trigger once when terrain expires")
 
-	gongfa_manager.clear_calls()
-	terrain_manager.call("tick", 0.20, _build_context(hex_grid, combat_manager, gongfa_manager, [enemy]))
-	_assert_true(gongfa_manager.calls.is_empty(), "expired terrain should be removed after expire phase")
+	unit_augment_manager.clear_calls()
+	terrain_manager.call("tick", 0.20, _build_context(hex_grid, combat_manager, unit_augment_manager, [enemy]))
+	_assert_true(unit_augment_manager.calls.is_empty(), "expired terrain should be removed after expire phase")
 
 
 func _test_source_fallback(
 	terrain_manager: Object,
 	hex_grid: Node,
 	combat_manager: MockCombatManager,
-	gongfa_manager: MockGongfaManager,
+	unit_augment_manager: MockUnitAugmentManager,
 	enemy: Node
 ) -> void:
 	terrain_manager.call("clear_all")
-	gongfa_manager.clear_calls()
+	unit_augment_manager.clear_calls()
 	combat_manager.set_unit_cell(enemy, Vector2i(4, 4))
 
 	var temp_source: DummyUnit = _create_unit(1, "unit_temp_source", "Temp Source")
@@ -244,10 +244,10 @@ func _test_source_fallback(
 	_assert_true(bool(added.get("added", false)), "fallback terrain should be added")
 
 	temp_source.free()
-	terrain_manager.call("tick", 0.20, _build_context(hex_grid, combat_manager, gongfa_manager, [enemy]))
-	_assert_true(not gongfa_manager.calls.is_empty(), "fallback terrain should still execute effects after source deleted")
-	if not gongfa_manager.calls.is_empty():
-		var first_call: Dictionary = gongfa_manager.calls[0]
+	terrain_manager.call("tick", 0.20, _build_context(hex_grid, combat_manager, unit_augment_manager, [enemy]))
+	_assert_true(not unit_augment_manager.calls.is_empty(), "fallback terrain should still execute effects after source deleted")
+	if not unit_augment_manager.calls.is_empty():
+		var first_call: Dictionary = unit_augment_manager.calls[0]
 		_assert_true(first_call.get("source", null) == null, "deleted source should resolve to null node")
 		var meta: Dictionary = first_call.get("meta", {})
 		var extra_fields: Dictionary = meta.get("extra_fields", {})
@@ -286,13 +286,13 @@ func _load_terrain_test_records() -> Array:
 func _build_context(
 	hex_grid: Node,
 	combat_manager: Node,
-	gongfa_manager: Node,
+	unit_augment_manager: Node,
 	all_units: Array
 ) -> Dictionary:
 	return {
 		"hex_grid": hex_grid,
 		"combat_manager": combat_manager,
-		"gongfa_manager": gongfa_manager,
+		"unit_augment_manager": unit_augment_manager,
 		"all_units": all_units
 	}
 

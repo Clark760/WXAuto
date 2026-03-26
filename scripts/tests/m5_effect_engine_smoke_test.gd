@@ -1,7 +1,7 @@
 extends SceneTree
 
-const EFFECT_ENGINE_SCRIPT: Script = preload("res://scripts/gongfa/effect_engine.gd")
-const BUFF_MANAGER_SCRIPT: Script = preload("res://scripts/gongfa/buff_manager.gd")
+const EFFECT_ENGINE_SCRIPT: Script = preload("res://scripts/unit_augment/unit_augment_effect_engine.gd")
+const BUFF_MANAGER_SCRIPT: Script = preload("res://scripts/unit_augment/unit_augment_buff_manager.gd")
 const COMBAT_TARGETING_SCRIPT: Script = preload("res://scripts/combat/combat_targeting.gd")
 
 

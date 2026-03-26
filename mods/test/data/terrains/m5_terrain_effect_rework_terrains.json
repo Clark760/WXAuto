@@ -1,0 +1,51 @@
+[
+  {
+    "id": "terrain_test_enter_tick",
+    "name": "Terrain Test Enter Tick",
+    "type": "hazard",
+    "tick_interval": 0.5,
+    "target_mode": "enemies",
+    "effects_on_enter": [
+      {
+        "op": "damage_target",
+        "value": 1.0,
+        "damage_type": "internal"
+      }
+    ],
+    "effects_on_tick": [
+      {
+        "op": "damage_target",
+        "value": 1.0,
+        "damage_type": "internal"
+      }
+    ]
+  },
+  {
+    "id": "terrain_test_exit",
+    "name": "Terrain Test Exit",
+    "type": "hazard",
+    "tick_interval": 0.5,
+    "target_mode": "enemies",
+    "effects_on_exit": [
+      {
+        "op": "damage_target",
+        "value": 1.0,
+        "damage_type": "internal"
+      }
+    ]
+  },
+  {
+    "id": "terrain_test_expire",
+    "name": "Terrain Test Expire",
+    "type": "hazard",
+    "tick_interval": 0.5,
+    "target_mode": "enemies",
+    "effects_on_expire": [
+      {
+        "op": "damage_target",
+        "value": 1.0,
+        "damage_type": "internal"
+      }
+    ]
+  }
+]

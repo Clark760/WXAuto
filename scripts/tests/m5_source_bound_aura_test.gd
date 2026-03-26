@@ -1,8 +1,8 @@
 extends SceneTree
 
-const EFFECT_ENGINE_SCRIPT: Script = preload("res://scripts/gongfa/effect_engine.gd")
-const BUFF_MANAGER_SCRIPT: Script = preload("res://scripts/gongfa/buff_manager.gd")
-const GONGFA_MANAGER_SCRIPT: Script = preload("res://scripts/gongfa/gongfa_manager.gd")
+const EFFECT_ENGINE_SCRIPT: Script = preload("res://scripts/unit_augment/unit_augment_effect_engine.gd")
+const BUFF_MANAGER_SCRIPT: Script = preload("res://scripts/unit_augment/unit_augment_buff_manager.gd")
+const UNIT_AUGMENT_MANAGER_SCRIPT: Script = preload("res://scripts/unit_augment/unit_augment_manager.gd")
 
 
 class MockUnit:
@@ -72,21 +72,21 @@ func _test_source_bound_aura_apply_and_range_removal() -> void:
 
 	_buff_removed_events.clear()
 	var context_a: Dictionary = _build_aura_context(buff_manager, units, source, 11, 101)
-	var summary_a: Dictionary = engine.call("execute_active_effects", source, source, [effect], context_a)
-	buff_manager.call("finalize_source_bound_aura_scope", "11", 101, context_a)
+	var summary_a: Dictionary = engine.execute_active_effects(source, source, [effect], context_a)
+	buff_manager.finalize_source_bound_aura_scope("11", 101, context_a)
 
 	_assert_eq_int(int(summary_a.get("buff_applied", 0)), 1, "source_bound_aura should apply once to nearby ally")
-	_assert_true(bool(buff_manager.call("has_buff", ally, "buff_source_bound_aura")), "nearby ally should receive aura buff")
-	_assert_true(not bool(buff_manager.call("has_buff", ally_far, "buff_source_bound_aura")), "far ally should not receive aura buff")
-	_assert_true(_has_stat_add_effect(buff_manager.call("collect_passive_effects_for_unit", ally), "atk", 10.0), "aura buff should contribute stat_add passive")
+	_assert_true(buff_manager.has_buff(ally, "buff_source_bound_aura"), "nearby ally should receive aura buff")
+	_assert_true(not buff_manager.has_buff(ally_far, "buff_source_bound_aura"), "far ally should not receive aura buff")
+	_assert_true(_has_stat_add_effect(buff_manager.collect_passive_effects_for_unit(ally), "atk", 10.0), "aura buff should contribute stat_add passive")
 
 	ally.position = Vector2(100.0, 0.0)
 	var context_b: Dictionary = _build_aura_context(buff_manager, units, source, 11, 102)
-	var summary_b: Dictionary = engine.call("execute_active_effects", source, source, [effect], context_b)
-	buff_manager.call("finalize_source_bound_aura_scope", "11", 102, context_b)
+	var summary_b: Dictionary = engine.execute_active_effects(source, source, [effect], context_b)
+	buff_manager.finalize_source_bound_aura_scope("11", 102, context_b)
 
 	_assert_eq_int(int(summary_b.get("buff_applied", 0)), 0, "moving out of range should not count as new application")
-	_assert_true(not bool(buff_manager.call("has_buff", ally, "buff_source_bound_aura")), "leaving aura range should remove the buff")
+	_assert_true(not buff_manager.has_buff(ally, "buff_source_bound_aura"), "leaving aura range should remove the buff")
 	_assert_true(_has_removed_reason("buff_source_bound_aura", "aura_condition_lost"), "range loss should emit aura_condition_lost")
 
 	source.free()
@@ -97,13 +97,11 @@ func _test_source_bound_aura_apply_and_range_removal() -> void:
 func _test_source_bound_aura_removed_when_provider_dies() -> void:
 	var engine = EFFECT_ENGINE_SCRIPT.new()
 	var buff_manager = _make_buff_manager()
-	var manager: Node = GONGFA_MANAGER_SCRIPT.new()
-	manager.set("_buff_manager", buff_manager)
 
 	var source: MockUnit = _make_unit("source_dead", 1, Vector2.ZERO)
 	var ally: MockUnit = _make_unit("ally_bound", 1, Vector2(20.0, 0.0))
 	var units: Array[Node] = [source, ally]
-	manager.set("_battle_units", units)
+	var manager: Node = _make_unit_augment_manager(buff_manager, units)
 
 	var effect: Dictionary = {
 		"op": "buff_allies_aoe",
@@ -113,14 +111,15 @@ func _test_source_bound_aura_removed_when_provider_dies() -> void:
 		"binding_mode": "source_bound_aura"
 	}
 	var context: Dictionary = _build_aura_context(buff_manager, units, source, 21, 201)
-	engine.call("execute_active_effects", source, source, [effect], context)
-	buff_manager.call("finalize_source_bound_aura_scope", "21", 201, context)
-	_assert_true(bool(buff_manager.call("has_buff", ally, "buff_source_bound_aura")), "aura should exist before provider death")
+	engine.execute_active_effects(source, source, [effect], context)
+	buff_manager.finalize_source_bound_aura_scope("21", 201, context)
+	_assert_true(buff_manager.has_buff(ally, "buff_source_bound_aura"), "aura should exist before provider death")
 
 	_buff_removed_events.clear()
-	manager.call("_on_unit_died", source, null, 1)
+	var combat_event_bridge: Variant = manager.get("_combat_event_bridge")
+	combat_event_bridge._on_unit_died(source, null, 1)
 
-	_assert_true(not bool(buff_manager.call("has_buff", ally, "buff_source_bound_aura")), "provider death should remove source bound aura from allies")
+	_assert_true(not buff_manager.has_buff(ally, "buff_source_bound_aura"), "provider death should remove source bound aura from allies")
 	_assert_true(_has_removed_reason("buff_source_bound_aura", "aura_source_dead"), "provider death should emit aura_source_dead")
 
 	source.free()
@@ -142,10 +141,10 @@ func _test_source_bound_aura_coexists_with_regular_buff() -> void:
 		"binding_mode": "source_bound_aura"
 	}
 
-	_assert_true(bool(buff_manager.call("apply_buff", ally, "buff_source_bound_aura", 5.0, source)), "regular buff apply should succeed")
+	_assert_true(buff_manager.apply_buff(ally, "buff_source_bound_aura", 5.0, source), "regular buff apply should succeed")
 	var context_a: Dictionary = _build_aura_context(buff_manager, units, source, 31, 301)
-	engine.call("execute_active_effects", source, source, [effect], context_a)
-	buff_manager.call("finalize_source_bound_aura_scope", "31", 301, context_a)
+	engine.execute_active_effects(source, source, [effect], context_a)
+	buff_manager.finalize_source_bound_aura_scope("31", 301, context_a)
 
 	var entries_before: Array = _get_entries_for_unit(buff_manager, ally)
 	_assert_eq_int(entries_before.size(), 2, "regular buff and aura buff should coexist for same source and buff_id")
@@ -153,8 +152,8 @@ func _test_source_bound_aura_coexists_with_regular_buff() -> void:
 	_buff_removed_events.clear()
 	ally.position = Vector2(100.0, 0.0)
 	var context_b: Dictionary = _build_aura_context(buff_manager, units, source, 31, 302)
-	engine.call("execute_active_effects", source, source, [effect], context_b)
-	buff_manager.call("finalize_source_bound_aura_scope", "31", 302, context_b)
+	engine.execute_active_effects(source, source, [effect], context_b)
+	buff_manager.finalize_source_bound_aura_scope("31", 302, context_b)
 
 	var entries_after: Array = _get_entries_for_unit(buff_manager, ally)
 	_assert_eq_int(entries_after.size(), 1, "removing aura instance should keep regular buff instance")
@@ -168,14 +167,12 @@ func _test_source_bound_aura_coexists_with_regular_buff() -> void:
 func _test_source_bound_aura_keeps_multiple_providers_separate() -> void:
 	var engine = EFFECT_ENGINE_SCRIPT.new()
 	var buff_manager = _make_buff_manager()
-	var manager: Node = GONGFA_MANAGER_SCRIPT.new()
-	manager.set("_buff_manager", buff_manager)
 
 	var source_a: MockUnit = _make_unit("source_multi_a", 1, Vector2.ZERO)
 	var source_b: MockUnit = _make_unit("source_multi_b", 1, Vector2(10.0, 0.0))
 	var ally: MockUnit = _make_unit("ally_multi", 1, Vector2(20.0, 0.0))
 	var units: Array[Node] = [source_a, source_b, ally]
-	manager.set("_battle_units", units)
+	var manager: Node = _make_unit_augment_manager(buff_manager, units)
 
 	var effect: Dictionary = {
 		"op": "buff_allies_aoe",
@@ -186,17 +183,18 @@ func _test_source_bound_aura_keeps_multiple_providers_separate() -> void:
 	}
 
 	var context_a: Dictionary = _build_aura_context(buff_manager, units, source_a, 41, 401)
-	engine.call("execute_active_effects", source_a, source_a, [effect], context_a)
-	buff_manager.call("finalize_source_bound_aura_scope", "41", 401, context_a)
+	engine.execute_active_effects(source_a, source_a, [effect], context_a)
+	buff_manager.finalize_source_bound_aura_scope("41", 401, context_a)
 	var context_b: Dictionary = _build_aura_context(buff_manager, units, source_b, 42, 402)
-	engine.call("execute_active_effects", source_b, source_b, [effect], context_b)
-	buff_manager.call("finalize_source_bound_aura_scope", "42", 402, context_b)
+	engine.execute_active_effects(source_b, source_b, [effect], context_b)
+	buff_manager.finalize_source_bound_aura_scope("42", 402, context_b)
 
 	var entries_before: Array = _get_entries_for_unit(buff_manager, ally)
 	_assert_eq_int(entries_before.size(), 2, "two providers should create two independent aura buckets")
 
 	_buff_removed_events.clear()
-	manager.call("_on_unit_died", source_a, null, 1)
+	var combat_event_bridge: Variant = manager.get("_combat_event_bridge")
+	combat_event_bridge._on_unit_died(source_a, null, 1)
 
 	var entries_after: Array = _get_entries_for_unit(buff_manager, ally)
 	_assert_eq_int(entries_after.size(), 1, "removing one provider should keep the other provider aura")
@@ -211,7 +209,7 @@ func _test_source_bound_aura_keeps_multiple_providers_separate() -> void:
 
 func _make_buff_manager() -> RefCounted:
 	var manager = BUFF_MANAGER_SCRIPT.new()
-	manager.call("set_buff_definitions", {
+	manager.set_buff_definitions({
 		"buff_source_bound_aura": {
 			"id": "buff_source_bound_aura",
 			"name": "Source Bound Aura",
@@ -227,6 +225,19 @@ func _make_buff_manager() -> RefCounted:
 	var cb: Callable = Callable(self, "_on_buff_removed")
 	if not manager.is_connected("buff_removed", cb):
 		manager.connect("buff_removed", cb)
+	return manager
+
+
+func _make_unit_augment_manager(buff_manager: RefCounted, units: Array[Node]) -> Node:
+	var manager: Node = UNIT_AUGMENT_MANAGER_SCRIPT.new()
+	manager.set("_buff_manager", buff_manager)
+	var combat_event_bridge: Variant = manager.get("_combat_event_bridge")
+	if combat_event_bridge != null:
+		combat_event_bridge.configure(manager)
+	var state_service: Variant = manager.get_state_service()
+	state_service.reset_battle_state()
+	for unit in units:
+		state_service.register_battle_unit(unit)
 	return manager
 
 

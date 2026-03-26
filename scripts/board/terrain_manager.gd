@@ -104,7 +104,13 @@ func add_terrain(config: Dictionary, source: Node, context: Dictionary = {}) -> 
 
 
 # 按地形定义与格子列表创建静态地形（通常用于障碍或预置地块）。
-func add_static_terrain(terrain_ref: String, cells: Array, context: Dictionary = {}, extra_config: Dictionary = {}) -> Dictionary:
+# `terrain_ref` 决定使用哪条地形定义，`extra_config` 只允许做字段级覆盖。
+func add_static_terrain(
+	terrain_ref: String,
+	cells: Array,
+	context: Dictionary = {},
+	extra_config: Dictionary = {}
+) -> Dictionary:
 	var terrain_key: String = terrain_ref.strip_edges().to_lower()
 	if terrain_key.is_empty():
 		return {"added": false, "added_count": 0, "barrier_changed": false, "visual_changed": false}
@@ -156,6 +162,7 @@ func tick(delta: float, context: Dictionary) -> Dictionary:
 		var terrain: Dictionary = (terrain_value as Dictionary).duplicate(true)
 		var current_targets: Array[Node] = _collect_targets_in_terrain(terrain, context)
 		var is_static: bool = bool(terrain.get("is_static", false))
+		# 只有临时地形会消耗 remaining；静态地形只参与进入、退出和周期判定。
 		if not is_static:
 			var previous_remaining: float = float(terrain.get("remaining", 0.0))
 			var remaining: float = previous_remaining - delta
@@ -165,7 +172,10 @@ func tick(delta: float, context: Dictionary) -> Dictionary:
 				visual_changed = true
 				continue
 		phase_events.append_array(_apply_terrain_enter_exit_effects(terrain, current_targets, context))
-		var tick_interval: float = maxf(float(terrain.get("tick_interval", DEFAULT_TICK_INTERVAL)), 0.05)
+		var tick_interval: float = maxf(
+			float(terrain.get("tick_interval", DEFAULT_TICK_INTERVAL)),
+			0.05
+		)
 		var tick_accum: float = float(terrain.get("tick_accum", 0.0)) + delta
 		while tick_accum >= tick_interval:
 			tick_accum -= tick_interval
@@ -214,7 +224,8 @@ func get_visual_cells(hex_grid: Node) -> Dictionary:
 		_needs_visual_refresh = false
 	return _visual_cells_cache.duplicate(true)
 
-
+# `scope` 只控制是否包含静态/临时地形，不额外承担敌我过滤语义。
+# 返回值是去重后的 tag 集合，供地形 trigger 和 tooltip 共用。
 func get_terrain_tags_at_cell(cell: Vector2i, scope: String = "all", hex_grid: Node = null) -> Array[String]:
 	var merged: Array[String] = []
 	if cell.x < 0 or cell.y < 0:
@@ -246,7 +257,7 @@ func get_terrain_tags_at_cell(cell: Vector2i, scope: String = "all", hex_grid: N
 			merged.append(normalized)
 	return merged
 
-
+# 布尔查询入口统一复用 `get_terrain_tags_at_cell`，避免多套 tag 统计逻辑分叉。
 func cell_has_terrain_tag(cell: Vector2i, tag: String, scope: String = "all", hex_grid: Node = null) -> bool:
 	var target: String = tag.strip_edges().to_lower()
 	if target.is_empty():
@@ -296,12 +307,18 @@ func _build_terrain_entry(config: Dictionary, source: Node, context: Dictionary,
 
 	var radius_default: int = 0 if not explicit_cells.is_empty() else 1
 	var radius: int = maxi(int(config.get("radius", terrain_def.get("radius", radius_default))), 0)
-	var tick_interval: float = maxf(float(config.get("tick_interval", terrain_def.get("tick_interval", DEFAULT_TICK_INTERVAL))), 0.05)
+	var tick_interval: float = maxf(
+		float(config.get("tick_interval", terrain_def.get("tick_interval", DEFAULT_TICK_INTERVAL))),
+		0.05
+	)
 	var target_mode: String = _resolve_target_mode(config, terrain_def)
-	var damage_type: String = str(config.get("damage_type", terrain_def.get("damage_type", DEFAULT_DAMAGE_TYPE))).strip_edges().to_lower()
+	var damage_type: String = str(
+		config.get("damage_type", terrain_def.get("damage_type", DEFAULT_DAMAGE_TYPE))
+	).strip_edges().to_lower()
 	if damage_type.is_empty():
 		damage_type = DEFAULT_DAMAGE_TYPE
 
+	# 四个 phase 的 effect 在这里一次性标准化，后续 tick 只消费统一结构。
 	var effects_on_enter: Array[Dictionary] = _resolve_terrain_effects(config, terrain_def, "effects_on_enter")
 	var effects_on_tick: Array[Dictionary] = _resolve_terrain_effects(config, terrain_def, "effects_on_tick")
 	var effects_on_exit: Array[Dictionary] = _resolve_terrain_effects(config, terrain_def, "effects_on_exit")
@@ -352,7 +369,13 @@ func _apply_terrain_tick(terrain: Dictionary, targets: Array[Node], context: Dic
 	return _execute_terrain_phase_effects(terrain, targets, "tick", context)
 
 
-func _apply_terrain_enter_exit_effects(terrain: Dictionary, current_targets: Array[Node], context: Dictionary) -> Array[Dictionary]:
+# `current_targets` 是本帧完整命中快照，这里负责和上一帧命中集合做差集。
+# enter/exit 只在命中集合变化时触发，不重复执行 tick 效果。
+func _apply_terrain_enter_exit_effects(
+	terrain: Dictionary,
+	current_targets: Array[Node],
+	context: Dictionary
+) -> Array[Dictionary]:
 	var phase_events: Array[Dictionary] = []
 	var previous_map: Dictionary = {}
 	var previous_value: Variant = terrain.get("occupied_iids", {})
@@ -379,12 +402,23 @@ func _apply_terrain_enter_exit_effects(terrain: Dictionary, current_targets: Arr
 		if combat == null or not bool(combat.get("is_alive")):
 			continue
 		exit_targets.append(unit)
-	phase_events.append_array(_execute_terrain_phase_effects(terrain, enter_targets, "enter", context))
-	phase_events.append_array(_execute_terrain_phase_effects(terrain, exit_targets, "exit", context))
+	phase_events.append_array(
+		_execute_terrain_phase_effects(terrain, enter_targets, "enter", context)
+	)
+	phase_events.append_array(
+		_execute_terrain_phase_effects(terrain, exit_targets, "exit", context)
+	)
 	return phase_events
 
 
-func _execute_terrain_phase_effects(terrain: Dictionary, targets: Array[Node], phase: String, context: Dictionary) -> Array[Dictionary]:
+# `phase` 决定取哪一组地形 effect，并写回统一的 origin/trigger 归因字段。
+# 真正效果执行只允许经过 `context.unit_augment_manager` 这条系统级入口。
+func _execute_terrain_phase_effects(
+	terrain: Dictionary,
+	targets: Array[Node],
+	phase: String,
+	context: Dictionary
+) -> Array[Dictionary]:
 	var phase_events: Array[Dictionary] = []
 	if targets.is_empty():
 		if phase == "expire":
@@ -397,10 +431,10 @@ func _execute_terrain_phase_effects(terrain: Dictionary, targets: Array[Node], p
 	var effects: Array[Dictionary] = _get_terrain_phase_effects(terrain, phase)
 	if effects.is_empty():
 		return phase_events
-	var gongfa_manager: Node = context.get("gongfa_manager", null)
-	if gongfa_manager == null or not is_instance_valid(gongfa_manager):
+	var unit_augment_manager: Node = context.get("unit_augment_manager", null)
+	if unit_augment_manager == null or not is_instance_valid(unit_augment_manager):
 		return phase_events
-	if not gongfa_manager.has_method("execute_external_effects"):
+	if not unit_augment_manager.has_method("execute_external_effects"):
 		return phase_events
 	var source_node: Node = _resolve_source_node(terrain, context)
 	var source_fallback: Dictionary = _build_source_fallback_from_terrain(terrain)
@@ -424,7 +458,8 @@ func _execute_terrain_phase_effects(terrain: Dictionary, targets: Array[Node], p
 		effect_context["terrain"] = terrain
 		effect_context["terrain_phase"] = phase
 		effect_context["is_environment"] = true
-		gongfa_manager.call("execute_external_effects", source_node, target, effects, effect_context, {
+		# 地形阶段事件统一映射到 external effects，便于 telemetry 和 trigger 复用同一口径。
+		unit_augment_manager.call("execute_external_effects", source_node, target, effects, effect_context, {
 			"origin": origin,
 			"trigger": origin,
 			"extra_fields": extra_fields

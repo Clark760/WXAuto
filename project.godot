@@ -22,7 +22,7 @@ ObjectPool="*res://scripts/core/object_pool.gd"
 DataManager="*res://scripts/data/data_manager.gd"
 ModLoader="*res://scripts/core/mod_loader.gd"
 GameManager="*res://scripts/core/game_manager.gd"
-GongfaManager="*res://scripts/gongfa/gongfa_manager.gd"
+UnitAugmentManager="*res://scripts/unit_augment/unit_augment_manager.gd"
 
 [physics]
 

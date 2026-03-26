@@ -32,7 +32,7 @@ const BATTLEFIELD_RENDERER_SCRIPT: Script = preload("res://scripts/battle/battle
 @onready var vfx_factory: Node2D = $WorldContainer/VfxLayer/VfxFactory
 @onready var unit_factory: Node = $UnitFactory
 @onready var combat_manager: Node = $CombatManager
-@onready var gongfa_manager: Node = _get_root_node("GongfaManager")
+@onready var unit_augment_manager: Node = _get_root_node("UnitAugmentManager")
 
 @onready var phase_label: Label = $HUDLayer/TopBar/TopBarContent/PhaseLabel
 @onready var round_label: Label = $HUDLayer/TopBar/TopBarContent/RoundLabel
@@ -102,8 +102,8 @@ func _ready() -> void:
 	_bootstrap_runtime_modules()
 	_connect_signals()
 	combat_manager.call("configure_dependencies", hex_grid, vfx_factory)
-	if gongfa_manager != null:
-		gongfa_manager.call("bind_combat_context", combat_manager, hex_grid, vfx_factory)
+	if unit_augment_manager != null:
+		unit_augment_manager.call("bind_combat_context", combat_manager, hex_grid, vfx_factory)
 	_bind_viewport_resize()
 	bench_ui.initialize_slots(50, 10)
 	bench_ui.set_interactable(true)
@@ -422,10 +422,10 @@ func _start_combat() -> void:
 		return
 
 	_combat_elapsed = 0.0
-	if gongfa_manager != null:
+	if unit_augment_manager != null:
 		# 功法系统接入点：必须先 prepare，再 start_battle，
 		# 否则 CombatManager 的 battle_started 信号会先于触发器注册发出。
-		gongfa_manager.call("prepare_battle", ally_units, enemy_units, hex_grid, vfx_factory, combat_manager)
+		unit_augment_manager.call("prepare_battle", ally_units, enemy_units, hex_grid, vfx_factory, combat_manager)
 
 	var started: bool = bool(combat_manager.call("start_battle", ally_units, enemy_units))
 	if not started:

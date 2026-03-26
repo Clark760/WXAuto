@@ -134,7 +134,7 @@ func setup_from_unit_record(unit_record: Dictionary, forced_star: int = -1) -> v
 	max_equip_count = _resolve_max_equip_count(configured_max_equip, equip_slots)
 	# 不能在“未进入场景树”的节点上直接 get_node("/root/...")，
 	# 这里改为通过 SceneTree 根节点安全查询 AutoLoad，避免初始化期报错。
-	var gm: Node = _get_autoload_node("GongfaManager")
+	var gm: Node = _get_autoload_node("UnitAugmentManager")
 	if gm != null and not initial_gongfa.is_empty():
 		var reg = gm.get("_registry")
 		if reg != null:

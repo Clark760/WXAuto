@@ -7,7 +7,7 @@ const SINGLETON_SCRIPT_PATHS: Dictionary = {
 	"DataManager": "res://scripts/data/data_manager.gd",
 	"ModLoader": "res://scripts/core/mod_loader.gd",
 	"GameManager": "res://scripts/core/game_manager.gd",
-	"GongfaManager": "res://scripts/gongfa/gongfa_manager.gd"
+	"UnitAugmentManager": "res://scripts/unit_augment/unit_augment_manager.gd"
 }
 
 const ALLY_UNIT_IDS: Array[String] = [
@@ -74,7 +74,7 @@ const TEST_TIMEOUT_SECONDS: float = 70.0
 
 var _battlefield: Node = null
 var _combat_manager: Node = null
-var _gongfa_manager: Node = null
+var _unit_augment_manager: Node = null
 var _unit_factory: Node = null
 var _hex_grid: Node = null
 
@@ -115,9 +115,13 @@ func _run() -> void:
 
 	_result["data_summary"] = data_manager.call("load_base_data")
 	print("[m5_replay] data loaded")
-	_gongfa_manager = _get_root_node("GongfaManager")
-	if _gongfa_manager != null and _gongfa_manager.has_method("reload_from_data"):
-		_gongfa_manager.call("reload_from_data")
+	var mod_loader: Node = _get_root_node("ModLoader")
+	if mod_loader != null and mod_loader.has_method("load_and_apply_mods"):
+		_result["mod_summary"] = mod_loader.call("load_and_apply_mods")
+		print("[m5_replay] test mods loaded")
+	_unit_augment_manager = _get_root_node("UnitAugmentManager")
+	if _unit_augment_manager != null and _unit_augment_manager.has_method("reload_from_data"):
+		_unit_augment_manager.call("reload_from_data")
 	await process_frame
 	print("[m5_replay] gongfa reloaded")
 
@@ -152,8 +156,8 @@ func _run() -> void:
 		_fail("Deployed unit lists are empty, cannot start replay.")
 		return
 
-	if _gongfa_manager != null:
-		_gongfa_manager.call(
+	if _unit_augment_manager != null:
+		_unit_augment_manager.call(
 			"prepare_battle",
 			ally_units,
 			enemy_units,
@@ -231,19 +235,19 @@ func _connect_runtime_signals() -> void:
 		if _combat_manager.has_signal("damage_resolved") and not _combat_manager.is_connected("damage_resolved", damage_cb):
 			_combat_manager.connect("damage_resolved", damage_cb)
 
-	if _gongfa_manager != null:
+	if _unit_augment_manager != null:
 		var trigger_cb: Callable = Callable(self, "_on_skill_triggered")
-		if _gongfa_manager.has_signal("skill_triggered") and not _gongfa_manager.is_connected("skill_triggered", trigger_cb):
-			_gongfa_manager.connect("skill_triggered", trigger_cb)
+		if _unit_augment_manager.has_signal("skill_triggered") and not _unit_augment_manager.is_connected("skill_triggered", trigger_cb):
+			_unit_augment_manager.connect("skill_triggered", trigger_cb)
 		var skill_damage_cb: Callable = Callable(self, "_on_skill_effect_damage")
-		if _gongfa_manager.has_signal("skill_effect_damage") and not _gongfa_manager.is_connected("skill_effect_damage", skill_damage_cb):
-			_gongfa_manager.connect("skill_effect_damage", skill_damage_cb)
+		if _unit_augment_manager.has_signal("skill_effect_damage") and not _unit_augment_manager.is_connected("skill_effect_damage", skill_damage_cb):
+			_unit_augment_manager.connect("skill_effect_damage", skill_damage_cb)
 		var skill_heal_cb: Callable = Callable(self, "_on_skill_effect_heal")
-		if _gongfa_manager.has_signal("skill_effect_heal") and not _gongfa_manager.is_connected("skill_effect_heal", skill_heal_cb):
-			_gongfa_manager.connect("skill_effect_heal", skill_heal_cb)
+		if _unit_augment_manager.has_signal("skill_effect_heal") and not _unit_augment_manager.is_connected("skill_effect_heal", skill_heal_cb):
+			_unit_augment_manager.connect("skill_effect_heal", skill_heal_cb)
 		var buff_cb: Callable = Callable(self, "_on_buff_event")
-		if _gongfa_manager.has_signal("buff_event") and not _gongfa_manager.is_connected("buff_event", buff_cb):
-			_gongfa_manager.connect("buff_event", buff_cb)
+		if _unit_augment_manager.has_signal("buff_event") and not _unit_augment_manager.is_connected("buff_event", buff_cb):
+			_unit_augment_manager.connect("buff_event", buff_cb)
 
 
 func _cleanup_scene_runtime() -> void:

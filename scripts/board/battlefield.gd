@@ -353,8 +353,8 @@ func _on_data_reloaded(is_full_reload: bool, summary: Dictionary) -> void:
 	_refresh_shop_for_preparation(true)
 
 
-func _on_gongfa_data_reloaded(summary: Dictionary) -> void:
-	super._on_gongfa_data_reloaded(summary)
+func _on_unit_augment_data_reloaded(summary: Dictionary) -> void:
+	super._on_unit_augment_data_reloaded(summary)
 	_rebuild_battle_data_caches()
 	if _stage_manager != null and is_instance_valid(_stage_manager):
 		var data_manager: Node = _get_root_node("DataManager")
@@ -550,8 +550,8 @@ func _apply_stage_enemy_overrides(unit_node: Node, enemy_cfg: Dictionary) -> voi
 		unit_node.set("base_stats", base_stats)
 		unit_node.call("_apply_runtime_stats")
 
-	if gongfa_manager != null:
-		gongfa_manager.call("apply_gongfa", unit_node)
+	if unit_augment_manager != null:
+		unit_augment_manager.call("apply_gongfa", unit_node)
 
 
 func spawn_enemy_wave(wave_units_value: Variant) -> int:
@@ -651,7 +651,7 @@ func _rebuild_inventory_items_impl() -> void:
 	# - 仅展示已购买或已装备中的条目；
 	# - 支持显示库存与已装备数量；
 	# - 拖放装备会消耗库存，卸下会返还库存。
-	if _inventory_grid == null or gongfa_manager == null:
+	if _inventory_grid == null or unit_augment_manager == null:
 		return
 
 	for child in _inventory_grid.get_children():
@@ -690,9 +690,9 @@ func _rebuild_inventory_items_impl() -> void:
 		var lookup_id: String = str(id_key)
 		var data: Dictionary = {}
 		if item_mode == "gongfa":
-			data = gongfa_manager.call("get_gongfa_data", lookup_id)
+			data = unit_augment_manager.call("get_gongfa_data", lookup_id)
 		else:
-			data = gongfa_manager.call("get_equipment_data", lookup_id)
+			data = unit_augment_manager.call("get_equipment_data", lookup_id)
 		if data.is_empty():
 			continue
 		var packed: Dictionary = data.duplicate(true)
@@ -814,7 +814,7 @@ func _on_slot_item_dropped(slot_category: String, slot_key: String, item_id: Str
 		return
 	if _stage != Stage.PREPARATION:
 		return
-	if gongfa_manager == null:
+	if unit_augment_manager == null:
 		return
 
 	var stock_category: String = "gongfa" if slot_category == "gongfa" else "equipment"
@@ -829,13 +829,13 @@ func _on_slot_item_dropped(slot_category: String, slot_key: String, item_id: Str
 		replaced_item_id = str(slots.get(slot_key, "")).strip_edges()
 		if replaced_item_id == item_id:
 			return
-		ok = bool(gongfa_manager.call("equip_gongfa", _detail_unit, slot_key, item_id))
+		ok = bool(unit_augment_manager.call("equip_gongfa", _detail_unit, slot_key, item_id))
 	else:
 		var equip_slots: Dictionary = _normalize_equip_slots(_get_unit_equip_slots(_detail_unit))
 		replaced_item_id = str(equip_slots.get(slot_key, "")).strip_edges()
 		if replaced_item_id == item_id:
 			return
-		ok = bool(gongfa_manager.call("equip_equipment", _detail_unit, slot_key, item_id))
+		ok = bool(unit_augment_manager.call("equip_equipment", _detail_unit, slot_key, item_id))
 
 	if not ok:
 		debug_label.text = "拖放失败：槽位不匹配或数据无效。"
@@ -854,7 +854,7 @@ func _on_slot_unequip_pressed(slot_category: String, slot: String) -> void:
 		return
 	if _stage != Stage.PREPARATION:
 		return
-	if gongfa_manager == null:
+	if unit_augment_manager == null:
 		return
 
 	var removed_item_id: String = ""
@@ -863,14 +863,14 @@ func _on_slot_unequip_pressed(slot_category: String, slot: String) -> void:
 		removed_item_id = str(slots.get(slot, "")).strip_edges()
 		if removed_item_id.is_empty():
 			return
-		gongfa_manager.call("unequip_gongfa", _detail_unit, slot)
+		unit_augment_manager.call("unequip_gongfa", _detail_unit, slot)
 		_add_owned_item("gongfa", removed_item_id, 1)
 	else:
 		var equip_slots: Dictionary = _normalize_equip_slots(_get_unit_equip_slots(_detail_unit))
 		removed_item_id = str(equip_slots.get(slot, "")).strip_edges()
 		if removed_item_id.is_empty():
 			return
-		gongfa_manager.call("unequip_equipment", _detail_unit, slot)
+		unit_augment_manager.call("unequip_equipment", _detail_unit, slot)
 		_add_owned_item("equipment", removed_item_id, 1)
 
 	_update_detail_panel(_detail_unit)
@@ -905,12 +905,12 @@ func _bootstrap_battle_services() -> void:
 			TEAM_ALLY
 		)
 		_stage_manager.call("load_stage_sequence", data_manager)
-	# M5：战斗扩展统一由 GongfaManager 执行，这里不再挂载旧 runner。
+	# M5：战斗扩展统一由 UnitAugmentManager 执行，这里不再挂载旧 runner。
 
 
 func _rebuild_battle_data_caches() -> void:
 	if _shop_manager != null:
-		_shop_manager.reload_pools(unit_factory, gongfa_manager)
+		_shop_manager.reload_pools(unit_factory, unit_augment_manager)
 	if combat_manager != null and is_instance_valid(combat_manager) and combat_manager.has_method("reload_terrain_registry"):
 		var data_manager: Node = _get_root_node("DataManager")
 		combat_manager.call("reload_terrain_registry", data_manager)
@@ -1243,7 +1243,7 @@ func _ensure_battle_flow_created() -> void:
 		return
 	_battle_flow.name = "BattleFlow"
 	add_child(_battle_flow)
-	_battle_flow.call("setup", self, combat_manager, gongfa_manager, detail_layer)
+	_battle_flow.call("setup", self, combat_manager, unit_augment_manager, detail_layer)
 
 
 func _ensure_recycle_zone_created() -> void:
@@ -1457,13 +1457,13 @@ func _get_sell_price_item(item_data: Dictionary) -> int:
 
 
 func _resolve_sell_item_name(item_type: String, item_id: String) -> String:
-	if gongfa_manager == null:
+	if unit_augment_manager == null:
 		return item_id
 	var data: Dictionary = {}
 	if item_type == "gongfa":
-		data = gongfa_manager.call("get_gongfa_data", item_id)
+		data = unit_augment_manager.call("get_gongfa_data", item_id)
 	else:
-		data = gongfa_manager.call("get_equipment_data", item_id)
+		data = unit_augment_manager.call("get_equipment_data", item_id)
 	return str(data.get("name", item_id))
 
 

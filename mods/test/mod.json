@@ -1,0 +1,9 @@
+{
+  "id": "test_mod_m5_replay",
+  "name": "Test Mod M5 Replay",
+  "author": "Codex",
+  "version": "0.0.1",
+  "description": "Minimal replay regression data pack for m5 battle tests.",
+  "game_version_min": "1.0.0",
+  "load_order": 900
+}

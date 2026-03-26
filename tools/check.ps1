@@ -14,7 +14,7 @@ $ErrorActionPreference = "Stop"
 # 功能：
 # 1) 用 Godot headless 启动项目并立即退出，检查脚本加载/场景初始化错误。
 # 2) 校验仓库内所有 JSON 文件语法（可通过 -SkipJson 跳过）。
-# 3) 校验 Phase 0 架构约束（可通过 -SkipArchitecture 跳过）。
+# 3) 校验 Phase 0 架构约束（含可读性/模块拆分门禁，可通过 -SkipArchitecture 跳过）。
 # 4) 校验关键测试无泄漏（可通过 -SkipLeakGuard 跳过）。
 #
 # 用法示例：

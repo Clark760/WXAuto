@@ -1,0 +1,249 @@
+[
+  {
+    "id": "eq_bixie_sword",
+    "name": "Bixie Sword",
+    "description": "M5 replay weapon test item.",
+    "type": "weapon",
+    "quality": "blue",
+    "shop_visible": false,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 16.0
+      }
+    ]
+  },
+  {
+    "id": "eq_duchangjian",
+    "name": "Duchangjian",
+    "description": "M5 replay poison weapon test item.",
+    "type": "weapon",
+    "quality": "blue",
+    "shop_visible": false,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 12.0
+      }
+    ],
+    "trigger": {
+      "type": "on_attack_hit",
+      "effects": [
+        {
+          "op": "debuff_target",
+          "buff_id": "bm5_debuff_terrain_scorch",
+          "duration": 1.2
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_hanbingmian",
+    "name": "Hanbingmian",
+    "description": "M5 replay ice helm test item.",
+    "type": "helmet",
+    "quality": "purple",
+    "shop_visible": false,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "def",
+        "value": 18.0
+      }
+    ]
+  },
+  {
+    "id": "eq_liuhuoyi",
+    "name": "Liuhuoyi",
+    "description": "M5 replay fire armor test item.",
+    "type": "armor",
+    "quality": "purple",
+    "shop_visible": false,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "hp",
+        "value": 120.0
+      }
+    ]
+  },
+  {
+    "id": "eq_pojia_chuizi",
+    "name": "Pojia Chuizi",
+    "description": "M5 replay anti armor test item.",
+    "type": "weapon",
+    "quality": "purple",
+    "shop_visible": false,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 18.0
+      }
+    ]
+  },
+  {
+    "id": "eq_xixue_jie",
+    "name": "Xixue Jie",
+    "description": "M5 replay sustain ring test item.",
+    "type": "accessory",
+    "quality": "purple",
+    "shop_visible": false,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 10.0
+      }
+    ]
+  },
+  {
+    "id": "eq_huiqi_zhu",
+    "name": "Huiqi Zhu",
+    "description": "M5 replay mana orb test item.",
+    "type": "accessory",
+    "quality": "blue",
+    "shop_visible": false,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "mp",
+        "value": 40.0
+      }
+    ]
+  },
+  {
+    "id": "eq_zhanshen_kai",
+    "name": "Zhanshen Kai",
+    "description": "M5 replay tank armor test item.",
+    "type": "armor",
+    "quality": "orange",
+    "shop_visible": false,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "def",
+        "value": 26.0
+      }
+    ]
+  },
+  {
+    "id": "eq_zhanshazhui",
+    "name": "Zhanshazhui",
+    "description": "M5 replay finisher accessory test item.",
+    "type": "accessory",
+    "quality": "purple",
+    "shop_visible": false,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 12.0
+      }
+    ]
+  },
+  {
+    "id": "eq_guiyuan_zhen",
+    "name": "Guiyuan Zhen",
+    "description": "M5 replay healing field generator.",
+    "type": "accessory",
+    "quality": "orange",
+    "shop_visible": false,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "wis",
+        "value": 14.0
+      }
+    ],
+    "trigger": {
+      "type": "periodic_seconds",
+      "trigger_params": {
+        "interval": 7.0
+      },
+      "effects": [
+        {
+          "op": "create_terrain",
+          "terrain_ref_id": "terrain_bm5_qi_spring",
+          "at": "self",
+          "radius": 1,
+          "duration": 4.0,
+          "target_mode": "allies"
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_fenglei_huan",
+    "name": "Fenglei Huan",
+    "description": "M5 replay thunder accessory test item.",
+    "type": "accessory",
+    "quality": "purple",
+    "shop_visible": false,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "wis",
+        "value": 10.0
+      }
+    ],
+    "trigger": {
+      "type": "on_attack_hit",
+      "effects": [
+        {
+          "op": "damage_target",
+          "value": 20.0,
+          "damage_type": "internal"
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_dihuo_jia",
+    "name": "Dihuo Jia",
+    "description": "M5 replay earth-fire armor test item.",
+    "type": "armor",
+    "quality": "purple",
+    "shop_visible": false,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "hp",
+        "value": 140.0
+      }
+    ]
+  },
+  {
+    "id": "eq_fenix_yu",
+    "name": "Fenix Yu",
+    "description": "M5 replay blaze feather test item.",
+    "type": "accessory",
+    "quality": "orange",
+    "shop_visible": false,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "wis",
+        "value": 12.0
+      }
+    ],
+    "trigger": {
+      "type": "periodic_seconds",
+      "trigger_params": {
+        "interval": 8.0
+      },
+      "effects": [
+        {
+          "op": "create_terrain",
+          "terrain_ref_id": "terrain_bm5_blazing_lotus",
+          "at": "self",
+          "radius": 1,
+          "duration": 3.5,
+          "target_mode": "enemies"
+        }
+      ]
+    }
+  }
+]

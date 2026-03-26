@@ -1,6 +1,6 @@
 extends SceneTree
 
-const BUFF_MANAGER_SCRIPT: Script = preload("res://scripts/gongfa/buff_manager.gd")
+const BUFF_MANAGER_SCRIPT: Script = preload("res://scripts/unit_augment/unit_augment_buff_manager.gd")
 
 
 class DummyUnit:
@@ -25,7 +25,7 @@ func _init() -> void:
 
 func _run() -> void:
 	var manager = BUFF_MANAGER_SCRIPT.new()
-	manager.call("set_buff_definitions", {
+	manager.set_buff_definitions({
 		"test_dot": {
 			"id": "test_dot",
 			"type": "debuff",
@@ -42,9 +42,9 @@ func _run() -> void:
 	var source_a: DummyUnit = _make_unit("src_a", "Source A", 1)
 	var source_b: DummyUnit = _make_unit("src_b", "Source B", 1)
 
-	_assert_true(bool(manager.call("apply_buff", target, "test_dot", 5.0, source_a)), "apply source A")
-	_assert_true(bool(manager.call("apply_buff", target, "test_dot", 5.0, source_b)), "apply source B")
-	_assert_true(bool(manager.call("apply_buff", target, "test_dot", 5.0, source_a)), "reapply source A")
+	_assert_true(manager.apply_buff(target, "test_dot", 5.0, source_a), "apply source A")
+	_assert_true(manager.apply_buff(target, "test_dot", 5.0, source_b), "apply source B")
+	_assert_true(manager.apply_buff(target, "test_dot", 5.0, source_a), "reapply source A")
 
 	var active_by_unit: Dictionary = manager.get("_active_by_unit")
 	var entries: Array = active_by_unit.get(target.get_instance_id(), [])
@@ -64,7 +64,7 @@ func _run() -> void:
 	_assert_true(stacks_a == 2, "source A bucket should stack independently")
 	_assert_true(stacks_b == 1, "source B bucket should stay separate")
 
-	var tick_result: Dictionary = manager.call("tick", 1.1, {"all_units": [target]})
+	var tick_result: Dictionary = manager.tick(1.1, {"all_units": [target]})
 	var tick_requests: Array = tick_result.get("tick_requests", [])
 	var seen_source_ids: Dictionary = {}
 	for req_value in tick_requests:

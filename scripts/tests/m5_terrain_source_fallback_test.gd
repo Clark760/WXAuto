@@ -54,7 +54,7 @@ class MockCombatManager:
 		return null
 
 
-class MockGongfaManager:
+class MockUnitAugmentManager:
 	extends Node
 	var calls: Array[Dictionary] = []
 
@@ -91,7 +91,7 @@ func _run() -> void:
 	var manager = TERRAIN_MANAGER_SCRIPT.new()
 	var hex_grid: MockHexGrid = MockHexGrid.new()
 	var combat_manager: MockCombatManager = MockCombatManager.new()
-	var gongfa_manager: MockGongfaManager = MockGongfaManager.new()
+	var unit_augment_manager: MockUnitAugmentManager = MockUnitAugmentManager.new()
 
 	var source: DummyUnit = DummyUnit.new()
 	source.team_id = 1
@@ -134,12 +134,12 @@ func _run() -> void:
 		"all_units": [target],
 		"combat_manager": combat_manager,
 		"hex_grid": hex_grid,
-		"gongfa_manager": gongfa_manager
+		"unit_augment_manager": unit_augment_manager
 	})
 
-	_assert_true(not gongfa_manager.calls.is_empty(), "terrain tick should execute external effects")
-	if not gongfa_manager.calls.is_empty():
-		var first_call: Dictionary = gongfa_manager.calls[0]
+	_assert_true(not unit_augment_manager.calls.is_empty(), "terrain tick should execute external effects")
+	if not unit_augment_manager.calls.is_empty():
+		var first_call: Dictionary = unit_augment_manager.calls[0]
 		_assert_true(first_call.get("source", null) == null, "resolved source node should be null")
 		var meta: Dictionary = first_call.get("meta", {})
 		var extra_fields: Dictionary = meta.get("extra_fields", {})
@@ -151,7 +151,7 @@ func _run() -> void:
 	target.free()
 	hex_grid.free()
 	combat_manager.free()
-	gongfa_manager.free()
+	unit_augment_manager.free()
 
 
 func _assert_true(condition: bool, message: String) -> void:

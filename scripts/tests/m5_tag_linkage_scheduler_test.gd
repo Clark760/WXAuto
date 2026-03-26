@@ -1,8 +1,8 @@
 extends SceneTree
 
-const SCHEDULER_SCRIPT: Script = preload("res://scripts/gongfa/tag_linkage_runtime_scheduler.gd")
-const EFFECT_ENGINE_SCRIPT: Script = preload("res://scripts/gongfa/effect_engine.gd")
-const GONGFA_MANAGER_SCRIPT: Script = preload("res://scripts/gongfa/gongfa_manager.gd")
+const SCHEDULER_SCRIPT: Script = preload("res://scripts/unit_augment/unit_augment_tag_linkage_scheduler.gd")
+const EFFECT_ENGINE_SCRIPT: Script = preload("res://scripts/unit_augment/unit_augment_effect_engine.gd")
+const UNIT_AUGMENT_MANAGER_SCRIPT: Script = preload("res://scripts/unit_augment/unit_augment_manager.gd")
 
 var _failed: int = 0
 
@@ -214,7 +214,7 @@ func _init() -> void:
 func _run() -> void:
 	await _test_scheduler_dirty_event_and_stagger()
 	_test_effect_engine_stateful_branch_switch()
-	await _test_gongfa_manager_skip_linkage_only_precheck()
+	await _test_unit_augment_manager_skip_linkage_only_precheck()
 
 
 func _test_scheduler_dirty_event_and_stagger() -> void:
@@ -285,7 +285,7 @@ func _test_effect_engine_stateful_branch_switch() -> void:
 		"queries": [{"id": "q", "tags": ["a"]}],
 		"cases": []
 	}], {
-		"gongfa_manager": manager,
+		"unit_augment_manager": manager,
 		"buff_manager": buff_manager
 	})
 	var continuous_summary_b: Dictionary = engine.call("execute_active_effects", source, target, [{
@@ -294,7 +294,7 @@ func _test_effect_engine_stateful_branch_switch() -> void:
 		"queries": [{"id": "q", "tags": ["a"]}],
 		"cases": []
 	}], {
-		"gongfa_manager": manager,
+		"unit_augment_manager": manager,
 		"buff_manager": buff_manager
 	})
 	_assert_true(int(continuous_summary_a.get("buff_applied", 0)) == 1, "continuous mode should execute branch every time (first)")
@@ -309,11 +309,11 @@ func _test_effect_engine_stateful_branch_switch() -> void:
 		"cases": []
 	}
 	var first_stateful: Dictionary = engine.call("execute_active_effects", source, target, [effect_stateful], {
-		"gongfa_manager": manager,
+		"unit_augment_manager": manager,
 		"buff_manager": buff_manager
 	})
 	var second_stateful: Dictionary = engine.call("execute_active_effects", source, target, [effect_stateful], {
-		"gongfa_manager": manager,
+		"unit_augment_manager": manager,
 		"buff_manager": buff_manager
 	})
 	_assert_true(int(first_stateful.get("buff_applied", 0)) == 1, "stateful first hit should apply buff")
@@ -322,7 +322,7 @@ func _test_effect_engine_stateful_branch_switch() -> void:
 	manager.next_case_id = "case_b"
 	manager.next_effects = [{"op": "buff_self", "buff_id": "buff_case_b", "duration": 0.2}]
 	var third_stateful: Dictionary = engine.call("execute_active_effects", source, target, [effect_stateful], {
-		"gongfa_manager": manager,
+		"unit_augment_manager": manager,
 		"buff_manager": buff_manager
 	})
 	_assert_true(int(third_stateful.get("buff_applied", 0)) == 1, "stateful branch change should apply new buff")
@@ -336,8 +336,8 @@ func _test_effect_engine_stateful_branch_switch() -> void:
 	buff_manager.free()
 
 
-func _test_gongfa_manager_skip_linkage_only_precheck() -> void:
-	var manager: Node = GONGFA_MANAGER_SCRIPT.new()
+func _test_unit_augment_manager_skip_linkage_only_precheck() -> void:
+	var manager: Node = UNIT_AUGMENT_MANAGER_SCRIPT.new()
 	root.add_child(manager)
 	await process_frame
 
@@ -364,7 +364,7 @@ func _test_gongfa_manager_skip_linkage_only_precheck() -> void:
 			]
 		}
 	}
-	var fired: bool = bool(manager.call("_try_fire_skill", source, entry, {}))
+	var fired: bool = bool(manager.get_trigger_runtime().try_fire_skill(manager, source, entry, {}))
 	_assert_true(not fired, "linkage-only skill should skip when stagger precheck says no")
 	_assert_true(is_equal_approx(combat.current_mp, before_mp), "skip should not consume MP")
 	_assert_true(is_equal_approx(float(entry.get("next_ready_time", 0.0)), 0.0), "skip should not set cooldown")

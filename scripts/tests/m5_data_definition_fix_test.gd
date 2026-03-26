@@ -26,7 +26,7 @@ class DummyUnitFactory:
 		return (_records[unit_id] as Dictionary).duplicate(true)
 
 
-class DummyGongfaManager:
+class DummyUnitAugmentManager:
 	extends Node
 	var _gongfa: Array[Dictionary] = []
 	var _equipment: Array[Dictionary] = []
@@ -104,8 +104,8 @@ func _test_shop_filters_hidden_entries() -> void:
 		}
 	})
 
-	var gongfa_manager: DummyGongfaManager = DummyGongfaManager.new()
-	gongfa_manager.setup(
+	var unit_augment_manager: DummyUnitAugmentManager = DummyUnitAugmentManager.new()
+	unit_augment_manager.setup(
 		[
 			{
 				"id": "gf_visible",
@@ -140,7 +140,7 @@ func _test_shop_filters_hidden_entries() -> void:
 		]
 	)
 
-	shop_manager.call("reload_pools", unit_factory, gongfa_manager)
+	shop_manager.call("reload_pools", unit_factory, unit_augment_manager)
 	var probabilities: Dictionary = {
 		"white": 1.0,
 		"green": 0.0,
@@ -159,7 +159,7 @@ func _test_shop_filters_hidden_entries() -> void:
 		_assert_true(not _offers_contain_item(equipment_offers, "eq_hidden"), "equipment offers should never contain hidden equipment")
 
 	unit_factory.free()
-	gongfa_manager.free()
+	unit_augment_manager.free()
 	shop_manager.free()
 
 

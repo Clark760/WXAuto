@@ -1,6 +1,6 @@
 ﻿extends SceneTree
 
-const GONGFA_MANAGER_SCRIPT: Script = preload("res://scripts/gongfa/gongfa_manager.gd")
+const UNIT_AUGMENT_MANAGER_SCRIPT: Script = preload("res://scripts/unit_augment/unit_augment_manager.gd")
 
 const TEAM_ALLY: int = 1
 const TEAM_ENEMY: int = 2
@@ -89,6 +89,7 @@ func _run() -> void:
 
 func _test_event_trigger_pipeline() -> void:
 	var manager: Node = _build_manager_with_buff_defs()
+	var combat_event_bridge: Variant = _get_combat_event_bridge(manager)
 
 	var attacker: MockUnit = _make_unit("attacker", TEAM_ALLY, true)
 	var ally_survivor: MockUnit = _make_unit("ally_survivor", TEAM_ALLY, true)
@@ -128,10 +129,10 @@ func _test_event_trigger_pipeline() -> void:
 		}
 	)
 
-	manager.call("_on_battle_started", 2, 1)
+	combat_event_bridge.call("_on_battle_started", 2, 1)
 	_assert_eq_int(_get_trigger_count(manager, attacker, "on_combat_start"), 1, "on_combat_start should trigger once")
 
-	manager.call("_on_damage_resolved", {
+	combat_event_bridge.call("_on_damage_resolved", {
 		"source_id": attacker.get_instance_id(),
 		"target_id": defender.get_instance_id(),
 		"is_environment": false,
@@ -142,15 +143,16 @@ func _test_event_trigger_pipeline() -> void:
 	_assert_eq_int(_get_trigger_count(manager, attacker, "on_attack_hit"), 1, "on_attack_hit should trigger once")
 	_assert_eq_int(_get_trigger_count(manager, defender, "on_attacked"), 1, "on_attacked should trigger once")
 
-	manager.call("_on_unit_died", defender, attacker, TEAM_ENEMY)
+	combat_event_bridge.call("_on_unit_died", defender, attacker, TEAM_ENEMY)
 	_assert_eq_int(_get_trigger_count(manager, attacker, "on_kill"), 1, "on_kill should trigger once")
 
-	manager.call("_on_unit_died", ally_dead, defender, TEAM_ALLY)
+	combat_event_bridge.call("_on_unit_died", ally_dead, defender, TEAM_ALLY)
 	_assert_eq_int(_get_trigger_count(manager, ally_survivor, "on_ally_death"), 1, "on_ally_death should trigger once")
 
 
 func _test_p0_p1_trigger_pipeline() -> void:
 	var manager: Node = _build_manager_with_buff_defs()
+	var combat_event_bridge: Variant = _get_combat_event_bridge(manager)
 	var attacker: MockUnit = _make_unit("p1_attacker", TEAM_ALLY, true)
 	var defender: MockUnit = _make_unit("p1_defender", TEAM_ENEMY, true)
 	var mover: MockUnit = _make_unit("p1_mover", TEAM_ALLY, true)
@@ -228,30 +230,30 @@ func _test_p0_p1_trigger_pipeline() -> void:
 		}
 	)
 
-	manager.call("_on_battle_started", 2, 1)
-	manager.call("_on_attack_failed", attacker, defender, "cooldown", {"performed": false, "reason": "cooldown"})
+	combat_event_bridge.call("_on_battle_started", 2, 1)
+	combat_event_bridge.call("_on_attack_failed", attacker, defender, "cooldown", {"performed": false, "reason": "cooldown"})
 	_assert_eq_int(_get_trigger_count(manager, attacker, "on_attack_fail"), 1, "on_attack_fail should trigger once")
 
-	manager.call("_on_damage_received_detail", defender, attacker, {"damage": 120.0, "shield_absorbed": 0.0})
+	combat_event_bridge.call("_on_damage_received_detail", defender, attacker, {"damage": 120.0, "shield_absorbed": 0.0})
 	_assert_eq_int(_get_trigger_count(manager, defender, "on_damage_received"), 1, "on_damage_received should trigger once")
 	_assert_eq_int(_get_trigger_count(manager, defender, "on_attacked"), 0, "detail damage path should not auto-trigger on_attacked")
 
-	manager.call("_on_heal_received", attacker, defender, 88.0, "skill")
+	combat_event_bridge.call("_on_heal_received", attacker, defender, 88.0, "skill")
 	_assert_eq_int(_get_trigger_count(manager, defender, "on_heal_received"), 1, "on_heal_received should trigger once")
 
-	manager.call("_on_shield_broken", defender, attacker, {"damage": 40.0, "shield_broken": true})
+	combat_event_bridge.call("_on_shield_broken", defender, attacker, {"damage": 40.0, "shield_broken": true})
 	_assert_eq_int(_get_trigger_count(manager, defender, "on_shield_broken"), 1, "on_shield_broken should trigger once")
 
-	manager.call("_on_thorns_triggered", mover, attacker, {"damage": 35.0})
+	combat_event_bridge.call("_on_thorns_triggered", mover, attacker, {"damage": 35.0})
 	_assert_eq_int(_get_trigger_count(manager, mover, "on_thorns_triggered"), 1, "on_thorns_triggered should trigger once")
 
-	manager.call("_on_unit_move_success", attacker, Vector2i(1, 1), Vector2i(2, 1), 1)
+	combat_event_bridge.call("_on_unit_move_success", attacker, Vector2i(1, 1), Vector2i(2, 1), 1)
 	_assert_eq_int(_get_trigger_count(manager, attacker, "on_unit_move_success"), 1, "on_unit_move_success should trigger once")
 
-	manager.call("_on_unit_move_failed", attacker, "conflict", {})
+	combat_event_bridge.call("_on_unit_move_failed", attacker, "conflict", {})
 	_assert_eq_int(_get_trigger_count(manager, attacker, "on_unit_move_failed"), 1, "on_unit_move_failed should trigger once")
 
-	manager.call("_on_terrain_created", {"terrain_id": "t_fire", "tags": ["fire", "hazard"]}, "add_temporary")
+	combat_event_bridge.call("_on_terrain_created", {"terrain_id": "t_fire", "tags": ["fire", "hazard"]}, "add_temporary")
 	_assert_eq_int(_get_trigger_count(manager, attacker, "on_terrain_created"), 1, "on_terrain_created should trigger once")
 
 	var terrain_event_base: Dictionary = {
@@ -261,29 +263,29 @@ func _test_p0_p1_trigger_pipeline() -> void:
 	}
 	var event_enter: Dictionary = terrain_event_base.duplicate(true)
 	event_enter["phase"] = "enter"
-	manager.call("_on_terrain_phase_tick", event_enter)
+	combat_event_bridge.call("_on_terrain_phase_tick", event_enter)
 	_assert_eq_int(_get_trigger_count(manager, attacker, "on_terrain_enter"), 1, "on_terrain_enter should trigger once")
 	var event_tick: Dictionary = terrain_event_base.duplicate(true)
 	event_tick["phase"] = "tick"
-	manager.call("_on_terrain_phase_tick", event_tick)
+	combat_event_bridge.call("_on_terrain_phase_tick", event_tick)
 	_assert_eq_int(_get_trigger_count(manager, attacker, "on_terrain_tick"), 1, "on_terrain_tick should trigger once")
 	var event_exit: Dictionary = terrain_event_base.duplicate(true)
 	event_exit["phase"] = "exit"
-	manager.call("_on_terrain_phase_tick", event_exit)
+	combat_event_bridge.call("_on_terrain_phase_tick", event_exit)
 	_assert_eq_int(_get_trigger_count(manager, attacker, "on_terrain_exit"), 1, "on_terrain_exit should trigger once")
 	var event_expire: Dictionary = terrain_event_base.duplicate(true)
 	event_expire["phase"] = "expire"
-	manager.call("_on_terrain_phase_tick", event_expire)
+	combat_event_bridge.call("_on_terrain_phase_tick", event_expire)
 	_assert_eq_int(_get_trigger_count(manager, attacker, "on_terrain_expire"), 1, "on_terrain_expire should trigger once")
 
-	manager.call("_on_unit_spawned_mid_battle", attacker, TEAM_ALLY)
+	combat_event_bridge.call("_on_unit_spawned_mid_battle", attacker, TEAM_ALLY)
 	_assert_eq_int(_get_trigger_count(manager, attacker, "on_unit_spawned_mid_battle"), 1, "on_unit_spawned_mid_battle should trigger once")
 
-	manager.call("_on_team_alive_count_changed", TEAM_ALLY, 2)
+	combat_event_bridge.call("_on_team_alive_count_changed", TEAM_ALLY, 2)
 	_assert_eq_int(_get_trigger_count(manager, attacker, "on_team_alive_count_changed"), 1, "on_team_alive_count_changed should trigger once")
 
 	# 旧链路回归：on_damage_resolved 仍应只触发一次 on_attacked。
-	manager.call("_on_damage_resolved", {
+	combat_event_bridge.call("_on_damage_resolved", {
 		"source_id": attacker.get_instance_id(),
 		"target_id": defender.get_instance_id(),
 		"is_environment": false,
@@ -296,6 +298,7 @@ func _test_p0_p1_trigger_pipeline() -> void:
 
 func _test_trigger_param_filters() -> void:
 	var manager: Node = _build_manager_with_buff_defs()
+	var combat_event_bridge: Variant = _get_combat_event_bridge(manager)
 	var owner: MockUnit = _make_unit("filter_owner", TEAM_ALLY, true)
 
 	_setup_runtime_state(
@@ -342,53 +345,53 @@ func _test_trigger_param_filters() -> void:
 		}
 	)
 
-	manager.call("_on_battle_started", 1, 0)
+	combat_event_bridge.call("_on_battle_started", 1, 0)
 
-	manager.call("_on_attack_failed", owner, null, "stunned", {"reason": "stunned"})
+	combat_event_bridge.call("_on_attack_failed", owner, null, "stunned", {"reason": "stunned"})
 	_assert_eq_int(_get_trigger_count(manager, owner, "on_attack_fail"), 0, "on_attack_fail should be blocked by reasons filter")
-	manager.call("_on_attack_failed", owner, null, "cooldown", {"reason": "cooldown"})
+	combat_event_bridge.call("_on_attack_failed", owner, null, "cooldown", {"reason": "cooldown"})
 	_assert_eq_int(_get_trigger_count(manager, owner, "on_attack_fail"), 1, "on_attack_fail should pass reasons filter")
 
-	manager.call("_on_unit_move_failed", owner, "block", {})
+	combat_event_bridge.call("_on_unit_move_failed", owner, "block", {})
 	_assert_eq_int(_get_trigger_count(manager, owner, "on_unit_move_failed"), 0, "on_unit_move_failed should be blocked by reasons filter")
-	manager.call("_on_unit_move_failed", owner, "conflict", {})
+	combat_event_bridge.call("_on_unit_move_failed", owner, "conflict", {})
 	_assert_eq_int(_get_trigger_count(manager, owner, "on_unit_move_failed"), 1, "on_unit_move_failed should pass reasons filter")
 
-	manager.call("_on_damage_received_detail", owner, null, {"damage": 30.0})
+	combat_event_bridge.call("_on_damage_received_detail", owner, null, {"damage": 30.0})
 	_assert_eq_int(_get_trigger_count(manager, owner, "on_damage_received"), 0, "on_damage_received should fail min_damage")
-	manager.call("_on_damage_received_detail", owner, null, {"damage": 80.0})
+	combat_event_bridge.call("_on_damage_received_detail", owner, null, {"damage": 80.0})
 	_assert_eq_int(_get_trigger_count(manager, owner, "on_damage_received"), 1, "on_damage_received should pass min_damage")
 
-	manager.call("_on_heal_received", null, owner, 20.0, "regen")
+	combat_event_bridge.call("_on_heal_received", null, owner, 20.0, "regen")
 	_assert_eq_int(_get_trigger_count(manager, owner, "on_heal_received"), 0, "on_heal_received should fail min_heal")
-	manager.call("_on_heal_received", null, owner, 45.0, "skill")
+	combat_event_bridge.call("_on_heal_received", null, owner, 45.0, "skill")
 	_assert_eq_int(_get_trigger_count(manager, owner, "on_heal_received"), 1, "on_heal_received should pass min_heal")
 
-	manager.call("_on_thorns_triggered", owner, null, {"damage": 10.0})
+	combat_event_bridge.call("_on_thorns_triggered", owner, null, {"damage": 10.0})
 	_assert_eq_int(_get_trigger_count(manager, owner, "on_thorns_triggered"), 0, "on_thorns_triggered should fail min_reflect")
-	manager.call("_on_thorns_triggered", owner, null, {"damage": 30.0})
+	combat_event_bridge.call("_on_thorns_triggered", owner, null, {"damage": 30.0})
 	_assert_eq_int(_get_trigger_count(manager, owner, "on_thorns_triggered"), 1, "on_thorns_triggered should pass min_reflect")
 
-	manager.call("_on_terrain_phase_tick", {
+	combat_event_bridge.call("_on_terrain_phase_tick", {
 		"phase": "enter",
 		"target": owner,
 		"terrain_tags": ["earth"]
 	})
 	_assert_eq_int(_get_trigger_count(manager, owner, "on_terrain_enter"), 0, "terrain_tags_any should block unmatched terrain")
-	manager.call("_on_terrain_phase_tick", {
+	combat_event_bridge.call("_on_terrain_phase_tick", {
 		"phase": "enter",
 		"target": owner,
 		"terrain_tags": ["water"]
 	})
 	_assert_eq_int(_get_trigger_count(manager, owner, "on_terrain_enter"), 1, "terrain_tags_any should pass matched terrain")
 
-	manager.call("_on_terrain_phase_tick", {
+	combat_event_bridge.call("_on_terrain_phase_tick", {
 		"phase": "tick",
 		"target": owner,
 		"terrain_tags": ["fire"]
 	})
 	_assert_eq_int(_get_trigger_count(manager, owner, "on_terrain_tick"), 0, "terrain_tags_all should block incomplete terrain")
-	manager.call("_on_terrain_phase_tick", {
+	combat_event_bridge.call("_on_terrain_phase_tick", {
 		"phase": "tick",
 		"target": owner,
 		"terrain_tags": ["fire", "hazard"]
@@ -399,58 +402,58 @@ func _test_trigger_param_filters() -> void:
 func _test_team_alive_condition_variants() -> void:
 	var manager: Node = _build_manager_with_buff_defs()
 	var owner: MockUnit = _make_unit("owner", TEAM_ALLY, true)
-	var counter: MockAliveCounter = _track_node(MockAliveCounter.new()) as MockAliveCounter
-	counter.set_counts(2, 3)
-	manager.set("_bound_combat_manager", counter)
+	var ally: MockUnit = _make_unit("ally", TEAM_ALLY, true)
+	var enemy_a: MockUnit = _make_unit("enemy_a", TEAM_ENEMY, true)
+	var enemy_b: MockUnit = _make_unit("enemy_b", TEAM_ENEMY, true)
+	var enemy_c: MockUnit = _make_unit("enemy_c", TEAM_ENEMY, true)
+	_setup_runtime_state(manager, [owner, ally, enemy_a, enemy_b, enemy_c], {})
 
 	var entry_enemy_min_ok: Dictionary = _build_entry(manager, "gf_enemy_min_ok", {
 		"trigger": "manual",
 		"trigger_params": {
 			"team_scope": "enemy",
-			"team_alive_count_min": 3
+			"team_alive_at_least": 3
 		},
 		"effects": [{"op": "buff_self", "buff_id": "buff_test", "duration": 1.0}]
 	})
-	_assert_true(bool(manager.call("_can_trigger_entry", owner, entry_enemy_min_ok, {})), "enemy min should pass when enemy_alive=3")
+	_assert_true(bool(manager.get_trigger_runtime().can_trigger_entry(manager, owner, entry_enemy_min_ok, {})), "enemy min should pass when enemy_alive=3")
 
 	var entry_enemy_min_fail: Dictionary = _build_entry(manager, "gf_enemy_min_fail", {
 		"trigger": "manual",
 		"trigger_params": {
 			"team_scope": "enemy",
-			"team_alive_count_min": 4
+			"team_alive_at_least": 4
 		},
 		"effects": [{"op": "buff_self", "buff_id": "buff_test", "duration": 1.0}]
 	})
-	_assert_true(not bool(manager.call("_can_trigger_entry", owner, entry_enemy_min_fail, {})), "enemy min should fail when enemy_alive=3")
+	_assert_true(not bool(manager.get_trigger_runtime().can_trigger_entry(manager, owner, entry_enemy_min_fail, {})), "enemy min should fail when enemy_alive=3")
 
 	var entry_all_max_ok: Dictionary = _build_entry(manager, "gf_all_max_ok", {
 		"trigger": "manual",
 		"trigger_params": {
-			"team_scope": "all",
+			"team_scope": "both",
 			"exclude_self": true,
-			"team_alive_count_max": 4
+			"team_alive_at_most": 4
 		},
 		"effects": [{"op": "buff_self", "buff_id": "buff_test", "duration": 1.0}]
 	})
-	_assert_true(bool(manager.call("_can_trigger_entry", owner, entry_all_max_ok, {})), "all max should pass for (2+3-1)=4")
+	_assert_true(bool(manager.get_trigger_runtime().can_trigger_entry(manager, owner, entry_all_max_ok, {})), "all max should pass for (2+3-1)=4")
 
 	var entry_all_max_fail: Dictionary = _build_entry(manager, "gf_all_max_fail", {
 		"trigger": "manual",
 		"trigger_params": {
-			"team_scope": "all",
+			"team_scope": "both",
 			"exclude_self": true,
-			"team_alive_count_max": 3
+			"team_alive_at_most": 3
 		},
 		"effects": [{"op": "buff_self", "buff_id": "buff_test", "duration": 1.0}]
 	})
-	_assert_true(not bool(manager.call("_can_trigger_entry", owner, entry_all_max_fail, {})), "all max should fail for (2+3-1)=4")
+	_assert_true(not bool(manager.get_trigger_runtime().can_trigger_entry(manager, owner, entry_all_max_fail, {})), "all max should fail for (2+3-1)=4")
 
 
 func _test_last_ally_stun_enemy_5s() -> void:
 	var manager: Node = _build_manager_with_buff_defs()
-	var counter: MockAliveCounter = _track_node(MockAliveCounter.new()) as MockAliveCounter
-	counter.set_counts(1, 2)
-	manager.set("_bound_combat_manager", counter)
+	var combat_event_bridge: Variant = _get_combat_event_bridge(manager)
 
 	var caster: MockUnit = _make_unit("caster", TEAM_ALLY, true)
 	var dead_ally: MockUnit = _make_unit("dead_ally", TEAM_ALLY, false)
@@ -467,7 +470,7 @@ func _test_last_ally_stun_enemy_5s() -> void:
 					"trigger_params": {
 						"team_scope": "ally",
 						"exclude_self": true,
-						"team_alive_count_max": 0
+						"team_alive_at_most": 0
 					},
 					"effects": [
 						{"op": "debuff_aoe", "radius": 99, "buff_id": "debuff_stun", "duration": 5.0}
@@ -477,20 +480,18 @@ func _test_last_ally_stun_enemy_5s() -> void:
 		}
 	)
 
-	manager.call("_on_unit_died", dead_ally, enemy_a, TEAM_ALLY)
+	combat_event_bridge.call("_on_unit_died", dead_ally, enemy_a, TEAM_ALLY)
 	_assert_eq_int(_get_trigger_count(manager, caster, "on_ally_death"), 1, "last ally condition should trigger once")
 
-	var buff_manager: Variant = manager.get("_buff_manager")
-	var enemy_a_buffs: Array[String] = buff_manager.call("get_active_buff_ids_for_unit", enemy_a)
-	var enemy_b_buffs: Array[String] = buff_manager.call("get_active_buff_ids_for_unit", enemy_b)
+	var buff_manager: Variant = manager.get_buff_manager()
+	var enemy_a_buffs: Array[String] = buff_manager.get_active_buff_ids_for_unit(enemy_a)
+	var enemy_b_buffs: Array[String] = buff_manager.get_active_buff_ids_for_unit(enemy_b)
 	_assert_true(enemy_a_buffs.has("debuff_stun"), "enemy A should receive stun debuff")
 	_assert_true(enemy_b_buffs.has("debuff_stun"), "enemy B should receive stun debuff")
 
 	# Negative case: ally alive count excludes self -> 1, should fail max=0.
 	var manager_fail: Node = _build_manager_with_buff_defs()
-	var counter_fail: MockAliveCounter = _track_node(MockAliveCounter.new()) as MockAliveCounter
-	counter_fail.set_counts(2, 1)
-	manager_fail.set("_bound_combat_manager", counter_fail)
+	var combat_event_bridge_fail: Variant = _get_combat_event_bridge(manager_fail)
 
 	var caster_fail: MockUnit = _make_unit("caster_fail", TEAM_ALLY, true)
 	var alive_ally: MockUnit = _make_unit("alive_ally", TEAM_ALLY, true)
@@ -506,7 +507,7 @@ func _test_last_ally_stun_enemy_5s() -> void:
 					"trigger_params": {
 						"team_scope": "ally",
 						"exclude_self": true,
-						"team_alive_count_max": 0
+						"team_alive_at_most": 0
 					},
 					"effects": [
 						{"op": "debuff_aoe", "radius": 99, "buff_id": "debuff_stun", "duration": 5.0}
@@ -515,14 +516,17 @@ func _test_last_ally_stun_enemy_5s() -> void:
 			]
 		}
 	)
-	manager_fail.call("_on_unit_died", dead_ally_fail, enemy_fail, TEAM_ALLY)
+	combat_event_bridge_fail.call("_on_unit_died", dead_ally_fail, enemy_fail, TEAM_ALLY)
 	_assert_eq_int(_get_trigger_count(manager_fail, caster_fail, "on_ally_death"), 0, "alive ally exists, last ally condition should not trigger")
 
 
 func _build_manager_with_buff_defs() -> Node:
-	var manager: Node = _track_node(GONGFA_MANAGER_SCRIPT.new())
-	var buff_manager: Variant = manager.get("_buff_manager")
-	buff_manager.call("set_buff_definitions", {
+	var manager: Node = _track_node(UNIT_AUGMENT_MANAGER_SCRIPT.new())
+	var combat_event_bridge: Variant = manager.get("_combat_event_bridge")
+	if combat_event_bridge != null:
+		combat_event_bridge.configure(manager)
+	var buff_manager: Variant = manager.get_buff_manager()
+	buff_manager.set_buff_definitions({
 		"buff_test": {
 			"id": "buff_test",
 			"type": "buff",
@@ -540,39 +544,37 @@ func _build_manager_with_buff_defs() -> Node:
 
 
 func _setup_runtime_state(manager: Node, units: Array, trigger_map: Dictionary) -> void:
-	var battle_units: Array[Node] = []
-	var lookup: Dictionary = {}
-	var states: Dictionary = {}
+	var state_service: Variant = manager.get_state_service()
+	state_service.reset_battle_state()
 	for unit_value in units:
 		if not (unit_value is Node):
 			continue
 		var unit: Node = unit_value as Node
-		battle_units.append(unit)
-		lookup[unit.get_instance_id()] = unit
+		state_service.register_battle_unit(unit)
 		var entries: Array = []
 		var unit_id_key: String = str(unit.get("unit_id")).strip_edges()
 		if trigger_map.has(unit_id_key):
 			entries = (trigger_map[unit_id_key] as Array).duplicate(true)
-		states[unit.get_instance_id()] = {
+		state_service.set_state_by_id(unit.get_instance_id(), {
 			"unit": unit,
 			"triggers": entries,
+			"baseline_stats": {},
+			"equipped_gongfa_ids": [],
+			"equipped_equip_ids": [],
+			"unit_traits": [],
 			"passive_effects": [],
 			"equipment_effects": []
-		}
-	manager.set("_battle_units", battle_units)
-	manager.set("_unit_lookup", lookup)
-	manager.set("_unit_states", states)
+		})
 
 
 func _build_entry(manager: Node, owner_id: String, skill_data: Dictionary) -> Dictionary:
-	return manager.call("_build_trigger_entry", owner_id, skill_data)
+	return manager.get_state_service().call("_build_trigger_entry", owner_id, skill_data)
 
 
 func _get_trigger_count(manager: Node, unit: Node, trigger_name: String) -> int:
-	var states: Dictionary = manager.get("_unit_states")
-	if not states.has(unit.get_instance_id()):
+	var state: Dictionary = manager.get_state_service().get_state_for_unit(unit)
+	if state.is_empty():
 		return 0
-	var state: Dictionary = states[unit.get_instance_id()]
 	var triggers: Array = state.get("triggers", [])
 	for entry_value in triggers:
 		if not (entry_value is Dictionary):
@@ -582,6 +584,13 @@ func _get_trigger_count(manager: Node, unit: Node, trigger_name: String) -> int:
 			continue
 		return int(entry.get("trigger_count", 0))
 	return 0
+
+
+func _get_combat_event_bridge(manager: Node) -> Variant:
+	var combat_event_bridge: Variant = manager.get("_combat_event_bridge")
+	if combat_event_bridge != null:
+		combat_event_bridge.configure(manager)
+	return combat_event_bridge
 
 
 func _make_unit(id_value: String, team_id: int, is_alive: bool) -> MockUnit:

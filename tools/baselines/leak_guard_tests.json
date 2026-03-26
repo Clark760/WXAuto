@@ -1,12 +1,18 @@
 {
   "version": 1,
   "tests": [
+    "scripts/tests/m5_expansion_coverage_check.gd",
     "scripts/tests/m5_battle_statistics_regression_test.gd",
+    "scripts/tests/m5_battle_replay_check.gd",
+    "scripts/tests/m5_buff_source_bucket_test.gd",
     "scripts/tests/m5_combat_death_signal_regression_test.gd",
+    "scripts/tests/m5_data_definition_fix_test.gd",
     "scripts/tests/m5_effect_engine_smoke_test.gd",
+    "scripts/tests/m5_equip_slot_refactor_test.gd",
     "scripts/tests/m5_source_bound_aura_test.gd",
     "scripts/tests/m5_tag_linkage_effect_test.gd",
     "scripts/tests/m5_tag_linkage_scheduler_test.gd",
+    "scripts/tests/m5_terrain_effect_rework_test.gd",
     "scripts/tests/m5_trigger_pipeline_regression_test.gd",
     "scripts/tests/m5_global_trigger_bus_test.gd",
     "scripts/tests/m5_effect_engine_facade_contract_test.gd",

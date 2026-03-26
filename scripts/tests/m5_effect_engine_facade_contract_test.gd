@@ -1,6 +1,6 @@
 extends SceneTree
 
-const EFFECT_ENGINE_SCRIPT: Script = preload("res://scripts/gongfa/effect_engine.gd")
+const EFFECT_ENGINE_SCRIPT: Script = preload("res://scripts/unit_augment/unit_augment_effect_engine.gd")
 
 
 class MockUnit:
@@ -138,7 +138,7 @@ class MockCombatManager:
 		return true
 
 
-class MockGongfaManager:
+class MockUnitAugmentManager:
 	extends Node
 	func evaluate_tag_linkage_gate(_owner: Node, _effect: Dictionary, _context: Dictionary) -> Dictionary:
 		return {"allowed": true}
@@ -229,7 +229,7 @@ func _test_movement_and_tag_linkage_and_source_bound_aura_ops() -> void:
 	combat.register_unit_cell(ally, Vector2i(1, 0))
 
 	var buff_manager := MockBuffManager.new()
-	var gongfa_manager := MockGongfaManager.new()
+	var unit_augment_manager := MockUnitAugmentManager.new()
 	var summary: Dictionary = engine.execute_active_effects(source, target, [
 		{"op": "knockback_target", "distance": 1},
 		{
@@ -247,7 +247,7 @@ func _test_movement_and_tag_linkage_and_source_bound_aura_ops() -> void:
 		"all_units": [source, ally, target],
 		"combat_manager": combat,
 		"buff_manager": buff_manager,
-		"gongfa_manager": gongfa_manager,
+		"unit_augment_manager": unit_augment_manager,
 		"source_bound_aura_scope_key": "contract_scope",
 		"source_bound_aura_scope_token": 1
 	})
@@ -257,7 +257,7 @@ func _test_movement_and_tag_linkage_and_source_bound_aura_ops() -> void:
 	_assert_true(float(summary.get("damage_total", 0.0)) > 0.0, "tag_linkage_branch should execute nested effects")
 	_assert_true(int(summary.get("buff_applied", 0)) >= 1, "source bound aura should report buff_applied")
 	_assert_true(buff_manager.aura_targets.size() >= 1, "source bound aura should refresh aura targets")
-	_free_nodes([source, ally, target, combat, buff_manager, gongfa_manager])
+	_free_nodes([source, ally, target, combat, buff_manager, unit_augment_manager])
 
 
 func _make_unit(id: String, team: int, pos: Vector2) -> MockUnit:

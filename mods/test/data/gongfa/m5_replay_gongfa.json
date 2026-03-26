@@ -1,0 +1,220 @@
+[
+  {
+    "id": "gongfa_wudu_shou",
+    "name": "Wudu Shou",
+    "type": "waigong",
+    "description": "M5 replay poison test art.",
+    "quality": "blue",
+    "shop_visible": false,
+    "tags": ["test.m5", "test.m5.gongfa", "test.m5.poison"],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "effects": [
+          {
+            "op": "debuff_target",
+            "buff_id": "bm5_debuff_terrain_scorch",
+            "duration": 1.8
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gongfa_lie_yan_zhang",
+    "name": "Lie Yan Zhang",
+    "type": "waigong",
+    "description": "M5 replay fire terrain test art.",
+    "quality": "purple",
+    "shop_visible": false,
+    "tags": ["test.m5", "test.m5.gongfa", "test.m5.fire"],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 4.0,
+        "effects": [
+          {
+            "op": "create_terrain",
+            "terrain_ref_id": "terrain_bm5_blazing_lotus",
+            "at": "target",
+            "radius": 1,
+            "duration": 4.0,
+            "target_mode": "enemies"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gongfa_han_bing_jue",
+    "name": "Han Bing Jue",
+    "type": "neigong",
+    "description": "M5 replay frost terrain test art.",
+    "quality": "purple",
+    "shop_visible": false,
+    "tags": ["test.m5", "test.m5.gongfa", "test.m5.ice"],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 5.0
+        },
+        "effects": [
+          {
+            "op": "create_terrain",
+            "terrain_ref_id": "terrain_bm5_frost_mirror",
+            "at": "self",
+            "radius": 1,
+            "duration": 4.0,
+            "target_mode": "enemies"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gongfa_cihang_jian",
+    "name": "Cihang Jian",
+    "type": "waigong",
+    "description": "M5 replay heal-on-hit test art.",
+    "quality": "blue",
+    "shop_visible": false,
+    "tags": ["test.m5", "test.m5.gongfa", "test.m5.heal"],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "effects": [
+          {
+            "op": "heal_target_flat",
+            "value": 36.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gongfa_poying_jian",
+    "name": "Poying Jian",
+    "type": "qinggong",
+    "description": "M5 replay move pressure test art.",
+    "quality": "blue",
+    "shop_visible": false,
+    "tags": ["test.m5", "test.m5.gongfa", "test.m5.mark"],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 18.0
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 28.0,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gongfa_shixiang_ban",
+    "name": "Shixiang Ban",
+    "type": "zhenfa",
+    "description": "M5 replay aura buff test art.",
+    "quality": "orange",
+    "shop_visible": false,
+    "tags": ["test.m5", "test.m5.gongfa", "test.m5.aura"],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.0
+        },
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "buff_id": "bm5_buff_terrain_qi_flow",
+            "duration": 2.0,
+            "radius": 2,
+            "binding_mode": "source_bound_aura"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gongfa_kuanglei_zhang",
+    "name": "Kuanglei Zhang",
+    "type": "waigong",
+    "description": "M5 replay thunder burst test art.",
+    "quality": "purple",
+    "shop_visible": false,
+    "tags": ["test.m5", "test.m5.gongfa", "test.m5.thunder"],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "effects": [
+          {
+            "op": "damage_target_scaling",
+            "value": 20.0,
+            "scale_stat": "wis",
+            "scale_ratio": 0.6
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gongfa_xuanming_shen",
+    "name": "Xuanming Shen",
+    "type": "neigong",
+    "description": "M5 replay debuff aura test art.",
+    "quality": "orange",
+    "shop_visible": false,
+    "tags": ["test.m5", "test.m5.gongfa", "test.m5.debuff"],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 6.0
+        },
+        "effects": [
+          {
+            "op": "debuff_aoe",
+            "buff_id": "bm5_debuff_terrain_frostbite",
+            "duration": 2.0,
+            "radius": 2,
+            "binding_mode": "source_bound_aura"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gongfa_gui_xi_gong",
+    "name": "Gui Xi Gong",
+    "type": "neigong",
+    "description": "M5 replay sustain test art.",
+    "quality": "blue",
+    "shop_visible": false,
+    "tags": ["test.m5", "test.m5.gongfa", "test.m5.sustain"],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 5.0
+        },
+        "effects": [
+          {
+            "op": "heal_target_flat",
+            "value": 45.0
+          }
+        ]
+      }
+    ]
+  }
+]

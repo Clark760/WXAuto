@@ -1,7 +1,7 @@
-﻿extends SceneTree
+extends SceneTree
 
-const TAG_LINKAGE_RESOLVER_SCRIPT: Script = preload("res://scripts/gongfa/tag_linkage_resolver.gd")
-const EFFECT_ENGINE_SCRIPT: Script = preload("res://scripts/gongfa/effect_engine.gd")
+const TAG_LINKAGE_RESOLVER_SCRIPT: Script = preload("res://scripts/unit_augment/unit_augment_tag_linkage_resolver.gd")
+const EFFECT_ENGINE_SCRIPT: Script = preload("res://scripts/unit_augment/unit_augment_effect_engine.gd")
 
 const GONGFA_TEST_DATA_PATH: String = "res://scripts/tests/fixtures/tag_linkage/gongfa_m5_tag_linkage_test.json"
 const EQUIPMENT_TEST_DATA_PATH: String = "res://scripts/tests/fixtures/tag_linkage/equipment_m5_tag_linkage_test.json"
@@ -157,7 +157,7 @@ class MockCombatManager:
 		return out
 
 
-class MockGongfaManager:
+class MockUnitAugmentManager:
 	extends Node
 	var resolver = TAG_LINKAGE_RESOLVER_SCRIPT.new()
 	var gongfa_tag_map: Dictionary = {}
@@ -180,7 +180,7 @@ class MockGongfaManager:
 					continue
 				tag_to_index[tag] = next_index
 				next_index += 1
-		resolver.call("configure_tag_registry", tag_to_index, 1)
+		resolver.configure_tag_registry(tag_to_index, 1)
 
 	func get_gongfa_tags(gongfa_id: String) -> Array[String]:
 		return _normalize_tags(gongfa_tag_map.get(gongfa_id, []))
@@ -200,8 +200,8 @@ class MockGongfaManager:
 
 	func evaluate_tag_linkage_branch(owner: Node, config: Dictionary, context: Dictionary) -> Dictionary:
 		var eval_context: Dictionary = context.duplicate(false)
-		eval_context["gongfa_manager"] = self
-		return resolver.call("evaluate", owner, config, eval_context)
+		eval_context["unit_augment_manager"] = self
+		return resolver.evaluate(owner, config, eval_context)
 
 	func _normalize_ids(raw: Variant) -> Array[String]:
 		var out: Array[String] = []
@@ -644,7 +644,7 @@ func _build_context_bundle() -> Dictionary:
 	var grid: MockHexGrid = MockHexGrid.new()
 	var combat_manager: MockCombatManager = MockCombatManager.new()
 	combat_manager.setup(grid)
-	var manager: MockGongfaManager = MockGongfaManager.new()
+	var manager: MockUnitAugmentManager = MockUnitAugmentManager.new()
 	manager.set_tag_maps(_gongfa_tags, _equipment_tags)
 	return {
 		"hex_grid": grid,
@@ -658,7 +658,7 @@ func _build_effect_context(bundle: Dictionary, units: Array) -> Dictionary:
 		"all_units": units,
 		"hex_grid": bundle.hex_grid,
 		"combat_manager": bundle.combat_manager,
-		"gongfa_manager": bundle.manager,
+		"unit_augment_manager": bundle.manager,
 		"hex_size": 32.0
 	}
 

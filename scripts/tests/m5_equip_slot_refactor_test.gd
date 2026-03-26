@@ -1,7 +1,8 @@
 extends SceneTree
 
 const UNIT_DATA_SCRIPT: Script = preload("res://scripts/data/unit_data.gd")
-const GONGFA_MANAGER_SCRIPT: Script = preload("res://scripts/gongfa/gongfa_manager.gd")
+const UNIT_AUGMENT_MANAGER_SCRIPT: Script = preload("res://scripts/unit_augment/unit_augment_manager.gd")
+const UNIT_STATE_SERVICE_SCRIPT: Script = preload("res://scripts/unit_augment/unit_augment_unit_state_service.gd")
 
 
 class MockRegistry:
@@ -97,9 +98,19 @@ func _test_unit_data_keeps_dynamic_slots_and_count() -> void:
 
 
 func _test_manager_accepts_any_equipment_type_with_dynamic_slots() -> void:
-	var manager: Node = GONGFA_MANAGER_SCRIPT.new()
-	manager.set("_registry", MockRegistry.new())
-	manager.set("_tag_linkage_scheduler", null)
+	var manager: Node = UNIT_AUGMENT_MANAGER_SCRIPT.new()
+	var registry: MockRegistry = MockRegistry.new()
+	manager.set("_registry", registry)
+	manager.set(
+		"_state_service",
+		UNIT_STATE_SERVICE_SCRIPT.new(
+			registry,
+			manager.get_effect_engine(),
+			manager.get_buff_manager(),
+			manager.get_tag_linkage_scheduler(),
+			load("res://scripts/data/unit_data.gd")
+		)
+	)
 
 	var unit: MockUnit = MockUnit.new()
 	unit.equip_slots = {"slot_1": "", "slot_2": "", "slot_3": ""}

@@ -380,20 +380,20 @@ func _connect_ui_signals() -> void:
 		if not _inventory_search.is_connected("text_changed", search_cb):
 			_inventory_search.connect("text_changed", search_cb)
 
-	if gongfa_manager == null:
+	if unit_augment_manager == null:
 		return
-	var reload_cb: Callable = Callable(self, "_on_gongfa_data_reloaded")
-	if gongfa_manager.has_signal("gongfa_data_reloaded") and not gongfa_manager.is_connected("gongfa_data_reloaded", reload_cb):
-		gongfa_manager.connect("gongfa_data_reloaded", reload_cb)
+	var reload_cb: Callable = Callable(self, "_on_unit_augment_data_reloaded")
+	if unit_augment_manager.has_signal("unit_augment_data_reloaded") and not unit_augment_manager.is_connected("unit_augment_data_reloaded", reload_cb):
+		unit_augment_manager.connect("unit_augment_data_reloaded", reload_cb)
 	var skill_cb: Callable = Callable(self, "_on_skill_triggered_for_log")
-	if gongfa_manager.has_signal("skill_triggered") and not gongfa_manager.is_connected("skill_triggered", skill_cb):
-		gongfa_manager.connect("skill_triggered", skill_cb)
+	if unit_augment_manager.has_signal("skill_triggered") and not unit_augment_manager.is_connected("skill_triggered", skill_cb):
+		unit_augment_manager.connect("skill_triggered", skill_cb)
 	var skill_damage_cb: Callable = Callable(self, "_on_skill_effect_damage_for_log")
-	if gongfa_manager.has_signal("skill_effect_damage") and not gongfa_manager.is_connected("skill_effect_damage", skill_damage_cb):
-		gongfa_manager.connect("skill_effect_damage", skill_damage_cb)
+	if unit_augment_manager.has_signal("skill_effect_damage") and not unit_augment_manager.is_connected("skill_effect_damage", skill_damage_cb):
+		unit_augment_manager.connect("skill_effect_damage", skill_damage_cb)
 	var buff_event_cb: Callable = Callable(self, "_on_buff_event_for_log")
-	if gongfa_manager.has_signal("buff_event") and not gongfa_manager.is_connected("buff_event", buff_event_cb):
-		gongfa_manager.connect("buff_event", buff_event_cb)
+	if unit_augment_manager.has_signal("buff_event") and not unit_augment_manager.is_connected("buff_event", buff_event_cb):
+		unit_augment_manager.connect("buff_event", buff_event_cb)
 
 	var event_bus: Node = _get_root_node("EventBus")
 	if event_bus != null:
@@ -407,13 +407,13 @@ func _prune_verbose_battle_log_signals() -> void:
 		var damage_cb: Callable = Callable(self, "_on_damage_resolved")
 		if combat_manager.has_signal("damage_resolved") and combat_manager.is_connected("damage_resolved", damage_cb):
 			combat_manager.disconnect("damage_resolved", damage_cb)
-	if gongfa_manager != null:
+	if unit_augment_manager != null:
 		var skill_damage_cb: Callable = Callable(self, "_on_skill_effect_damage_for_log")
-		if gongfa_manager.has_signal("skill_effect_damage") and gongfa_manager.is_connected("skill_effect_damage", skill_damage_cb):
-			gongfa_manager.disconnect("skill_effect_damage", skill_damage_cb)
+		if unit_augment_manager.has_signal("skill_effect_damage") and unit_augment_manager.is_connected("skill_effect_damage", skill_damage_cb):
+			unit_augment_manager.disconnect("skill_effect_damage", skill_damage_cb)
 
 
-func _on_gongfa_data_reloaded(_summary: Dictionary) -> void:
+func _on_unit_augment_data_reloaded(_summary: Dictionary) -> void:
 	_build_gongfa_type_cache()
 	_reload_external_item_data()
 	if _inventory_panel != null and _inventory_panel.visible:
@@ -664,7 +664,7 @@ func _refit_hex_grid() -> void:
 
 
 func _on_inventory_tab_pressed(mode: String) -> void:
-	if gongfa_manager == null:
+	if unit_augment_manager == null:
 		return
 	_inventory_mode = mode
 	_inventory_filter_type = "all"
@@ -724,7 +724,7 @@ func _on_inventory_search_changed(_new_text: String) -> void:
 
 
 func _rebuild_inventory_items() -> void:
-	if _inventory_grid == null or gongfa_manager == null:
+	if _inventory_grid == null or unit_augment_manager == null:
 		return
 
 	for child in _inventory_grid.get_children():
@@ -732,9 +732,9 @@ func _rebuild_inventory_items() -> void:
 
 	var source_items: Variant = []
 	if _inventory_mode == "gongfa":
-		source_items = gongfa_manager.call("get_all_gongfa")
+		source_items = unit_augment_manager.call("get_all_gongfa")
 	else:
-		source_items = gongfa_manager.call("get_all_equipment")
+		source_items = unit_augment_manager.call("get_all_equipment")
 	if not (source_items is Array):
 		_inventory_summary.text = "共 0 件 | 已装备 0 件"
 		return
@@ -876,14 +876,14 @@ func _equip_item_to_unit(unit: Node, item_id: String) -> bool:
 	if unit == null or not _is_valid_unit(unit):
 		return false
 	if _inventory_mode == "gongfa":
-		var gongfa_data: Dictionary = gongfa_manager.call("get_gongfa_data", item_id)
+		var gongfa_data: Dictionary = unit_augment_manager.call("get_gongfa_data", item_id)
 		if gongfa_data.is_empty():
 			return false
 		var slot: String = str(gongfa_data.get("type", "")).strip_edges()
 		if slot.is_empty():
 			return false
-		return bool(gongfa_manager.call("equip_gongfa", unit, slot, item_id))
-	var equip_data: Dictionary = gongfa_manager.call("get_equipment_data", item_id)
+		return bool(unit_augment_manager.call("equip_gongfa", unit, slot, item_id))
+	var equip_data: Dictionary = unit_augment_manager.call("get_equipment_data", item_id)
 	if equip_data.is_empty():
 		return false
 	var equip_slots: Dictionary = _normalize_equip_slots(_get_unit_equip_slots(unit))
@@ -891,7 +891,7 @@ func _equip_item_to_unit(unit: Node, item_id: String) -> bool:
 	var equip_order: Array[String] = _get_sorted_equip_slot_keys(equip_slots, max_count)
 	for equip_slot in equip_order:
 		if str(equip_slots.get(equip_slot, "")).strip_edges().is_empty():
-			return bool(gongfa_manager.call("equip_equipment", unit, equip_slot, item_id))
+			return bool(unit_augment_manager.call("equip_equipment", unit, equip_slot, item_id))
 	return false
 
 
@@ -969,9 +969,9 @@ func _build_gongfa_type_cache() -> void:
 	_gongfa_by_type.clear()
 	for slot in SLOT_ORDER:
 		_gongfa_by_type[slot] = []
-	if gongfa_manager == null:
+	if unit_augment_manager == null:
 		return
-	var all_data: Variant = gongfa_manager.call("get_all_gongfa")
+	var all_data: Variant = unit_augment_manager.call("get_all_gongfa")
 	if not (all_data is Array):
 		return
 	for item in all_data:
@@ -1137,12 +1137,12 @@ func _update_detail_panel(unit: Node) -> void:
 
 func _build_gongfa_bonus_lines(unit: Node) -> Array[String]:
 	var lines: Array[String] = _build_unit_trait_lines(unit)
-	if gongfa_manager == null:
+	if unit_augment_manager == null:
 		return lines
 	var equipped_ids: Array = unit.get("runtime_equipped_gongfa_ids")
 	for gid_value in equipped_ids:
 		var gid: String = str(gid_value)
-		var data: Dictionary = gongfa_manager.call("get_gongfa_data", gid)
+		var data: Dictionary = unit_augment_manager.call("get_gongfa_data", gid)
 		if data.is_empty():
 			continue
 		var gname: String = str(data.get("name", gid))
@@ -1169,7 +1169,7 @@ func _build_gongfa_bonus_lines(unit: Node) -> Array[String]:
 	var equipped_equip_ids: Array = unit.get("runtime_equipped_equip_ids")
 	for equip_id_value in equipped_equip_ids:
 		var equip_id: String = str(equip_id_value)
-		var equip_data: Dictionary = gongfa_manager.call("get_equipment_data", equip_id)
+		var equip_data: Dictionary = unit_augment_manager.call("get_equipment_data", equip_id)
 		if equip_data.is_empty():
 			continue
 		var equip_name: String = str(equip_data.get("name", equip_id))
@@ -1326,12 +1326,12 @@ func _on_slot_unequip_pressed(slot_category: String, slot: String) -> void:
 		return
 	if _stage != Stage.PREPARATION:
 		return
-	if gongfa_manager == null:
+	if unit_augment_manager == null:
 		return
 	if slot_category == "gongfa":
-		gongfa_manager.call("unequip_gongfa", _detail_unit, slot)
+		unit_augment_manager.call("unequip_gongfa", _detail_unit, slot)
 	else:
-		gongfa_manager.call("unequip_equipment", _detail_unit, slot)
+		unit_augment_manager.call("unequip_equipment", _detail_unit, slot)
 	_update_detail_panel(_detail_unit)
 	_refresh_all_ui()
 
@@ -1440,14 +1440,14 @@ func _on_slot_item_dropped(slot_category: String, slot_key: String, item_id: Str
 		return
 	if _stage != Stage.PREPARATION:
 		return
-	if gongfa_manager == null:
+	if unit_augment_manager == null:
 		return
 
 	var ok: bool = false
 	if slot_category == "gongfa":
-		ok = bool(gongfa_manager.call("equip_gongfa", _detail_unit, slot_key, item_id))
+		ok = bool(unit_augment_manager.call("equip_gongfa", _detail_unit, slot_key, item_id))
 	else:
-		ok = bool(gongfa_manager.call("equip_equipment", _detail_unit, slot_key, item_id))
+		ok = bool(unit_augment_manager.call("equip_equipment", _detail_unit, slot_key, item_id))
 	if not ok:
 		debug_label.text = "拖放失败：槽位不匹配或数据无效。"
 		return
@@ -1506,8 +1506,8 @@ func _refresh_tooltip_gongfa_list(unit: Node) -> void:
 	for gid_value in runtime_ids:
 		var gid: String = str(gid_value)
 		var data: Dictionary = {}
-		if gongfa_manager != null:
-			data = gongfa_manager.call("get_gongfa_data", gid)
+		if unit_augment_manager != null:
+			data = unit_augment_manager.call("get_gongfa_data", gid)
 		var text: String = gid
 		if not data.is_empty():
 			text = "%s（%s/%s）" % [
@@ -1552,8 +1552,8 @@ func _refresh_tooltip_buff_list(unit: Node) -> void:
 	for child in tooltip_buff_list.get_children():
 		child.queue_free()
 	var buff_ids: Array = []
-	if gongfa_manager != null and gongfa_manager.has_method("get_unit_buff_ids"):
-		var buff_value: Variant = gongfa_manager.call("get_unit_buff_ids", unit)
+	if unit_augment_manager != null and unit_augment_manager.has_method("get_unit_buff_ids"):
+		var buff_value: Variant = unit_augment_manager.call("get_unit_buff_ids", unit)
 		if buff_value is Array:
 			buff_ids = buff_value
 	if buff_ids.is_empty():
@@ -1569,7 +1569,7 @@ func _refresh_tooltip_buff_list(unit: Node) -> void:
 
 func _reload_external_item_data() -> void:
 	# ItemTooltip 的 Buff 名称需要直接读取 buffs 数据。
-	# 装备数据改为统一从 GongfaManager.get_equipment_data 读取，避免两套来源不一致。
+	# 装备数据改为统一从 UnitAugmentManager.get_equipment_data 读取，避免两套来源不一致。
 	_buff_data_map.clear()
 	var data_manager: Node = _get_root_node("DataManager")
 	if data_manager == null:
@@ -1783,8 +1783,8 @@ func _build_trait_item_tooltip_data(trait_data: Dictionary) -> Dictionary:
 
 func _build_gongfa_item_tooltip_data(gongfa_id: String) -> Dictionary:
 	var data: Dictionary = {}
-	if gongfa_manager != null:
-		data = gongfa_manager.call("get_gongfa_data", gongfa_id)
+	if unit_augment_manager != null:
+		data = unit_augment_manager.call("get_gongfa_data", gongfa_id)
 	if data.is_empty():
 		return {
 			"name": gongfa_id,
@@ -1847,8 +1847,8 @@ func _build_gongfa_item_tooltip_data(gongfa_id: String) -> Dictionary:
 
 func _build_equip_item_tooltip_data(equip_id: String) -> Dictionary:
 	var data: Dictionary = {}
-	if gongfa_manager != null:
-		data = gongfa_manager.call("get_equipment_data", equip_id)
+	if unit_augment_manager != null:
+		data = unit_augment_manager.call("get_equipment_data", equip_id)
 	if data.is_empty():
 		return {
 			"name": equip_id,
@@ -2069,8 +2069,8 @@ func _resolve_gongfa_name(gongfa_id: String) -> String:
 	var gid: String = gongfa_id.strip_edges()
 	if gid.is_empty():
 		return "未知功法"
-	if gongfa_manager != null and gongfa_manager.has_method("get_gongfa_data"):
-		var data: Dictionary = gongfa_manager.call("get_gongfa_data", gid)
+	if unit_augment_manager != null and unit_augment_manager.has_method("get_gongfa_data"):
+		var data: Dictionary = unit_augment_manager.call("get_gongfa_data", gid)
 		if not data.is_empty():
 			return str(data.get("name", gid))
 	return gid
@@ -2183,8 +2183,8 @@ func _extract_equip_slot_index(slot_key: String) -> int:
 func _equip_name_or_empty(equip_id: String) -> String:
 	if equip_id.is_empty():
 		return "空"
-	if gongfa_manager != null:
-		var equip_data: Dictionary = gongfa_manager.call("get_equipment_data", equip_id)
+	if unit_augment_manager != null:
+		var equip_data: Dictionary = unit_augment_manager.call("get_equipment_data", equip_id)
 		if not equip_data.is_empty():
 			return str(equip_data.get("name", equip_id))
 	return equip_id
@@ -2242,9 +2242,9 @@ func _normalize_unit_slots(raw: Variant) -> Dictionary:
 func _gongfa_name_or_empty(gongfa_id: String) -> String:
 	if gongfa_id.is_empty():
 		return "空"
-	if gongfa_manager == null:
+	if unit_augment_manager == null:
 		return gongfa_id
-	var data: Dictionary = gongfa_manager.call("get_gongfa_data", gongfa_id)
+	var data: Dictionary = unit_augment_manager.call("get_gongfa_data", gongfa_id)
 	return str(data.get("name", gongfa_id))
 
 
