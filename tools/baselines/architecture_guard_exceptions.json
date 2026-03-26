@@ -8,21 +8,9 @@
       "expires_phase": "phase2"
     },
     {
-      "rule": "module_split_guard",
-      "path": "scripts/battle/battlefield_runtime.gd",
-      "reason": "Phase 1 Batch 2 must切换新的 UnitAugmentManager 根节点名，但 battlefield_runtime 仍待 Phase 2 组合化拆分。",
-      "expires_phase": "phase2"
-    },
-    {
       "rule": "readability_guard",
       "path": "scripts/combat/combat_manager.gd",
       "reason": "Phase 1 Batch 2 only rewires the UnitAugmentManager root lookup for terrain/effect context; CombatManager 真拆分留到 Batch 3。",
-      "expires_phase": "phase2"
-    },
-    {
-      "rule": "module_split_guard",
-      "path": "scripts/combat/combat_manager.gd",
-      "reason": "Phase 1 Batch 2只改 UnitAugmentManager 根节点查找，combat_manager 结构拆分按后续 Batch 3 执行。",
       "expires_phase": "phase2"
     },
     {
@@ -65,12 +53,6 @@
       "rule": "readability_guard",
       "path": "scripts/board/terrain_manager.gd",
       "reason": "Phase 1 Batch 3 将以新的 combat terrain service 替代旧 terrain_manager 交互并在后续批次删除旧壳；当前不再为待删旧文件补注释率。",
-      "expires_phase": "phase2"
-    },
-    {
-      "rule": "module_split_guard",
-      "path": "scripts/board/terrain_manager.gd",
-      "reason": "Phase 1 Batch 3 正在落地 combat terrain service，旧 terrain_manager 只保留过渡职责并计划在收口后删除。",
       "expires_phase": "phase2"
     },
     {

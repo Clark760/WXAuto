@@ -1,9 +1,10 @@
-param(
+﻿param(
     [switch]$ReportOnly,
     [switch]$WriteBaseline,
     [string]$Root = ""
 )
 
+# NOTE: Keep this script encoded as UTF-8 with BOM for Windows PowerShell 5.1 compatibility.
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
@@ -243,7 +244,9 @@ function Load-JsonFile {
         return $null
     }
 
-    $raw = Get-Content -LiteralPath $Path -Raw
+    # Windows PowerShell 5.1 默认会按 ANSI 读取无 BOM JSON。
+    # 基线和例外表包含中文 reason，必须显式按 UTF-8 读取。
+    $raw = Get-Content -LiteralPath $Path -Raw -Encoding UTF8
     if ([string]::IsNullOrWhiteSpace($raw)) {
         return $null
     }
@@ -300,7 +303,7 @@ function Test-IsException {
 
 function Get-FileLineCount {
     param([string]$Path)
-    return (Get-Content -LiteralPath $Path | Measure-Object -Line).Lines
+    return (Get-Content -LiteralPath $Path -Encoding UTF8 | Measure-Object -Line).Lines
 }
 
 function Get-LineCountScan {
@@ -350,7 +353,7 @@ function Get-PatternScan {
         $count = 0
         $lineEntries = @()
         $lineNumber = 0
-        foreach ($line in Get-Content -LiteralPath $file.path) {
+        foreach ($line in Get-Content -LiteralPath $file.path -Encoding UTF8) {
             $lineNumber++
             $matches = $Pattern.Matches($line)
             if ($matches.Count -le 0) {
@@ -520,7 +523,7 @@ function Get-NamedCommentBlockViolations {
 
     for ($index = 0; $index -lt $Lines.Count; $index++) {
         $trimmed = ([string]$Lines[$index]).Trim()
-        $match = [regex]::Match($trimmed, '^#\s*(文件说明|维护约束)\s*[:：]?\s*$')
+        $match = [regex]::Match($trimmed, '^#\s*(文件说明|维护约束|[^\r\n#]{0,40}附录)\s*[:：]?\s*$')
         if (-not $match.Success) {
             continue
         }
@@ -542,7 +545,7 @@ function Get-NamedCommentBlockViolations {
         $violations.Add([pscustomobject]@{
                 line = $index + 1
                 rule = "named_comment_block"
-                text = ("{0} 注释块 {1} 行，超过 {2} 行上限；请把说明拆到函数和关键参数旁边" -f `
+                text = ("{0} 注释块 {1} 行，超过 {2} 行上限；请把说明拆到函数、关键变量和复杂分支旁边" -f `
                         $blockName, $blockLines, $readabilityNamedCommentBlockLimit)
             })
     }
@@ -566,7 +569,8 @@ function Get-ReadabilityScan {
             continue
         }
 
-        $lines = @([string[]](Get-Content -LiteralPath $file.path))
+        # 可读性扫描必须显式按 UTF-8 读取脚本，避免 Windows PowerShell 默认编码把中文注释读坏。
+        $lines = @([string[]](Get-Content -LiteralPath $file.path -Encoding UTF8))
         $lineEntries = New-Object System.Collections.Generic.List[object]
         $blankLines = 0
         $codeLines = 0
@@ -1104,3 +1108,5 @@ if ($failures.Count -gt 0) {
 }
 
 Write-Host "[ARCH] Architecture guard passed"
+
+

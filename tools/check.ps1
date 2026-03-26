@@ -1,10 +1,11 @@
-param(
+﻿param(
     [string]$GodotExe = "",
     [switch]$SkipJson,
     [switch]$SkipArchitecture,
     [switch]$SkipLeakGuard
 )
 
+# NOTE: Keep this script encoded as UTF-8 with BOM for Windows PowerShell 5.1 compatibility.
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
@@ -149,7 +150,7 @@ function Get-LeakGuardTests {
         throw "未找到泄漏测试清单：$configPath"
     }
 
-    $raw = Get-Content -LiteralPath $configPath -Raw
+    $raw = Get-Content -LiteralPath $configPath -Raw -Encoding UTF8
     $json = $raw | ConvertFrom-Json
 
     if ($null -eq $json.tests) {
@@ -190,6 +191,15 @@ function Test-LeakLine {
     return $false
 }
 
+
+function Get-SafeLastExitCode {
+    $exitVar = Get-Variable -Name LASTEXITCODE -ErrorAction SilentlyContinue
+    if ($null -eq $exitVar) {
+        return 0
+    }
+    return [int]$exitVar.Value
+}
+
 function Invoke-LeakGuardCheck {
     param(
         [string]$ExePath,
@@ -208,7 +218,7 @@ function Invoke-LeakGuardCheck {
 
         Write-Host ("[LEAK] running {0}" -f $test)
         $rawOutput = @(& $ExePath --headless --verbose --path $ProjectPath --script $testAbs 2>&1)
-        $exitCode = $LASTEXITCODE
+        $exitCode = Get-SafeLastExitCode
 
         $lines = New-Object System.Collections.Generic.List[string]
         foreach ($entry in $rawOutput) {
@@ -266,3 +276,6 @@ if (-not $SkipLeakGuard) {
 }
 
 Write-Host "[DONE] 全部校验完成"
+
+
+

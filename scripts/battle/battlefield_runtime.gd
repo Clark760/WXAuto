@@ -85,17 +85,17 @@ func _bootstrap_runtime_modules() -> void:
 		_unit_deploy_manager = UNIT_DEPLOY_MANAGER_SCRIPT.new() as Node
 		_unit_deploy_manager.name = "RuntimeUnitDeployManager"
 		add_child(_unit_deploy_manager)
-		_unit_deploy_manager.call("configure", self)
+		_unit_deploy_manager.initialize(self, self, self)
 	if _drag_controller == null:
 		_drag_controller = DRAG_CONTROLLER_SCRIPT.new() as Node
 		_drag_controller.name = "RuntimeDragController"
 		add_child(_drag_controller)
-		_drag_controller.call("configure", self)
+		_drag_controller.initialize(self, self, self)
 	if _battlefield_renderer == null:
 		_battlefield_renderer = BATTLEFIELD_RENDERER_SCRIPT.new() as Node
 		_battlefield_renderer.name = "RuntimeBattlefieldRenderer"
 		add_child(_battlefield_renderer)
-		_battlefield_renderer.call("configure", self)
+		_battlefield_renderer.initialize(self, self, self)
 
 
 func _ready() -> void:
