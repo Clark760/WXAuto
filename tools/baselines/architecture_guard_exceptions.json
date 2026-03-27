@@ -3,66 +3,6 @@
   "exceptions": [
     {
       "rule": "readability_guard",
-      "path": "scripts/battle/battlefield_runtime.gd",
-      "reason": "Phase 1 Batch 2 only rewires the UnitAugmentManager autoload lookup; battlefield_runtime structural拆分留到 Phase 2。",
-      "expires_phase": "phase2"
-    },
-    {
-      "rule": "readability_guard",
-      "path": "scripts/combat/combat_manager.gd",
-      "reason": "Phase 1 Batch 2 only rewires the UnitAugmentManager root lookup for terrain/effect context; CombatManager 真拆分留到 Batch 3。",
-      "expires_phase": "phase2"
-    },
-    {
-      "rule": "readability_guard",
-      "path": "scripts/ui/battlefield_ui.gd",
-      "reason": "Phase 1 Batch 2 only updates the system-level reload signal name to unit_augment_data_reloaded; battlefield_ui 场景化拆分留到 Phase 3。",
-      "expires_phase": "phase3"
-    },
-    {
-      "rule": "module_split_guard",
-      "path": "scripts/ui/battlefield_ui.gd",
-      "reason": "Phase 1 Batch 2必须同步新的 UnitAugment reload 信号名，但 battlefield_ui 超长文件拆分属于 Phase 3。",
-      "expires_phase": "phase3"
-    },
-    {
-      "rule": "readability_guard",
-      "path": "scripts/board/battlefield.gd",
-      "reason": "Phase 1 Batch 2 only updates the inherited UnitAugment reload callback name; battlefield 主场景组合化拆分留到 Phase 2。",
-      "expires_phase": "phase2"
-    },
-    {
-      "rule": "module_split_guard",
-      "path": "scripts/board/battlefield.gd",
-      "reason": "Phase 1 Batch 2必须同步新的 UnitAugment reload 回调名，但 battlefield 超长文件拆分属于 Phase 2。",
-      "expires_phase": "phase2"
-    },
-    {
-      "rule": "readability_guard",
-      "path": "scripts/unit/unit_base.gd",
-      "reason": "Phase 1 Batch 2 只切换 UnitAugmentManager autoload 查找名；unit_base 的历史可读性治理不应被一行接线改动阻塞。",
-      "expires_phase": "phase2"
-    },
-    {
-      "rule": "file_length",
-      "path": "scripts/board/terrain_manager.gd",
-      "reason": "旧 terrain_manager 已列入 Combat 地形服务替代与后续删除路径，本轮不再为遗留壳文件做行数回退。",
-      "expires_phase": "phase2"
-    },
-    {
-      "rule": "readability_guard",
-      "path": "scripts/board/terrain_manager.gd",
-      "reason": "Phase 1 Batch 3 将以新的 combat terrain service 替代旧 terrain_manager 交互并在后续批次删除旧壳；当前不再为待删旧文件补注释率。",
-      "expires_phase": "phase2"
-    },
-    {
-      "rule": "readability_guard",
-      "path": "scripts/combat/battle_flow.gd",
-      "reason": "Phase 1 Batch 3 起战斗编排将继续外移，battle_flow 作为待删旧桥接文件不再为注释率单独治理。",
-      "expires_phase": "phase2"
-    },
-    {
-      "rule": "readability_guard",
       "path": "scripts/economy/shop_manager.gd",
       "reason": "商店链路将按后续重构批次迁出旧 manager，当前旧壳文件不再为注释率做过渡性补丁。",
       "expires_phase": "phase4"

@@ -31,6 +31,9 @@ const COORDINATOR_LAYOUT_SUPPORT_SCRIPT: Script = preload(
 const COORDINATOR_STATISTICS_SUPPORT_SCRIPT: Script = preload(
 	"res://scripts/app/battlefield/battlefield_coordinator_statistics_support.gd"
 ) # 战斗统计支撑脚本。
+const STAGE_RUNTIME_RULES_SCRIPT: Script = preload(
+	"res://scripts/domain/stage/stage_runtime_rules.gd"
+) # 关卡运行时纯规则脚本。
 
 @export var enemy_wave_size: int = 200 # 默认敌军波次规模。
 @export var max_auto_deploy: int = 50 # 自动部署兜底上限。
@@ -92,34 +95,44 @@ func process_runtime(_delta: float) -> void:
 	pass
 
 
- # 开始战斗请求统一经过这里，自动部署、敌军刷出和 prepare/start 顺序都收口在此。
- # 只要未来还存在“开战”概念，就必须经过这一处，不能绕过编排顺序。
+# 开始战斗请求统一经过这里，自动部署、敌军刷出和 prepare/start 顺序都收口在此。
+# 只要未来还存在“开战”概念，就必须经过这一处，不能绕过编排顺序。
 func request_battle_start() -> void:
+	start_battle_from_session(0, true)
+
+
+# 回放和自动化测试统一走这个开战入口，避免再直接编排 manager 调用顺序。
+func start_battle_from_session(
+	battle_seed: int = 0,
+	prepare_missing_deployment: bool = false
+) -> bool:
 	if _state == null or int(_state.stage) != Stage.PREPARATION:
-		return
+		return false
 	if _refs.combat_manager != null \
 	and _refs.combat_manager.has_method("is_battle_running") \
 	and bool(_refs.combat_manager.call("is_battle_running")):
-		return
+		return false
 	# 非战斗关卡直接走 stage manager 完成，不再强行创建战斗单位。
-	if _is_non_combat_stage(_state.current_stage_config):
+	if STAGE_RUNTIME_RULES_SCRIPT.is_non_combat_stage(_state.current_stage_config):
 		if _refs.runtime_stage_manager != null \
 		and _refs.runtime_stage_manager.has_method("complete_current_stage_without_battle"):
 			_refs.runtime_stage_manager.call("complete_current_stage_without_battle")
-		return
+			return true
+		return false
 
 	# 自动部署只在己方完全未上场时触发，避免覆盖玩家已有布阵。
-	var auto_limit: int = max_auto_deploy
-	if _refs.runtime_economy_manager != null \
-	and _refs.runtime_economy_manager.has_method("get_max_deploy_limit"):
-		auto_limit = int(_refs.runtime_economy_manager.call("get_max_deploy_limit"))
-	if _state.ally_deployed.is_empty() \
-	and _refs.runtime_unit_deploy_manager != null \
-	and _refs.runtime_unit_deploy_manager.has_method("auto_deploy_from_bench"):
-		_refs.runtime_unit_deploy_manager.call("auto_deploy_from_bench", auto_limit)
-	if _refs.runtime_unit_deploy_manager != null \
-	and _refs.runtime_unit_deploy_manager.has_method("spawn_enemy_wave"):
-		_refs.runtime_unit_deploy_manager.call("spawn_enemy_wave", enemy_wave_size)
+	if prepare_missing_deployment:
+		var auto_limit: int = max_auto_deploy
+		if _refs.runtime_economy_manager != null \
+		and _refs.runtime_economy_manager.has_method("get_max_deploy_limit"):
+			auto_limit = int(_refs.runtime_economy_manager.call("get_max_deploy_limit"))
+		if _state.ally_deployed.is_empty() \
+		and _refs.runtime_unit_deploy_manager != null \
+		and _refs.runtime_unit_deploy_manager.has_method("auto_deploy_from_bench"):
+			_refs.runtime_unit_deploy_manager.call("auto_deploy_from_bench", auto_limit)
+		if _refs.runtime_unit_deploy_manager != null \
+		and _refs.runtime_unit_deploy_manager.has_method("spawn_enemy_wave"):
+			_refs.runtime_unit_deploy_manager.call("spawn_enemy_wave", enemy_wave_size)
 
 	# ally/enemy 数组统一从部署映射收口，后续 prepare/start 只看这一份数据。
 	var ally_units: Array[Node] = _collect_units_from_map(_state.ally_deployed)
@@ -127,7 +140,7 @@ func request_battle_start() -> void:
 	if ally_units.is_empty() or enemy_units.is_empty():
 		if _refs.debug_label != null:
 			_refs.debug_label.text = "无法开始战斗：己方与敌方都必须至少有 1 名角色。"
-		return
+		return false
 
 	_state.combat_elapsed = 0.0
 	_prepare_for_battle_start()
@@ -145,11 +158,11 @@ func request_battle_start() -> void:
 
 	var started: bool = false
 	if _refs.combat_manager != null and _refs.combat_manager.has_method("start_battle"):
-		started = bool(_refs.combat_manager.call("start_battle", ally_units, enemy_units))
+		started = bool(_refs.combat_manager.call("start_battle", ally_units, enemy_units, battle_seed))
 	if not started:
 		if _refs.debug_label != null:
 			_refs.debug_label.text = "CombatManager 启动失败。"
-		return
+		return false
 
 	# 进入战斗态后的视觉切换仍保留在各单位自身，coordinator 只负责顺序编排。
 	for unit in ally_units:
@@ -166,6 +179,7 @@ func request_battle_start() -> void:
 	_get_world_controller().set_stage(Stage.COMBAT)
 	_sync_presenter_stage()
 	_refresh_presenter()
+	return true
 
 
  # 手动重开战场时只设置 reload 状态并延迟发出场景切换请求。
@@ -537,34 +551,28 @@ func _apply_stage_runtime_config(config: Dictionary) -> void:
 
 
  # 棋盘尺寸与部署区配置都通过这个入口落到场景运行时。
- # deploy_zone 在这里统一纠正边界，后续世界层就不必再重复 clamp。
+ # deploy_zone 归一化交给 StageRuntimeRules，避免 coordinator 与 parser 口径漂移。
 func _apply_stage_grid_config(grid_value: Variant) -> void:
-	var grid_cfg: Dictionary = {}
-	if grid_value is Dictionary:
-		grid_cfg = (grid_value as Dictionary).duplicate(true)
-	var width: int = maxi(int(grid_cfg.get("width", int(_refs.hex_grid.grid_width))), 4)
-	var height: int = maxi(int(grid_cfg.get("height", int(_refs.hex_grid.grid_height))), 4)
+	var fallback_deploy_zone: Dictionary = STAGE_RUNTIME_RULES_SCRIPT.DEFAULT_DEPLOY_ZONE
+	if _state.current_deploy_zone is Dictionary and not (_state.current_deploy_zone as Dictionary).is_empty():
+		fallback_deploy_zone = (_state.current_deploy_zone as Dictionary).duplicate(true)
+	var normalized_grid: Dictionary = STAGE_RUNTIME_RULES_SCRIPT.normalize_grid_config(
+		grid_value,
+		int(_refs.hex_grid.grid_width),
+		int(_refs.hex_grid.grid_height),
+		float(_refs.hex_grid.hex_size),
+		fallback_deploy_zone
+	)
+	var width: int = int(normalized_grid.get("width", int(_refs.hex_grid.grid_width)))
+	var height: int = int(normalized_grid.get("height", int(_refs.hex_grid.grid_height)))
 	_refs.hex_grid.grid_width = width
 	_refs.hex_grid.grid_height = height
-	if grid_cfg.has("hex_size"):
-		_refs.hex_grid.hex_size = maxf(float(grid_cfg.get("hex_size", 16.0)), 8.0)
-	if grid_cfg.get("deploy_zone", null) is Dictionary:
-		_state.current_deploy_zone = (grid_cfg.get("deploy_zone", {}) as Dictionary).duplicate(true)
+	_refs.hex_grid.hex_size = float(normalized_grid.get("hex_size", float(_refs.hex_grid.hex_size)))
+	var deploy_zone_value: Variant = normalized_grid.get("deploy_zone", STAGE_RUNTIME_RULES_SCRIPT.DEFAULT_DEPLOY_ZONE)
+	if deploy_zone_value is Dictionary:
+		_state.current_deploy_zone = (deploy_zone_value as Dictionary).duplicate(true)
 	else:
-		_state.current_deploy_zone = _default_deploy_zone()
-	_state.current_deploy_zone["x_min"] = clampi(int(_state.current_deploy_zone.get("x_min", 0)), 0, width - 1)
-	_state.current_deploy_zone["x_max"] = clampi(int(_state.current_deploy_zone.get("x_max", width - 1)), 0, width - 1)
-	_state.current_deploy_zone["y_min"] = clampi(int(_state.current_deploy_zone.get("y_min", 0)), 0, height - 1)
-	_state.current_deploy_zone["y_max"] = clampi(int(_state.current_deploy_zone.get("y_max", height - 1)), 0, height - 1)
-	# 关卡数据可能把最小值和最大值写反，这里先矫正再下发 overlay。
-	if int(_state.current_deploy_zone["x_min"]) > int(_state.current_deploy_zone["x_max"]):
-		var swap_x: int = int(_state.current_deploy_zone["x_min"])
-		_state.current_deploy_zone["x_min"] = int(_state.current_deploy_zone["x_max"])
-		_state.current_deploy_zone["x_max"] = swap_x
-	if int(_state.current_deploy_zone["y_min"]) > int(_state.current_deploy_zone["y_max"]):
-		var swap_y: int = int(_state.current_deploy_zone["y_min"])
-		_state.current_deploy_zone["y_min"] = int(_state.current_deploy_zone["y_max"])
-		_state.current_deploy_zone["y_max"] = swap_y
+		_state.current_deploy_zone = STAGE_RUNTIME_RULES_SCRIPT.DEFAULT_DEPLOY_ZONE.duplicate(true)
 	if _refs.deploy_overlay != null and _refs.deploy_overlay.has_method("set_deploy_zone_rect"):
 		_refs.deploy_overlay.call(
 			"set_deploy_zone_rect",
@@ -585,7 +593,10 @@ func _apply_stage_terrains(terrains_value: Variant, obstacles_value: Variant) ->
 		return
 	if _refs.combat_manager.has_method("clear_static_terrains"):
 		_refs.combat_manager.call("clear_static_terrains")
-	var terrain_rows: Array[Dictionary] = _normalize_stage_terrains(terrains_value, obstacles_value)
+	var terrain_rows: Array[Dictionary] = STAGE_RUNTIME_RULES_SCRIPT.normalize_terrain_rows(
+		terrains_value,
+		obstacles_value
+	)
 	if terrain_rows.is_empty() or not _refs.combat_manager.has_method("add_static_terrain"):
 		return
 	# cells 支持 Vector2i / 数组 / 字典三种输入，统一在这里清洗成 combat 侧格式。
@@ -615,37 +626,6 @@ func _apply_stage_terrains(terrains_value: Variant, obstacles_value: Variant) ->
 				continue
 			extra[key] = row[key]
 		_refs.combat_manager.call("add_static_terrain", terrain_id, normalized_cells, extra)
-
-
- # 把关卡地形/障碍输入规范化成 combat 侧统一的数据行。
- # obstacles 目前是 terrain 缺省时的兜底兼容，后续迁移完仍只允许从这里进入。
-func _normalize_stage_terrains(terrains_value: Variant, obstacles_value: Variant) -> Array[Dictionary]:
-	var rows: Array[Dictionary] = []
-	if terrains_value is Array:
-		for item in terrains_value:
-			if not (item is Dictionary):
-				continue
-			var row: Dictionary = (item as Dictionary).duplicate(true)
-			var terrain_id: String = str(row.get("terrain_id", "")).strip_edges().to_lower()
-			if terrain_id.is_empty():
-				continue
-			var cells_value: Variant = row.get("cells", [])
-			if not (cells_value is Array) or (cells_value as Array).is_empty():
-				continue
-			rows.append(row)
-	if rows.is_empty() and obstacles_value is Array:
-		for obstacle_value in obstacles_value:
-			if not (obstacle_value is Dictionary):
-				continue
-			var obstacle: Dictionary = obstacle_value as Dictionary
-			var obstacle_type: String = str(obstacle.get("type", "rock")).strip_edges().to_lower()
-			if obstacle_type.is_empty():
-				continue
-			var obstacle_cells: Variant = obstacle.get("cells", [])
-			if not (obstacle_cells is Array) or (obstacle_cells as Array).is_empty():
-				continue
-			rows.append({"terrain_id": "terrain_%s" % obstacle_type, "cells": (obstacle_cells as Array).duplicate(true)})
-	return rows
 
 
  # 新关卡开始前统一清理统计面板、捕获状态和旧结果显示。
@@ -934,16 +914,6 @@ func _shuffle_cells(cells: Array[Vector2i], rng: RandomNumberGenerator) -> void:
 		var temp: Vector2i = cells[index]
 		cells[index] = cells[swap_index]
 		cells[swap_index] = temp
-
-
- # 某些关卡不进入战斗流程，这里统一判断其是否属于非战斗阶段。
-func _is_non_combat_stage(config: Dictionary) -> bool:
-	if config.is_empty():
-		return false
-	var stage_type: String = str(config.get("type", "normal")).strip_edges().to_lower()
-	return stage_type == "rest" or stage_type == "event"
-
-
  # 通过 EventBus 发出战场重载请求，避免直接改根场景。
 func _emit_battlefield_reload_requested() -> void:
 	var event_bus: Node = _get_root_node("EventBus")
@@ -977,15 +947,6 @@ func _get_world_controller() -> Node:
 	return _scene_root.get_world_controller()
 
 
- # 当关卡未写部署区时，给部署流程一个可复用的默认矩形。
- # 默认部署区只做最保守兜底，真实布局仍应来自 stage 配置。
-func _default_deploy_zone() -> Dictionary:
-	return {
-		"x_min": 0,
-		"x_max": 15,
-		"y_min": 0,
-		"y_max": 15
-	}
 
 
  # 统一从场景树根节点查找 autoload，避免 root 路径散落。
@@ -997,5 +958,6 @@ func _get_root_node(node_name: String) -> Node:
 	if direct != null:
 		return direct
 	return tree.root.find_child(node_name, true, false)
+
 
 

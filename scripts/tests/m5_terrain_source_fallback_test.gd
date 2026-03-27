@@ -1,6 +1,6 @@
 extends SceneTree
 
-const TERRAIN_MANAGER_SCRIPT: Script = preload("res://scripts/board/terrain_manager.gd")
+const TERRAIN_MANAGER_SCRIPT: Script = preload("res://scripts/combat/terrain_manager.gd")
 
 
 class MockHexGrid:

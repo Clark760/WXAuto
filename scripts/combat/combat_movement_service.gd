@@ -6,7 +6,7 @@ class_name CombatMovementService
 # 这里保留旧规则口径，但把长段实现体从 facade 中移出。
 # 攻击尝试会通过 manager 持有的 attack service 调用，不在 facade 内回绕。
 func force_move_unit_to_cell(
-	manager: CombatManager,
+	manager,
 	unit: Node,
 	target_cell: Vector2i
 ) -> bool:
@@ -48,7 +48,7 @@ func force_move_unit_to_cell(
 # `anchor_cell` 通常来自技能或目标单位的格坐标。
 # 返回值只表达“是否至少成功移动过一步”，不返回最终位置信息。
 func move_unit_steps_towards(
-	manager: CombatManager,
+	manager,
 	unit: Node,
 	anchor_cell: Vector2i,
 	max_steps: int
@@ -78,7 +78,7 @@ func move_unit_steps_towards(
 # 唯一区别是每一步的候选格比较方向相反。
 # 该入口被恐惧和击退类效果复用，因此不把理由写死在这里。
 func move_unit_steps_away(
-	manager: CombatManager,
+	manager,
 	unit: Node,
 	threat_cell: Vector2i,
 	max_steps: int
@@ -108,7 +108,7 @@ func move_unit_steps_away(
 # 这里不走 `_occupy_cell`，因为两格互换时需要原子性替换。
 # 成功后仍会发出两条 cell_changed 和两条 move_success，与旧行为一致。
 func swap_unit_cells(
-	manager: CombatManager,
+	manager,
 	unit_a: Node,
 	unit_b: Node
 ) -> bool:
@@ -160,7 +160,7 @@ func swap_unit_cells(
 # 它仍保留“攻击优先，移动其次”的旧顺序，只是实现体迁出 facade。
 # `allow_attack/allow_move` 继续服务 split_attack_move_phase，不改外层调度。
 func run_unit_logic(
-	manager: CombatManager,
+	manager,
 	unit: Node,
 	delta: float,
 	allow_attack: bool = true,
@@ -218,7 +218,7 @@ func run_unit_logic(
 # 状态结束时会把 meta 清理掉，避免单位长期残留无效控制标记。
 # `meta_key` 由调用方传入，便于后续扩展其它控制态而不复制逻辑。
 func _is_control_active(
-	manager: CombatManager,
+	manager,
 	unit: Node,
 	meta_key: String
 ) -> bool:
@@ -235,14 +235,14 @@ func _is_control_active(
 # stunned 与 feared 保持拆开的语义 helper，便于阅读行为分支。
 # 两者底层都只是对 `_is_control_active` 的薄封装。
 # 这里不引入 enum，避免把现有 meta 约定再包一层。
-func _is_unit_stunned(manager: CombatManager, unit: Node) -> bool:
+func _is_unit_stunned(manager, unit: Node) -> bool:
 	return _is_control_active(manager, unit, "status_stun_until")
 
 
 # fear 与 stun 一样走时间窗判断，但语义不同，所以保留独立 helper。
 # 调试移动问题时，单独入口比把 key 写死在调用点更容易排查。
 # 这个函数本身很薄，但它是阅读恐惧分支时的重要语义锚点。
-func _is_unit_feared(manager: CombatManager, unit: Node) -> bool:
+func _is_unit_feared(manager, unit: Node) -> bool:
 	return _is_control_active(manager, unit, "status_fear_until")
 
 
@@ -261,7 +261,7 @@ func _clear_unit_move_and_idle(unit: Node, movement: Node = null) -> void:
 # 这里仍使用深拷贝，避免监听者改写原始 context。
 # 所有移动失败分支都必须走这条统一出口。
 func emit_unit_move_failed(
-	manager: CombatManager,
+	manager,
 	unit: Node,
 	reason: String,
 	context: Dictionary
@@ -278,7 +278,7 @@ func emit_unit_move_failed(
 # 若当前目标失效，会按旧逻辑尝试回退到射程内目标，再退到普通选敌。
 # 成功移动和失败阻挡的指标统计与旧实现保持一致。
 func _run_feared_unit_logic(
-	manager: CombatManager,
+	manager,
 	unit: Node,
 	target: Node,
 	enemy_team: int
@@ -326,7 +326,7 @@ func _run_feared_unit_logic(
 # 这能避免单位在可攻击范围内来回抖动，是旧修复逻辑的一部分。
 # 命中这个分支后会记一次 move_check 和一次 move_blocked。
 func _should_hold_position_in_attack_range(
-	manager: CombatManager,
+	manager,
 	unit: Node,
 	target: Node
 ) -> bool:
@@ -348,7 +348,7 @@ func _should_hold_position_in_attack_range(
 # `combat` 只用于“被卡住时兜底再打一次射程内目标”的旧逻辑。
 # 所有失败出口都会统一落到 move_failed signal。
 func _run_move_phase(
-	manager: CombatManager,
+	manager,
 	unit: Node,
 	combat: Node,
 	target: Node,
@@ -367,7 +367,7 @@ func _run_move_phase(
 		emit_unit_move_failed(manager, unit, "no_cell", {})
 		return
 
-	var flow_field: FlowField = (
+	var flow_field = (
 		manager._flow_to_enemy
 		if int(unit.get("team_id")) == manager.TEAM_ALLY
 		else manager._flow_to_ally
@@ -426,7 +426,7 @@ func _run_move_phase(
 # 这条分支是旧的僵持缓解逻辑，不能在拆分时丢掉。
 # 只有真的打出去后才返回 true，并补记攻击统计。
 func _try_fallback_attack_when_blocked(
-	manager: CombatManager,
+	manager,
 	unit: Node,
 	combat: Node,
 	enemy_team: int,
@@ -448,7 +448,7 @@ func _try_fallback_attack_when_blocked(
 # 严格格子模式下，视觉移动只是补充 tween，不再反向驱动逻辑坐标。
 # 没有移动组件时则直接瞬移到格心，保证显示与逻辑一致。
 func _apply_move_visual(
-	manager: CombatManager,
+	manager,
 	unit: Node,
 	best_next: Vector2i
 ) -> void:
@@ -495,7 +495,7 @@ func _apply_move_visual(
 # 这里不读流场，专门服务技能位移与恐惧/击退这类即时一步效果。
 # 若没有更优邻格，则返回原地不动。
 func _pick_step_towards(
-	manager: CombatManager,
+	manager,
 	from_cell: Vector2i,
 	target_cell: Vector2i
 ) -> Vector2i:
@@ -517,7 +517,7 @@ func _pick_step_towards(
 # 返回原地表示没有更安全的可走格。
 # 这里不额外引入 tie-break，完全保持旧口径。
 func _pick_step_away(
-	manager: CombatManager,
+	manager,
 	from_cell: Vector2i,
 	threat_cell: Vector2i
 ) -> Vector2i:

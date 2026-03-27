@@ -246,6 +246,26 @@ func refresh_after_world_change() -> void:
 		_shop_inventory_view.rebuild_inventory_items()
 
 
+# 世界拖拽开始或结束时，显隐统一收口到 HUD runtime view。
+func set_drag_preview_visible(visible: bool) -> void:
+	_runtime_view.set_drag_preview_visible(visible)
+
+
+# 拖拽预览位置跟随鼠标移动，但 UI 节点写入只发生在 HUD runtime view。
+func update_drag_preview_position(screen_pos: Vector2) -> void:
+	_runtime_view.update_drag_preview_position(screen_pos)
+
+
+# 拖拽中的单位快照统一交给 runtime view 渲染。
+func set_drag_preview_unit(unit: Node) -> void:
+	_runtime_view.set_drag_preview_unit(unit)
+
+
+# 世界调试信息通过 facade 同步，避免 world controller 直接写 label。
+func sync_world_debug_status(snapshot: Dictionary) -> void:
+	_runtime_view.sync_world_debug_status(snapshot)
+
+
 # 商店显隐切换统一收口在 facade，避免多个 helper 各自写可见性。
 # shop_inventory_view 只表达“想切换”，真正状态仍由 facade 持有最后口径。
 func toggle_shop_panel() -> void:
@@ -276,7 +296,7 @@ func handle_escape_close_chain() -> bool:
 		return true
 	if _state.detail_visible and _refs.unit_detail_panel != null:
 		if _refs.unit_detail_panel.visible:
-			force_close_detail_panel(true)
+			force_close_detail_panel(false)
 			return true
 	if _state.shop_visible and _refs.shop_panel != null and _refs.shop_panel.visible:
 		set_shop_panel_visible(false, true)
@@ -420,5 +440,3 @@ func _on_reset_battle_button_pressed() -> void:
 	var coordinator: Node = get_coordinator()
 	if coordinator != null:
 		coordinator.request_battlefield_reload()
-
-

@@ -115,11 +115,6 @@ func is_initialized() -> bool:
 	return _initialized
 
 
-# Batch 2 除了初始化完成，还要求信号绑定和显式注入都已落位。
-func is_batch2_ready() -> bool:
-	return _initialized and _signals_connected and _runtime_collaborators_initialized()
-
-
 # 根场景把 `_input` 统一转发到这里，世界输入优先级只在这一处维护。
 # 左键、滚轮、右键平移都在这里分流，避免旧入口脚本继续偷接输入。
 func handle_input(event: InputEvent) -> void:
@@ -221,8 +216,6 @@ func refresh_world_layout() -> void:
 	_refresh_multimesh()
 	_refresh_all_ui()
 	_request_drag_overlay_redraw(true)
-
-
 # 离开结果阶段前，统一把仍存活单位恢复到待机状态，避免胜利动作残留。
 func reset_all_units_to_idle() -> void:
 	var all_units: Array[Node] = []
@@ -234,14 +227,15 @@ func reset_all_units_to_idle() -> void:
 			all_units.append(unit)
 	for unit in all_units:
 		var combat: Node = unit.get_node_or_null("Components/UnitCombat")
-		if combat != null and not bool(combat.get("is_alive")):
-			continue
+		if combat != null:
+			var combat_alive: Variant = combat.get("is_alive")
+			if combat_alive is bool and not combat_alive:
+				continue
+		var unit_api: Variant = unit
 		if unit.has_method("reset_visual_transform"):
-			unit.call("reset_visual_transform")
+			unit_api.reset_visual_transform()
 		if unit.has_method("play_anim_state"):
-			unit.call("play_anim_state", 0, {})
-
-
+			unit_api.play_anim_state(0, {})
 # 所有 runtime 协作者都必须走 initialize(refs, state, delegate) 显式注入。
 func _initialize_runtime_collaborators() -> void:
 	if _unit_deploy_manager != null and _unit_deploy_manager.has_method("initialize"):
@@ -256,8 +250,6 @@ func _initialize_runtime_collaborators() -> void:
 func _initialize_scene_defaults() -> void:
 	if _refs.bench_ui != null and _refs.bench_ui.has_method("initialize_slots"):
 		_refs.bench_ui.initialize_slots(bench_slot_count, bench_columns)
-	if _refs.drag_preview != null:
-		_refs.drag_preview.visible = false
 	_state.world_zoom = 1.0
 	_state.world_offset = Vector2.ZERO
 	_state.is_panning = false
@@ -425,13 +417,17 @@ func _consume_bench_wheel_input(mouse_button: InputEventMouseButton) -> bool:
 		return false
 	if mouse_button.button_index != MOUSE_BUTTON_WHEEL_UP and mouse_button.button_index != MOUSE_BUTTON_WHEEL_DOWN:
 		return false
-	if not _state.bottom_expanded:
-		return false
 	if _refs.bench_ui == null or not is_instance_valid(_refs.bench_ui):
 		return false
-	if not _refs.bench_ui.has_method("is_screen_point_inside"):
-		return false
-	if not bool(_refs.bench_ui.is_screen_point_inside(mouse_button.position)):
+
+	var inside_bench: bool = false
+	if _refs.bench_ui.has_method("is_screen_point_inside"):
+		inside_bench = bool(_refs.bench_ui.is_screen_point_inside(mouse_button.position))
+	if not inside_bench and _refs.bottom_panel != null:
+		var bottom_panel: Control = _refs.bottom_panel as Control
+		if bottom_panel != null and bottom_panel.visible:
+			inside_bench = bottom_panel.get_global_rect().has_point(mouse_button.position)
+	if not inside_bench:
 		return false
 	if _refs.bench_ui.has_method("consume_wheel_input"):
 		return bool(_refs.bench_ui.consume_wheel_input(mouse_button.button_index))
@@ -518,10 +514,18 @@ func _finish_drag() -> void:
 		_drag_controller.finish_drag()
 
 
-# 拖拽预览卡的位置跟随鼠标，只在 world controller 里维护这一偏移。
+# 拖拽预览位置仍由 world controller 决定，但具体 UI 节点写入交给 HUD。
 func _update_drag_preview(screen_pos: Vector2) -> void:
-	if _refs.drag_preview != null:
-		_refs.drag_preview.position = screen_pos + Vector2(14.0, 14.0)
+	var hud_presenter: Node = _get_hud_presenter()
+	if hud_presenter != null and hud_presenter.has_method("update_drag_preview_position"):
+		hud_presenter.update_drag_preview_position(screen_pos)
+
+
+# 拖拽预览显隐统一交给 HUD facade，世界层只声明状态变化。
+func _set_drag_preview_visible(visible: bool) -> void:
+	var hud_presenter: Node = _get_hud_presenter()
+	if hud_presenter != null and hud_presenter.has_method("set_drag_preview_visible"):
+		hud_presenter.set_drag_preview_visible(visible)
 
 
 # 拖拽目标刷新统一交给 drag controller，避免 world controller 自己重写判定。
@@ -530,18 +534,13 @@ func _update_drag_target(screen_pos: Vector2) -> void:
 		_drag_controller.update_drag_target(screen_pos)
 
 
-# 拖拽预览卡的数据投影仍由世界层驱动，HUD presenter 在 Batch 3 再接手。
+# 拖拽预览卡数据现在统一由 HUD facade 投影，world controller 只提供单位快照。
 func _update_drag_preview_data(unit: Node) -> void:
 	if unit == null:
 		return
-	if _refs.drag_preview_name != null:
-		_refs.drag_preview_name.text = str(unit.get("unit_name"))
-	if _refs.drag_preview_star != null:
-		var star: int = int(unit.get("star_level"))
-		_refs.drag_preview_star.text = "★".repeat(clampi(star, 1, 3))
-		_refs.drag_preview_star.modulate = _star_color(star)
-	if _refs.drag_preview_icon != null:
-		_refs.drag_preview_icon.color = _quality_color(str(unit.get("quality")))
+	var hud_presenter: Node = _get_hud_presenter()
+	if hud_presenter != null and hud_presenter.has_method("set_drag_preview_unit"):
+		hud_presenter.set_drag_preview_unit(unit)
 
 
 # 保留获取落点的统一包装口，方便后续测试和批次迁移共用。
@@ -653,10 +652,11 @@ func _refresh_multimesh() -> void:
 		_battlefield_renderer.refresh_multimesh()
 
 
-# Batch 2 只做最小 UI 同步：调试文案和 presenter 留口，不提前搬完整 HUD。
+# world 变化后的 HUD 投影只通过 presenter 收口，避免世界层继续写 UI 节点。
 func _refresh_all_ui() -> void:
-	_refresh_world_debug_label()
 	var hud_presenter: Node = _get_hud_presenter()
+	if hud_presenter != null and hud_presenter.has_method("sync_world_debug_status"):
+		hud_presenter.sync_world_debug_status(_build_world_debug_snapshot())
 	if hud_presenter != null and hud_presenter.has_method("refresh_after_world_change"):
 		hud_presenter.refresh_after_world_change()
 
@@ -894,36 +894,6 @@ func _clear_unit_map_cache(unit: Node) -> void:
 	unit.remove_meta("map_team_id")
 
 
-# 品质颜色统一收在世界层，拖拽预览和后续世界态提示可直接复用。
-func _quality_color(quality: String) -> Color:
-	match quality:
-		"white":
-			return Color(0.78, 0.8, 0.82, 0.95)
-		"green":
-			return Color(0.42, 0.68, 0.42, 0.95)
-		"blue":
-			return Color(0.32, 0.52, 0.8, 0.95)
-		"purple":
-			return Color(0.54, 0.38, 0.72, 0.95)
-		"orange":
-			return Color(0.76, 0.48, 0.2, 0.95)
-		_:
-			return Color(0.5, 0.5, 0.5, 0.95)
-
-
-# 星级颜色只服务于拖拽预览与世界侧轻量提示，不进入 HUD 业务逻辑。
-func _star_color(star: int) -> Color:
-	match star:
-		1:
-			return Color(0.94, 0.94, 0.94, 1.0)
-		2:
-			return Color(1.0, 0.86, 0.35, 1.0)
-		3:
-			return Color(1.0, 0.42, 0.2, 1.0)
-		_:
-			return Color(1, 1, 1, 1)
-
-
 # 非拖拽点击只尝试做“世界单位点选”，不会在这里直接操作详情面板。
 func _try_notify_click(screen_pos: Vector2) -> void:
 	if _is_point_over_interactive_ui(screen_pos):
@@ -1000,10 +970,8 @@ func _reset_press_state() -> void:
 	_state.left_click_pending = false
 
 
-# Batch 2 暂时保留最小调试文案，帮助确认世界状态迁移是否生效。
-func _refresh_world_debug_label() -> void:
-	if _refs.debug_label == null:
-		return
+# 世界调试态先整理成快照，再交给 HUD facade 决定怎么投影。
+func _build_world_debug_snapshot() -> Dictionary:
 	var bench_count: int = 0
 	if _refs.bench_ui != null and _refs.bench_ui.has_method("get_unit_count"):
 		bench_count = int(_refs.bench_ui.get_unit_count())
@@ -1012,12 +980,12 @@ func _refresh_world_debug_label() -> void:
 		stage_name = "COMBAT"
 	elif int(_state.stage) == Stage.RESULT:
 		stage_name = "RESULT"
-	_refs.debug_label.text = "阶段:%s  备战:%d  己方:%d  敌方:%d" % [
-		stage_name,
-		bench_count,
-		_state.ally_deployed.size(),
-		_state.enemy_deployed.size()
-	]
+	return {
+		"stage_name": stage_name,
+		"bench_count": bench_count,
+		"ally_count": _state.ally_deployed.size(),
+		"enemy_count": _state.enemy_deployed.size()
+	}
 
 
 # 通过根场景 getter 读取 presenter，避免 world controller 直接写死子节点路径。
@@ -1047,5 +1015,3 @@ func _runtime_collaborators_initialized() -> bool:
 	and _battlefield_renderer.has_method("is_initialized")
 	and _battlefield_renderer.is_initialized()
 	)
-
-

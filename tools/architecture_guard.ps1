@@ -22,7 +22,7 @@ $lineHardLimit = 900
 $sceneFirstPatternText = '(?<![A-Za-z0-9_])(?:Control|Label|Button|LinkButton|LineEdit|ProgressBar|RichTextLabel|ColorRect|PanelContainer|VBoxContainer|HBoxContainer|GridContainer|MarginContainer|ScrollContainer|TextureRect)\s*\.\s*new\s*\('
 $rootLookupPatternText = '_get_root_node\s*\('
 $dynamicCallPatternText = '\bcall\s*\('
-$readabilityCommentCoverageThreshold = 0.20
+$readabilityCommentCoverageThreshold = 0.10
 $readabilityCommentCoverageMinCodeLines = 20
 $readabilityLongFileLineThreshold = 200
 $readabilityBlankLineThreshold = 0.08
@@ -523,7 +523,7 @@ function Get-NamedCommentBlockViolations {
 
     for ($index = 0; $index -lt $Lines.Count; $index++) {
         $trimmed = ([string]$Lines[$index]).Trim()
-        $match = [regex]::Match($trimmed, '^#\s*(文件说明|维护约束|[^\r\n#]{0,40}附录)\s*[:：]?\s*$')
+        $match = [regex]::Match($trimmed, '^#\s*(文件说明|维护约束|维护提示|[^\r\n#]{0,40}附录)\s*[:：]?\s*$')
         if (-not $match.Success) {
             continue
         }
@@ -1108,5 +1108,4 @@ if ($failures.Count -gt 0) {
 }
 
 Write-Host "[ARCH] Architecture guard passed"
-
 

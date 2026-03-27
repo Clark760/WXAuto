@@ -45,6 +45,8 @@ func initialize_view_defaults() -> void:
 		_refs.unit_tooltip.visible = false
 	if _refs.item_tooltip != null:
 		_refs.item_tooltip.visible = false
+	if _refs.drag_preview != null:
+		_refs.drag_preview.visible = false
 	if _refs.unit_detail_panel != null:
 		_refs.unit_detail_panel.visible = false
 	if _refs.unit_detail_mask != null:
@@ -54,6 +56,7 @@ func initialize_view_defaults() -> void:
 		_refs.inventory_tab_gongfa_button.button_pressed = _state.inventory_mode == "gongfa"
 	if _refs.inventory_tab_equip_button != null:
 		_refs.inventory_tab_equip_button.button_pressed = _state.inventory_mode == "equipment"
+	sync_world_debug_status({})
 
 
 # 刷新顶栏回合、计时和战力条，保证世界变化后 HUD 立即同步。
@@ -242,4 +245,57 @@ func clear_battle_log() -> void:
 	if _refs.battle_log_text != null:
 		_refs.battle_log_text.clear()
 
+
+# 世界拖拽显隐只通过 runtime view 写 DragPreview 节点，避免 world 层继续碰 UI。
+func set_drag_preview_visible(visible: bool) -> void:
+	if _refs.drag_preview != null:
+		_refs.drag_preview.visible = visible
+
+
+# 拖拽预览位置统一由 runtime view 维护视觉偏移。
+func update_drag_preview_position(screen_pos: Vector2) -> void:
+	if _refs.drag_preview != null:
+		_refs.drag_preview.position = screen_pos + Vector2(14.0, 14.0)
+
+
+# 拖拽中的单位快照在 HUD 侧完成颜色和文案投影。
+func set_drag_preview_unit(unit: Node) -> void:
+	if unit == null:
+		return
+	if _refs.drag_preview_name != null:
+		_refs.drag_preview_name.text = str(unit.get("unit_name"))
+	if _refs.drag_preview_star != null:
+		var star: int = int(unit.get("star_level"))
+		_refs.drag_preview_star.text = "★".repeat(clampi(star, 1, 3))
+		_refs.drag_preview_star.modulate = _drag_preview_star_color(star)
+	if _refs.drag_preview_icon != null:
+		_refs.drag_preview_icon.color = _support.quality_color(str(unit.get("quality")))
+
+
+# 世界调试文案仍保留在 HUD/debug 层，但数据来源改成 world snapshot。
+func sync_world_debug_status(snapshot: Dictionary) -> void:
+	if _refs.debug_label == null:
+		return
+	if snapshot.is_empty():
+		_refs.debug_label.text = ""
+		return
+	_refs.debug_label.text = "阶段:%s  备战:%d  己方:%d  敌方:%d" % [
+		str(snapshot.get("stage_name", "PREPARATION")),
+		int(snapshot.get("bench_count", 0)),
+		int(snapshot.get("ally_count", 0)),
+		int(snapshot.get("enemy_count", 0))
+	]
+
+
+# 星级颜色只服务拖拽预览，不把这组表现规则散回 world controller。
+func _drag_preview_star_color(star: int) -> Color:
+	match star:
+		1:
+			return Color(0.94, 0.94, 0.94, 1.0)
+		2:
+			return Color(1.0, 0.86, 0.35, 1.0)
+		3:
+			return Color(1.0, 0.42, 0.2, 1.0)
+		_:
+			return Color(1, 1, 1, 1)
 

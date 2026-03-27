@@ -40,34 +40,55 @@ function Resolve-GodotExecutable {
         $candidates.Add($env:GODOT_EXE)
     }
 
-    $godotCmd = Get-Command godot.exe -ErrorAction SilentlyContinue
-    if ($null -ne $godotCmd) {
-        $candidates.Add($godotCmd.Source)
-    }
-
     $godotConsoleCmd = Get-Command godot_console.exe -ErrorAction SilentlyContinue
     if ($null -ne $godotConsoleCmd) {
         $candidates.Add($godotConsoleCmd.Source)
     }
 
+    $godotCmd = Get-Command godot.exe -ErrorAction SilentlyContinue
+    if ($null -ne $godotCmd) {
+        $candidates.Add($godotCmd.Source)
+    }
+
     # 常见手动解压目录兜底
-    $candidates.Add("D:\Godot_v4.6.1\godot.exe")
     $candidates.Add("D:\Godot_v4.6.1\godot_console.exe")
+    $candidates.Add("D:\Godot_v4.6.1\godot.exe")
 
     foreach ($candidate in $candidates) {
         if ([string]::IsNullOrWhiteSpace($candidate)) {
             continue
         }
         if (Test-Path -LiteralPath $candidate) {
-            return (Resolve-Path -LiteralPath $candidate).Path
+            $resolvedPath = (Resolve-Path -LiteralPath $candidate).Path
+            if ([System.IO.Path]::GetFileName($resolvedPath).ToLowerInvariant() -eq "godot.exe") {
+                $consoleSibling = Join-Path (Split-Path -Parent $resolvedPath) "godot_console.exe"
+                if (Test-Path -LiteralPath $consoleSibling) {
+                    return (Resolve-Path -LiteralPath $consoleSibling).Path
+                }
+            }
+            return $resolvedPath
         }
     }
 
     throw "未找到 Godot 可执行文件。请传入 -GodotExe 或设置 GODOT_EXE 环境变量。"
 }
 
-function Invoke-GodotHeadlessCheck {
+function New-GodotLogPath {
     param(
+        [string]$ProjectPath,
+        [string]$Name
+    )
+
+    $safeName = [System.Text.RegularExpressions.Regex]::Replace(
+        $Name,
+        '[^A-Za-z0-9._-]',
+        '_'
+    )
+    return (Join-Path $ProjectPath (".godot-check-{0}.log" -f $safeName))
+}
+
+function Invoke-GodotHeadlessCheck {
+param(
         [string]$ExePath,
         [string]$ProjectPath
     )
@@ -75,7 +96,12 @@ function Invoke-GodotHeadlessCheck {
     Write-Host "[CHECK] Godot: $ExePath"
     Write-Host "[CHECK] Project: $ProjectPath"
 
-    & $ExePath --headless --path $ProjectPath --quit
+    $logPath = New-GodotLogPath -ProjectPath $ProjectPath -Name "headless"
+    if (Test-Path -LiteralPath $logPath) {
+        Remove-Item -LiteralPath $logPath -Force
+    }
+
+    & $ExePath --headless --log-file $logPath --path $ProjectPath --quit
     if (-not $?) {
         throw "Godot headless 校验失败。"
     }
@@ -86,39 +112,30 @@ function Invoke-GodotHeadlessCheck {
 function Invoke-JsonSyntaxCheck {
     param([string]$ProjectPath)
 
-    $pyCommand = Get-Command py -ErrorAction SilentlyContinue
-    if ($null -eq $pyCommand) {
-        throw "未找到 py 命令，无法执行 JSON 校验。"
+    $jsonFiles = Get-ChildItem -Path $ProjectPath -Recurse -Filter *.json -File
+    $okCount = 0
+    $errors = New-Object System.Collections.Generic.List[object]
+
+    foreach ($file in $jsonFiles) {
+        try {
+            $raw = Get-Content -LiteralPath $file.FullName -Raw -Encoding UTF8
+            $null = $raw | ConvertFrom-Json
+            $okCount += 1
+        } catch {
+            $errors.Add([PSCustomObject]@{
+                path = $file.FullName
+                error = $_.Exception.Message
+            })
+        }
     }
 
-    $env:WXAUTO_PROJECT_ROOT = $ProjectPath
-    $pythonScript = @'
-import json
-import os
-from pathlib import Path
-
-root = Path(os.environ["WXAUTO_PROJECT_ROOT"])
-ok = 0
-errors = []
-
-for path in root.rglob("*.json"):
-    try:
-        json.loads(path.read_text(encoding="utf-8"))
-        ok += 1
-    except Exception as exc:
-        errors.append((str(path), str(exc)))
-
-print(f"JSON_OK={ok}")
-if errors:
-    print("JSON_ERRORS=")
-    for p, e in errors:
-        print(p)
-        print(e)
-    raise SystemExit(1)
-'@
-
-    $pythonScript | py -3 -
-    if (-not $?) {
+    Write-Host ("JSON_OK={0}" -f $okCount)
+    if ($errors.Count -gt 0) {
+        Write-Host "JSON_ERRORS="
+        foreach ($entry in $errors) {
+            Write-Host $entry.path
+            Write-Host $entry.error
+        }
         throw "JSON 语法校验失败。"
     }
 
@@ -217,7 +234,11 @@ function Invoke-LeakGuardCheck {
         }
 
         Write-Host ("[LEAK] running {0}" -f $test)
-        $rawOutput = @(& $ExePath --headless --verbose --path $ProjectPath --script $testAbs 2>&1)
+        $logPath = New-GodotLogPath -ProjectPath $ProjectPath -Name $test
+        if (Test-Path -LiteralPath $logPath) {
+            Remove-Item -LiteralPath $logPath -Force
+        }
+        $rawOutput = @(& $ExePath --headless --verbose --log-file $logPath --path $ProjectPath --script $testAbs 2>&1)
         $exitCode = Get-SafeLastExitCode
 
         $lines = New-Object System.Collections.Generic.List[string]
@@ -276,6 +297,3 @@ if (-not $SkipLeakGuard) {
 }
 
 Write-Host "[DONE] 全部校验完成"
-
-
-

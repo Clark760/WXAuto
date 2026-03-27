@@ -1,7 +1,7 @@
 extends SceneTree
 
 const SHOP_MANAGER_SCRIPT: Script = preload("res://scripts/economy/shop_manager.gd")
-const STAGE_DATA_SCRIPT: Script = preload("res://scripts/stage/stage_data.gd")
+const STAGE_DATA_SCRIPT: Script = preload("res://scripts/domain/stage/stage_data.gd")
 const UNIT_DATA_SCRIPT: Script = preload("res://scripts/data/unit_data.gd")
 const STAGE_SCHEMA_PATH: String = "res://data/stages/_schema/stage.schema.json"
 const EQUIPMENT_SCHEMA_PATH: String = "res://data/equipment/_schema/equipment.schema.json"

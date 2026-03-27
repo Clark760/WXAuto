@@ -1,6 +1,6 @@
 extends SceneTree
 
-const BATTLEFIELD_SCENE: PackedScene = preload("res://scenes/battle/battlefield.tscn")
+const BATTLEFIELD_SCENE: PackedScene = preload("res://scenes/battle/battlefield_scene.tscn")
 const SINGLETON_SCRIPT_PATHS: Dictionary = {
 	"EventBus": "res://scripts/core/event_bus.gd",
 	"ObjectPool": "res://scripts/core/object_pool.gd",
@@ -73,13 +73,21 @@ const REQUIRED_EQUIPMENT_IDS: Array[String] = [
 const TEST_TIMEOUT_SECONDS: float = 70.0
 
 var _battlefield: Node = null
+var _scene_refs: Node = null
+var _session_state: RefCounted = null
+var _coordinator: Node = null
 var _combat_manager: Node = null
 var _unit_augment_manager: Node = null
+var _unit_deploy_manager: Node = null
 var _unit_factory: Node = null
 var _hex_grid: Node = null
+var _world_controller: Node = null
+var _hud_presenter: Node = null
 
 var _battle_done: bool = false
 var _failed: bool = false
+var _shutdown_started: bool = false
+var _created_singletons: Array[Node] = []
 var _result: Dictionary = {
 	"battle_started": false,
 	"battle_ended": false,
@@ -110,7 +118,7 @@ func _run() -> void:
 	print("[m5_replay] singletons ready")
 	var data_manager: Node = _get_root_node("DataManager")
 	if data_manager == null:
-		_fail("DataManager autoload is missing.")
+		await _abort("DataManager autoload is missing.")
 		return
 
 	_result["data_summary"] = data_manager.call("load_base_data")
@@ -126,7 +134,7 @@ func _run() -> void:
 	print("[m5_replay] gongfa reloaded")
 
 	if not _validate_required_records(data_manager):
-		_fail("Required M5 test records are missing after data load.")
+		await _abort("Required M5 test records are missing after data load.")
 		return
 
 	_battlefield = BATTLEFIELD_SCENE.instantiate()
@@ -135,50 +143,43 @@ func _run() -> void:
 	await process_frame
 	print("[m5_replay] battlefield ready")
 
-	_combat_manager = _battlefield.get_node_or_null("CombatManager")
-	_unit_factory = _battlefield.get_node_or_null("UnitFactory")
-	_hex_grid = _battlefield.get("hex_grid")
-	if _combat_manager == null or _unit_factory == null or _hex_grid == null:
-		_fail("Battlefield dependencies are not ready.")
+	if not _battlefield.has_method("get_scene_refs") or not _battlefield.has_method("get_session_state"):
+		await _abort("BattlefieldScene getters are not ready for replay.")
+		return
+	_scene_refs = _battlefield.get_scene_refs()
+	_session_state = _battlefield.get_session_state()
+	_coordinator = _battlefield.get_coordinator()
+	_world_controller = _battlefield.get_world_controller()
+	_hud_presenter = _battlefield.get_hud_presenter()
+	_combat_manager = _scene_refs.combat_manager
+	_unit_deploy_manager = _scene_refs.runtime_unit_deploy_manager
+	_unit_factory = _scene_refs.unit_factory
+	_hex_grid = _scene_refs.hex_grid
+	if _coordinator == null or _world_controller == null or _combat_manager == null or _unit_deploy_manager == null or _unit_factory == null or _hex_grid == null:
+		await _abort("Battlefield dependencies are not ready.")
 		return
 
 	_connect_runtime_signals()
 	_cleanup_scene_runtime()
 
 	if not _deploy_test_units():
-		_fail("Failed to deploy test units for replay.")
+		await _abort("Failed to deploy test units for replay.")
 		return
 	print("[m5_replay] units deployed")
 
-	var ally_units: Array[Node] = _battlefield.call("_collect_units_from_map", _battlefield.get("_ally_deployed"))
-	var enemy_units: Array[Node] = _battlefield.call("_collect_units_from_map", _battlefield.get("_enemy_deployed"))
+	var ally_units: Array[Node] = _collect_units_from_map(_session_state.ally_deployed)
+	var enemy_units: Array[Node] = _collect_units_from_map(_session_state.enemy_deployed)
 	if ally_units.is_empty() or enemy_units.is_empty():
-		_fail("Deployed unit lists are empty, cannot start replay.")
+		await _abort("Deployed unit lists are empty, cannot start replay.")
 		return
 
-	if _unit_augment_manager != null:
-		_unit_augment_manager.call(
-			"prepare_battle",
-			ally_units,
-			enemy_units,
-			_battlefield.get("hex_grid"),
-			_battlefield.get("vfx_factory"),
-			_combat_manager
-		)
-
-	var started: bool = bool(_combat_manager.call("start_battle", ally_units, enemy_units, 20260322))
+	var started: bool = false
+	if _coordinator != null and _coordinator.has_method("start_battle_from_session"):
+		started = bool(_coordinator.call("start_battle_from_session", 20260322, false))
 	if not started:
-		_fail("CombatManager failed to start battle replay.")
+		await _abort("BattlefieldCoordinator failed to start battle replay.")
 		return
 	print("[m5_replay] battle started")
-
-	for ally in ally_units:
-		if ally != null and is_instance_valid(ally):
-			ally.call("enter_combat")
-	for enemy in enemy_units:
-		if enemy != null and is_instance_valid(enemy):
-			enemy.call("enter_combat")
-	_battlefield.call("_set_stage", 1) # Stage.COMBAT
 
 	var start_ms: int = Time.get_ticks_msec()
 	var timeout_ms: int = int(TEST_TIMEOUT_SECONDS * 1000.0)
@@ -198,9 +199,9 @@ func _run() -> void:
 
 	if _evaluate_pass():
 		print("M5 replay check passed.")
-		quit(0)
+		await _shutdown_and_quit(0)
 		return
-	_fail("M5 replay check failed.")
+	await _abort("M5 replay check failed.")
 
 
 func _validate_required_records(data_manager: Node) -> bool:
@@ -251,7 +252,7 @@ func _connect_runtime_signals() -> void:
 
 
 func _cleanup_scene_runtime() -> void:
-	var bench_ui: Node = _battlefield.get("bench_ui")
+	var bench_ui: Node = _scene_refs.bench_ui
 	if bench_ui != null and bench_ui.has_method("get_all_units") and bench_ui.has_method("remove_unit"):
 		var bench_units: Array = bench_ui.call("get_all_units")
 		for unit_value in bench_units:
@@ -262,27 +263,32 @@ func _cleanup_scene_runtime() -> void:
 			if _unit_factory != null:
 				_unit_factory.call("release_unit", unit)
 
-	_clear_map_units("_ally_deployed")
-	_clear_map_units("_enemy_deployed")
-	_battlefield.call("_refresh_multimesh")
-	_battlefield.call("_refresh_all_ui")
+	_clear_map_units(_session_state.ally_deployed)
+	if _unit_deploy_manager != null and _unit_deploy_manager.has_method("clear_enemy_wave"):
+		_unit_deploy_manager.clear_enemy_wave()
+	else:
+		_clear_map_units(_session_state.enemy_deployed)
+	if _world_controller != null:
+		_world_controller.refresh_world_layout()
+	if _hud_presenter != null and _hud_presenter.has_method("refresh_ui"):
+		_hud_presenter.refresh_ui()
 
 
-func _clear_map_units(map_property: String) -> void:
-	var map_value: Variant = _battlefield.get(map_property)
-	if not (map_value is Dictionary):
+func _clear_map_units(deployed_map: Dictionary) -> void:
+	if deployed_map.is_empty():
 		return
-	var deployed_map: Dictionary = map_value
-	for unit_value in deployed_map.values():
+	var deployed_units: Array = deployed_map.values().duplicate()
+	for unit_value in deployed_units:
 		if not (unit_value is Node):
 			continue
 		var unit: Node = unit_value as Node
 		if unit == null or not is_instance_valid(unit):
 			continue
+		if _unit_deploy_manager != null and _unit_deploy_manager.has_method("remove_unit_from_map"):
+			_unit_deploy_manager.remove_unit_from_map(deployed_map, unit)
 		if _unit_factory != null:
 			_unit_factory.call("release_unit", unit)
 	deployed_map.clear()
-	_battlefield.set(map_property, deployed_map)
 
 
 func _deploy_test_units() -> bool:
@@ -290,8 +296,21 @@ func _deploy_test_units() -> bool:
 		push_error("M5 replay config mismatch: unit ids and deploy cells size mismatch.")
 		return false
 
-	var unit_layer: Node = _battlefield.get("unit_layer")
+	var unit_layer: Node = _scene_refs.unit_layer
 	if unit_layer == null:
+		return false
+	var ally_cells: Array[Vector2i] = _resolve_spawn_cells(
+		ALLY_CELLS,
+		_unit_deploy_manager.collect_ally_spawn_cells(),
+		ALLY_UNIT_IDS.size()
+	)
+	var enemy_cells: Array[Vector2i] = _resolve_spawn_cells(
+		ENEMY_CELLS,
+		_unit_deploy_manager.collect_enemy_spawn_cells(),
+		ENEMY_UNIT_IDS.size()
+	)
+	if ally_cells.size() != ALLY_UNIT_IDS.size() or enemy_cells.size() != ENEMY_UNIT_IDS.size():
+		push_error("Replay deploy cells are insufficient for current stage layout.")
 		return false
 
 	for i in range(ALLY_UNIT_IDS.size()):
@@ -300,7 +319,7 @@ func _deploy_test_units() -> bool:
 		if unit == null:
 			push_error("Acquire ally unit failed: %s" % unit_id)
 			return false
-		_battlefield.call("_deploy_ally_unit_to_cell", unit, ALLY_CELLS[i])
+		_unit_deploy_manager.deploy_ally_unit_to_cell(unit, ally_cells[i])
 
 	for j in range(ENEMY_UNIT_IDS.size()):
 		var unit_id2: String = ENEMY_UNIT_IDS[j]
@@ -308,26 +327,75 @@ func _deploy_test_units() -> bool:
 		if unit2 == null:
 			push_error("Acquire enemy unit failed: %s" % unit_id2)
 			return false
-		_battlefield.call("_deploy_enemy_unit_to_cell", unit2, ENEMY_CELLS[j])
+		_unit_deploy_manager.deploy_enemy_unit_to_cell(unit2, enemy_cells[j])
 
-	_battlefield.call("_refresh_multimesh")
-	_battlefield.call("_refresh_all_ui")
+	if _world_controller != null:
+		_world_controller.refresh_world_layout()
+	if _hud_presenter != null and _hud_presenter.has_method("refresh_ui"):
+		_hud_presenter.refresh_ui()
+	if _session_state.ally_deployed.size() != ALLY_UNIT_IDS.size():
+		push_error("Replay ally deployment count mismatch after world deployment.")
+		return false
+	if _session_state.enemy_deployed.size() != ENEMY_UNIT_IDS.size():
+		push_error("Replay enemy deployment count mismatch after world deployment.")
+		return false
 	return true
+
+
+func _collect_units_from_map(deployed_map: Dictionary) -> Array[Node]:
+	if _unit_deploy_manager != null and _unit_deploy_manager.has_method("collect_units_from_map"):
+		return _unit_deploy_manager.collect_units_from_map(deployed_map)
+	var units: Array[Node] = []
+	for unit_value in deployed_map.values():
+		if unit_value is Node and is_instance_valid(unit_value):
+			units.append(unit_value as Node)
+	return units
+
+
+func _resolve_spawn_cells(
+	preferred_cells: Array[Vector2i],
+	available_cells: Array[Vector2i],
+	required_count: int
+) -> Array[Vector2i]:
+	if available_cells.is_empty() or required_count <= 0:
+		return []
+	var selected: Array[Vector2i] = []
+	var used_cells: Dictionary = {}
+	for cell in preferred_cells:
+		if not available_cells.has(cell):
+			continue
+		var cell_key: String = "%d,%d" % [cell.x, cell.y]
+		if used_cells.has(cell_key):
+			continue
+		used_cells[cell_key] = true
+		selected.append(cell)
+		if selected.size() >= required_count:
+			return selected
+	for cell in available_cells:
+		var cell_key: String = "%d,%d" % [cell.x, cell.y]
+		if used_cells.has(cell_key):
+			continue
+		used_cells[cell_key] = true
+		selected.append(cell)
+		if selected.size() >= required_count:
+			return selected
+	return selected
 
 
 func _sample_terrain_cells() -> void:
 	if _combat_manager == null or _hex_grid == null:
 		return
 	var terrain_manager: Variant = _combat_manager.get("_terrain_manager")
-	if not (terrain_manager is Node):
+	if terrain_manager == null:
 		return
-	var terrains_value: Variant = (terrain_manager as Node).get("_terrains")
+	var terrain_api: Variant = terrain_manager
+	var terrains_value: Variant = terrain_api.get("_terrains")
 	if terrains_value is Array:
 		var max_instances: int = int(_result.get("terrain_max_instances", 0))
 		var terrain_count: int = (terrains_value as Array).size()
 		if terrain_count > max_instances:
 			_result["terrain_max_instances"] = terrain_count
-	var cells_value: Variant = (terrain_manager as Node).call("get_visual_cells", _hex_grid)
+	var cells_value: Variant = terrain_api.call("get_visual_cells", _hex_grid)
 	if not (cells_value is Dictionary):
 		return
 	var cell_count: int = (cells_value as Dictionary).size()
@@ -423,7 +491,92 @@ func _fail(message: String) -> void:
 	_failed = true
 	push_error(message)
 	print("M5 replay check failed: %s" % message)
-	quit(1)
+
+
+func _abort(message: String) -> void:
+	_fail(message)
+	await _shutdown_and_quit(1)
+
+
+func _shutdown_and_quit(exit_code: int) -> void:
+	if _shutdown_started:
+		return
+	_shutdown_started = true
+	_disconnect_runtime_signals()
+	_break_hud_helper_cycle()
+	await _release_runtime_nodes()
+	_clear_runtime_refs()
+	quit(exit_code)
+
+
+func _disconnect_runtime_signals() -> void:
+	if _combat_manager != null and is_instance_valid(_combat_manager):
+		var start_cb: Callable = Callable(self, "_on_battle_started")
+		if _combat_manager.has_signal("battle_started") and _combat_manager.is_connected("battle_started", start_cb):
+			_combat_manager.disconnect("battle_started", start_cb)
+		var end_cb: Callable = Callable(self, "_on_battle_ended")
+		if _combat_manager.has_signal("battle_ended") and _combat_manager.is_connected("battle_ended", end_cb):
+			_combat_manager.disconnect("battle_ended", end_cb)
+		var damage_cb: Callable = Callable(self, "_on_damage_resolved")
+		if _combat_manager.has_signal("damage_resolved") and _combat_manager.is_connected("damage_resolved", damage_cb):
+			_combat_manager.disconnect("damage_resolved", damage_cb)
+	if _unit_augment_manager == null or not is_instance_valid(_unit_augment_manager):
+		return
+	var trigger_cb: Callable = Callable(self, "_on_skill_triggered")
+	if _unit_augment_manager.has_signal("skill_triggered") and _unit_augment_manager.is_connected("skill_triggered", trigger_cb):
+		_unit_augment_manager.disconnect("skill_triggered", trigger_cb)
+	var skill_damage_cb: Callable = Callable(self, "_on_skill_effect_damage")
+	if _unit_augment_manager.has_signal("skill_effect_damage") and _unit_augment_manager.is_connected("skill_effect_damage", skill_damage_cb):
+		_unit_augment_manager.disconnect("skill_effect_damage", skill_damage_cb)
+	var skill_heal_cb: Callable = Callable(self, "_on_skill_effect_heal")
+	if _unit_augment_manager.has_signal("skill_effect_heal") and _unit_augment_manager.is_connected("skill_effect_heal", skill_heal_cb):
+		_unit_augment_manager.disconnect("skill_effect_heal", skill_heal_cb)
+	var buff_cb: Callable = Callable(self, "_on_buff_event")
+	if _unit_augment_manager.has_signal("buff_event") and _unit_augment_manager.is_connected("buff_event", buff_cb):
+		_unit_augment_manager.disconnect("buff_event", buff_cb)
+
+
+func _break_hud_helper_cycle() -> void:
+	if _hud_presenter == null or not is_instance_valid(_hud_presenter):
+		return
+	if not _hud_presenter.has_method("get_detail_view"):
+		return
+	if not _hud_presenter.has_method("get_shop_inventory_view"):
+		return
+	var detail_view = _hud_presenter.get_detail_view()
+	var shop_view = _hud_presenter.get_shop_inventory_view()
+	if detail_view != null and detail_view.has_method("bind_shop_inventory_view"):
+		detail_view.call("bind_shop_inventory_view", null)
+	if shop_view != null and shop_view.has_method("bind_detail_view"):
+		shop_view.call("bind_detail_view", null)
+
+
+func _release_runtime_nodes() -> void:
+	if _battlefield != null and is_instance_valid(_battlefield):
+		_battlefield.queue_free()
+		await process_frame
+		await process_frame
+	for singleton in _created_singletons:
+		if singleton != null and is_instance_valid(singleton):
+			singleton.queue_free()
+	if not _created_singletons.is_empty():
+		await process_frame
+		await process_frame
+	_created_singletons.clear()
+
+
+func _clear_runtime_refs() -> void:
+	_battlefield = null
+	_scene_refs = null
+	_session_state = null
+	_coordinator = null
+	_combat_manager = null
+	_unit_augment_manager = null
+	_unit_deploy_manager = null
+	_unit_factory = null
+	_hex_grid = null
+	_world_controller = null
+	_hud_presenter = null
 
 
 func _ensure_runtime_singletons() -> void:
@@ -444,6 +597,7 @@ func _ensure_runtime_singletons() -> void:
 		var node_instance: Node = singleton_node as Node
 		node_instance.name = singleton_name
 		root.add_child(node_instance)
+		_created_singletons.append(node_instance)
 	# Ensure all _ready callbacks run before using these services.
 	await process_frame
 

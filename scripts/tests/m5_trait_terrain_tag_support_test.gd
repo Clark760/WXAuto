@@ -2,8 +2,8 @@
 
 const UNIT_DATA_SCRIPT: Script = preload("res://scripts/data/unit_data.gd")
 const UNIT_BASE_SCENE: PackedScene = preload("res://scenes/units/unit_base.tscn")
-const STAGE_DATA_SCRIPT: Script = preload("res://scripts/stage/stage_data.gd")
-const TERRAIN_MANAGER_SCRIPT: Script = preload("res://scripts/board/terrain_manager.gd")
+const STAGE_DATA_SCRIPT: Script = preload("res://scripts/domain/stage/stage_data.gd")
+const TERRAIN_MANAGER_SCRIPT: Script = preload("res://scripts/combat/terrain_manager.gd")
 
 var _failed: int = 0
 

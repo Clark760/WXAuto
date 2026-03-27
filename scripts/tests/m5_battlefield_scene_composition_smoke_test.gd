@@ -2,6 +2,22 @@ extends SceneTree
 
 const BATTLEFIELD_SCENE: PackedScene = preload("res://scenes/battle/battlefield_scene.tscn")
 const NEW_ROOT_SCRIPT_PATH: String = "res://scripts/app/battlefield/battlefield_scene.gd"
+const LEGACY_BATTLEFIELD_SCENE_PATH: String = "res://scenes/battle/" + "battlefield.tscn"
+const LEGACY_ENTRY_TOKEN: String = "res://scenes/battle/" + "battlefield.tscn"
+const LEGACY_SCRIPT_PATHS: Array[String] = [
+	"res://scripts/board/" + "battlefield.gd",
+	"res://scripts/battle/" + "battlefield_runtime.gd",
+	"res://scripts/ui/" + "battlefield_ui.gd",
+	"res://scripts/combat/" + "battle_flow.gd",
+	"res://scripts/board/" + "terrain_manager.gd"
+]
+const LEGACY_SCRIPT_UID_PATHS: Array[String] = [
+	"res://scripts/board/" + "battlefield.gd.uid",
+	"res://scripts/battle/" + "battlefield_runtime.gd.uid",
+	"res://scripts/ui/" + "battlefield_ui.gd.uid",
+	"res://scripts/combat/" + "battle_flow.gd.uid",
+	"res://scripts/board/" + "terrain_manager.gd.uid"
+]
 
 var _failed: int = 0
 
@@ -75,10 +91,17 @@ func _run() -> void:
 		battlefield.get_session_state() != null and battlefield.get_session_state().scene_ready,
 		"session state should be created and marked ready"
 	)
-	_assert_true(battlefield.is_batch1_ready(), "battlefield_scene should report Batch 1 ready")
 	_assert_true(
-		battlefield.get_world_controller() != null and battlefield.get_world_controller().is_batch2_ready(),
-		"BattlefieldWorldController should finish Batch 2 world initialization"
+		battlefield.get_coordinator() != null and battlefield.get_coordinator().is_initialized(),
+		"BattlefieldCoordinator should finish composition initialization"
+	)
+	_assert_true(
+		battlefield.get_world_controller() != null and battlefield.get_world_controller().is_initialized(),
+		"BattlefieldWorldController should finish composition initialization"
+	)
+	_assert_true(
+		battlefield.get_hud_presenter() != null and battlefield.get_hud_presenter().is_initialized(),
+		"BattlefieldHudPresenter should finish composition initialization"
 	)
 	_assert_true(
 		battlefield.get_scene_refs() != null and battlefield.get_scene_refs().bench_ui != null,
@@ -91,8 +114,26 @@ func _run() -> void:
 		"session state should enter preparation stage with expanded bottom panel"
 	)
 	_assert_true(
-		battlefield.is_batch2_world_ready(),
-		"battlefield_scene should report Batch 2 world ready"
+		not FileAccess.file_exists(LEGACY_BATTLEFIELD_SCENE_PATH),
+		"legacy battlefield scene file should be deleted in Batch 4"
+	)
+	_assert_true(
+		_find_legacy_entry_refs().is_empty(),
+		"scripts/scenes should not reference the legacy battlefield scene path"
+	)
+	for legacy_script_path in LEGACY_SCRIPT_PATHS:
+		_assert_true(
+			not FileAccess.file_exists(legacy_script_path),
+			"legacy battlefield chain script should be deleted: %s" % legacy_script_path
+		)
+	for legacy_uid_path in LEGACY_SCRIPT_UID_PATHS:
+		_assert_true(
+			not FileAccess.file_exists(legacy_uid_path),
+			"legacy battlefield chain uid should be deleted: %s" % legacy_uid_path
+		)
+	_assert_true(
+		_find_legacy_script_refs().is_empty(),
+		"scripts/scenes should not reference the deleted legacy battlefield script chain"
 	)
 
 	battlefield.queue_free()
@@ -113,3 +154,50 @@ func _assert_true(condition: bool, message: String) -> void:
 		return
 	_failed += 1
 	push_error(message)
+
+
+func _find_legacy_entry_refs() -> Array[String]:
+	var matches: Array[String] = []
+	_collect_legacy_token_refs("res://scripts", matches, [LEGACY_ENTRY_TOKEN])
+	_collect_legacy_token_refs("res://scenes", matches, [LEGACY_ENTRY_TOKEN])
+	return matches
+
+
+func _find_legacy_script_refs() -> Array[String]:
+	var matches: Array[String] = []
+	var tokens: Array[String] = LEGACY_SCRIPT_PATHS.duplicate()
+	tokens.append_array(LEGACY_SCRIPT_UID_PATHS)
+	_collect_legacy_token_refs("res://scripts", matches, tokens)
+	_collect_legacy_token_refs("res://scenes", matches, tokens)
+	return matches
+
+
+func _collect_legacy_token_refs(
+	dir_path: String,
+	matches: Array[String],
+	tokens: Array[String]
+) -> void:
+	var dir: DirAccess = DirAccess.open(dir_path)
+	if dir == null:
+		return
+	dir.list_dir_begin()
+	while true:
+		var entry: String = dir.get_next()
+		if entry.is_empty():
+			break
+		if entry.begins_with("."):
+			continue
+		var child_path: String = "%s/%s" % [dir_path, entry]
+		if dir.current_is_dir():
+			_collect_legacy_token_refs(child_path, matches, tokens)
+			continue
+		if not entry.ends_with(".gd") and not entry.ends_with(".tscn"):
+			continue
+		var file: FileAccess = FileAccess.open(child_path, FileAccess.READ)
+		if file == null:
+			continue
+		var content: String = file.get_as_text()
+		for token in tokens:
+			if content.contains(token):
+				matches.append("%s => %s" % [child_path, token])
+				break

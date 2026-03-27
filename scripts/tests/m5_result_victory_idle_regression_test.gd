@@ -1,11 +1,6 @@
 extends SceneTree
 
 const UNIT_BASE_SCENE: PackedScene = preload("res://scenes/units/unit_base.tscn")
-const BATTLEFIELD_RUNTIME_SCRIPT: Script = preload("res://scripts/battle/battlefield_runtime.gd")
-
-const STAGE_PREPARATION: int = 0
-const STAGE_COMBAT: int = 1
-const STAGE_RESULT: int = 2
 
 var _failed: int = 0
 
@@ -21,27 +16,8 @@ func _init() -> void:
 
 
 func _run() -> void:
-	await _test_compact_label_policy_for_result_stage()
 	await _test_idle_animation_restarts_after_reset()
 	await _test_result_style_labels_visible_after_leave_combat()
-
-
-func _test_compact_label_policy_for_result_stage() -> void:
-	var runtime: Node = BATTLEFIELD_RUNTIME_SCRIPT.new()
-	_assert_true(
-		not bool(runtime.call("_should_use_compact_unit_labels_for_stage", STAGE_PREPARATION)),
-		"PREPARATION should not use compact labels"
-	)
-	_assert_true(
-		bool(runtime.call("_should_use_compact_unit_labels_for_stage", STAGE_COMBAT)),
-		"COMBAT should use compact labels"
-	)
-	_assert_true(
-		not bool(runtime.call("_should_use_compact_unit_labels_for_stage", STAGE_RESULT)),
-		"RESULT should not use compact labels"
-	)
-	runtime.queue_free()
-	await process_frame
 
 
 func _test_idle_animation_restarts_after_reset() -> void:

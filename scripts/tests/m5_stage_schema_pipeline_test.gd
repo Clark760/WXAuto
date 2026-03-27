@@ -1,6 +1,6 @@
 extends SceneTree
 
-const STAGE_DATA_SCRIPT: Script = preload("res://scripts/stage/stage_data.gd")
+const STAGE_DATA_SCRIPT: Script = preload("res://scripts/domain/stage/stage_data.gd")
 const STAGE_SCHEMA_PATH: String = "res://data/stages/_schema/stage.schema.json"
 
 var _failed: int = 0

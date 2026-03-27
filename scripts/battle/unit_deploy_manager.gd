@@ -71,6 +71,14 @@ func initialize(refs, state, delegate) -> void:
 	)
 
 
+# 兼容入口：历史测试仍传入单一 host 对象。
+# 这里只做参数转发，不恢复旧 runtime 的动态调用风格。
+func configure(host: Node) -> void:
+	if host == null:
+		return
+	initialize(host, host, host)
+
+
 # 暴露初始化结果，供 world controller 和烟测确认显式注入已经完成。
 func is_initialized() -> bool:
 	return _initialized
@@ -463,5 +471,4 @@ func _has_property(target, property_name: String) -> bool:
 		if str(property_info.get("name", "")) == property_name:
 			return true
 	return false
-
 

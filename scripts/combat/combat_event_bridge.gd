@@ -6,7 +6,7 @@ class_name CombatEventBridge
 # 这里不做战斗规则判定，只把组件层事件整理成 CombatManager 的稳定语义。
 # 对外部系统来说，CombatManager.signal 的字段口径必须保持兼容。
 func emit_team_alive_count_changed(
-	manager: CombatManager,
+	manager,
 	team_id: int
 ) -> void:
 	if team_id != manager.TEAM_ALLY and team_id != manager.TEAM_ENEMY:
@@ -21,7 +21,7 @@ func emit_team_alive_count_changed(
 # `from_cell` 或 `to_cell` 为非法格时，仍然允许发送 `unit_cell_changed`。
 # `unit_move_success` 只在“合法格 -> 合法格”且格子确实变化时发射。
 func notify_unit_cell_changed(
-	manager: CombatManager,
+	manager,
 	unit: Node,
 	from_cell: Vector2i,
 	to_cell: Vector2i
@@ -50,7 +50,7 @@ func notify_unit_cell_changed(
 func on_combat_component_died(
 	dead_unit: Node,
 	killer: Node,
-	manager: CombatManager
+	manager
 ) -> void:
 	if not manager._battle_running:
 		return
@@ -66,7 +66,7 @@ func on_combat_component_died(
 func handle_unit_death_from_signal(
 	dead_unit: Node,
 	killer: Node,
-	manager: CombatManager
+	manager
 ) -> void:
 	if not manager._battle_running:
 		return
@@ -80,7 +80,7 @@ func on_combat_component_damaged(
 	target: Node,
 	source: Node,
 	event: Dictionary,
-	manager: CombatManager
+	manager
 ) -> void:
 	if not manager._battle_running:
 		return
@@ -107,7 +107,7 @@ func on_combat_component_healing_performed(
 	target: Node,
 	amount: float,
 	heal_type: String,
-	manager: CombatManager
+	manager
 ) -> void:
 	if not manager._battle_running:
 		return
@@ -123,7 +123,7 @@ func on_combat_component_thorns_damage_dealt(
 	source: Node,
 	target: Node,
 	event: Dictionary,
-	manager: CombatManager
+	manager
 ) -> void:
 	if not manager._battle_running:
 		return

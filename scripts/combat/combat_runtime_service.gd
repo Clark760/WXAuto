@@ -5,7 +5,7 @@ class_name CombatRuntimeService
 # 承接 Combat 的主循环、开战/停战与战报汇总。
 # `manager` 是 facade，本服务只消费它已经公开的运行时状态和 helper。
 # `_process` 的 Godot 入口仍保留在 manager，这里只承接真实逻辑。
-func process(manager: CombatManager, delta: float) -> void:
+func process(manager, delta: float) -> void:
 	if not manager._battle_running:
 		return
 
@@ -32,7 +32,7 @@ func process(manager: CombatManager, delta: float) -> void:
 # `battle_seed` 小于等于 0 时会在服务内部改写为稳定随机种子。
 # 这里不改外部 API，只把串行编排从 facade 中搬走。
 func start_battle(
-	manager: CombatManager,
+	manager,
 	ally_units: Array[Node],
 	enemy_units: Array[Node],
 	battle_seed: int = 0
@@ -61,7 +61,7 @@ func start_battle(
 # `winner_team` 只影响总结与结算动画，不在这里反推胜负。
 # 这条路径同时服务手动停止、重开战斗和歼灭结算。
 func stop_battle(
-	manager: CombatManager,
+	manager,
 	reason: String = "manual",
 	winner_team: int = 0
 ) -> void:
@@ -86,7 +86,7 @@ func stop_battle(
 # 单个逻辑步负责驱动预扫描、地形 tick、流场刷新与单位行为执行。
 # 攻击/移动的具体规则仍由 facade 现有 helper 继续承接，后续 Batch 3B 再迁出。
 # 本轮只先拆掉“主循环编排”，不在这里混入移动和攻击规则重写。
-func logic_tick(manager: CombatManager, delta: float) -> void:
+func logic_tick(manager, delta: float) -> void:
 	var tick_begin_us: int = Time.get_ticks_usec()
 	manager._metrics.reset_tick_metrics(manager)
 	manager._logic_frame += 1
@@ -149,7 +149,7 @@ func logic_tick(manager: CombatManager, delta: float) -> void:
 # 双方存活数只要有一侧归零，就立即走 stop_battle。
 # 这里是战斗循环内的统一终止点，避免多处各自判定胜负。
 # 胜负判定口径保持旧逻辑，不在服务层额外引入平局新语义。
-func finalize_if_needed(manager: CombatManager) -> void:
+func finalize_if_needed(manager) -> void:
 	var ally_alive: int = int(manager._alive_by_team.get(manager.TEAM_ALLY, 0))
 	var enemy_alive: int = int(manager._alive_by_team.get(manager.TEAM_ENEMY, 0))
 	if ally_alive > 0 and enemy_alive > 0:
@@ -166,7 +166,7 @@ func finalize_if_needed(manager: CombatManager) -> void:
 # 战斗种子统一在这里设定，保证 start_battle 不直接操作随机源细节。
 # `battle_seed<=0` 时使用当前时间兜底，保持外部 API 不变。
 # 随机源仍复用 manager 持有的 `_rng`，不单独再建第二套状态。
-func setup_battle_seed(manager: CombatManager, battle_seed: int) -> void:
+func setup_battle_seed(manager, battle_seed: int) -> void:
 	var actual_seed: int = battle_seed
 	if actual_seed <= 0:
 		actual_seed = int(Time.get_ticks_usec() % 2147483647)
@@ -176,7 +176,7 @@ func setup_battle_seed(manager: CombatManager, battle_seed: int) -> void:
 # 初始化逻辑帧步长、累计器和轮换攻击相位。
 # 这里只改运行时状态，不负责注册单位或广播信号。
 # 这样 Batch 3A 后，manager 就不再持有完整的“开战状态机”实现体。
-func begin_battle_loop(manager: CombatManager) -> void:
+func begin_battle_loop(manager) -> void:
 	manager._logic_step = 1.0 / maxf(manager.logic_fps, 1.0)
 	manager._logic_accumulator = 0.0
 	manager._logic_frame = 0
@@ -190,7 +190,7 @@ func begin_battle_loop(manager: CombatManager) -> void:
 # `reason` 与 `winner_team` 由外部调用方传入，不在这里推导业务原因。
 # summary 字段集合必须保持兼容，不能在服务拆分时偷偷改口径。
 func build_battle_summary(
-	manager: CombatManager,
+	manager,
 	reason: String,
 	winner_team: int
 ) -> Dictionary:
@@ -208,7 +208,7 @@ func build_battle_summary(
 # `winner_team` 只决定胜利动画归属，不改变单位存活状态。
 # 视觉节点和动态交互暂时留在 manager helper，避免新服务重新长出动态调用。
 func cleanup_unit_after_battle(
-	manager: CombatManager,
+	manager,
 	unit: Node,
 	winner_team: int
 ) -> void:
@@ -219,7 +219,7 @@ func cleanup_unit_after_battle(
 # 整场战斗开始前统一清空缓存、计数器、占格和临时地形。
 # 该函数只用于整局重置，不能拿来做逻辑帧内的增量清理。
 # 这里和 `pre_tick_scan` 的职责不同，前者是整局 reset，后者是逐帧刷新。
-func reset_battle_runtime_state(manager: CombatManager) -> void:
+func reset_battle_runtime_state(manager) -> void:
 	manager._all_units.clear()
 	manager._unit_by_instance_id.clear()
 	manager._dead_registry.clear()

@@ -20,8 +20,6 @@ const BATTLEFIELD_SESSION_STATE_SCRIPT: Script = preload(
 
 # `RefCounted` 足够承接会话状态；这里不对外暴露可写字段。
 var _session_state: RefCounted = null
-var _batch1_ready: bool = false
-var _batch2_world_ready: bool = false
 
 
 # 这里是新入口唯一允许的初始化顺序：
@@ -38,14 +36,6 @@ func _ready() -> void:
 	if _coordinator.has_method("start_session"):
 		_coordinator.start_session()
 	_session_state.mark_scene_ready()
-	_batch1_ready = (
-		_scene_refs.has_required_scene_nodes()
-		and _scene_refs.has_required_runtime_nodes()
-		and _coordinator.is_initialized()
-		and _world_controller.is_initialized()
-		and _hud_presenter.is_initialized()
-	)
-	_batch2_world_ready = _world_controller.is_batch2_ready()
 
 
 # 根场景只转发输入，不在这里重新写世界交互分支。
@@ -101,13 +91,3 @@ func get_world_controller() -> Node:
 # HUD presenter 通过 getter 暴露，避免测试直接写死子节点路径。
 func get_hud_presenter() -> Node:
 	return _hud_presenter
-
-
-# Batch 1 只回答“组合骨架是否就位”，不承担玩法正确性的验收。
-func is_batch1_ready() -> bool:
-	return _batch1_ready
-
-
-# Batch 2 只回答世界控制器是否接管了交互骨架，不代表 HUD/编排已迁完。
-func is_batch2_world_ready() -> bool:
-	return _batch2_world_ready

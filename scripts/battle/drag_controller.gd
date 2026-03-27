@@ -56,7 +56,6 @@ func initialize(refs, state, delegate) -> void:
 		and _state != null
 		and _delegate != null
 		and _get_ref("bench_ui") != null
-		and _get_ref("drag_preview") != null
 		and _get_ref("hex_grid") != null
 	)
 
@@ -113,9 +112,7 @@ func begin_drag(
 		canvas_item.visible = false
 
 	_delegate._update_drag_preview_data(unit)
-	var drag_preview = _get_ref("drag_preview")
-	if drag_preview != null:
-		drag_preview.visible = true
+	_delegate._set_drag_preview_visible(true)
 	_delegate._update_drag_preview(screen_pos)
 	update_drag_target(screen_pos)
 	_delegate._refresh_multimesh()
@@ -162,9 +159,7 @@ func finish_drag() -> void:
 	_write_state("drag_target_cell", INVALID_CELL)
 	_write_state("drag_target_valid", false)
 
-	var drag_preview = _get_ref("drag_preview")
-	if drag_preview != null:
-		drag_preview.visible = false
+	_delegate._set_drag_preview_visible(false)
 	var recycle_drop_zone = _get_ref("recycle_drop_zone")
 	if recycle_drop_zone != null and recycle_drop_zone.has_method("clear_external_preview"):
 		recycle_drop_zone.call("clear_external_preview")
@@ -347,5 +342,4 @@ func _has_property(target, property_name: String) -> bool:
 		if str(property_info.get("name", "")) == property_name:
 			return true
 	return false
-
 

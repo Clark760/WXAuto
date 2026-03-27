@@ -17,13 +17,12 @@
 # 3. 回收价格优先取条目品质，再用外部传入值做兜底。
 
 const STAGE_PREPARATION: int = 0 # 只有备战期允许商店和出售动作。
-const QUALITY_SELL_PRICE: Dictionary = {
-	"white": 1, # 白色品质的默认回收价。
-	"green": 2, # 绿色品质的默认回收价。
-	"blue": 3, # 蓝色品质的默认回收价。
-	"purple": 5, # 紫色品质的默认回收价。
-	"orange": 8 # 橙色品质的默认回收价。
-}
+const RECYCLE_PRICING_SCRIPT: Script = preload(
+	"res://scripts/domain/economy/recycle_pricing.gd"
+) # 回收定价纯规则脚本。
+# 价格规则继续留在 domain，support 这里只负责把条目出售结果落到运行时资产。
+# 这样后续调平衡时不必再回到 coordinator support 改硬编码价格表。
+# 运行时层保留的职责只有扣库存、加银两和写 battle log。
 
 var _owner = null # coordinator facade，用于刷新 presenter。
 var _refs = null # 场景引用表。
@@ -263,7 +262,8 @@ func on_recycle_sell_requested(payload: Dictionary, price: int) -> void:
 	var raw_item_data: Variant = payload.get("item_data", {})
 	if raw_item_data is Dictionary:
 		item_data = (raw_item_data as Dictionary).duplicate(true)
-	var final_price: int = _get_sell_price_item(item_data)
+	# payload 没带完整条目数据时，仍允许外部 price 作为最终兜底价落账。
+	var final_price: int = RECYCLE_PRICING_SCRIPT.item_sell_price(item_data)
 	if final_price <= 0:
 		final_price = maxi(price, 0)
 	_refs.runtime_economy_manager.call("add_silver", final_price)
@@ -381,15 +381,6 @@ func _sell_unit_node(unit_node: Node) -> bool:
 	_owner._append_battle_log("出售角色：%s（+%d 银两）" % [unit_name, unit_price], "system")
 	_owner._refresh_presenter()
 	return true
-
-
-# 非角色条目出售时按品质表读取银两回收价。
-# 价格表只看品质，不额外耦合商店原价，方便后续单独调平衡。
-func _get_sell_price_item(item_data: Dictionary) -> int:
-	var quality_key: String = str(item_data.get("quality", "white")).strip_edges().to_lower()
-	return int(QUALITY_SELL_PRICE.get(quality_key, 1))
-
-
 # 出售日志需要把 id 翻译成人类可读名称。
 # 日志名称只影响展示，不反向修改库存里保存的原始 id。
 func _resolve_sell_item_name(item_type: String, item_id: String) -> String:
@@ -422,5 +413,3 @@ func _shuffle_cells(cells: Array[Vector2i]) -> void:
 		var temp: Vector2i = cells[index]
 		cells[index] = cells[swap_index]
 		cells[swap_index] = temp
-
-

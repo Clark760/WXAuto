@@ -6,10 +6,10 @@ class_name CombatTerrainService
 # `manager` 仍是 facade，持有信号、HexGrid 与运行时缓存。
 # 这里不重新定义玩法语义，只迁移原先堆在 CombatManager 内的实现体。
 func reload_terrain_registry(
-	manager: CombatManager,
+	manager,
 	data_manager: Node = null
 ) -> void:
-	var terrain_manager: TerrainManager = manager._terrain_manager
+	var terrain_manager = manager._terrain_manager
 	if terrain_manager == null:
 		return
 
@@ -35,11 +35,11 @@ func reload_terrain_registry(
 # `config` 仍由 effect/runtime gateway 组装，这里只做 Combat 侧接入。
 # barrier 与 visual 的后处理保持旧顺序，避免事件和阻挡刷新时序漂移。
 func add_temporary_terrain(
-	manager: CombatManager,
+	manager,
 	config: Dictionary,
 	source: Node = null
 ) -> bool:
-	var terrain_manager: TerrainManager = manager._terrain_manager
+	var terrain_manager = manager._terrain_manager
 	if terrain_manager == null:
 		return false
 	if not manager._terrain_registry_loaded:
@@ -63,8 +63,8 @@ func add_temporary_terrain(
 # 清空临时地形时，Combat 自己维护的动态阻挡缓存也必须同步清空。
 # 这里仍会强制刷新可视层，避免 HexGrid 上残留旧着色。
 # 即使没有任何地形实例，也保持旧版“调用即广播 clear_temporary”的行为。
-func clear_temporary_terrains(manager: CombatManager) -> void:
-	var terrain_manager: TerrainManager = manager._terrain_manager
+func clear_temporary_terrains(manager) -> void:
+	var terrain_manager = manager._terrain_manager
 	if terrain_manager != null:
 		terrain_manager.clear_temporary_terrains()
 	manager.clear_terrain_blocked_cells()
@@ -76,12 +76,12 @@ func clear_temporary_terrains(manager: CombatManager) -> void:
 # `cells` 继续允许外层传原始 Array，TerrainManager 会负责解析成 Vector2i 列表。
 # 添加成功后的 `terrain_created` reason 继续区分为 add_static。
 func add_static_terrain(
-	manager: CombatManager,
+	manager,
 	terrain_id: String,
 	cells: Array,
 	extra_config: Dictionary = {}
 ) -> bool:
-	var terrain_manager: TerrainManager = manager._terrain_manager
+	var terrain_manager = manager._terrain_manager
 	if terrain_manager == null:
 		return false
 	if not manager._terrain_registry_loaded:
@@ -108,8 +108,8 @@ func add_static_terrain(
 # 清空静态地形时只影响关卡障碍，不动临时地形实例。
 # 这一点必须和 `clear_temporary_terrains` 分开，否则战斗中召唤地形会被误删。
 # 阻挡与视觉缓存都按旧逻辑立即重建。
-func clear_static_terrains(manager: CombatManager) -> void:
-	var terrain_manager: TerrainManager = manager._terrain_manager
+func clear_static_terrains(manager) -> void:
+	var terrain_manager = manager._terrain_manager
 	if terrain_manager != null:
 		terrain_manager.clear_static_terrains()
 	manager.clear_static_blocked_cells()
@@ -121,11 +121,11 @@ func clear_static_terrains(manager: CombatManager) -> void:
 # `scope` 语义保持不变，仍支持 all/static/dynamic。
 # 返回值必须是去重后的 Array[String]，供 trigger 和 UI tooltip 共用。
 func get_terrain_tags_at_cell(
-	manager: CombatManager,
+	manager,
 	cell: Vector2i,
 	scope: String = "all"
 ) -> Array[String]:
-	var terrain_manager: TerrainManager = manager._terrain_manager
+	var terrain_manager = manager._terrain_manager
 	if terrain_manager == null:
 		return []
 	return terrain_manager.get_terrain_tags_at_cell(cell, scope, manager._hex_grid)
@@ -135,12 +135,12 @@ func get_terrain_tags_at_cell(
 # `tag` 会在 TerrainManager 内部做标准化，这里不重复处理。
 # Combat 只负责兜底 null manager 的情况。
 func cell_has_terrain_tag(
-	manager: CombatManager,
+	manager,
 	cell: Vector2i,
 	tag: String,
 	scope: String = "all"
 ) -> bool:
-	var terrain_manager: TerrainManager = manager._terrain_manager
+	var terrain_manager = manager._terrain_manager
 	if terrain_manager == null:
 		return false
 	return terrain_manager.cell_has_terrain_tag(cell, tag, scope, manager._hex_grid)
@@ -149,8 +149,8 @@ func cell_has_terrain_tag(
 # 地形 tick 只负责推进地形生命周期和回放 phase event。
 # `delta` 使用 Combat 固定逻辑步长，不额外引入第二套时间口径。
 # 进入、退出、tick、expire 的事件顺序仍完全由 TerrainManager 决定。
-func tick_terrain(manager: CombatManager, delta: float) -> void:
-	var terrain_manager: TerrainManager = manager._terrain_manager
+func tick_terrain(manager, delta: float) -> void:
+	var terrain_manager = manager._terrain_manager
 	if terrain_manager == null or manager._hex_grid == null:
 		return
 
@@ -178,7 +178,7 @@ func tick_terrain(manager: CombatManager, delta: float) -> void:
 # HexGrid 上的可视地形始终来自 TerrainManager 的 visual cache。
 # manager 只持有 HexGrid 引用，不再在 facade 内自己组 visual map。
 # 这里故意不发 signal；signal 由显式调用 `emit_terrain_changed` 的路径统一处理。
-func apply_terrain_visuals(manager: CombatManager) -> void:
+func apply_terrain_visuals(manager) -> void:
 	var hex_grid: Node = manager._hex_grid
 	if hex_grid == null or not is_instance_valid(hex_grid):
 		return
@@ -186,7 +186,7 @@ func apply_terrain_visuals(manager: CombatManager) -> void:
 		return
 
 	var visual_cells: Dictionary = {}
-	var terrain_manager: TerrainManager = manager._terrain_manager
+	var terrain_manager = manager._terrain_manager
 	if terrain_manager != null:
 		visual_cells = terrain_manager.get_visual_cells(hex_grid)
 	var hex_grid_api: Variant = hex_grid
@@ -196,8 +196,8 @@ func apply_terrain_visuals(manager: CombatManager) -> void:
 # terrain_changed 只关心“上次可视格集合”和“本次可视格集合”的差异。
 # `_last_terrain_cells` 仍存 int-key map，避免每次 signal 都保留 Vector2i 大数组。
 # reason 继续由调用方显式传入，方便 trigger 与调试区分来源。
-func emit_terrain_changed(manager: CombatManager, reason: String) -> void:
-	var terrain_manager: TerrainManager = manager._terrain_manager
+func emit_terrain_changed(manager, reason: String) -> void:
+	var terrain_manager = manager._terrain_manager
 	var hex_grid: Node = manager._hex_grid
 	if terrain_manager == null or hex_grid == null or not is_instance_valid(hex_grid):
 		manager.terrain_changed.emit([], reason)
@@ -230,12 +230,12 @@ func emit_terrain_changed(manager: CombatManager, reason: String) -> void:
 # 这里不碰静态阻挡缓存，避免把关卡障碍和战斗内地形混在一起。
 # `result` 只读取 `barrier_changed` 标志，不依赖其它附带字段。
 func _sync_dynamic_barrier_cells(
-	manager: CombatManager,
+	manager,
 	result: Dictionary
 ) -> void:
 	if not bool(result.get("barrier_changed", false)):
 		return
-	var terrain_manager: TerrainManager = manager._terrain_manager
+	var terrain_manager = manager._terrain_manager
 	if terrain_manager == null:
 		return
 	manager.set_terrain_blocked_cells(terrain_manager.get_barrier_cells("dynamic"))
@@ -245,12 +245,12 @@ func _sync_dynamic_barrier_cells(
 # 和动态 barrier 分开维护，能避免 clear_temporary 时把静态阻挡误清。
 # `result` 来源于 add_static_terrain，不混用 tick 的返回值。
 func _sync_static_barrier_cells(
-	manager: CombatManager,
+	manager,
 	result: Dictionary
 ) -> void:
 	if not bool(result.get("barrier_changed", false)):
 		return
-	var terrain_manager: TerrainManager = manager._terrain_manager
+	var terrain_manager = manager._terrain_manager
 	if terrain_manager == null:
 		return
 	manager.set_static_blocked_cells(terrain_manager.get_barrier_cells("static"))

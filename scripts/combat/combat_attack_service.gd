@@ -6,7 +6,7 @@ class_name CombatAttackService
 # `manager` 仍掌握 signal 与 runtime cache，这里只迁出规则实现体。
 # 外部 API 不变，facade 继续通过 `_try_execute_attack` 等旧入口转发。
 func try_execute_attack(
-	manager: CombatManager,
+	manager,
 	unit: Node,
 	combat: Node,
 	target: Node
@@ -62,7 +62,7 @@ func try_execute_attack(
 # 伤害数字、受击动画与 VFX 的触发顺序保持原逻辑不变。
 # `event_dict` 必须原样保留，避免改动外部依赖的字段口径。
 func on_attack_resolved(
-	manager: CombatManager,
+	manager,
 	source: Node,
 	target: Node,
 	event_dict: Dictionary
@@ -82,7 +82,7 @@ func on_attack_resolved(
 # `_dead_registry` 继续承担幂等保护，避免同一单位多次结算死亡。
 # 处理完成后仍会立即尝试 finalize，以阻断同帧残余行为。
 func handle_unit_death(
-	manager: CombatManager,
+	manager,
 	dead_unit: Node,
 	killer: Node
 ) -> void:
@@ -122,7 +122,7 @@ func handle_unit_death(
 # `logic_frame` 继续来自 manager 运行时，确保回放和测试断言稳定。
 # source/target 均按当前瞬时 team_id 回写，保持旧行为。
 func build_damage_event(
-	manager: CombatManager,
+	manager,
 	source: Node,
 	target: Node,
 	event_dict: Dictionary
@@ -176,7 +176,7 @@ func _play_attack_animation(
 # 闪避时只弹 dodge 字，不播放受击动画和攻击特效。
 # 非闪避时同时负责受击动画、攻击特效和伤害数字。
 func _play_hit_feedback(
-	manager: CombatManager,
+	manager,
 	source: Node,
 	target: Node,
 	event_dict: Dictionary,
@@ -202,7 +202,7 @@ func _play_hit_feedback(
 # `is_dodge` 为 true 时 amount 固定按旧逻辑传 0。
 # 如果当前场景没有挂 VFXFactory，则直接静默跳过。
 func _spawn_damage_text(
-	manager: CombatManager,
+	manager,
 	world_pos: Vector2,
 	amount: float,
 	is_crit: bool,
@@ -219,7 +219,7 @@ func _spawn_damage_text(
 # 如果未来需要按武器或伤害类型拆分，应在更上层决策后再扩。
 # 这里不做资源选择逻辑，只承接旧的播放动作。
 func _play_attack_vfx(
-	manager: CombatManager,
+	manager,
 	from_pos: Vector2,
 	to_pos: Vector2
 ) -> void:

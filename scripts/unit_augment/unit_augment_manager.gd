@@ -157,6 +157,12 @@ func get_unit_runtime_equip_ids(unit: Node) -> Array[String]:
 	return _state_service.get_unit_runtime_equip_ids(unit)
 
 
+# 兼容入口：旧测试仍通过私有方法名 `_resolve_equipped_equip_ids` 读取装备结果。
+# manager 不再自行实现解析逻辑，统一委托给 state service 的运行时口径。
+func _resolve_equipped_equip_ids(unit: Node) -> Array[String]:
+	return _state_service.get_unit_runtime_equip_ids(unit)
+
+
 # tag registry snapshot 只暴露副本，避免外层误写版本表。
 func get_tag_registry_snapshot() -> Dictionary:
 	return _tag_registry_service.get_snapshot()
