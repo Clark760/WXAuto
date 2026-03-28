@@ -17,6 +17,7 @@ const CATEGORY_ORDER: Array[String] = [
 	"levels",
 	"terrains",
 	"stages",
+	"ui_texts",
 	"vfx"
 ]
 
@@ -28,6 +29,7 @@ const CATEGORY_PATHS: Dictionary = {
 	"levels": "res://data/levels",
 	"terrains": "res://data/terrains",
 	"stages": "res://data/stages",
+	"ui_texts": "res://data/ui_texts",
 	"vfx": "res://data/vfx"
 }
 
@@ -46,19 +48,24 @@ var _source_index: Dictionary = {}
 
 # 记录本次加载扫描过的 json 文件路径，便于定位问题。
 var _loaded_files: Array[String] = []
+var _services: ServiceRegistry = null
 
+# 绑定 bind runtime services
+func bind_runtime_services(services: ServiceRegistry) -> void:
+	_services = services
 
+# 处理 ready
 func _ready() -> void:
 	reset_database()
 
-
+# 获取 get supported categories
 func get_supported_categories() -> Array[String]:
 	var output: Array[String] = []
 	for category in CATEGORY_ORDER:
 		output.append(category)
 	return output
 
-
+# 清理 reset database
 func reset_database() -> void:
 	_database.clear()
 	_source_index.clear()
@@ -67,7 +74,7 @@ func reset_database() -> void:
 	for category in CATEGORY_ORDER:
 		_database[category] = {}
 
-
+# 重载 load base data
 func load_base_data() -> Dictionary:
 	reset_database()
 
@@ -94,10 +101,10 @@ func load_base_data() -> Dictionary:
 
 	var event_bus: Node = _get_event_bus()
 	if event_bus != null:
-		event_bus.call("emit_data_reloaded", true, summary)
+		event_bus.emit_data_reloaded(true, summary)
 	return summary
 
-
+# 重载 load category from dir
 func load_category_from_dir(category: String, dir_path: String, source_tag: String) -> Dictionary:
 	if not _database.has(category):
 		push_warning("DataManager: 不支持的 category=%s" % category)
@@ -112,14 +119,14 @@ func load_category_from_dir(category: String, dir_path: String, source_tag: Stri
 	merge_result["records"] = records.size()
 	return merge_result
 
-
+# 获取 get record
 func get_record(category: String, record_id: String) -> Dictionary:
 	var category_map: Dictionary = _database.get(category, {})
 	if not category_map.has(record_id):
 		return {}
 	return (category_map[record_id] as Dictionary).duplicate(true)
 
-
+# 获取 get all records
 func get_all_records(category: String) -> Array[Dictionary]:
 	var output: Array[Dictionary] = []
 	var category_map: Dictionary = _database.get(category, {})
@@ -128,12 +135,12 @@ func get_all_records(category: String) -> Array[Dictionary]:
 			output.append((record as Dictionary).duplicate(true))
 	return output
 
-
+# 获取 get category count
 func get_category_count(category: String) -> int:
 	var category_map: Dictionary = _database.get(category, {})
 	return category_map.size()
 
-
+# 获取 get summary
 func get_summary() -> Dictionary:
 	var category_counts: Dictionary = {}
 	var total_records: int = 0
@@ -148,7 +155,7 @@ func get_summary() -> Dictionary:
 		"total_files": _loaded_files.size()
 	}
 
-
+# 获取 get summary text
 func get_summary_text() -> String:
 	var lines: Array[String] = []
 	lines.append("数据加载统计：")
@@ -161,11 +168,11 @@ func get_summary_text() -> String:
 
 	return "\n".join(lines)
 
-
+# 获取 get source of
 func get_source_of(category: String, record_id: String) -> String:
 	return str(_source_index.get("%s:%s" % [category, record_id], "unknown"))
 
-
+# 重载 read records from dir
 func _read_records_from_dir(dir_path: String) -> Dictionary:
 	var records: Array = []
 	var files: int = 0
@@ -210,7 +217,7 @@ func _read_records_from_dir(dir_path: String) -> Dictionary:
 	dir.list_dir_end()
 	return {"records": records, "files": files}
 
-
+# 重载 load json file
 func _load_json_file(file_path: String) -> Variant:
 	if not FileAccess.file_exists(file_path):
 		push_warning("DataManager: JSON 文件不存在：%s" % file_path)
@@ -228,7 +235,7 @@ func _load_json_file(file_path: String) -> Variant:
 
 	return parser.data
 
-
+# 规范 normalize json payload
 func _normalize_json_payload(payload: Variant, file_path: String) -> Array:
 	var records: Array = []
 
@@ -276,7 +283,7 @@ func _normalize_json_payload(payload: Variant, file_path: String) -> Array:
 
 	return records
 
-
+# 处理 sanitize record
 func _sanitize_record(record: Dictionary, file_path: String) -> Dictionary:
 	var copied: Dictionary = record.duplicate(true)
 	var record_id: String = str(copied.get("id", "")).strip_edges()
@@ -288,7 +295,7 @@ func _sanitize_record(record: Dictionary, file_path: String) -> Dictionary:
 	copied["_meta_source_file"] = file_path
 	return copied
 
-
+# 处理 merge records
 func _merge_records(category: String, records: Array, source_tag: String) -> Dictionary:
 	var category_map: Dictionary = _database.get(category, {})
 	var added: int = 0
@@ -319,12 +326,8 @@ func _merge_records(category: String, records: Array, source_tag: String) -> Dic
 		"replaced": replaced
 	}
 
-
+# 获取 get event bus
 func _get_event_bus() -> Node:
-	var main_loop: MainLoop = Engine.get_main_loop()
-	if not (main_loop is SceneTree):
+	if _services == null:
 		return null
-	var tree: SceneTree = main_loop
-	if tree == null or tree.root == null:
-		return null
-	return tree.root.get_node_or_null("EventBus")
+	return _services.event_bus

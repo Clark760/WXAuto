@@ -1,6 +1,13 @@
 extends RefCounted
 class_name CombatRuntimeService
 
+const PROBE_SCOPE_COMBAT_LOGIC_TICK: String = "combat_logic_tick"
+const PROBE_SCOPE_COMBAT_PRE_TICK_SCAN: String = "combat_pre_tick_scan"
+const PROBE_SCOPE_COMBAT_TERRAIN_TICK: String = "combat_terrain_tick"
+const PROBE_SCOPE_COMBAT_GROUP_FOCUS: String = "combat_group_focus"
+const PROBE_SCOPE_COMBAT_FLOW_REBUILD: String = "combat_flow_rebuild"
+const PROBE_SCOPE_COMBAT_UNIT_LOGIC_TOTAL: String = "combat_unit_logic_total"
+
 
 # 承接 Combat 的主循环、开战/停战与战报汇总。
 # `manager` 是 facade，本服务只消费它已经公开的运行时状态和 helper。
@@ -88,6 +95,7 @@ func stop_battle(
 # 本轮只先拆掉“主循环编排”，不在这里混入移动和攻击规则重写。
 func logic_tick(manager, delta: float) -> void:
 	var tick_begin_us: int = Time.get_ticks_usec()
+	var logic_tick_begin_us: int = _probe_begin_timing(manager)
 	manager._metrics.reset_tick_metrics(manager)
 	manager._logic_frame += 1
 	manager._logic_time += delta
@@ -97,11 +105,22 @@ func logic_tick(manager, delta: float) -> void:
 		allow_attack_phase = manager._next_attack_phase
 		allow_move_phase = not manager._next_attack_phase
 		manager._next_attack_phase = not manager._next_attack_phase
+	var should_refresh_runtime_caches: bool = _should_refresh_runtime_caches_for_phase(
+		manager,
+		allow_attack_phase,
+		allow_move_phase
+	)
 
 	# 预扫描必须先跑，后续地形和单位逻辑都依赖这批缓存。
-	manager._pre_tick_scan()
+	if should_refresh_runtime_caches:
+		var pre_scan_begin_us: int = _probe_begin_timing(manager)
+		manager._pre_tick_scan()
+		_probe_commit_timing(manager, PROBE_SCOPE_COMBAT_PRE_TICK_SCAN, pre_scan_begin_us)
+	_update_loop_animation_lod(manager)
 	if manager._all_units.is_empty():
+		var empty_terrain_begin_us: int = _probe_begin_timing(manager)
 		manager._tick_terrain(delta)
+		_probe_commit_timing(manager, PROBE_SCOPE_COMBAT_TERRAIN_TICK, empty_terrain_begin_us)
 		finalize_if_needed(manager)
 		manager._metrics.finalize_tick(
 			manager,
@@ -109,24 +128,40 @@ func logic_tick(manager, delta: float) -> void:
 			allow_attack_phase,
 			allow_move_phase
 		)
+		_probe_commit_timing(manager, PROBE_SCOPE_COMBAT_LOGIC_TICK, logic_tick_begin_us)
 		return
 
+	var terrain_begin_us: int = _probe_begin_timing(manager)
 	manager._tick_terrain(delta)
-	manager._update_group_ai_focus()
-	var refresh_interval: int = manager._get_effective_flow_refresh_interval()
-	# 流场仍按旧策略定期刷新，只是调度责任移到 runtime service。
-	if (
-		manager._flow_force_rebuild
-		or refresh_interval <= 1
-		or (manager._logic_frame % refresh_interval == 0)
-	):
-		manager._rebuild_flow_fields()
-		manager._flow_force_rebuild = false
+	_probe_commit_timing(manager, PROBE_SCOPE_COMBAT_TERRAIN_TICK, terrain_begin_us)
+	if should_refresh_runtime_caches:
+		var group_focus_begin_us: int = _probe_begin_timing(manager)
+		manager._update_group_ai_focus()
+		_probe_commit_timing(manager, PROBE_SCOPE_COMBAT_GROUP_FOCUS, group_focus_begin_us)
+		var refresh_interval: int = manager._get_effective_flow_refresh_interval()
+		# 流场只在“本帧会重建运行时缓存”时更新，移动帧直接复用上一帧的结果。
+		if (
+			manager._flow_force_rebuild
+			or refresh_interval <= 1
+			or (manager._logic_frame % refresh_interval == 0)
+		):
+			var flow_rebuild_begin_us: int = _probe_begin_timing(manager)
+			manager._rebuild_flow_fields()
+			_probe_commit_timing(manager, PROBE_SCOPE_COMBAT_FLOW_REBUILD, flow_rebuild_begin_us)
+			manager._flow_force_rebuild = false
 
-	if manager.shuffle_unit_order_each_tick and manager._all_units.size() > 1:
+	# 大规模战斗优先吞吐，逐 tick 洗牌只保留在中小规模场景。
+	var alive_total: int = int(manager._alive_by_team.get(manager.TEAM_ALLY, 0))
+	alive_total += int(manager._alive_by_team.get(manager.TEAM_ENEMY, 0))
+	if (
+		manager.shuffle_unit_order_each_tick
+		and manager._all_units.size() > 1
+		and alive_total < 220
+	):
 		manager._all_units.shuffle()
 
 	# 单位行为执行仍委托回 facade 现有 helper，避免本轮一次性改太宽。
+	var unit_logic_begin_us: int = _probe_begin_timing(manager)
 	for unit in manager._all_units:
 		if not manager._battle_running:
 			break
@@ -136,6 +171,7 @@ func logic_tick(manager, delta: float) -> void:
 			allow_attack_phase,
 			allow_move_phase
 		)
+	_probe_commit_timing(manager, PROBE_SCOPE_COMBAT_UNIT_LOGIC_TOTAL, unit_logic_begin_us)
 
 	finalize_if_needed(manager)
 	manager._metrics.finalize_tick(
@@ -144,6 +180,7 @@ func logic_tick(manager, delta: float) -> void:
 		allow_attack_phase,
 		allow_move_phase
 	)
+	_probe_commit_timing(manager, PROBE_SCOPE_COMBAT_LOGIC_TICK, logic_tick_begin_us)
 
 
 # 双方存活数只要有一侧归零，就立即走 stop_battle。
@@ -226,6 +263,9 @@ func reset_battle_runtime_state(manager) -> void:
 	manager._unit_position_cache.clear()
 	manager._combat_cache.clear()
 	manager._movement_cache.clear()
+	manager._target_memory.clear()
+	manager._target_refresh_frame.clear()
+	manager._loop_animation_reduced = false
 	manager._group_focus_target_id.clear()
 	manager._group_center.clear()
 	manager._spatial_hash.clear()
@@ -244,3 +284,55 @@ func reset_battle_runtime_state(manager) -> void:
 	if manager._terrain_manager != null:
 		manager.clear_temporary_terrains()
 	manager._metrics.reset_all_metrics(manager)
+
+
+# 高密度战斗关闭循环摆动动画，只保留一次性动作，优先保证整体帧率。
+func _update_loop_animation_lod(manager) -> void:
+	var alive_total: int = int(manager._alive_by_team.get(manager.TEAM_ALLY, 0))
+	alive_total += int(manager._alive_by_team.get(manager.TEAM_ENEMY, 0))
+	var threshold: int = maxi(int(manager.loop_animation_reduce_unit_threshold), 1)
+	var should_reduce: bool = alive_total >= threshold
+	if should_reduce == bool(manager._loop_animation_reduced):
+		return
+	manager._loop_animation_reduced = should_reduce
+	for unit in manager._all_units:
+		if not manager._is_live_unit(unit):
+			continue
+		if unit.has_method("set_loop_animation_enabled"):
+			var unit_api: Variant = unit
+			unit_api.set_loop_animation_enabled(not should_reduce)
+
+
+# 统一从 manager 的可选 runtime probe 获取计时起点。
+func _probe_begin_timing(manager) -> int:
+	if manager == null or manager._runtime_probe == null:
+		return 0
+	if not manager._runtime_probe.has_method("begin_timing"):
+		return 0
+	return int(manager._runtime_probe.begin_timing())
+
+
+# 统一提交 logic tick 子阶段耗时，避免各分段重复判空。
+func _probe_commit_timing(manager, scope_name: String, begin_us: int) -> void:
+	if manager == null or manager._runtime_probe == null:
+		return
+	if not manager._runtime_probe.has_method("commit_timing"):
+		return
+	manager._runtime_probe.commit_timing(scope_name, begin_us)
+
+
+# attack/move 交替模式下，移动帧直接复用上一攻击帧刷好的缓存，避免同一份数据一帧刷两次。
+func _should_refresh_runtime_caches_for_phase(
+	manager,
+	allow_attack_phase: bool,
+	allow_move_phase: bool
+) -> bool:
+	if manager == null:
+		return true
+	if not bool(manager.split_attack_move_phase):
+		return true
+	if allow_attack_phase:
+		return true
+	if not allow_move_phase:
+		return true
+	return false

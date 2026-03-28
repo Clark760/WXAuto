@@ -20,7 +20,7 @@ func try_execute_attack(
 			{"performed": false, "reason": "no_target"}
 		)
 		return false
-	if not manager._is_target_in_attack_range(unit, target):
+	if not _is_target_in_attack_range_fast(manager, unit, target, combat):
 		manager.attack_failed.emit(
 			unit,
 			target,
@@ -46,7 +46,7 @@ func try_execute_attack(
 	# performed=false 仍视为一次合法尝试，只是要把失败原因向上层回抛。
 	if not bool(event_dict.get("performed", false)):
 		var reason: String = str(event_dict.get("reason", "failed")).strip_edges().to_lower()
-		manager.attack_failed.emit(unit, target, reason, event_dict.duplicate(true))
+		manager.attack_failed.emit(unit, target, reason, event_dict)
 		return false
 
 	on_attack_resolved(manager, unit, target, event_dict)
@@ -56,6 +56,24 @@ func try_execute_attack(
 		# 打出攻击后立即清移动目标，防止攻击帧继续往前滑行。
 		movement_api.clear_target()
 	return true
+
+
+# 攻击阶段已经拿到了 combat 组件，这里直接复用，避免再回 facade 取一次组件。
+func _is_target_in_attack_range_fast(manager, attacker: Node, target: Node, combat: Node) -> bool:
+	if combat == null:
+		return false
+	if target == null or not manager._is_live_unit(target):
+		return false
+	var attacker_cell: Vector2i = manager._get_unit_cell(attacker)
+	var target_cell: Vector2i = manager._get_unit_cell(target)
+	if attacker_cell.x < 0 or target_cell.x < 0:
+		return false
+	var range_cells: int = 1
+	if combat.has_method("get_max_effective_range_cells"):
+		range_cells = maxi(int(combat.get_max_effective_range_cells()), 1)
+	else:
+		range_cells = maxi(int(combat.get_attack_range_cells()), 1)
+	return manager._hex_distance(attacker_cell, target_cell) <= range_cells
 
 
 # 普攻和技能共用同一条命中后处理链，只靠 `is_skill` 区分动画状态。

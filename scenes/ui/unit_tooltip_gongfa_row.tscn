@@ -1,0 +1,24 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/unit_tooltip_gongfa_row_view.gd" id="1_view"]
+
+[node name="UnitTooltipGongfaRow" type="PanelContainer"]
+custom_minimum_size = Vector2(0, 24)
+size_flags_horizontal = 3
+mouse_filter = 0
+script = ExtResource("1_view")
+
+[node name="Row" type="HBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="PrefixLabel" type="Label" parent="Row"]
+layout_mode = 2
+text = "•"
+
+[node name="NameLink" type="LinkButton" parent="Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "-"
+disabled = true

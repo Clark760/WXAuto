@@ -1,21 +1,7 @@
-﻿extends RefCounted
-
-# HUD 商店与仓库
-# 说明：
-# 1. 只负责 shop / inventory 的数据投影与交互事件。
-# 2. 这里不直接操作世界输入，也不承担战斗编排。
-# 面板状态流：
-# 1. 商店与仓库都只读写 session state，不新增 root 私有状态。
-# 2. coordinator 负责购买、刷新、出售业务，这里只投影和转发事件。
-# 3. detail_view 只接 hover 与详情跳转，不反向接管库存结算。
-# 渲染口径：
-# 1. 商店始终按五格槽位渲染，空位也保留骨架。
-# 2. inventory 先汇总 id 集，再回查配置，再做筛选与排序。
-# 3. tooltip payload 在这里预构造，避免 detail_view 再猜条目类型。
-# 拖放口径：
-# 1. 只有准备期允许拖放和卸下。
-# 2. 拖放成功后先写库存，再刷新详情与 inventory。
-# 3. 失败提示只写 debug_label，不偷偷改数据。
+extends RefCounted
+# 商店与仓库视图只负责数据投影、按钮事件转发、条目悬停提示和拖拽入口装配。
+# 商店购买、库存拖拽、筛选搜索、详情跳转都只做界面层转发，不在这里直接改战斗状态。
+# 子场景统一优先从引用表场景库解析，本地资源回退只用于资源缺失时兜底，不作为常态路径。
 
 const STAGE_PREPARATION: int = 0 # 只有备战期允许商店与仓库交互。
 
@@ -23,7 +9,13 @@ const SHOP_TAB_RECRUIT: String = "recruit" # 招募页签 id。
 const SHOP_TAB_GONGFA: String = "gongfa" # 功法页签 id。
 const SHOP_TAB_EQUIPMENT: String = "equipment" # 装备页签 id。
 
-const INVENTORY_CARD_SCRIPT: Script = preload("res://scripts/ui/battle_inventory_item_card.gd") # 仓库卡片脚本。
+const SHOP_OFFER_CARD_SCENE_ID: String = "shop_offer_card" # 商店卡片子场景 id。
+const INVENTORY_CARD_SCENE_ID: String = "inventory_item_card" # 仓库卡片子场景 id。
+const INVENTORY_FILTER_BUTTON_SCENE_ID: String = "inventory_filter_button" # 仓库筛选按钮子场景 id。
+
+const SHOP_OFFER_CARD_SCENE_FALLBACK: PackedScene = preload("res://scenes/ui/shop_offer_card.tscn") # 商店卡片回退资源。
+const INVENTORY_CARD_SCENE_FALLBACK: PackedScene = preload("res://scenes/ui/inventory_item_card.tscn") # 仓库卡片回退资源。
+const INVENTORY_FILTER_BUTTON_SCENE_FALLBACK: PackedScene = preload("res://scenes/ui/inventory_filter_button.tscn")
 
 var _owner = null # HUD facade。
 var _scene_root = null # 根场景入口。
@@ -34,7 +26,6 @@ var _detail_view = null # 详情协作者，用于 hover 和点击跳转。
 
 
 # 绑定 shop/inventory 协作者需要的 facade、状态和共享 support。
-# 这里不缓存商店或库存快照，所有数据按需从 state / runtime manager 读取。
 func initialize(owner, scene_root, refs, state, support) -> void:
 	_owner = owner
 	_scene_root = scene_root
@@ -43,25 +34,33 @@ func initialize(owner, scene_root, refs, state, support) -> void:
 	_support = support
 
 
+# 关闭商店仓库协作者时只清理本地引用，不触碰外部状态。
+func shutdown() -> void:
+	_owner = null
+	_scene_root = null
+	_refs = null
+	_state = null
+	_support = null
+	_detail_view = null
+
+
 # 让 shop/inventory 可以把 hover 和详情跳转交给 detail view。
-# 这样卡片自己不需要知道 tooltip 面板在哪棵节点树里。
 func bind_detail_view(detail_view) -> void:
 	_detail_view = detail_view
 
 
 # 同步商店操作区文案和商品卡片列表。
-# 操作区和商品卡必须同时刷新，避免价格文案与可购买状态不一致。
 func update_shop_ui() -> void:
 	update_shop_operation_labels()
 	rebuild_shop_cards()
 
 
 # 刷新商店银两、等级和锁店按钮状态。
-# 按钮禁用口径只看当前阶段和经济快照，不在 view 层再塞业务判断。
 func update_shop_operation_labels() -> void:
-	if _refs.runtime_economy_manager == null:
+	var economy_manager = _get_runtime_economy_manager()
+	if economy_manager == null:
 		return
-	var assets: Dictionary = _refs.runtime_economy_manager.call("get_assets_snapshot")
+	var assets: Dictionary = economy_manager.get_assets_snapshot()
 	var silver: int = int(assets.get("silver", 0))
 	var level: int = int(assets.get("level", 1))
 	var exp_value: int = int(assets.get("exp", 0))
@@ -75,17 +74,13 @@ func update_shop_operation_labels() -> void:
 			level,
 			exp_value,
 			max_exp,
-			int(_refs.runtime_economy_manager.call("get_max_deploy_limit"))
+			int(economy_manager.get_max_deploy_limit())
 		]
 	if _refs.shop_refresh_button != null:
-		_refs.shop_refresh_button.text = "刷新(💰%d)" % int(
-			_refs.runtime_economy_manager.call("get_refresh_cost")
-		)
+		_refs.shop_refresh_button.text = "刷新(💰%d)" % int(economy_manager.get_refresh_cost())
 		_refs.shop_refresh_button.disabled = not stage_editable
 	if _refs.shop_upgrade_button != null:
-		_refs.shop_upgrade_button.text = "升级(💰%d)" % int(
-			_refs.runtime_economy_manager.call("get_upgrade_cost")
-		)
+		_refs.shop_upgrade_button.text = "升级(💰%d)" % int(economy_manager.get_upgrade_cost())
 		_refs.shop_upgrade_button.disabled = not stage_editable or max_exp <= 0
 	if _refs.shop_lock_button != null:
 		_refs.shop_lock_button.text = "🔓 解锁" if locked else "🔒 锁定当前"
@@ -100,103 +95,81 @@ func update_shop_operation_labels() -> void:
 		_refs.shop_status_label.text = "布阵期可购买"
 
 
-# 根据当前页签重建五格商店展示卡。
-# 即使某格为空，也保留卡位，这样页签切换时布局不会跳动。
+# 商店五格重建：每次都先清空旧子节点，再按页签快照回填。
 func rebuild_shop_cards() -> void:
-	if _refs.shop_offer_row == null or _refs.runtime_shop_manager == null:
+	var shop_manager = _get_runtime_shop_manager()
+	if _refs.shop_offer_row == null or shop_manager == null:
 		return
 	for child in _refs.shop_offer_row.get_children():
 		child.queue_free()
-	var offers: Array[Dictionary] = _refs.runtime_shop_manager.call(
-		"get_offers",
-		_state.shop_current_tab
-	)
+	var offers: Array[Dictionary] = shop_manager.get_offers(_state.shop_current_tab)
 	for index in range(5):
 		var offer: Dictionary = offers[index] if index < offers.size() else {}
-		_refs.shop_offer_row.add_child(
-			create_shop_offer_card(offer, index, _state.shop_current_tab)
-		)
+		_refs.shop_offer_row.add_child(create_shop_offer_card(offer, index, _state.shop_current_tab))
 
 
 # 把单个商店条目投影成可点击卡片，并挂上 hover tooltip。
-# 招募条目不展示物品 tooltip，因为它的收益由 coordinator 负责落位解释。
-func create_shop_offer_card(
-	offer: Dictionary,
-	index: int,
-	tab_id: String
-) -> PanelContainer:
-	# 基础骨架先建立，再根据 offer 是否为空决定填充内容。
-	var card := PanelContainer.new()
-	card.custom_minimum_size = Vector2(136, 170)
-	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	card.mouse_filter = Control.MOUSE_FILTER_STOP
-	var root := VBoxContainer.new()
-	root.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	root.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	root.add_theme_constant_override("separation", 3)
-	card.add_child(root)
-	var color_bar := ColorRect.new()
-	color_bar.custom_minimum_size = Vector2(0, 8)
-	color_bar.color = _support.quality_color(str(offer.get("quality", "white")))
-	root.add_child(color_bar)
-	var name_label := Label.new()
-	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	root.add_child(name_label)
-	var type_label := Label.new()
-	type_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	root.add_child(type_label)
-	var price_label := Label.new()
-	root.add_child(price_label)
-	var spacer := Control.new()
-	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	root.add_child(spacer)
-	var buy_button := Button.new()
-	root.add_child(buy_button)
-	if offer.is_empty():
-		name_label.text = "空位"
-		type_label.text = "暂无商品"
-		price_label.text = ""
-		buy_button.text = "—"
-		buy_button.disabled = true
-		return card
+func create_shop_offer_card(offer: Dictionary, index: int, tab_id: String) -> PanelContainer:
+	var card: PanelContainer = _instantiate_ui_panel(SHOP_OFFER_CARD_SCENE_ID, SHOP_OFFER_CARD_SCENE_FALLBACK)
+	if card == null:
+		var fallback_card_node: Node = SHOP_OFFER_CARD_SCENE_FALLBACK.instantiate()
+		if fallback_card_node is PanelContainer:
+			card = fallback_card_node as PanelContainer
+		else:
+			return PanelContainer.new()
+	var is_empty_offer: bool = offer.is_empty()
 	var quality: String = str(offer.get("quality", "white"))
+	var type_text: String = "暂无商品"
+	var price_text: String = ""
+	var buy_text: String = "—"
+	var buy_disabled: bool = true
 	var item_id: String = str(offer.get("item_id", "")).strip_edges()
 	var price: int = int(offer.get("price", 0))
 	var sold: bool = bool(offer.get("sold", false))
 	var can_afford: bool = false
-	if _refs.runtime_economy_manager != null:
-		can_afford = int(_refs.runtime_economy_manager.call("get_silver")) >= price
-	name_label.text = str(offer.get("name", "未知"))
-	if tab_id == SHOP_TAB_RECRUIT:
-		type_label.text = "[%s] 侠客" % _support.quality_to_cn(quality)
-	else:
-		type_label.text = "[%s] %s" % [
-			_support.quality_to_cn(quality),
-			_support.slot_or_equip_cn(tab_id, str(offer.get("slot_type", "")))
-		]
-	price_label.text = "💰 %d" % price if price > 0 else ""
-	buy_button.text = "已售罄" if sold else "购买"
-	buy_button.disabled = sold or int(_state.stage) != STAGE_PREPARATION or not can_afford
-	buy_button.pressed.connect(Callable(self, "on_shop_buy_pressed").bind(tab_id, index))
+	var economy_manager = _get_runtime_economy_manager()
+	if economy_manager != null:
+		can_afford = int(economy_manager.get_silver()) >= price
+	if not is_empty_offer:
+		if tab_id == SHOP_TAB_RECRUIT:
+			type_text = "[%s] 侠客" % _support.quality_to_cn(quality)
+		else:
+			var slot_label: String = _support.slot_or_equip_cn(tab_id, str(offer.get("slot_type", "")))
+			type_text = "[%s] %s" % [_support.quality_to_cn(quality), slot_label]
+		price_text = "💰 %d" % price if price > 0 else ""
+		buy_text = "已售罄" if sold else "购买"
+		buy_disabled = sold or int(_state.stage) != STAGE_PREPARATION or not can_afford
+	if card is ShopOfferCardView:
+		var shop_card: ShopOfferCardView = card as ShopOfferCardView
+		shop_card.setup(
+			{
+				"is_empty": is_empty_offer,
+				"name": str(offer.get("name", "未知")),
+				"quality_color": _support.quality_color(quality),
+				"type_text": type_text,
+				"price_text": price_text,
+				"buy_text": buy_text,
+				"buy_disabled": buy_disabled,
+				"tab_id": tab_id,
+				"index": index
+			}
+		)
+		var buy_cb: Callable = Callable(self, "on_shop_buy_pressed")
+		if not shop_card.is_connected("buy_requested", buy_cb):
+			shop_card.connect("buy_requested", buy_cb)
 	if sold or item_id.is_empty() or tab_id == SHOP_TAB_RECRUIT or _detail_view == null:
 		return card
-	# tooltip payload 只给功法/装备用，招募条目没有统一的物品说明结构。
 	var tooltip_payload: Dictionary = {}
 	if tab_id == SHOP_TAB_GONGFA:
 		tooltip_payload = _support.build_gongfa_item_tooltip_data(item_id)
 	else:
 		tooltip_payload = _support.build_equip_item_tooltip_data(item_id)
-	card.mouse_entered.connect(
-		Callable(_detail_view, "on_item_source_hover_entered").bind(card, tooltip_payload)
-	)
-	card.mouse_exited.connect(
-		Callable(_detail_view, "on_item_source_hover_exited").bind(card)
-	)
+	card.mouse_entered.connect(Callable(_detail_view, "on_item_source_hover_entered").bind(card, tooltip_payload))
+	card.mouse_exited.connect(Callable(_detail_view, "on_item_source_hover_exited").bind(card))
 	return card
 
 
 # 根据当前 inventory 模式重建过滤按钮。
-# 过滤按钮是 mode 的直接投影，切 mode 时一定要整行重建。
 func rebuild_inventory_filters() -> void:
 	if _refs.inventory_filter_row == null:
 		return
@@ -220,11 +193,26 @@ func rebuild_inventory_filters() -> void:
 		]
 	for filter_data in filters:
 		var filter_id: String = str(filter_data.get("id", "all"))
-		var button := Button.new()
-		button.text = str(filter_data.get("name", filter_id))
-		button.toggle_mode = true
-		button.button_pressed = filter_id == _state.inventory_filter_type
-		button.pressed.connect(Callable(self, "on_inventory_filter_pressed").bind(filter_id))
+		var button: Button = _instantiate_ui_button(INVENTORY_FILTER_BUTTON_SCENE_ID, INVENTORY_FILTER_BUTTON_SCENE_FALLBACK)
+		if button == null:
+			continue
+		if button is InventoryFilterButtonView:
+			var filter_button: InventoryFilterButtonView = button as InventoryFilterButtonView
+			filter_button.setup(
+				{
+					"id": filter_id,
+					"name": str(filter_data.get("name", filter_id)),
+					"selected": filter_id == _state.inventory_filter_type
+				}
+			)
+			var filter_cb: Callable = Callable(self, "on_inventory_filter_pressed")
+			if not filter_button.is_connected("filter_selected", filter_cb):
+				filter_button.connect("filter_selected", filter_cb)
+		else:
+			button.text = str(filter_data.get("name", filter_id))
+			button.toggle_mode = true
+			button.button_pressed = filter_id == _state.inventory_filter_type
+			button.pressed.connect(Callable(self, "on_inventory_filter_pressed").bind(filter_id))
 		_refs.inventory_filter_row.add_child(button)
 	if _refs.inventory_title != null:
 		if _state.inventory_mode == "gongfa":
@@ -234,13 +222,11 @@ func rebuild_inventory_filters() -> void:
 
 
 # 根据库存与已装备状态重建 inventory 条目列表。
-# inventory 摘要和卡片列表同源重建，避免“列表刷新了但汇总没变”。
 func rebuild_inventory_items() -> void:
-	if _refs.inventory_grid == null or _refs.unit_augment_manager == null:
+	if _refs.inventory_grid == null or _get_unit_augment_manager() == null:
 		return
 	for child in _refs.inventory_grid.get_children():
 		child.queue_free()
-	# stock_map 表示库存拥有量，id_set 再把已装备但库存为 0 的条目补进来。
 	var stock_map: Dictionary = (
 		_state.owned_gongfa_stock
 		if _state.inventory_mode == "gongfa"
@@ -253,7 +239,6 @@ func rebuild_inventory_items() -> void:
 	if _refs.inventory_search != null:
 		search_text = _refs.inventory_search.text.strip_edges().to_lower()
 	var filtered: Array[Dictionary] = _filter_inventory_records(items, search_text)
-	# 汇总栏只统计当前筛选后的结果，让玩家看到的是眼前列表的总量。
 	var total_owned: int = 0
 	var total_equipped: int = 0
 	for item_data in filtered:
@@ -267,9 +252,7 @@ func rebuild_inventory_items() -> void:
 			filtered.size()
 		]
 
-
 # 汇总库存与已装备条目的 id 集合，供 inventory 后续统一查表。
-# 已装备条目必须补进 id_set，否则“全部穿在身上”的条目会从仓库列表消失。
 func _collect_inventory_item_ids(stock_map: Dictionary) -> Dictionary:
 	var id_set: Dictionary = {}
 	for key in stock_map.keys():
@@ -301,20 +284,21 @@ func _collect_inventory_item_ids(stock_map: Dictionary) -> Dictionary:
 				id_set[equip_id] = true
 	return id_set
 
-
 # 根据条目 id 集合回查配置并补齐库存/装备数量。
-# record 在这里一次性补全 owned/equipped 计数，后续排序和渲染就不用再回表。
 func _build_inventory_records(id_set: Dictionary, stock_map: Dictionary) -> Array[Dictionary]:
 	var items: Array[Dictionary] = []
+	var unit_augment_manager = _get_unit_augment_manager()
+	if unit_augment_manager == null:
+		return items
 	for key in id_set.keys():
 		var lookup_id: String = str(key).strip_edges()
 		if lookup_id.is_empty():
 			continue
 		var item_data: Dictionary = {}
 		if _state.inventory_mode == "gongfa":
-			item_data = _refs.unit_augment_manager.call("get_gongfa_data", lookup_id)
+			item_data = unit_augment_manager.get_gongfa_data(lookup_id)
 		else:
-			item_data = _refs.unit_augment_manager.call("get_equipment_data", lookup_id)
+			item_data = unit_augment_manager.get_equipment_data(lookup_id)
 		if item_data.is_empty():
 			continue
 		var packed: Dictionary = item_data.duplicate(true)
@@ -326,9 +310,7 @@ func _build_inventory_records(id_set: Dictionary, stock_map: Dictionary) -> Arra
 		items.append(packed)
 	return items
 
-
 # 应用 inventory 当前筛选与搜索条件，返回最终要渲染的条目列表。
-# 过滤顺序固定为类型再名称，方便用户理解为什么某条目没出现在列表里。
 func _filter_inventory_records(items: Array[Dictionary], search_text: String) -> Array[Dictionary]:
 	var filtered: Array[Dictionary] = []
 	for item_data in items:
@@ -341,66 +323,56 @@ func _filter_inventory_records(items: Array[Dictionary], search_text: String) ->
 		filtered.append(item_data)
 	return filtered
 
-
 # 把单个 inventory 条目投影成可拖拽卡片并挂上 hover tooltip。
-# 卡片既承担显示也承担 drag payload 承载，所以这里把两类数据一起装进去。
 func create_inventory_card(item_data: Dictionary) -> PanelContainer:
-	# 展示文本先按 mode 决定图标和类型文案，再写库存与已装备数量。
-	var card := INVENTORY_CARD_SCRIPT.new() as PanelContainer
+	var card: PanelContainer = _instantiate_ui_panel(INVENTORY_CARD_SCENE_ID, INVENTORY_CARD_SCENE_FALLBACK)
 	if card == null:
-		card = PanelContainer.new()
-	card.custom_minimum_size = Vector2(0, 122)
-	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	card.mouse_filter = Control.MOUSE_FILTER_STOP
-	var vbox := VBoxContainer.new()
-	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	vbox.add_theme_constant_override("separation", 3)
-	card.add_child(vbox)
+		var fallback_card_node: Node = INVENTORY_CARD_SCENE_FALLBACK.instantiate()
+		if fallback_card_node is PanelContainer:
+			card = fallback_card_node as PanelContainer
+		else:
+			card = PanelContainer.new()
 	var item_type: String = str(item_data.get("type", ""))
-	var icon_label := Label.new()
+	var icon_text: String = ""
 	if _state.inventory_mode == "gongfa":
-		icon_label.text = _support.slot_icon(item_type)
+		icon_text = _support.slot_icon(item_type)
 	else:
-		icon_label.text = _support.equip_icon(item_type)
-	vbox.add_child(icon_label)
-	var name_label := Label.new()
-	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	name_label.text = str(item_data.get("name", str(item_data.get("id", "未知"))))
-	vbox.add_child(name_label)
-	var type_label := Label.new()
-	type_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	type_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		icon_text = _support.equip_icon(item_type)
+	var type_text: String = ""
 	if _state.inventory_mode == "gongfa":
-		type_label.text = "[%s] %s · %s" % [
+		type_text = "[%s] %s · %s" % [
 			_support.quality_to_cn(str(item_data.get("quality", "white"))),
 			_support.slot_to_cn(item_type),
 			_support.element_to_cn(str(item_data.get("element", "none")))
 		]
 	else:
-		type_label.text = "[%s] %s · %s" % [
+		type_text = "[%s] %s · %s" % [
 			_support.quality_to_cn(str(item_data.get("quality", "white"))),
 			_support.equip_type_to_cn(item_type),
 			_support.element_to_cn(str(item_data.get("element", "none")))
 		]
-	vbox.add_child(type_label)
 	var item_id: String = str(item_data.get("id", "")).strip_edges()
 	var owned_count: int = int(item_data.get("_owned_count", 0))
 	var equipped_count: int = int(item_data.get("_equipped_count", 0))
-	var status_label := Label.new()
-	status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	status_label.text = "库存 x%d | 已装备 x%d" % [owned_count, equipped_count]
+	var status_text: String = "库存 x%d | 已装备 x%d" % [owned_count, equipped_count]
 	if owned_count <= 0 and equipped_count <= 0:
-		status_label.text = "无库存"
-	vbox.add_child(status_label)
+		status_text = "无库存"
+	if card is InventoryItemCardView:
+		var inventory_card: InventoryItemCardView = card as InventoryItemCardView
+		inventory_card.setup(
+			{
+				"quality_color": _support.quality_color(str(item_data.get("quality", "white"))),
+				"icon": icon_text,
+				"name": str(item_data.get("name", str(item_data.get("id", "未知")))),
+				"type_text": type_text,
+				"status_text": status_text
+			}
+		)
 	var tooltip_payload: Dictionary = {}
 	if _state.inventory_mode == "gongfa":
 		tooltip_payload = _support.build_gongfa_item_tooltip_data(item_id)
 	else:
 		tooltip_payload = _support.build_equip_item_tooltip_data(item_id)
-	# can_drag 只看库存拥有量和阶段开关，避免装备中的同名条目被错误拖出。
 	var can_drag: bool = owned_count > 0 and _state.inventory_drag_enabled
 	var drag_payload: Dictionary = {
 		"type": _state.inventory_mode,
@@ -408,25 +380,52 @@ func create_inventory_card(item_data: Dictionary) -> PanelContainer:
 		"item_data": item_data.duplicate(true),
 		"slot_type": item_type
 	}
-	if card.has_method("setup_card"):
-		card.call("setup_card", item_id, item_data, drag_payload, can_drag)
+	if card is BattleInventoryItemCard:
+		var drag_card: BattleInventoryItemCard = card as BattleInventoryItemCard
+		drag_card.setup_card(item_id, item_data, drag_payload, can_drag)
 		var click_cb: Callable = Callable(self, "on_inventory_card_clicked")
-		if card.has_signal("card_clicked") and not card.is_connected("card_clicked", click_cb):
-			card.connect("card_clicked", click_cb)
+		if not drag_card.is_connected("card_clicked", click_cb):
+			drag_card.connect("card_clicked", click_cb)
 	if not can_drag:
 		card.modulate = Color(0.75, 0.75, 0.75, 0.92)
 	if _detail_view != null:
-		card.mouse_entered.connect(
-			Callable(_detail_view, "on_item_source_hover_entered").bind(card, tooltip_payload)
-		)
-		card.mouse_exited.connect(
-			Callable(_detail_view, "on_item_source_hover_exited").bind(card)
-		)
+		card.mouse_entered.connect(Callable(_detail_view, "on_item_source_hover_entered").bind(card, tooltip_payload))
+		card.mouse_exited.connect(Callable(_detail_view, "on_item_source_hover_exited").bind(card))
 	return card
 
+# 优先从 refs 的 UI 场景库取资源；缺失时回退到本地 fallback。
+func _resolve_ui_scene(scene_id: String, fallback_scene: PackedScene) -> PackedScene:
+	if _refs != null and _refs.has_method("get_ui_scene"):
+		var scene_value: Variant = _refs.get_ui_scene(scene_id)
+		if scene_value is PackedScene:
+			return scene_value as PackedScene
+	return fallback_scene
+
+# 统一实例化 PanelContainer 子场景，避免每处重复写资源解析逻辑。
+func _instantiate_ui_panel(scene_id: String, fallback_scene: PackedScene) -> PanelContainer:
+	var scene: PackedScene = _resolve_ui_scene(scene_id, fallback_scene)
+	if scene == null:
+		return null
+	var instance: Node = scene.instantiate()
+	if instance is PanelContainer:
+		return instance as PanelContainer
+	if instance != null:
+		instance.queue_free()
+	return null
+
+# 按按钮子场景实例化筛选控件，失败时返回 null 让上层兜底。
+func _instantiate_ui_button(scene_id: String, fallback_scene: PackedScene) -> Button:
+	var scene: PackedScene = _resolve_ui_scene(scene_id, fallback_scene)
+	if scene == null:
+		return null
+	var instance: Node = scene.instantiate()
+	if instance is Button:
+		return instance as Button
+	if instance != null:
+		instance.queue_free()
+	return null
 
 # 先按品质、再按名称排序 inventory 条目，保证列表稳定。
-# 品质相同时再按名称自然排序，能减少 reload 后的视觉抖动。
 func sort_inventory_item(a: Dictionary, b: Dictionary) -> bool:
 	var rank_a: int = quality_rank(str(a.get("quality", "white")))
 	var rank_b: int = quality_rank(str(b.get("quality", "white")))
@@ -434,9 +433,7 @@ func sort_inventory_item(a: Dictionary, b: Dictionary) -> bool:
 		return rank_a > rank_b
 	return str(a.get("name", "")).naturalnocasecmp_to(str(b.get("name", ""))) < 0
 
-
 # 为品质排序提供固定优先级映射。
-# 这里的数值只用于排序，不直接拿去做经济或颜色判断。
 func quality_rank(quality: String) -> int:
 	match quality:
 		"orange":
@@ -450,21 +447,15 @@ func quality_rank(quality: String) -> int:
 		_:
 			return 1
 
-
 # 功法 tab 按钮只切到功法模式，再复用统一的 tab 处理。
-# 单独保留按钮入口，便于信号连接时不暴露字符串常量。
 func on_inventory_tab_gongfa_pressed() -> void:
 	on_inventory_tab_pressed("gongfa")
 
-
 # 装备 tab 按钮只切到装备模式，再复用统一的 tab 处理。
-# 和功法入口保持对称，后续替换按钮实现时不影响下游逻辑。
 func on_inventory_tab_equip_pressed() -> void:
 	on_inventory_tab_pressed("equipment")
 
-
 # 切换 inventory 模式时重置筛选条件并全量刷新列表。
-# mode 变化会让筛选种类彻底变化，因此搜索框也要一起清空。
 func on_inventory_tab_pressed(mode: String) -> void:
 	_state.inventory_mode = mode
 	_state.inventory_filter_type = "all"
@@ -477,23 +468,17 @@ func on_inventory_tab_pressed(mode: String) -> void:
 	rebuild_inventory_filters()
 	rebuild_inventory_items()
 
-
 # 切换 inventory 子筛选时只刷新过滤按钮和结果列表。
-# 当前筛选值保存在 state，方便 detail 或 facade 重新刷新时复用。
 func on_inventory_filter_pressed(filter_id: String) -> void:
 	_state.inventory_filter_type = filter_id
 	rebuild_inventory_filters()
 	rebuild_inventory_items()
 
-
 # 搜索框内容变化后，直接按当前条件重建列表。
-# 搜索不做增量 patch，列表规模不大，全量重建更直观可靠。
 func on_inventory_search_changed(_new_text: String) -> void:
 	rebuild_inventory_items()
 
-
 # 点击 inventory 条目时，如果该条目已装备，则跳到对应角色详情。
-# 这让 inventory 既是库存列表，也是已装备条目的反查入口。
 func on_inventory_card_clicked(item_id: String, _item_data: Dictionary) -> void:
 	if _detail_view == null:
 		return
@@ -504,23 +489,20 @@ func on_inventory_card_clicked(item_id: String, _item_data: Dictionary) -> void:
 	if _support.is_valid_unit(unit):
 		_detail_view.open_detail_panel(unit)
 
-
 # 把 inventory 条目拖放到详情槽位时，统一处理库存扣减与替换回收。
-# 成功装备后，库存、详情 UI 和 inventory 列表必须按同一顺序一起刷新。
 func on_slot_item_dropped(slot_category: String, slot_key: String, item_id: String) -> void:
 	if not _support.is_valid_unit(_state.detail_unit):
 		return
 	if int(_state.stage) != STAGE_PREPARATION:
 		return
-	if _refs.unit_augment_manager == null:
+	var unit_augment_manager = _get_unit_augment_manager()
+	if unit_augment_manager == null:
 		return
-	# 先确认库存和阶段，再决定是否调用 unit_augment_manager，避免无效写入。
 	var stock_category: String = "gongfa" if slot_category == "gongfa" else "equipment"
 	if _state.get_owned_item_count(stock_category, item_id) <= 0:
 		if _refs.debug_label != null:
 			_refs.debug_label.text = "库存不足：无法装备 %s" % item_id
 		return
-	# 替换逻辑统一先记住被换下的条目，再在成功后回写库存。
 	var replaced_item_id: String = ""
 	var ok: bool = false
 	if slot_category == "gongfa":
@@ -530,7 +512,7 @@ func on_slot_item_dropped(slot_category: String, slot_key: String, item_id: Stri
 		replaced_item_id = str(gongfa_slots.get(slot_key, "")).strip_edges()
 		if replaced_item_id == item_id:
 			return
-		ok = bool(_refs.unit_augment_manager.call("equip_gongfa", _state.detail_unit, slot_key, item_id))
+		ok = bool(unit_augment_manager.equip_gongfa(_state.detail_unit, slot_key, item_id))
 	else:
 		var equip_slots: Dictionary = _support.normalize_equip_slots(
 			_support.get_unit_equip_slots(_state.detail_unit)
@@ -538,14 +520,11 @@ func on_slot_item_dropped(slot_category: String, slot_key: String, item_id: Stri
 		replaced_item_id = str(equip_slots.get(slot_key, "")).strip_edges()
 		if replaced_item_id == item_id:
 			return
-		ok = bool(
-			_refs.unit_augment_manager.call("equip_equipment", _state.detail_unit, slot_key, item_id)
-		)
+		ok = bool(unit_augment_manager.equip_equipment(_state.detail_unit, slot_key, item_id))
 	if not ok:
 		if _refs.debug_label != null:
 			_refs.debug_label.text = "拖放失败：槽位不匹配或数据无效。"
 		return
-	# 写库存永远发生在装备成功之后，避免失败时把道具数量先扣掉。
 	_state.consume_owned_item(stock_category, item_id, 1)
 	if not replaced_item_id.is_empty():
 		_state.add_owned_item(stock_category, replaced_item_id, 1)
@@ -553,15 +532,14 @@ func on_slot_item_dropped(slot_category: String, slot_key: String, item_id: Stri
 		_detail_view.update_detail_panel(_state.detail_unit)
 	rebuild_inventory_items()
 
-
 # 从详情槽位卸下条目时，统一回写库存并刷新详情显示。
-# 卸下和拖放共享同一份库存口径，避免“装上去”和“卸下来”走两套规则。
 func on_slot_unequip_pressed(slot_category: String, slot: String) -> void:
 	if not _support.is_valid_unit(_state.detail_unit):
 		return
 	if int(_state.stage) != STAGE_PREPARATION:
 		return
-	if _refs.unit_augment_manager == null:
+	var unit_augment_manager = _get_unit_augment_manager()
+	if unit_augment_manager == null:
 		return
 	var removed_item_id: String = ""
 	if slot_category == "gongfa":
@@ -571,7 +549,7 @@ func on_slot_unequip_pressed(slot_category: String, slot: String) -> void:
 		removed_item_id = str(gongfa_slots.get(slot, "")).strip_edges()
 		if removed_item_id.is_empty():
 			return
-		_refs.unit_augment_manager.call("unequip_gongfa", _state.detail_unit, slot)
+		unit_augment_manager.unequip_gongfa(_state.detail_unit, slot)
 		_state.add_owned_item("gongfa", removed_item_id, 1)
 	else:
 		var equip_slots: Dictionary = _support.normalize_equip_slots(
@@ -580,31 +558,23 @@ func on_slot_unequip_pressed(slot_category: String, slot: String) -> void:
 		removed_item_id = str(equip_slots.get(slot, "")).strip_edges()
 		if removed_item_id.is_empty():
 			return
-		_refs.unit_augment_manager.call("unequip_equipment", _state.detail_unit, slot)
+		unit_augment_manager.unequip_equipment(_state.detail_unit, slot)
 		_state.add_owned_item("equipment", removed_item_id, 1)
 	if _detail_view != null:
 		_detail_view.update_detail_panel(_state.detail_unit)
-	# 卸下后同样重建 inventory，确保库存数字和已装备数量立即回正。
 	rebuild_inventory_items()
 
-
 # 顶栏商店按钮只在准备期切换商店面板显隐。
-# 阶段限制放在这里，是为了让按钮和快捷键共享同一入口规则。
 func on_shop_open_button_pressed() -> void:
 	if int(_state.stage) != STAGE_PREPARATION:
 		return
-	# 是否真正展示面板仍由 facade 决定，这里只表达“用户想打开商店”。
 	_owner.toggle_shop_panel()
 
-
 # 商店关闭按钮直接复用 facade 的统一显隐入口。
-# 关闭后是否记住偏好由 facade 决定，这里不额外改 state。
 func on_shop_close_pressed() -> void:
 	_owner.set_shop_panel_visible(false, true)
 
-
 # 商店 tab 变化时只切换当前页签和按钮状态，再重建卡片。
-# tab 按钮状态和卡片列表必须同步，否则玩家会看到按钮亮着但内容没切换。
 func on_shop_tab_pressed(tab_id: String) -> void:
 	_state.shop_current_tab = tab_id
 	if _refs.shop_tab_recruit_button != null:
@@ -613,57 +583,58 @@ func on_shop_tab_pressed(tab_id: String) -> void:
 		_refs.shop_tab_gongfa_button.button_pressed = tab_id == SHOP_TAB_GONGFA
 	if _refs.shop_tab_equipment_button != null:
 		_refs.shop_tab_equipment_button.button_pressed = tab_id == SHOP_TAB_EQUIPMENT
-	# 商店页签切换不动库存 state，避免玩家在商店和仓库之间来回切换时丢筛选。
 	rebuild_shop_cards()
 
-
 # 商店刷新按钮只把动作转发给 coordinator。
-# 费用扣减与锁店处理都留在 coordinator / economy support。
 func on_shop_refresh_button_pressed() -> void:
 	var coordinator = _owner.get_coordinator()
 	if coordinator != null:
 		coordinator.refresh_shop_from_button()
 
-
 # 商店升级按钮只把动作转发给 coordinator。
-# 这里不读升级代价，避免按钮文案和业务判断分裂。
 func on_shop_upgrade_button_pressed() -> void:
 	var coordinator = _owner.get_coordinator()
 	if coordinator != null:
 		coordinator.buy_shop_upgrade()
 
-
 # 商店锁定按钮只把动作转发给 coordinator。
-# view 层只负责表达点击，不自行切换锁店状态。
 func on_shop_lock_button_pressed() -> void:
 	var coordinator = _owner.get_coordinator()
 	if coordinator != null:
 		coordinator.toggle_shop_lock()
 
-
 # 测试银两按钮只把动作转发给 coordinator。
-# 调试按钮也遵守同一事件出口，方便之后统一删除或隐藏。
 func on_shop_test_add_silver_button_pressed() -> void:
 	var coordinator = _owner.get_coordinator()
 	if coordinator != null:
 		coordinator.add_test_silver()
 
-
 # 测试经验按钮只把动作转发给 coordinator。
-# 这样本地调试和正式按钮一样，都能被 coordinator 记到 battle log。
 func on_shop_test_add_exp_button_pressed() -> void:
 	var coordinator = _owner.get_coordinator()
 	if coordinator != null:
 		coordinator.add_test_exp()
 
-
 # 商品卡购买按钮只把条目索引转发给 coordinator。
-# 购买成功后的刷新由 coordinator 反向通知，不在 view 层先行假设结果。
 func on_shop_buy_pressed(tab_id: String, index: int) -> void:
-	# view 层永远只传 tab + index，真正的 offer 快照以 coordinator 再次读取为准。
 	var coordinator = _owner.get_coordinator()
 	if coordinator != null:
-		# 这样即便商店快照刚刷新，购买仍会使用 coordinator 手里的最新数据。
 		coordinator.purchase_shop_offer(tab_id, index)
 
+# 统一读取经济运行时服务，避免多处直接碰 refs 字段。
+func _get_runtime_economy_manager():
+	if _refs == null:
+		return null
+	return _refs.runtime_economy_manager
 
+# 统一读取商店运行时服务，保证商店卡刷新走同一入口。
+func _get_runtime_shop_manager():
+	if _refs == null:
+		return null
+	return _refs.runtime_shop_manager
+
+# 统一读取 UnitAugmentManager，避免库存与槽位交互各自判空。
+func _get_unit_augment_manager():
+	if _refs == null:
+		return null
+	return _refs.unit_augment_manager

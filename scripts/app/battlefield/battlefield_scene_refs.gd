@@ -1,6 +1,34 @@
 ﻿extends Node
 class_name BattlefieldSceneRefs
 
+# Phase 3 scene-first 子场景库（Batch 1）
+# 说明：
+# 1. 统一在 refs 暴露可复用 UI 组件资源，避免协作者各自硬编码路径。
+# 2. Batch 1 只建立入口，不改现有 HUD 渲染行为。
+const UI_SCENE_LIBRARY: Dictionary = {
+	"inventory_item_card": preload("res://scenes/ui/inventory_item_card.tscn"),
+	"shop_offer_card": preload("res://scenes/ui/shop_offer_card.tscn"),
+	"inventory_filter_button": preload("res://scenes/ui/inventory_filter_button.tscn"),
+	"gongfa_slot_row": preload("res://scenes/ui/gongfa_slot_row.tscn"),
+	"equipment_slot_row": preload("res://scenes/ui/equipment_slot_row.tscn"),
+	"unit_tooltip_gongfa_row": preload("res://scenes/ui/unit_tooltip_gongfa_row.tscn"),
+	"item_tooltip_effect_row": preload("res://scenes/ui/item_tooltip_effect_row.tscn"),
+	"recycle_drop_zone": preload("res://scenes/ui/recycle_drop_zone.tscn"),
+	"battle_stats_panel": preload("res://scenes/ui/battle_stats_panel.tscn")
+}
+
+const REQUIRED_UI_SCENE_IDS: Array[String] = [
+	"inventory_item_card",
+	"shop_offer_card",
+	"inventory_filter_button",
+	"gongfa_slot_row",
+	"equipment_slot_row",
+	"unit_tooltip_gongfa_row",
+	"item_tooltip_effect_row",
+	"recycle_drop_zone",
+	"battle_stats_panel"
+]
+
 # 战场场景引用表
 # 说明：
 # 1. 统一收口战场入口需要的显式节点和服务引用。
@@ -9,6 +37,7 @@ class_name BattlefieldSceneRefs
 
 # 场景根引用：只允许 Batch 1 根场景在这里写入一次。
 var scene_root: Node = null # 新入口根场景，负责首次收集整棵战场引用。
+var _services: ServiceRegistry = null
 
 # 世界与战斗核心节点。
 var world_container: Node2D = null # 世界根容器，统一承接缩放和平移。
@@ -129,6 +158,18 @@ var battle_stats_panel: PanelContainer = null # 结果统计面板节点。
 
 
 # 根场景只在这里做一次引用采集，后续扩展也必须从这个入口走。
+func bind_app_services(services: ServiceRegistry) -> void:
+	_services = services
+
+
+# 统一暴露 DataRepository，避免协作者绕开服务注册表。
+func get_data_repository() -> Node:
+	if _services == null:
+		return null
+	return _services.data_repository
+
+
+# 根场景只在这里做一次引用采集，后续扩展也必须从这个入口走。
 func bind_from_scene(scene_root_value: Node) -> void:
 	scene_root = scene_root_value
 	_bind_world_refs(scene_root_value)
@@ -156,7 +197,14 @@ func _bind_world_refs(scene_root_value: Node) -> void:
 	vfx_factory = scene_root_value.get_node_or_null("WorldContainer/VfxLayer/VfxFactory") as Node2D
 	unit_factory = scene_root_value.get_node_or_null("UnitFactory")
 	combat_manager = scene_root_value.get_node_or_null("CombatManager")
-	unit_augment_manager = scene_root_value.get_node_or_null(^"/root/UnitAugmentManager")
+	unit_augment_manager = _resolve_unit_augment_manager(scene_root_value)
+
+
+# unit augment 只从服务注册表取，避免场景路径回流。
+func _resolve_unit_augment_manager(_scene_root_value: Node) -> Node:
+	if _services == null:
+		return null
+	return _services.unit_augment_manager
 
 
 # 顶层 CanvasLayer 组只在这里采集一次，后续协作者统一通过 refs 读取。
@@ -446,3 +494,46 @@ func bind_recycle_drop_zone(node: PanelContainer) -> void:
 	recycle_drop_zone = node
 
 
+# 统一按 scene_id 返回可复用 UI 子场景。
+func get_ui_scene(scene_id: String) -> PackedScene:
+	var scene_value: Variant = UI_SCENE_LIBRARY.get(scene_id, null)
+	if scene_value is PackedScene:
+		return scene_value as PackedScene
+	return null
+
+
+# 快速存在性判断：供协作者在运行时做兜底分支。
+func has_ui_scene(scene_id: String) -> bool:
+	return get_ui_scene(scene_id) != null
+
+
+# 返回稳定排序后的 scene_id 列表，便于测试断言与调试输出。
+func get_ui_scene_ids() -> Array[String]:
+	var ids: Array[String] = []
+	for key in UI_SCENE_LIBRARY.keys():
+		ids.append(str(key))
+	ids.sort()
+	return ids
+
+
+# Batch 1 资源完整性检查：后续 smoke test 可直接用这个入口验子场景是否齐全。
+func has_required_ui_scene_assets() -> bool:
+	for scene_id in REQUIRED_UI_SCENE_IDS:
+		if get_ui_scene(scene_id) == null:
+			return false
+	return true
+
+
+# UI 挂载点统一收口：后续 batch 直接消费该字典，不再散落节点路径。
+func get_ui_mount_points() -> Dictionary:
+	return {
+		"shop_offer_row": shop_offer_row,
+		"inventory_filter_row": inventory_filter_row,
+		"inventory_grid": inventory_grid,
+		"detail_slot_list": detail_slot_list,
+		"detail_equip_slot_list": detail_equip_slot_list,
+		"tooltip_gongfa_list": tooltip_gongfa_list,
+		"item_tooltip_effects": item_tooltip_effects,
+		"detail_layer": detail_layer,
+		"bottom_panel": bottom_panel
+	}

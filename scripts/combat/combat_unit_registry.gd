@@ -95,8 +95,9 @@ func pre_tick_scan_incremental(manager) -> void:
 
 	trim_component_caches(manager, valid_ids)
 	trim_runtime_caches(manager, valid_ids)
-	# 预扫描收尾必须校验占格，防止死亡或位移后的缓存漂移。
-	manager._validate_cell_occupancy()
+	# 高密度战斗下降低占格一致性校验频率，避免每个逻辑帧都扫一遍双向索引。
+	if manager._logic_frame <= 1 or manager._logic_frame % 8 == 0:
+		manager._validate_cell_occupancy()
 
 
 # 把当前仍存活的单位写回队伍缓存、空间索引和唯一格子缓存。
@@ -147,6 +148,14 @@ func trim_component_caches(manager, valid_ids: Dictionary) -> void:
 		var iid: int = int(key)
 		if not valid_ids.has(iid):
 			manager._movement_cache.erase(iid)
+	for key in manager._target_memory.keys():
+		var iid: int = int(key)
+		if not valid_ids.has(iid):
+			manager._target_memory.erase(iid)
+	for key in manager._target_refresh_frame.keys():
+		var iid: int = int(key)
+		if not valid_ids.has(iid):
+			manager._target_refresh_frame.erase(iid)
 
 
 # 清掉已经失效的单位级运行时缓存，包括占格、空间索引和位置缓存。
@@ -188,6 +197,8 @@ func remove_runtime_entry_by_id(manager, iid: int) -> void:
 	manager._unit_position_cache.erase(iid)
 	manager._combat_cache.erase(iid)
 	manager._movement_cache.erase(iid)
+	manager._target_memory.erase(iid)
+	manager._target_refresh_frame.erase(iid)
 
 
 # 开战时批量注册同一队伍单位，并完成进入战斗前的组件准备。

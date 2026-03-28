@@ -1,318 +1,67 @@
-﻿extends RefCounted
+extends "res://scripts/app/battlefield/battlefield_hud_catalog_support.gd"
 
-# HUD 共享支持
+const DISPLAY_TEXT_CATEGORY: String = "ui_texts"
+const DISPLAY_TEXT_CONFIG_ID: String = "battlefield_hud_display"
+
+var _display_text_config: Dictionary = {}
+
+# HUD 文案与 payload 支撑
 # 说明：
-# 1. 集中承接 HUD 各子协作者共用的查表、格式化和库存查询逻辑。
-# 2. 这里不直接操作面板显隐，也不承接信号连接。
-# 共享 support 的目标不是“什么都管”，而是把重复查表和格式化从 view 中移走。
-# 数据来源口径：
-# 1. 单位列表只认 bench + ally_deployed。
-# 2. 功法、装备、Buff 数据统一从 unit_augment_manager 或 DataManager 读取。
-# 3. tooltip payload 统一由这里生成，避免多处拼接文案漂移。
-# 规范化口径：
-# 1. 功法槽固定四槽。
-# 2. 装备槽先排序再补空槽，确保 detail / inventory 顺序一致。
-# 3. 空配置也要返回稳定结构，避免 HUD 到处判空。
-# 可读性口径：
-# 1. 复杂逻辑优先解释为什么要去重、补槽、兜底。
-# 2. 简单翻译函数保持一行一义，不写重复尾注。
-
-const TEAM_ALLY: int = 1 # 己方队伍标识。
-const TEAM_ENEMY: int = 2 # 敌方队伍标识。
-const SLOT_ORDER: Array[String] = ["neigong", "waigong", "qinggong", "zhenfa"] # 功法槽顺序。
-const DEFAULT_EQUIP_ORDER: Array[String] = ["slot_1", "slot_2"] # 装备槽默认顺序。
-
-var _scene_root = null # 根场景入口。
-var _refs = null # 场景引用表。
-var _state = null # 会话状态表。
-
-var _gongfa_by_type: Dictionary = {} # 功法类型到 id 列表的索引。
-var _buff_data_map: Dictionary = {} # Buff 数据缓存。
+# 1. 集中承接 detail / tooltip / inventory 共用的文本翻译和 payload 组装逻辑。
+# 2. 目录查询、槽位规范化和缓存逻辑已经下沉到 catalog support。
+# 3. 外部协作者继续只依赖 battlefield_hud_support 这一个入口。
+# 文案口径：
+# 1. tooltip payload 统一由这里生成，避免多处拼接文案漂移。
+# 2. 效果翻译、品质文案、图标和颜色都必须走统一出口。
+# 3. 这里只做展示投影，不推断新的业务状态。
 
 
-# 绑定 HUD support 需要的场景入口、引用表和会话状态。
-# support 不持有 UI 生命周期，只保存查表和格式化所需的最小上下文。
-func initialize(scene_root, refs, state) -> void:
-	_scene_root = scene_root
+# 绑定 HUD support 需要的引用表和会话状态。
+# `scene_root` 参数保留给既有装配入口，但本文件不再主动依赖场景树根。
+func initialize(_scene_root, refs, state) -> void:
 	_refs = refs
 	_state = state
 
 
-# 重建功法类型索引，供 detail / tooltip / inventory 复用同一份查表。
-# 缓存结构是 type -> [id]，后续只读这份索引，不重复扫描全量功法表。
-func build_gongfa_type_cache() -> void:
+# 释放 HUD 支撑缓存，避免场景重进时沿用旧索引。
+# support 不持有 UI 生命周期，只清理由自己维护的缓存和引用。
+func shutdown() -> void:
+	_refs = null
+	_state = null
 	_gongfa_by_type.clear()
-	# 即便某个类型之前不存在，也在这里补空数组，后续消费代码就不用判缺失。
-	for slot in SLOT_ORDER:
-		_gongfa_by_type[slot] = []
-	if _refs == null or _refs.unit_augment_manager == null:
-		return
-	if not _refs.unit_augment_manager.has_method("get_all_gongfa"):
-		return
-	var all_data: Variant = _refs.unit_augment_manager.call("get_all_gongfa")
-	if not (all_data is Array):
-		return
-	for item in all_data:
-		if not (item is Dictionary):
-			continue
-		var data: Dictionary = item as Dictionary
-		var gongfa_id: String = str(data.get("id", "")).strip_edges()
-		var gongfa_type: String = str(data.get("type", "")).strip_edges()
-		if gongfa_id.is_empty() or gongfa_type.is_empty():
-			continue
-		if not _gongfa_by_type.has(gongfa_type):
-			_gongfa_by_type[gongfa_type] = []
-		var ids: Array = _gongfa_by_type[gongfa_type]
-		ids.append(gongfa_id)
-		_gongfa_by_type[gongfa_type] = ids
-
-
-# 重新加载 Buff 名称映射，避免 tooltip 继续依赖旧缓存。
-# Buff 数据只保留一份本地副本，便于 tooltip 快速按 id 取名。
-func reload_external_item_data() -> void:
 	_buff_data_map.clear()
-	var data_manager: Node = get_root_node("DataManager")
-	if data_manager == null or not data_manager.has_method("get_all_records"):
+	_display_text_config.clear()
+
+
+# DataManager reload 后同步刷新显示配置，保证文案/图标能走统一 data 覆盖链。
+func reload_external_item_data() -> void:
+	super.reload_external_item_data()
+	_display_text_config.clear()
+	var data_manager: Node = _get_data_repository()
+	if data_manager == null or not data_manager.has_method("get_record"):
 		return
-	var buff_records: Variant = data_manager.call("get_all_records", "buffs")
-	if not (buff_records is Array):
+	var config_record: Dictionary = data_manager.get_record(
+		DISPLAY_TEXT_CATEGORY,
+		DISPLAY_TEXT_CONFIG_ID
+	)
+	if config_record.is_empty():
 		return
-	for buff_value in buff_records:
-		if not (buff_value is Dictionary):
-			continue
-		var buff_data: Dictionary = buff_value as Dictionary
-		var buff_id: String = str(buff_data.get("id", "")).strip_edges()
-		if buff_id.is_empty():
-			continue
-		_buff_data_map[buff_id] = buff_data.duplicate(true)
-
-
-# 关闭物品悬停态时统一清理 session state，避免残留 bridge 判断。
-# 只要 item tooltip 相关状态失效，就一起清零，不留半旧半新的 hover 上下文。
-func clear_item_hover_state() -> void:
-	if _state == null:
-		return
-	_state.item_hover_source = null
-	_state.item_hover_data = {}
-	_state.item_hover_timer = 0.0
-	_state.item_fade_timer = 0.0
-
-
-# 统计当前库存条目被多少角色装备，供 inventory 摘要显示。
-# 这里同时遍历 bench 和已部署角色，保证准备期和战斗回放都读到同一口径。
-func count_equipped_instances(mode: String, item_id: String) -> int:
-	var count: int = 0
-	for unit in collect_player_units():
-		if not is_valid_unit(unit):
-			continue
-		# 功法和装备的槽位结构不同，但最终都收敛成“命中几次同一 item_id”。
-		if mode == "gongfa":
-			var gongfa_slots: Dictionary = normalize_unit_slots(unit.get("gongfa_slots"))
-			for slot in SLOT_ORDER:
-				if str(gongfa_slots.get(slot, "")).strip_edges() == item_id:
-					count += 1
-			continue
-		var equip_slots: Dictionary = normalize_equip_slots(get_unit_equip_slots(unit))
-		var equip_order: Array[String] = get_sorted_equip_slot_keys(
-			equip_slots,
-			get_unit_max_equip_count(unit, equip_slots)
-		)
-		for equip_slot in equip_order:
-			if str(equip_slots.get(equip_slot, "")).strip_edges() == item_id:
-				count += 1
-	return count
-
-
-# 查找某个库存条目当前挂在哪个角色和槽位上，供 inventory 点击跳转详情。
-# 找到第一处命中就返回，inventory 只需要一个可跳转入口而不是完整列表。
-func find_equipped_info(item_id: String, inventory_mode: String) -> Dictionary:
-	if item_id.is_empty():
-		return {}
-	for unit in collect_player_units():
-		if not is_valid_unit(unit):
-			continue
-		if inventory_mode == "gongfa":
-			var gongfa_slots: Dictionary = normalize_unit_slots(unit.get("gongfa_slots"))
-			for slot in SLOT_ORDER:
-				if str(gongfa_slots.get(slot, "")).strip_edges() == item_id:
-					return {
-						"unit": unit,
-						"unit_name": str(unit.get("unit_name")),
-						"slot": slot
-					}
-			continue
-		var equip_slots: Dictionary = normalize_equip_slots(get_unit_equip_slots(unit))
-		var equip_order: Array[String] = get_sorted_equip_slot_keys(
-			equip_slots,
-			get_unit_max_equip_count(unit, equip_slots)
-		)
-		for equip_slot in equip_order:
-			if str(equip_slots.get(equip_slot, "")).strip_edges() == item_id:
-				return {
-					"unit": unit,
-					"unit_name": str(unit.get("unit_name")),
-					"slot": equip_slot
-				}
-	return {}
-
-
-# 汇总备战席与已部署友军，给 inventory / detail / tooltip 共用。
-# seen 表负责去重，避免同一个单位同时出现在 bench 数据和部署映射时重复计数。
-func collect_player_units() -> Array[Node]:
-	var output: Array[Node] = []
-	var seen: Dictionary = {}
-	if _refs != null and _refs.bench_ui != null and _refs.bench_ui.has_method("get_all_units"):
-		for unit in _refs.bench_ui.call("get_all_units"):
-			if not is_valid_unit(unit):
-				continue
-			var instance_id: int = unit.get_instance_id()
-			if seen.has(instance_id):
-				continue
-			seen[instance_id] = true
-			output.append(unit)
-	if _state == null:
-		return output
-	for unit in _state.ally_deployed.values():
-		if not is_valid_unit(unit):
-			continue
-		var deployed_id: int = unit.get_instance_id()
-		if seen.has(deployed_id):
-			continue
-		seen[deployed_id] = true
-		output.append(unit)
-	return output
-
-
-# 按当前阶段返回实时存活数，供顶栏战力条显示。
-# 准备期没有真正战斗运行态时，直接回退到部署映射规模。
-func get_alive_count(team_id: int) -> int:
-	if _state == null:
-		return 0
-	if int(_state.stage) == 0:
-		return _state.ally_deployed.size() if team_id == TEAM_ALLY else _state.enemy_deployed.size()
-	if _refs != null and _refs.combat_manager != null:
-		if _refs.combat_manager.has_method("get_alive_count"):
-			return int(_refs.combat_manager.call("get_alive_count", team_id))
-	return 0
-
-
-# 统一读取角色装备槽，并在空槽配置时补全默认顺序。
-# 对外永远返回规范化结果，调用方不需要关心单位原始字段是否缺失。
-func get_unit_equip_slots(unit: Node) -> Dictionary:
-	if not is_valid_unit(unit):
-		return normalize_equip_slots({}, DEFAULT_EQUIP_ORDER.size())
-	return normalize_equip_slots(unit.get("equip_slots"), int(unit.get("max_equip_count")))
-
-
-# 把功法槽输入规范化成固定四槽，避免详情和库存各自补默认值。
-# 任何缺槽或空值都在这里补成空字符串，后续 UI 文本更稳定。
-func normalize_unit_slots(raw: Variant) -> Dictionary:
-	var slots: Dictionary = {
-		"neigong": "",
-		"waigong": "",
-		"qinggong": "",
-		"zhenfa": ""
-	}
-	if raw is Dictionary:
-		for key in slots.keys():
-			slots[key] = str((raw as Dictionary).get(key, "")).strip_edges()
-	return slots
-
-
-# 把装备槽输入规范化成排序后的字典，并根据目标数量补全空槽。
-# 先排序再补槽，能保证 slot_10 不会跑到 slot_2 前面。
-func normalize_equip_slots(raw: Variant, desired_count: int = 0) -> Dictionary:
-	var slots: Dictionary = {}
-	if raw is Dictionary:
-		for key in get_sorted_equip_slot_keys(raw):
-			slots[key] = str((raw as Dictionary).get(key, "")).strip_edges()
-	# 没有任何装备槽配置时，也返回默认两槽，避免 detail 行数忽多忽少。
-	if slots.is_empty():
-		for key in DEFAULT_EQUIP_ORDER:
-			slots[key] = ""
-	if desired_count > slots.size():
-		for index in range(1, desired_count + 1):
-			if slots.size() >= desired_count:
-				break
-			var slot_key: String = "slot_%d" % index
-			if not slots.has(slot_key):
-				slots[slot_key] = ""
-	return slots
-
-
-# 读取角色最大装备槽数，兼容缺失配置和空槽位字典。
-# 最终至少返回 1，防止调用方拿到 0 后直接把整块 UI 隐掉。
-func get_unit_max_equip_count(unit: Node, equip_slots: Dictionary) -> int:
-	var configured: int = int(unit.get("max_equip_count")) if is_valid_unit(unit) else 0
-	if configured <= 0:
-		configured = equip_slots.size()
-	if configured <= 0:
-		configured = DEFAULT_EQUIP_ORDER.size()
-	return maxi(configured, 1)
-
-
-# 对装备槽 key 做稳定排序，避免 detail 和 inventory 行顺序漂移。
-# desired_count 会把未来可能存在但当前为空的槽位也提前纳入排序。
-func get_sorted_equip_slot_keys(
-	slots_value: Variant,
-	desired_count: int = 0
-) -> Array[String]:
-	var keys: Array[String] = []
-	if slots_value is Dictionary:
-		for raw_key in (slots_value as Dictionary).keys():
-			var key: String = str(raw_key).strip_edges()
-			if not key.is_empty():
-				keys.append(key)
-	if keys.is_empty():
-		keys = DEFAULT_EQUIP_ORDER.duplicate()
-	keys.sort_custom(Callable(self, "compare_equip_slot_key"))
-	var target_count: int = maxi(desired_count, keys.size())
-	if target_count > keys.size():
-		for index in range(1, target_count + 1):
-			if keys.size() >= target_count:
-				break
-			var slot_key: String = "slot_%d" % index
-			if not keys.has(slot_key):
-				keys.append(slot_key)
-		keys.sort_custom(Callable(self, "compare_equip_slot_key"))
-	return keys
-
-
-# 让 slot_1、slot_2 这类槽位优先按编号排序，其他 key 再按字典序落后。
-# 这样既兼容标准 slot_x，也兼容未来可能出现的特殊命名槽位。
-func compare_equip_slot_key(a: String, b: String) -> bool:
-	var a_index: int = extract_equip_slot_index(a)
-	var b_index: int = extract_equip_slot_index(b)
-	if a_index >= 0 and b_index >= 0:
-		return a_index < b_index if a_index != b_index else a < b
-	if a_index >= 0:
-		return true
-	if b_index >= 0:
-		return false
-	return a < b
-
-
-# 从 slot_x 这类 key 中提取数字编号，供装备槽排序使用。
-# 非标准 key 直接返回 -1，交给 compare_equip_slot_key 走兜底分支。
-func extract_equip_slot_index(slot_key: String) -> int:
-	var normalized: String = slot_key.strip_edges().to_lower()
-	if not normalized.begins_with("slot_"):
-		return -1
-	var tail: String = normalized.substr(5, normalized.length() - 5)
-	return int(tail) if tail.is_valid_int() else -1
+	_display_text_config = config_record.duplicate(true)
 
 
 # 把运行时生效的功法与装备效果整理成详情面板的 bonus 列表。
 # 这里故意读取 runtime_*_ids，而不是静态已装备槽，确保展示的是实际生效效果。
+# 把运行时已生效的功法和装备效果整理成详情面板 bonus 列表。
+# 这里只读 runtime_*_ids，确保展示的是战斗中真正生效的效果。
 func build_gongfa_bonus_lines(unit: Node) -> Array[String]:
 	var lines: Array[String] = []
-	if _refs == null or _refs.unit_augment_manager == null:
+	var unit_augment_manager = _get_unit_augment_manager()
+	if unit_augment_manager == null:
 		return lines
-	# 功法被动和装备效果最终都落成同一行文本，详情面板不用区分渲染模板。
 	var runtime_gongfa_ids: Array = unit.get("runtime_equipped_gongfa_ids")
 	for gongfa_id_value in runtime_gongfa_ids:
 		var gongfa_id: String = str(gongfa_id_value)
-		var data: Dictionary = _refs.unit_augment_manager.call("get_gongfa_data", gongfa_id)
+		var data: Dictionary = unit_augment_manager.get_gongfa_data(gongfa_id)
 		if data.is_empty():
 			continue
 		var gongfa_name: String = str(data.get("name", gongfa_id))
@@ -326,7 +75,7 @@ func build_gongfa_bonus_lines(unit: Node) -> Array[String]:
 	var runtime_equip_ids: Array = unit.get("runtime_equipped_equip_ids")
 	for equip_id_value in runtime_equip_ids:
 		var equip_id: String = str(equip_id_value)
-		var equip_data: Dictionary = _refs.unit_augment_manager.call("get_equipment_data", equip_id)
+		var equip_data: Dictionary = unit_augment_manager.get_equipment_data(equip_id)
 		if equip_data.is_empty():
 			continue
 		var equip_name: String = str(equip_data.get("name", equip_id))
@@ -341,11 +90,10 @@ func build_gongfa_bonus_lines(unit: Node) -> Array[String]:
 
 
 # 把角色内置特性转成统一的物品 tooltip 结构，便于 tooltip 共用渲染。
-# trait 和 item 最终共用一套 payload，是为了让 detail_view 只维护一个 tooltip renderer。
+# trait 和 item 最终共用一套 payload，是为了让 detail view 只维护一个 renderer。
 func build_trait_item_tooltip_data(trait_data: Dictionary) -> Dictionary:
 	var effects: Array[String] = []
 	var trait_effects: Variant = trait_data.get("effects", [])
-	# trait effects 也先翻译成普通效果文本，这样 tooltip renderer 完全不用分支。
 	if trait_effects is Array:
 		for effect_value in trait_effects:
 			if effect_value is Dictionary:
@@ -365,8 +113,9 @@ func build_trait_item_tooltip_data(trait_data: Dictionary) -> Dictionary:
 # 缺数据时也返回完整 payload 结构，调用方就不用再写一层兜底分支。
 func build_gongfa_item_tooltip_data(gongfa_id: String) -> Dictionary:
 	var data: Dictionary = {}
-	if _refs != null and _refs.unit_augment_manager != null:
-		data = _refs.unit_augment_manager.call("get_gongfa_data", gongfa_id)
+	var unit_augment_manager = _get_unit_augment_manager()
+	if unit_augment_manager != null:
+		data = unit_augment_manager.get_gongfa_data(gongfa_id)
 	if data.is_empty():
 		return {
 			"name": gongfa_id,
@@ -377,10 +126,8 @@ func build_gongfa_item_tooltip_data(gongfa_id: String) -> Dictionary:
 			"skill_trigger": "",
 			"skill_effects": []
 		}
-	# payload 的字段名固定后，detail/shop/inventory 就能共享同一渲染函数。
 	var effect_lines: Array[String] = []
 	var passive_effects: Variant = data.get("passive_effects", [])
-	# passive_effects 只做只读投影，不在 HUD 侧推断运行时数值。
 	if passive_effects is Array:
 		for effect_value in passive_effects:
 			if effect_value is Dictionary:
@@ -414,8 +161,9 @@ func gongfa_name_or_empty(gongfa_id: String) -> String:
 # 装备与功法 payload 结构对齐，方便 tooltip renderer 直接复用。
 func build_equip_item_tooltip_data(equip_id: String) -> Dictionary:
 	var data: Dictionary = {}
-	if _refs != null and _refs.unit_augment_manager != null:
-		data = _refs.unit_augment_manager.call("get_equipment_data", equip_id)
+	var unit_augment_manager = _get_unit_augment_manager()
+	if unit_augment_manager != null:
+		data = unit_augment_manager.get_equipment_data(equip_id)
 	if data.is_empty():
 		return {
 			"name": equip_id,
@@ -426,10 +174,8 @@ func build_equip_item_tooltip_data(equip_id: String) -> Dictionary:
 			"skill_trigger": "",
 			"skill_effects": []
 		}
-	# 装备效果和功法效果共用同一 effects 字段，tooltip renderer 不需要知道来源。
 	var effect_lines: Array[String] = []
 	var effects: Variant = data.get("effects", [])
-	# 装备 effect 文案和功法 effect 文案共用同一翻译器，减少描述分叉。
 	if effects is Array:
 		for effect_value in effects:
 			if effect_value is Dictionary:
@@ -463,7 +209,6 @@ func equip_name_or_empty(equip_id: String) -> String:
 # 所有效果说明统一经过这里，后续改文案时只需要维护一个出口。
 func format_effect_op(effect: Dictionary) -> String:
 	var op: String = str(effect.get("op", ""))
-	# 这里返回的都是玩家文案，不再把原始 effect 字典直接暴露给 UI。
 	match op:
 		"stat_add":
 			return "%s %+d" % [
@@ -511,9 +256,77 @@ func slot_or_equip_cn(tab_id: String, slot_type: String) -> String:
 	return slot_to_cn(slot_type) if tab_id == "gongfa" else equip_type_to_cn(slot_type)
 
 
-# 把功法槽 key 翻译成中文显示名。
-# 这里返回的是 UI 文案，不参与任何玩法逻辑判断。
-func slot_to_cn(slot: String) -> String:
+# 把配置组里的显示文本安全读成字符串，缺项时回退到代码默认值。
+func _read_display_text(group_key: String, item_key: String, fallback: String) -> String:
+	var group_value: Variant = _display_text_config.get(group_key, {})
+	if not (group_value is Dictionary):
+		return fallback
+	var entry_value: Variant = (group_value as Dictionary).get(item_key, null)
+	if entry_value is Dictionary:
+		var entry_text: String = str((entry_value as Dictionary).get("text", fallback)).strip_edges()
+		return fallback if entry_text.is_empty() else entry_text
+	if entry_value == null:
+		return fallback
+	var text_value: String = str(entry_value).strip_edges()
+	return fallback if text_value.is_empty() else text_value
+
+
+# 图标配置只接受带 icon 字段的映射对象，避免把普通文本误当图标。
+func _read_display_icon(group_key: String, item_key: String, fallback: String) -> String:
+	var group_value: Variant = _display_text_config.get(group_key, {})
+	if not (group_value is Dictionary):
+		return fallback
+	var entry_value: Variant = (group_value as Dictionary).get(item_key, null)
+	if not (entry_value is Dictionary):
+		return fallback
+	var icon_text: String = str((entry_value as Dictionary).get("icon", fallback)).strip_edges()
+	return fallback if icon_text.is_empty() else icon_text
+
+
+# 颜色配置统一从 data 组读取，再交给底层颜色解析器做格式兼容。
+func _read_display_color(group_key: String, item_key: String, fallback: Color) -> Color:
+	var group_value: Variant = _display_text_config.get(group_key, {})
+	if not (group_value is Dictionary):
+		return fallback
+	return _variant_to_color((group_value as Dictionary).get(item_key, null), fallback)
+
+
+# 支持数组、字典和字符串三种颜色格式，保证 JSON 配置足够宽容。
+func _variant_to_color(value: Variant, fallback: Color) -> Color:
+	if value is Array:
+		var channels: Array = value as Array
+		if channels.size() == 3:
+			return Color(
+				float(channels[0]),
+				float(channels[1]),
+				float(channels[2]),
+				1.0
+			)
+		if channels.size() >= 4:
+			return Color(
+				float(channels[0]),
+				float(channels[1]),
+				float(channels[2]),
+				float(channels[3])
+			)
+	if value is Dictionary:
+		var color_data: Dictionary = value as Dictionary
+		return Color(
+			float(color_data.get("r", fallback.r)),
+			float(color_data.get("g", fallback.g)),
+			float(color_data.get("b", fallback.b)),
+			float(color_data.get("a", fallback.a))
+		)
+	if value is String:
+		var color_text: String = str(value).strip_edges()
+		if color_text.is_empty():
+			return fallback
+		return Color.from_string(color_text, fallback)
+	return fallback
+
+
+# 槽位默认文案保留在代码里，防止坏配置把 HUD 退化成原始 key。
+func _fallback_slot_label(slot: String) -> String:
 	match slot:
 		"neigong":
 			return "内功"
@@ -527,9 +340,8 @@ func slot_to_cn(slot: String) -> String:
 			return slot
 
 
-# 为功法槽提供稳定的视觉前缀，避免详情和库存各用各的图标。
-# 图标统一后，玩家更容易把 tooltip、详情和 inventory 的同类条目对上。
-func slot_icon(slot: String) -> String:
+# 槽位默认图标维持旧视觉口径，配置缺失时不改变玩家认知。
+func _fallback_slot_icon(slot: String) -> String:
 	match slot:
 		"neigong":
 			return "☯"
@@ -543,9 +355,8 @@ func slot_icon(slot: String) -> String:
 			return "•"
 
 
-# 把装备类型 key 翻译成中文显示名。
-# 非标准类型原样返回，保证扩展数据至少还能被看懂。
-func equip_type_to_cn(equip_type: String) -> String:
+# 装备类型默认文案只服务展示，不参与任何装备业务判断。
+func _fallback_equip_type_label(equip_type: String) -> String:
 	match equip_type:
 		"weapon":
 			return "兵器"
@@ -557,9 +368,8 @@ func equip_type_to_cn(equip_type: String) -> String:
 			return equip_type
 
 
-# 为装备类型提供统一图标，供 inventory / detail 行复用。
-# 这里只负责符号选择，不负责颜色和品质表现。
-func equip_icon(equip_type: String) -> String:
+# 装备类型默认图标继续供 detail / inventory / shop 共用。
+func _fallback_equip_icon(equip_type: String) -> String:
 	match equip_type:
 		"weapon":
 			return "🗡"
@@ -569,6 +379,108 @@ func equip_icon(equip_type: String) -> String:
 			return "📿"
 		_:
 			return "•"
+
+
+# 属性中文名默认值留在代码里，避免效果描述在坏数据下完全失真。
+func _fallback_stat_label(stat_key: String) -> String:
+	match stat_key:
+		"hp":
+			return "生命"
+		"mp":
+			return "内力"
+		"atk":
+			return "外功"
+		"def":
+			return "外防"
+		"iat":
+			return "内功"
+		"idr":
+			return "内防"
+		"spd":
+			return "速度"
+		"rng":
+			return "射程"
+		_:
+			return stat_key
+
+
+# 品质简称默认值维持旧口径，方便数据迁移阶段逐步切换。
+func _fallback_quality_label(quality: String) -> String:
+	match quality:
+		"orange":
+			return "橙"
+		"purple":
+			return "紫"
+		"blue":
+			return "蓝"
+		"green":
+			return "绿"
+		"white":
+			return "白"
+		_:
+			return quality
+
+
+# 品质颜色默认值保留旧配色，避免配置缺失时界面跳色。
+func _fallback_quality_color(quality: String) -> Color:
+	match quality:
+		"white":
+			return Color(0.78, 0.80, 0.82, 0.95)
+		"green":
+			return Color(0.42, 0.68, 0.42, 0.95)
+		"blue":
+			return Color(0.32, 0.52, 0.80, 0.95)
+		"purple":
+			return Color(0.54, 0.38, 0.72, 0.95)
+		"orange":
+			return Color(0.76, 0.48, 0.20, 0.95)
+		_:
+			return Color(0.50, 0.50, 0.50, 0.95)
+
+
+# 伤害类型默认文案只解决 HUD 展示，不改变战斗分类语义。
+func _fallback_damage_type_label(damage_type: String) -> String:
+	match damage_type:
+		"internal":
+			return "内功"
+		"external":
+			return "外功"
+		"reflect":
+			return "反伤"
+		_:
+			return damage_type
+
+
+# 把功法槽 key 翻译成中文显示名。
+# 这里返回的是 UI 文案，不参与任何玩法逻辑判断。
+# 功法槽中文名优先读配置，缺失时回退旧硬编码。
+func slot_to_cn(slot: String) -> String:
+	return _read_display_text("slot_labels", slot, _fallback_slot_label(slot))
+
+
+# 为功法槽提供稳定的视觉前缀，避免详情和库存各用各的图标。
+# 图标统一后，玩家更容易把 tooltip、详情和 inventory 的同类条目对上。
+# 功法槽图标优先读配置，保证 mod 可以统一替换视觉符号。
+func slot_icon(slot: String) -> String:
+	return _read_display_icon("slot_labels", slot, _fallback_slot_icon(slot))
+
+
+# 把装备类型 key 翻译成中文显示名。
+# 非标准类型原样返回，保证扩展数据至少还能被看懂。
+# 装备类型中文名优先读配置，保留原有方法签名给调用方复用。
+func equip_type_to_cn(equip_type: String) -> String:
+	return _read_display_text(
+		"equip_type_labels",
+		equip_type,
+		_fallback_equip_type_label(equip_type)
+	)
+
+
+# 为装备类型提供统一图标，供 inventory / detail 行复用。
+# 这里只负责符号选择，不负责颜色和品质表现。
+# 装备类型图标优先读配置，避免 detail / inventory 各自写死。
+func equip_icon(equip_type: String) -> String:
+	return _read_display_icon("equip_type_labels", equip_type, _fallback_equip_icon(equip_type))
 
 
 # 把五行属性 key 翻译成中文显示名。
@@ -593,62 +505,23 @@ func element_to_cn(element: String) -> String:
 
 # 把属性字段名翻译成战斗面板文案。
 # 这里优先服务 HUD 展示，不做数值计算。
+# 属性中文名优先读配置，效果描述和面板字段共享同一出口。
 func stat_key_to_cn(stat_key: String) -> String:
-	match stat_key:
-		"hp":
-			return "生命"
-		"mp":
-			return "内力"
-		"atk":
-			return "外功"
-		"def":
-			return "外防"
-		"iat":
-			return "内功"
-		"idr":
-			return "内防"
-		"spd":
-			return "速度"
-		"rng":
-			return "射程"
-		_:
-			return stat_key
+	return _read_display_text("stat_labels", stat_key, _fallback_stat_label(stat_key))
 
 
 # 把品质 key 翻译成中文简称，供商店/库存/详情共用。
 # 简称和颜色保持解耦，避免不同位置对品质视觉有不同需求时相互牵连。
+# 品质简称优先读配置，方便不同数据包切换展示文案。
 func quality_to_cn(quality: String) -> String:
-	match quality:
-		"orange":
-			return "橙"
-		"purple":
-			return "紫"
-		"blue":
-			return "蓝"
-		"green":
-			return "绿"
-		"white":
-			return "白"
-		_:
-			return quality
+	return _read_display_text("quality_labels", quality, _fallback_quality_label(quality))
 
 
 # 返回品质主色，供商店条、头像底色和 tooltip 徽章复用。
 # 颜色常量统一后，玩家能快速把品质和视觉颜色建立稳定映射。
+# 品质颜色优先读配置，同时维持返回 Color 的既有契约。
 func quality_color(quality: String) -> Color:
-	match quality:
-		"white":
-			return Color(0.78, 0.80, 0.82, 0.95)
-		"green":
-			return Color(0.42, 0.68, 0.42, 0.95)
-		"blue":
-			return Color(0.32, 0.52, 0.80, 0.95)
-		"purple":
-			return Color(0.54, 0.38, 0.72, 0.95)
-		"orange":
-			return Color(0.76, 0.48, 0.20, 0.95)
-		_:
-			return Color(0.50, 0.50, 0.50, 0.95)
+	return _read_display_color("quality_colors", quality, _fallback_quality_color(quality))
 
 
 # 用缓存把 Buff id 翻译成名称，避免 tooltip 直接展示原始 id。
@@ -661,22 +534,18 @@ func buff_name_from_id(buff_id: String) -> String:
 
 # 把伤害类型 key 翻译成中文，供效果描述和日志统一。
 # 这里只有展示映射，不涉及 combat 侧真实伤害分类逻辑。
+# 伤害类型文案优先读配置，缺失时回退旧口径。
 func damage_type_to_cn(damage_type: String) -> String:
-	match damage_type:
-		"internal":
-			return "内功"
-		"external":
-			return "外功"
-		"reflect":
-			return "反伤"
-		_:
-			return damage_type
+	return _read_display_text(
+		"damage_type_labels",
+		damage_type,
+		_fallback_damage_type_label(damage_type)
+	)
 
 
 # 把角色当前运行态翻译成 tooltip 状态文案。
 # 这里按死亡 > 战斗中 > 备战席 > 待命的优先级收敛状态文案。
 func resolve_unit_status(unit: Node) -> String:
-	# 状态文案偏向玩家理解，不试图覆盖 combat 侧所有细粒度状态。
 	var combat: Node = unit.get_node_or_null("Components/UnitCombat")
 	if combat != null and not bool(combat.get("is_alive")):
 		return "已阵亡"
@@ -734,25 +603,3 @@ func safe_node_prop(node: Node, key: String, fallback: Variant) -> Variant:
 		return fallback
 	var value: Variant = node.get(key)
 	return fallback if value == null else value
-
-
-# 只认仍然活着的实例化节点，避免把无效单位继续交给 HUD。
-# HUD 内所有“单位是否可读”的判断最终都应复用这一处。
-func is_valid_unit(unit: Variant) -> bool:
-	if not is_instance_valid(unit):
-		return false
-	return (unit as Node) != null
-
-
-# 统一从场景树根节点读取 autoload，避免各 helper 自己写 root 路径。
-# support 自己不缓存 autoload 引用，防止测试环境替换节点后读到旧实例。
-func get_root_node(node_name: String) -> Node:
-	var tree: SceneTree = _scene_root.get_tree() if _scene_root != null else null
-	if tree == null or tree.root == null:
-		return null
-	var direct: Node = tree.root.get_node_or_null(node_name)
-	if direct != null:
-		return direct
-	return tree.root.find_child(node_name, true, false)
-
-

@@ -1,0 +1,45 @@
+[
+  {
+    "id": "battlefield_hud_display",
+    "slot_labels": {
+      "neigong": { "text": "内功", "icon": "☯" },
+      "waigong": { "text": "外功", "icon": "⚔" },
+      "qinggong": { "text": "身法", "icon": "🜂" },
+      "zhenfa": { "text": "阵法", "icon": "🧭" }
+    },
+    "equip_type_labels": {
+      "weapon": { "text": "兵器", "icon": "🗡" },
+      "armor": { "text": "护甲", "icon": "🛡" },
+      "accessory": { "text": "饰品", "icon": "📿" }
+    },
+    "stat_labels": {
+      "hp": "生命",
+      "mp": "内力",
+      "atk": "外功",
+      "def": "外防",
+      "iat": "内功",
+      "idr": "内防",
+      "spd": "速度",
+      "rng": "射程"
+    },
+    "quality_labels": {
+      "white": "白",
+      "green": "绿",
+      "blue": "蓝",
+      "purple": "紫",
+      "orange": "橙"
+    },
+    "quality_colors": {
+      "white": [0.78, 0.80, 0.82, 0.95],
+      "green": [0.42, 0.68, 0.42, 0.95],
+      "blue": [0.32, 0.52, 0.80, 0.95],
+      "purple": [0.54, 0.38, 0.72, 0.95],
+      "orange": [0.76, 0.48, 0.20, 0.95]
+    },
+    "damage_type_labels": {
+      "internal": "内功",
+      "external": "外功",
+      "reflect": "反伤"
+    }
+  }
+]

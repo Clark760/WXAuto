@@ -1,0 +1,134 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/battle_stats_panel.gd" id="1_script"]
+
+[node name="BattleStatsPanel" type="PanelContainer"]
+visible = false
+custom_minimum_size = Vector2(860, 520)
+mouse_filter = 1
+script = ExtResource("1_script")
+
+[node name="RootVBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="TitleLabel" type="Label" parent="RootVBox"]
+layout_mode = 2
+text = "战斗统计"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 26
+
+[node name="MvpLabel" type="Label" parent="RootVBox"]
+layout_mode = 2
+text = "🏆 MVP：无"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 20
+
+[node name="TabRow" type="HBoxContainer" parent="RootVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+theme_override_constants/separation = 8
+
+[node name="AllyTabButton" type="Button" parent="RootVBox/TabRow"]
+layout_mode = 2
+toggle_mode = true
+button_pressed = true
+text = "己方统计"
+
+[node name="EnemyTabButton" type="Button" parent="RootVBox/TabRow"]
+layout_mode = 2
+toggle_mode = true
+text = "敌方统计"
+
+[node name="RankRow" type="HBoxContainer" parent="RootVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="DamagePanel" type="PanelContainer" parent="RootVBox/RankRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="PanelVBox" type="VBoxContainer" parent="RootVBox/RankRow/DamagePanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="TitleLabel" type="Label" parent="RootVBox/RankRow/DamagePanel/PanelVBox"]
+layout_mode = 2
+text = "伤害排行"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 18
+
+[node name="RankText" type="RichTextLabel" parent="RootVBox/RankRow/DamagePanel/PanelVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+bbcode_enabled = true
+scroll_active = true
+fit_content = false
+
+[node name="TankPanel" type="PanelContainer" parent="RootVBox/RankRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="PanelVBox" type="VBoxContainer" parent="RootVBox/RankRow/TankPanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="TitleLabel" type="Label" parent="RootVBox/RankRow/TankPanel/PanelVBox"]
+layout_mode = 2
+text = "承伤排行"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 18
+
+[node name="RankText" type="RichTextLabel" parent="RootVBox/RankRow/TankPanel/PanelVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+bbcode_enabled = true
+scroll_active = true
+fit_content = false
+
+[node name="HealPanel" type="PanelContainer" parent="RootVBox/RankRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="PanelVBox" type="VBoxContainer" parent="RootVBox/RankRow/HealPanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="TitleLabel" type="Label" parent="RootVBox/RankRow/HealPanel/PanelVBox"]
+layout_mode = 2
+text = "治疗排行"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 18
+
+[node name="RankText" type="RichTextLabel" parent="RootVBox/RankRow/HealPanel/PanelVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+bbcode_enabled = true
+scroll_active = true
+fit_content = false
+
+[node name="CloseRow" type="HBoxContainer" parent="RootVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Spacer" type="Control" parent="RootVBox/CloseRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CloseButton" type="Button" parent="RootVBox/CloseRow"]
+layout_mode = 2
+text = "继续"

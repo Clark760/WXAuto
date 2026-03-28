@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[node name="EmptyStateLabel" type="Label"]
+size_flags_horizontal = 3
+autowrap_mode = 2
+text = "Empty"

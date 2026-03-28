@@ -143,7 +143,7 @@
     "shop_visible": false,
     "base_star": 1,
     "max_star": 3,
-    "base_stats": {"hp": 1240, "mp": 90, "atk": 72, "iat": 64, "def": 62, "idr": 46, "spd": 66, "rng": 1, "wis": 60},
+    "base_stats": {"hp": 860, "mp": 90, "atk": 72, "iat": 64, "def": 36, "idr": 20, "spd": 66, "rng": 1, "wis": 60},
     "initial_gongfa": ["gongfa_xuanming_shen", "eq_zhanshen_kai", "eq_pojia_chuizi"],
     "gongfa_slots": {"neigong": "", "waigong": "", "qinggong": "", "zhenfa": ""},
     "equip_slots": {"slot_1": "", "slot_2": ""},

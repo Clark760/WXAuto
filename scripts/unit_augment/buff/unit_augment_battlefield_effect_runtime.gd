@@ -90,6 +90,7 @@ func _tick_unit_buffs(
 		var unit_iid: int = int(key)
 		var entries: Array = manager._active_by_unit.get(unit_iid, [])
 		var next_entries: Array = []
+		var structure_changed: bool = false
 
 		# 每个单位的 buff 桶独立推进 remaining 和 tick_accum。
 		# 这里不合并同 buff_id 项，避免 application_key/source_id 桶被冲平。
@@ -132,17 +133,18 @@ func _tick_unit_buffs(
 					manager._on_buff_entry_removed(unit_iid, entry, "expired")
 					manager._emit_buff_removed(unit_iid, expired_buff_id, int(entry.get("source_id", -1)), "expired")
 				changed_units[unit_iid] = true
+				structure_changed = true
 				continue
 
 			next_entries.append(entry)
 
 		manager._active_by_unit[unit_iid] = next_entries
 		var unit_node: Node = manager._find_unit_in_context(unit_iid, context)
-		if unit_node != null and is_instance_valid(unit_node):
+		if structure_changed and unit_node != null and is_instance_valid(unit_node):
 			# 只要节点还在上下文里，就同步回最新的 buff/debuff 展示 meta。
 			# 这样 UI 和条件查询不需要等下一帧再读到状态变化。
 			manager._sync_unit_runtime_meta(unit_node, next_entries)
-		if next_entries.size() != entries.size():
+		if structure_changed:
 			changed_units[unit_iid] = true
 		if next_entries.is_empty():
 			manager._active_by_unit.erase(unit_iid)

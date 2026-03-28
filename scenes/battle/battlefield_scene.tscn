@@ -1,6 +1,6 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://pvl2vsxamnff"]
 
-[ext_resource type="Script" path="res://scripts/app/battlefield/battlefield_scene.gd" id="1_scene"]
+[ext_resource type="Script" uid="uid://1e0k6d4rxh1y" path="res://scripts/app/battlefield/battlefield_scene.gd" id="1_scene"]
 [ext_resource type="Script" uid="uid://b2igrq6di1mtd" path="res://scripts/board/hex_grid.gd" id="2_hexg"]
 [ext_resource type="Script" uid="uid://drnisnayr8upi" path="res://scripts/board/deploy_zone_overlay.gd" id="3_overlay"]
 [ext_resource type="Script" uid="uid://ba1fgtthl143q" path="res://scripts/unit/unit_multimesh_renderer.gd" id="4_mm"]
@@ -8,17 +8,17 @@
 [ext_resource type="Script" uid="uid://ceygbpaq1k4p4" path="res://scripts/unit/unit_factory.gd" id="6_factory"]
 [ext_resource type="Script" uid="uid://bh7mgnc7j02fa" path="res://scripts/combat/combat_manager.gd" id="7_combat"]
 [ext_resource type="Script" uid="uid://cakyqi2555ju5" path="res://scripts/ui/battle_bench_ui.gd" id="8_bench_ui"]
-[ext_resource type="Script" path="res://scripts/app/battlefield/battlefield_scene_refs.gd" id="9_refs"]
-[ext_resource type="Script" path="res://scripts/app/battlefield/battlefield_coordinator.gd" id="10_coord"]
-[ext_resource type="Script" path="res://scripts/app/battlefield/battlefield_world_controller.gd" id="11_world"]
-[ext_resource type="Script" path="res://scripts/app/battlefield/battlefield_hud_presenter.gd" id="12_hud"]
-[ext_resource type="Script" path="res://scripts/economy/economy_manager.gd" id="13_economy"]
-[ext_resource type="Script" path="res://scripts/economy/shop_manager.gd" id="14_shop"]
-[ext_resource type="Script" path="res://scripts/stage/stage_manager.gd" id="15_stage"]
-[ext_resource type="Script" path="res://scripts/battle/unit_deploy_manager.gd" id="16_deploy"]
-[ext_resource type="Script" path="res://scripts/battle/drag_controller.gd" id="17_drag"]
-[ext_resource type="Script" path="res://scripts/battle/battlefield_renderer.gd" id="18_renderer"]
-[ext_resource type="Script" path="res://scripts/ui/battle_stats_panel.gd" id="19_stats"]
+[ext_resource type="Script" uid="uid://cl56bmkssycvu" path="res://scripts/app/battlefield/battlefield_scene_refs.gd" id="9_refs"]
+[ext_resource type="Script" uid="uid://bj0sj4owphnuv" path="res://scripts/app/battlefield/battlefield_coordinator.gd" id="10_coord"]
+[ext_resource type="Script" uid="uid://dq33sfjobvg73" path="res://scripts/app/battlefield/battlefield_world_controller.gd" id="11_world"]
+[ext_resource type="Script" uid="uid://chooi3flgrehl" path="res://scripts/app/battlefield/battlefield_hud_presenter.gd" id="12_hud"]
+[ext_resource type="Script" uid="uid://bcncw0ge7hxig" path="res://scripts/economy/economy_manager.gd" id="13_economy"]
+[ext_resource type="Script" uid="uid://yyi2p0r327ym" path="res://scripts/economy/shop_manager.gd" id="14_shop"]
+[ext_resource type="Script" uid="uid://drsr21d1m0sw2" path="res://scripts/stage/stage_manager.gd" id="15_stage"]
+[ext_resource type="Script" uid="uid://e02y0xh0obxp" path="res://scripts/battle/unit_deploy_manager.gd" id="16_deploy"]
+[ext_resource type="Script" uid="uid://m4bg5nq4btpu" path="res://scripts/battle/drag_controller.gd" id="17_drag"]
+[ext_resource type="Script" uid="uid://c7wofoxi5ssxx" path="res://scripts/battle/battlefield_renderer.gd" id="18_renderer"]
+[ext_resource type="PackedScene" path="res://scenes/ui/battle_stats_panel.tscn" id="19_stats_panel"]
 
 [node name="BattlefieldScene" type="Node2D" unique_id=153178821]
 script = ExtResource("1_scene")
@@ -660,6 +660,8 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "共 0 件 | 已装备 0 件"
 
+[node name="BattleStatsPanel" parent="DetailLayer" unique_id=2010000011 instance=ExtResource("19_stats_panel")]
+
 [node name="BottomLayer" type="CanvasLayer" parent="." unique_id=102093718]
 layer = 5
 
@@ -761,8 +763,3 @@ script = ExtResource("17_drag")
 
 [node name="RuntimeBattlefieldRenderer" type="Node" parent="." unique_id=2010000010]
 script = ExtResource("18_renderer")
-
-[node name="BattleStatsPanel" type="PanelContainer" parent="DetailLayer" unique_id=2010000011]
-visible = false
-custom_minimum_size = Vector2(860, 520)
-script = ExtResource("19_stats")

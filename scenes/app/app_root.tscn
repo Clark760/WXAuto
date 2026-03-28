@@ -1,0 +1,10 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/infra/app_root.gd" id="1_app_root"]
+
+[node name="AppRoot" type="Node"]
+script = ExtResource("1_app_root")
+
+[node name="Services" type="Node" parent="."]
+
+[node name="SceneHost" type="Node" parent="."]

@@ -185,26 +185,67 @@ func remove_ally_mapping(unit: Node) -> void:
 # ===========================
 # 生成一波敌军时只负责出怪和落位，不承接战斗编排与结果处理。
 func spawn_enemy_wave(count: int) -> void:
+	var spawn_plan: Array[Dictionary] = build_enemy_wave_plan(count)
+	spawn_enemy_wave_from_plan(spawn_plan)
+
+
+# 先把敌军波次规划成“格子 + unit_id”的稳定快照，供批量或分帧生成共用。
+func build_enemy_wave_plan(count: int) -> Array[Dictionary]:
 	clear_enemy_wave()
 	var unit_factory = _get_ref("unit_factory")
-	var unit_layer = _get_ref("unit_layer")
-	if unit_factory == null or unit_layer == null:
-		return
+	if unit_factory == null:
+		return []
 
 	var unit_ids: Array = unit_factory.get_unit_ids()
 	var cells: Array[Vector2i] = collect_enemy_spawn_cells()
 	if unit_ids.is_empty() or cells.is_empty():
-		return
+		return []
 
 	var rng := RandomNumberGenerator.new()
 	rng.randomize()
 	_delegate._shuffle_cells(cells, rng)
 	var spawn_total: int = mini(count, cells.size())
+	var spawn_plan: Array[Dictionary] = []
 	for index in range(spawn_total):
-		var unit_id: String = str(unit_ids[rng.randi_range(0, unit_ids.size() - 1)])
+		spawn_plan.append({
+			"unit_id": str(unit_ids[rng.randi_range(0, unit_ids.size() - 1)]),
+			"cell": cells[index]
+		})
+	return spawn_plan
+
+
+# 按已规划好的快照落位敌军，允许 coordinator 分帧推进，避免开战前长时间卡主线程。
+func spawn_enemy_wave_from_plan(
+	spawn_plan: Array[Dictionary],
+	start_index: int = 0,
+	max_count: int = -1
+) -> int:
+	var unit_factory = _get_ref("unit_factory")
+	var unit_layer = _get_ref("unit_layer")
+	if unit_factory == null or unit_layer == null:
+		return 0
+	if start_index < 0 or start_index >= spawn_plan.size():
+		return 0
+
+	var end_index: int = spawn_plan.size()
+	if max_count >= 0:
+		end_index = mini(start_index + max_count, spawn_plan.size())
+
+	var spawned: int = 0
+	for index in range(start_index, end_index):
+		var entry: Dictionary = spawn_plan[index]
+		var cell_value: Variant = entry.get("cell", Vector2i(-1, -1))
+		if not (cell_value is Vector2i):
+			continue
+		var unit_id: String = str(entry.get("unit_id", "")).strip_edges()
+		if unit_id.is_empty():
+			continue
 		var unit_node: Node = unit_factory.acquire_unit(unit_id, -1, unit_layer)
-		if unit_node != null:
-			deploy_enemy_unit_to_cell(unit_node, cells[index])
+		if unit_node == null:
+			continue
+		deploy_enemy_unit_to_cell(unit_node, cell_value as Vector2i)
+		spawned += 1
+	return spawned
 
 
 # 清空当前敌军波次，并把单位归还给 UnitFactory。
@@ -471,4 +512,3 @@ func _has_property(target, property_name: String) -> bool:
 		if str(property_info.get("name", "")) == property_name:
 			return true
 	return false
-

@@ -15,10 +15,8 @@ var _unit_lookup: Dictionary = {}
 var _unit_states: Dictionary = {}
 var _next_trigger_entry_uid: int = 1
 
-
 # 依赖在构造时固定下来，避免运行时到处抓全局对象。
-# `registry` 提供条目静态数据，`effect_engine` / `buff_manager` 负责运行时投影。
-# `unit_data_script` 仍是基础属性构建入口，这里只负责把结果接到 UnitAugment 状态机。
+# `registry`/`effect_engine`/`buff_manager`/`unit_data_script` 共同组成 UnitAugment 的状态投影底座。
 func _init(
 	registry: Variant,
 	effect_engine: Variant,
@@ -32,20 +30,16 @@ func _init(
 	_tag_linkage_scheduler = tag_linkage_scheduler
 	_unit_data_script = unit_data_script
 
-
 # 新一场战斗开始前必须清空 battle units、lookup 和 runtime state。
-# `_next_trigger_entry_uid` 也必须回到 1，避免跨战斗复用旧 entry 身份。
-# 这里不清单位节点本身的槽位配置，只清 UnitAugment 维护的运行时缓存。
+# `_next_trigger_entry_uid` 也要回到 1，但单位节点自身的槽位配置不在这里清理。
 func reset_battle_state() -> void:
 	_battle_units.clear()
 	_unit_lookup.clear()
 	_unit_states.clear()
 	_next_trigger_entry_uid = 1
 
-
 # battle runtime 通过这个入口登记参与单位，避免 manager 自己维护第二套数组。
-# `_unit_lookup` 负责 instance_id -> node 映射，供 tick 和回放类事件按 id 找人。
-# 重复登记会被直接忽略，保证 battle_units 视图不出现重复单位。
+# `_unit_lookup` 负责 instance_id -> node 映射；重复登记会被忽略，保证 battle_units 不出现重复单位。
 func register_battle_unit(unit: Node) -> void:
 	if unit == null or not is_instance_valid(unit):
 		return
@@ -55,36 +49,27 @@ func register_battle_unit(unit: Node) -> void:
 	_battle_units.append(unit)
 	_unit_lookup[iid] = unit
 
-
-# `all_units` 会被 effect runtime、trigger runtime 和 tooltip 同时读取，因此这里返回副本引用数组。
-# 这里返回的是节点引用数组本体，调用方只能读，不应直接改内部集合。
-# 单位增删统一由 register/reset 这两个显式入口管理。
+# `all_units` 会被 effect runtime、trigger runtime 和 tooltip 同时读取。
+# 这里返回节点引用数组本体，调用方只读使用，增删统一走 register/reset 两个显式入口。
 func get_battle_units() -> Array[Node]:
 	return _battle_units
 
-
 # unit lookup 主要用于 damage/buff/tick 事件回放时按 instance_id 找回节点。
-# 外层拿到的是共享映射视图，因此默认只读使用。
-# 真正的写入只允许发生在登记和重置阶段。
+# 外层拿到的是共享映射视图，因此默认只读；真正写入只允许发生在登记和重置阶段。
 func get_unit_lookup() -> Dictionary:
 	return _unit_lookup
 
-
 # unit state 只应由 UnitStateService 和 TriggerRuntime 修改。
-# 每个 state 里都挂着 baseline、passive、equipment 和 trigger 四类运行时视图。
-# 其他系统如果要改 trigger 状态，必须先取副本再走 setter 写回。
+# 每个 state 都挂着 baseline、passive、equipment 和 trigger 视图；其他系统改 trigger 必须先取副本再回写。
 func get_unit_states() -> Dictionary:
 	return _unit_states
 
-
 # 运行时状态查询统一走 iid，避免外层重复拼接 get_instance_id 逻辑。
-# `unit` 为空或失效时直接回空字典，调用方据此判定“无有效状态”。
-# 这里返回的仍然是副本，避免外层误写内部状态。
+# `unit` 为空或失效时直接回空字典，且返回值仍是副本，避免外层误写内部状态。
 func get_state_for_unit(unit: Node) -> Dictionary:
 	if unit == null or not is_instance_valid(unit):
 		return {}
 	return get_state_by_id(unit.get_instance_id())
-
 
 # 外层只拿副本读状态，写状态必须走显式 setter。
 # 深拷贝是为了保护 triggers、baseline_stats 这些嵌套结构不被外层直接篡改。
@@ -94,13 +79,11 @@ func get_state_by_id(unit_id: int) -> Dictionary:
 		return {}
 	return (_unit_states[unit_id] as Dictionary).duplicate(true)
 
-
 # trigger runtime 在更新冷却、次数和边沿状态时，需要显式回写完整 state。
 # 这里不做 merge，是因为调用方已经持有完整副本并完成了本次改动。
 # 写回粒度保持在整份 state，避免局部字段更新遗漏联动状态。
 func set_state_by_id(unit_id: int, state: Dictionary) -> void:
 	_unit_states[unit_id] = state
-
 
 # runtime ids 优先读单位当前 runtime 字段，缺失时才退回配置槽位解析。
 # 这样 UI、tooltip 和 trigger runtime 都能先看到“本轮已投影后的实际生效列表”。
@@ -113,7 +96,6 @@ func get_unit_runtime_gongfa_ids(unit: Node) -> Array[String]:
 		return _normalize_string_array(runtime_value)
 	return _resolve_equipped_gongfa_ids(unit)
 
-
 # 装备 runtime ids 也遵循同一规则，避免 UI 和 trigger 口径不一致。
 # 这里的返回值已经考虑 max_equip_count 截断后的真实生效列表。
 # 失效节点直接回空数组，不把错误传播给 UI 或 resolver。
@@ -124,7 +106,6 @@ func get_unit_runtime_equip_ids(unit: Node) -> Array[String]:
 	if runtime_value is Array:
 		return _normalize_string_array(runtime_value)
 	return _resolve_equipped_equip_ids(unit)
-
 
 # 标签查询只服务 tag linkage provider 收集，不做额外业务推断。
 # `gongfa_id` 会先 strip，再走 registry 单一数据源，不扫单位节点。
@@ -138,7 +119,6 @@ func get_gongfa_tags(gongfa_id: String) -> Array[String]:
 		return []
 	return _normalize_tag_array(data.get("tags", []))
 
-
 # 装备 tags 也走 registry 单一来源，避免 UI 和 resolver 各查一套。
 # `equip_id` 为空时直接回空数组，避免把缺槽位误当成无 tag 的合法条目。
 # 这里不读取 runtime 状态，只回答静态装备条目的定义 tags。
@@ -150,7 +130,6 @@ func get_equipment_tags(equip_id: String) -> Array[String]:
 	if data.is_empty():
 		return []
 	return _normalize_tag_array(data.get("tags", []))
-
 
 # 这是 UnitAugment 的核心入口：从条目配置重建单位当前被动、装备和触发状态。
 # `defer_apply` 只决定“是否立刻把状态投影到组件”，不影响 state 本身的重建。
@@ -166,6 +145,7 @@ func apply_unit_augment(unit: Node, defer_apply: bool = false) -> void:
 	var equipped_equip_ids: Array[String] = _resolve_equipped_equip_ids(unit)
 	var passive_effects: Array[Dictionary] = []
 	var triggers: Array[Dictionary] = []
+	var poll_triggers: Array[Dictionary] = []
 	var equipment_effects: Array[Dictionary] = []
 	var equip_triggers: Array[Dictionary] = []
 	var unit_traits: Array[Dictionary] = []
@@ -209,6 +189,9 @@ func apply_unit_augment(unit: Node, defer_apply: bool = false) -> void:
 			equip_triggers.append(_build_trigger_entry(equip_id, trigger_data))
 
 	triggers.append_array(equip_triggers)
+	for entry in triggers:
+		if _is_poll_trigger_name(str(entry.get("trigger", ""))):
+			poll_triggers.append(entry)
 
 	# 这里写入的是 UnitAugment 自己维护的标准 state 结构，供后续轮询和重算复用。
 	_unit_states[iid] = {
@@ -219,14 +202,14 @@ func apply_unit_augment(unit: Node, defer_apply: bool = false) -> void:
 		"unit_traits": unit_traits,
 		"passive_effects": passive_effects,
 		"equipment_effects": equipment_effects,
-		"triggers": triggers
+		"triggers": triggers,
+		"poll_triggers": poll_triggers
 	}
 
 	if not defer_apply:
 		apply_state_to_unit(iid, false)
 	if _tag_linkage_scheduler != null:
 		_tag_linkage_scheduler.notify_unit_tags_changed(unit)
-
 
 # 卸载所有单位增强时，只清运行时效果，不改底层槽位配置。
 # 这条路径主要服务战斗结束或临时禁用，不应该破坏 UI 上原本的槽位选择。
@@ -241,9 +224,9 @@ func remove_unit_augment(unit: Node) -> void:
 	state["passive_effects"] = []
 	state["equipment_effects"] = []
 	state["triggers"] = []
+	state["poll_triggers"] = []
 	_unit_states[iid] = state
 	apply_state_to_unit(iid, true)
-
 
 # 功法装配必须严格校验槽位类型，避免一类功法占错槽。
 # `slot` 仍保持四大功法槽旧语义，不在这轮重构里改数据结构。
@@ -269,7 +252,6 @@ func equip_gongfa(unit: Node, slot: String, gongfa_id: String) -> bool:
 	apply_unit_augment(unit)
 	return true
 
-
 # 卸下功法后要立即重算 runtime stats 和 trigger entries。
 # 槽位会被保留但内容清空，保证 UI 仍能看到固定槽位结构。
 # 这里不做额外存在性校验之外的业务判断，核心是即时重算。
@@ -282,7 +264,6 @@ func unequip_gongfa(unit: Node, slot: String) -> void:
 	slots[slot] = ""
 	unit.set("gongfa_slots", slots)
 	apply_unit_augment(unit)
-
 
 # 装备装配要同时满足槽位存在和最大生效数限制。
 # `max_equip_count` 会在这里归一化后写回单位，作为后续详情展示和运行时共用口径。
@@ -312,7 +293,6 @@ func equip_equipment(unit: Node, slot: String, equip_id: String) -> bool:
 	apply_unit_augment(unit)
 	return true
 
-
 # 卸下装备同样会影响 trigger、tags 和 runtime stats。
 # 因为 tag_linkage 可能依赖装备 tags，所以这里不能只改 UI 槽位而不重算状态。
 # 这条路径和卸下功法一样，核心是尽快回到统一的 apply 流程。
@@ -327,7 +307,6 @@ func unequip_equipment(unit: Node, slot: String) -> void:
 	unit.set("equip_slots", equip_slots)
 	apply_unit_augment(unit)
 
-
 # Buff tick、光环移除等局部变化只需要重算受影响单位，不重建整场状态。
 # `changed_ids_variant` 来自 BuffManager 的变更集合，允许是 Variant 以兼容旧调用点。
 # 这里默认按 preserve_health_ratio=true 重投影，避免血蓝瞬间回满。
@@ -336,7 +315,6 @@ func reapply_changed_units(changed_ids_variant: Variant) -> void:
 		return
 	for iid_value in changed_ids_variant:
 		apply_state_to_unit(int(iid_value), true)
-
 
 # 这里统一把 baseline + passive/equipment/buff 三层效果投影到单位 runtime stats。
 # `preserve_health_ratio` 只传给 UnitCombat，决定重算后是否保留当前血量比例。
@@ -691,3 +669,15 @@ func _node_prop(node: Node, key: String, fallback: Variant) -> Variant:
 	if value == null:
 		return fallback
 	return value
+
+
+# 轮询触发器名单固定在这里编译，避免运行时每次再遍历全部 trigger 做字符串判断。
+func _is_poll_trigger_name(trigger_name: String) -> bool:
+	return trigger_name == "auto_mp_full" \
+		or trigger_name == "manual" \
+		or trigger_name == "auto_hp_below" \
+		or trigger_name == "passive_aura" \
+		or trigger_name == "on_hp_below" \
+		or trigger_name == "on_time_elapsed" \
+		or trigger_name == "periodic_seconds" \
+		or trigger_name == "periodic"

@@ -86,6 +86,26 @@ func initialize(scene_root: Node, refs: Node, state: RefCounted) -> void:
 	sync_stage()
 	refresh_ui()
 
+# 按逆序关闭子协作者，避免 HUD 引用链残留。
+func shutdown() -> void:
+	if _detail_view != null and _detail_view.has_method("shutdown"):
+		_detail_view.shutdown()
+	if _shop_inventory_view != null and _shop_inventory_view.has_method("shutdown"):
+		_shop_inventory_view.shutdown()
+	if _runtime_view != null and _runtime_view.has_method("shutdown"):
+		_runtime_view.shutdown()
+	if _support != null and _support.has_method("shutdown"):
+		_support.shutdown()
+	_support = null
+	_runtime_view = null
+	_detail_view = null
+	_shop_inventory_view = null
+	_scene_root = null
+	_refs = null
+	_state = null
+	_initialized = false
+	_signals_connected = false
+
 
 # 返回 HUD facade 的基础初始化结果，供 smoke test 和 scene getter 读取。
 func is_initialized() -> bool:
@@ -148,12 +168,13 @@ func handle_unhandled_input(event: InputEvent) -> bool:
 func process_hud(delta: float) -> void:
 	if not _initialized:
 		return
-	_runtime_view.refresh_top_runtime_hud()
+	_runtime_view.refresh_top_runtime_hud(delta)
 	_detail_view.refresh_open_detail_panel(delta)
 	_detail_view.update_item_tooltip_hover(delta)
 	_runtime_view.update_battle_log_view(delta)
 	if _refs.battle_stats_panel != null and _refs.battle_stats_panel.visible:
-		_refs.battle_stats_panel.call("refresh_content")
+		var battle_stats_panel = _refs.battle_stats_panel
+		battle_stats_panel.refresh_content()
 
 
 # 刷新所有 HUD 视图，让 world / coordinator 只需要打一个总入口。
@@ -161,7 +182,7 @@ func process_hud(delta: float) -> void:
 func refresh_ui() -> void:
 	if not _initialized:
 		return
-	_runtime_view.refresh_top_runtime_hud()
+	_runtime_view.refresh_top_runtime_hud(0.0, true)
 	_runtime_view.refresh_top_quick_action_buttons()
 	_shop_inventory_view.update_shop_ui()
 	_shop_inventory_view.rebuild_inventory_filters()
@@ -239,11 +260,18 @@ func clear_hovered_unit() -> void:
 
 # 世界状态变化后，HUD 只做最小同步，不反向驱动世界逻辑。
 func refresh_after_world_change() -> void:
-	_runtime_view.refresh_top_runtime_hud()
+	_runtime_view.refresh_top_runtime_hud(0.0, true)
 	if _state.detail_visible and _support.is_valid_unit(_state.detail_unit):
 		_detail_view.update_detail_panel(_state.detail_unit)
-	if _state.inventory_visible:
-		_shop_inventory_view.rebuild_inventory_items()
+
+
+# 招募角色只会影响顶栏资源、商店货架与可能打开的详情，不应连带重建整个仓库列表。
+func refresh_after_recruit_purchase() -> void:
+	_runtime_view.refresh_top_runtime_hud(0.0, true)
+	_runtime_view.refresh_top_quick_action_buttons()
+	_shop_inventory_view.update_shop_ui()
+	if _state.detail_visible and _support.is_valid_unit(_state.detail_unit):
+		_detail_view.update_detail_panel(_state.detail_unit)
 
 
 # 世界拖拽开始或结束时，显隐统一收口到 HUD runtime view。

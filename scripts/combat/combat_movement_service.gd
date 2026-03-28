@@ -1,6 +1,11 @@
 extends RefCounted
 class_name CombatMovementService
 
+const PROBE_SCOPE_COMBAT_COMPONENT_TICK: String = "combat_component_tick"
+const PROBE_SCOPE_COMBAT_TARGET_PICK: String = "combat_target_pick"
+const PROBE_SCOPE_COMBAT_ATTACK_EXECUTE: String = "combat_attack_execute"
+const PROBE_SCOPE_COMBAT_MOVE_PHASE: String = "combat_move_phase"
+
 
 # 承接 Combat 的位移、恐惧移动与单位逻辑编排。
 # 这里保留旧规则口径，但把长段实现体从 facade 中移出。
@@ -179,7 +184,9 @@ func run_unit_logic(
 	var combat: Node = manager._get_combat(unit)
 	if combat == null:
 		return
+	var combat_tick_begin_us: int = _probe_begin_timing(manager)
 	_tick_combat_logic(combat, delta)
+	_probe_commit_timing(manager, PROBE_SCOPE_COMBAT_COMPONENT_TICK, combat_tick_begin_us)
 
 	# 控制态优先于普攻和移动，这样 stun/fear 不会被后续逻辑冲掉。
 	if _is_unit_stunned(manager, unit):
@@ -189,10 +196,19 @@ func run_unit_logic(
 
 	var self_team: int = int(unit.get("team_id"))
 	var enemy_team: int = manager.TEAM_ENEMY if self_team == manager.TEAM_ALLY else manager.TEAM_ALLY
-	var target: Node = manager._pick_target_for_unit(unit)
+	var feared: bool = _is_unit_feared(manager, unit)
+	var can_attempt_attack: bool = true
+	if allow_attack and combat.has_method("can_attack"):
+		var combat_api: Variant = combat
+		can_attempt_attack = bool(combat_api.can_attack())
+	var target: Node = null
+	if can_attempt_attack or feared:
+		var target_pick_begin_us: int = _probe_begin_timing(manager)
+		target = manager._pick_target_for_unit(unit)
+		_probe_commit_timing(manager, PROBE_SCOPE_COMBAT_TARGET_PICK, target_pick_begin_us)
 
 	# fear 会覆盖普通寻路，但仍允许它复用同一套移动统计口径。
-	if _is_unit_feared(manager, unit):
+	if feared:
 		_run_feared_unit_logic(manager, unit, target, enemy_team)
 		return
 
@@ -200,10 +216,22 @@ func run_unit_logic(
 	if allow_attack:
 		manager._metric_tick_attack_checks += 1
 		manager._metric_total_attack_checks += 1
-		if manager._attack_service.try_execute_attack(manager, unit, combat, target):
+		if not can_attempt_attack:
+			manager.attack_failed.emit(
+				unit,
+				null,
+				"cooldown",
+				{"performed": false, "reason": "cooldown"}
+			)
+			if not allow_move:
+				return
+		var attack_begin_us: int = _probe_begin_timing(manager)
+		if can_attempt_attack and manager._attack_service.try_execute_attack(manager, unit, combat, target):
+			_probe_commit_timing(manager, PROBE_SCOPE_COMBAT_ATTACK_EXECUTE, attack_begin_us)
 			manager._metric_tick_attacks_performed += 1
 			manager._metric_total_attacks_performed += 1
 			return
+		_probe_commit_timing(manager, PROBE_SCOPE_COMBAT_ATTACK_EXECUTE, attack_begin_us)
 
 	if not allow_move:
 		return
@@ -211,7 +239,27 @@ func run_unit_logic(
 	# 目标已经在射程内时直接停步，避免“冷却中也来回抖动”的旧问题回流。
 	if _should_hold_position_in_attack_range(manager, unit, target):
 		return
+	var move_phase_begin_us: int = _probe_begin_timing(manager)
 	_run_move_phase(manager, unit, combat, target, enemy_team, allow_attack)
+	_probe_commit_timing(manager, PROBE_SCOPE_COMBAT_MOVE_PHASE, move_phase_begin_us)
+
+
+# 从 manager 挂载的 runtime probe 取一次可选计时起点。
+func _probe_begin_timing(manager) -> int:
+	if manager == null or manager._runtime_probe == null:
+		return 0
+	if not manager._runtime_probe.has_method("begin_timing"):
+		return 0
+	return int(manager._runtime_probe.begin_timing())
+
+
+# 把 movement/attack/targeting 子段耗时写回统一探针。
+func _probe_commit_timing(manager, scope_name: String, begin_us: int) -> void:
+	if manager == null or manager._runtime_probe == null:
+		return
+	if not manager._runtime_probe.has_method("commit_timing"):
+		return
+	manager._runtime_probe.commit_timing(scope_name, begin_us)
 
 
 # stun/fear 都走同一套 meta 时间窗逻辑，只是键名不同。

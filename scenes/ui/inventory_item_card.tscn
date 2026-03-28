@@ -1,0 +1,42 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/inventory_item_card_view.gd" id="1_view"]
+
+[node name="InventoryItemCard" type="PanelContainer"]
+custom_minimum_size = Vector2(0, 122)
+size_flags_horizontal = 3
+mouse_filter = 1
+script = ExtResource("1_view")
+
+[node name="Root" type="VBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 3
+
+[node name="QualityBar" type="ColorRect" parent="Root"]
+custom_minimum_size = Vector2(0, 6)
+layout_mode = 2
+color = Color(0.7, 0.7, 0.7, 1)
+
+[node name="IconLabel" type="Label" parent="Root"]
+layout_mode = 2
+text = "?"
+
+[node name="NameLabel" type="Label" parent="Root"]
+layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 2
+text = "未知条目"
+
+[node name="TypeLabel" type="Label" parent="Root"]
+layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 2
+text = "类型"
+
+[node name="StatusLabel" type="Label" parent="Root"]
+layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 2
+text = "库存 x0 | 已装备 x0"

@@ -1,0 +1,82 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Battlefield HUD Display Config",
+  "type": "object",
+  "required": [
+    "id",
+    "slot_labels",
+    "equip_type_labels",
+    "stat_labels",
+    "quality_labels",
+    "quality_colors",
+    "damage_type_labels"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "slot_labels": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/labeledIconEntry"
+      }
+    },
+    "equip_type_labels": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/labeledIconEntry"
+      }
+    },
+    "stat_labels": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "quality_labels": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "quality_colors": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/colorArray"
+      }
+    },
+    "damage_type_labels": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    }
+  },
+  "definitions": {
+    "labeledIconEntry": {
+      "type": "object",
+      "required": [
+        "text",
+        "icon"
+      ],
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "colorArray": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {
+        "type": "number"
+      }
+    }
+  },
+  "additionalProperties": true
+}

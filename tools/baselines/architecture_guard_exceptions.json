@@ -1,11 +1,4 @@
 {
   "version": 1,
-  "exceptions": [
-    {
-      "rule": "readability_guard",
-      "path": "scripts/economy/shop_manager.gd",
-      "reason": "商店链路将按后续重构批次迁出旧 manager，当前旧壳文件不再为注释率做过渡性补丁。",
-      "expires_phase": "phase4"
-    }
-  ]
+  "exceptions": []
 }

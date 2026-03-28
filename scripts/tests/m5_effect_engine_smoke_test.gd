@@ -11,6 +11,7 @@ class MockUnit:
 	var unit_id: String = ""
 	var unit_name: String = ""
 	var star_level: int = 1
+	var is_in_combat: bool = true
 	var runtime_stats: Dictionary = {}
 
 
@@ -211,6 +212,8 @@ func _run_smoke_tests() -> void:
 	_test_shield_allies_aoe_exclude_self()
 	_test_create_terrain_dispatch()
 	_test_create_terrain_all_types()
+	_test_create_terrain_requires_combat_anchor()
+	_test_hazard_zone_requires_combat_source()
 	_test_teleport_behind_op()
 	_test_dash_forward_op()
 	_test_knockback_target_op()
@@ -275,6 +278,8 @@ func _test_create_terrain_dispatch() -> void:
 	var target: MockUnit = _make_test_unit(2)
 	var combat_manager: MockCombatManager = MockCombatManager.new()
 	var hex_grid: MockHexGrid = MockHexGrid.new()
+	combat_manager.register_unit_cell(source, Vector2i(2, 2))
+	combat_manager.register_unit_cell(target, Vector2i(4, 3))
 	var summary: Dictionary = engine.call("execute_active_effects", source, target, [{
 		"op": "create_terrain",
 		"terrain_type": "fire",
@@ -442,6 +447,8 @@ func _test_create_terrain_all_types() -> void:
 	var target: MockUnit = _make_test_unit(2)
 	var combat_manager: MockCombatManager = MockCombatManager.new()
 	var hex_grid: MockHexGrid = MockHexGrid.new()
+	combat_manager.register_unit_cell(source, Vector2i(3, 3))
+	combat_manager.register_unit_cell(target, Vector2i(5, 4))
 	for terrain_type in terrain_types:
 		var summary: Dictionary = engine.call("execute_active_effects", source, target, [{
 			"op": "create_terrain",
@@ -456,6 +463,61 @@ func _test_create_terrain_all_types() -> void:
 	_assert_true(combat_manager.terrains.size() == terrain_types.size(), "create_terrain all terrain types dispatched")
 	source.free()
 	target.free()
+	combat_manager.free()
+	hex_grid.free()
+
+
+func _test_create_terrain_requires_combat_anchor() -> void:
+	var engine = EFFECT_ENGINE_SCRIPT.new()
+	var source: MockUnit = _make_test_unit(1, "unit_test_terrain_source")
+	var target: MockUnit = _make_test_unit(2, "unit_test_terrain_target")
+	var combat_manager: MockCombatManager = MockCombatManager.new()
+	var hex_grid: MockHexGrid = MockHexGrid.new()
+	target.is_in_combat = true
+	source.is_in_combat = false
+	combat_manager.register_unit_cell(target, Vector2i(6, 5))
+	var summary: Dictionary = engine.call("execute_active_effects", source, target, [{
+		"op": "create_terrain",
+		"terrain_type": "fire",
+		"radius": 1,
+		"duration": 3.0
+	}], {
+		"combat_manager": combat_manager,
+		"hex_grid": hex_grid
+	})
+	_assert_true(summary is Dictionary, "create_terrain out-of-combat summary shape")
+	_assert_true(combat_manager.terrains.is_empty(), "create_terrain requires combat source anchor")
+	source.free()
+	target.free()
+	combat_manager.free()
+	hex_grid.free()
+
+
+func _test_hazard_zone_requires_combat_source() -> void:
+	var engine = EFFECT_ENGINE_SCRIPT.new()
+	var buff_manager = _make_test_buff_manager()
+	var source: MockUnit = _make_test_unit(1, "unit_test_hazard_source")
+	var combat_manager: MockCombatManager = MockCombatManager.new()
+	var hex_grid: MockHexGrid = MockHexGrid.new()
+	source.is_in_combat = false
+	var summary: Dictionary = engine.call("execute_active_effects", source, null, [{
+		"op": "hazard_zone",
+		"target_mode": "around_self",
+		"radius_cells": 1,
+		"count": 1,
+		"duration": 3.0,
+		"tick_interval": 0.5,
+		"value": 60.0
+	}], {
+		"buff_manager": buff_manager,
+		"combat_manager": combat_manager,
+		"hex_grid": hex_grid
+	})
+	var battlefield_effects: Array = buff_manager.get("_battlefield_effects")
+	_assert_true(summary is Dictionary, "hazard_zone out-of-combat summary shape")
+	_assert_true(int(summary.get("hazard_total", 0)) == 0, "hazard_zone out-of-combat summary count")
+	_assert_true(battlefield_effects.is_empty(), "hazard_zone requires combat source")
+	source.free()
 	combat_manager.free()
 	hex_grid.free()
 

@@ -388,10 +388,13 @@ func execute_hazard_zone_op(source: Node, effect: Dictionary, context: Dictionar
 	var buff_manager: Variant = context.get("buff_manager", null)
 	if buff_manager == null or not buff_manager.has_method("add_battlefield_effect"):
 		return 0
+	if source != null and is_instance_valid(source) and not _is_unit_in_combat(source):
+		return 0
 
 	var hex_grid: Variant = context.get("hex_grid", null)
 	if hex_grid == null or not is_instance_valid(hex_grid):
 		return 0
+	var combat_manager: Variant = context.get("combat_manager", null)
 
 	var count: int = maxi(int(effect.get("count", 1)), 1)
 	var radius_cells: int = maxi(int(effect.get("radius_cells", effect.get("radius", 2))), 0)
@@ -408,6 +411,11 @@ func execute_hazard_zone_op(source: Node, effect: Dictionary, context: Dictionar
 	var damage_type: String = str(effect.get("damage_type", "internal")).strip_edges().to_lower()
 	var source_team: int = int(source.get("team_id")) if source != null and is_instance_valid(source) else 0
 	var created: int = 0
+	var source_cell: Vector2i = Vector2i(-1, -1)
+	if center_mode == "around_self":
+		source_cell = _resolve_unit_combat_cell(source, combat_manager)
+		if source_cell.x < 0:
+			return 0
 
 	for index in range(count):
 		# 每个危险区都单独生成 effect_id，便于旧系统按实例跟踪移除。
@@ -418,6 +426,17 @@ func execute_hazard_zone_op(source: Node, effect: Dictionary, context: Dictionar
 			radius_cells,
 			_query_service
 		)
+		if center_mode == "around_self":
+			var cell_pool: Array[Vector2i] = _hex_spatial_service.collect_cells_in_radius(
+				hex_grid,
+				source_cell,
+				radius_cells
+			)
+			if cell_pool.is_empty():
+				center_cell = source_cell
+			else:
+				cell_pool.shuffle()
+				center_cell = cell_pool[0]
 		if center_cell.x < 0:
 			continue
 
@@ -458,24 +477,15 @@ func apply_create_terrain_op(source: Node, target: Node, effect: Dictionary, con
 		return false
 	if not combat_manager.has_method("add_temporary_terrain"):
 		return false
+	if source != null and is_instance_valid(source) and not _is_unit_in_combat(source):
+		return false
 
 	var at_mode: String = str(effect.get("at", "target")).strip_edges().to_lower()
 	var anchor: Node = source
 	if at_mode == "target" and target != null and is_instance_valid(target):
 		anchor = target
 
-	var center_cell: Vector2i = Vector2i(-1, -1)
-	if anchor != null and is_instance_valid(anchor) and combat_manager.has_method("get_unit_cell_of"):
-		var cell_value: Variant = combat_manager.get_unit_cell_of(anchor)
-		if cell_value is Vector2i:
-			center_cell = cell_value as Vector2i
-
-	if center_cell.x < 0 and anchor != null and is_instance_valid(anchor) and hex_grid.has_method("world_to_axial"):
-		# 缺逻辑格时回退到世界坐标转轴坐标，保持旧无格子路径也能落地地形。
-		center_cell = hex_grid.world_to_axial(
-			_query_service.node_pos(anchor)
-		)
-
+	var center_cell: Vector2i = _resolve_unit_combat_cell(anchor, combat_manager)
 	if center_cell.x < 0:
 		return false
 
@@ -518,3 +528,24 @@ func apply_create_terrain_op(source: Node, target: Node, effect: Dictionary, con
 		terrain_config["effects_on_expire"] = effect.get("effects_on_expire", [])
 
 	return bool(combat_manager.add_temporary_terrain(terrain_config, source))
+
+
+func _is_unit_in_combat(unit: Node) -> bool:
+	if unit == null or not is_instance_valid(unit):
+		return false
+	return bool(unit.get("is_in_combat"))
+
+
+func _resolve_unit_combat_cell(unit: Node, combat_manager: Variant) -> Vector2i:
+	if unit == null or not is_instance_valid(unit):
+		return Vector2i(-1, -1)
+	if not _is_unit_in_combat(unit):
+		return Vector2i(-1, -1)
+	if combat_manager == null or not is_instance_valid(combat_manager):
+		return Vector2i(-1, -1)
+	if not combat_manager.has_method("get_unit_cell_of"):
+		return Vector2i(-1, -1)
+	var cell_value: Variant = combat_manager.get_unit_cell_of(unit)
+	if cell_value is Vector2i:
+		return cell_value as Vector2i
+	return Vector2i(-1, -1)

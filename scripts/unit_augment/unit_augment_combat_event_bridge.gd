@@ -249,6 +249,7 @@ func _on_battle_ended(_winner_team: int, _summary: Dictionary) -> void:
 # 攻击失败事件只透传失败原因，不走伤害派生逻辑。
 # `reason` 在这里统一 lower-case，保证 trigger condition 的 reasons 过滤稳定。
 # 这条路径不会补 damage 字段，因为 CombatManager 已经认定本次攻击未造成伤害。
+# event_dict 在 signal 发出时已经是一次性的失败快照，这里不再重复 deep copy。
 func _on_attack_failed(attacker: Node, target: Node, reason: String, event_dict: Dictionary) -> void:
 	if not _is_battle_running():
 		return
@@ -257,7 +258,7 @@ func _on_attack_failed(attacker: Node, target: Node, reason: String, event_dict:
 	_manager._fire_trigger_for_unit(attacker, "on_attack_fail", {
 		"target": target,
 		"reason": reason.strip_edges().to_lower(),
-		"event": event_dict.duplicate(true)
+		"event": event_dict
 	})
 
 
@@ -366,13 +367,14 @@ func _on_unit_move_success(unit: Node, from_cell: Vector2i, to_cell: Vector2i, s
 # 位移失败事件需要标准化 reason，供 trigger filter 稳定比较。
 # `context` 里的其他字段会完整透传，方便以后补更多失败细节而不改桥接接口。
 # 统一 lower-case 的原因是配表 reasons 本来就按小写字面量匹配。
+# 这里直接在 signal 传进来的 context 上补字段，避免失败热路径重复 deep copy。
 func _on_unit_move_failed(unit: Node, reason: String, context: Dictionary) -> void:
 	if not _is_battle_running():
 		return
 	if unit == null or not is_instance_valid(unit):
 		return
 
-	var payload: Dictionary = context.duplicate(true)
+	var payload: Dictionary = context
 	payload["unit"] = unit
 	payload["reason"] = reason.strip_edges().to_lower()
 	_manager._fire_trigger_for_unit(unit, "on_unit_move_failed", payload)

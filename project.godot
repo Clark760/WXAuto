@@ -11,18 +11,9 @@ config_version=5
 [application]
 
 config/name="武侠自走棋"
-run/main_scene="res://scenes/main/main.tscn"
+run/main_scene="res://scenes/app/app_root.tscn"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://icon.svg"
-
-[autoload]
-
-EventBus="*res://scripts/core/event_bus.gd"
-ObjectPool="*res://scripts/core/object_pool.gd"
-DataManager="*res://scripts/data/data_manager.gd"
-ModLoader="*res://scripts/core/mod_loader.gd"
-GameManager="*res://scripts/core/game_manager.gd"
-UnitAugmentManager="*res://scripts/unit_augment/unit_augment_manager.gd"
 
 [physics]
 

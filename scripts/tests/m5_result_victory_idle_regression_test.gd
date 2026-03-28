@@ -17,6 +17,7 @@ func _init() -> void:
 
 func _run() -> void:
 	await _test_idle_animation_restarts_after_reset()
+	await _test_combat_labels_stay_visible_under_compact_mode()
 	await _test_result_style_labels_visible_after_leave_combat()
 
 
@@ -79,6 +80,29 @@ func _test_result_style_labels_visible_after_leave_combat() -> void:
 	# 模拟 RESULT 阶段展示策略：不使用 compact，显示姓名和星级。
 	unit.call("set_compact_visual_mode", false)
 	_assert_true(name_label.visible and star_label.visible, "result presentation should show name/star labels")
+
+	unit.queue_free()
+	await process_frame
+
+
+func _test_combat_labels_stay_visible_under_compact_mode() -> void:
+	var unit: Node = UNIT_BASE_SCENE.instantiate()
+	root.add_child(unit)
+	await process_frame
+
+	unit.set("unit_name", "CombatLabelUnit")
+	unit.call("enter_combat")
+	unit.call("set_compact_visual_mode", true)
+
+	var name_label: Label = unit.get_node_or_null("VisualRoot/NameLabel") as Label
+	var star_label: Label = unit.get_node_or_null("VisualRoot/StarLabel") as Label
+	_assert_true(name_label != null and star_label != null, "combat labels should exist")
+	if name_label == null or star_label == null:
+		unit.queue_free()
+		await process_frame
+		return
+
+	_assert_true(name_label.visible and star_label.visible, "combat labels must stay visible even in compact mode")
 
 	unit.queue_free()
 	await process_frame

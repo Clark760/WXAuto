@@ -1,14 +1,16 @@
 extends PanelContainer
 class_name BattleInventoryItemCard
 
+const INVENTORY_DRAG_PREVIEW_SCENE: PackedScene = preload(
+	"res://scenes/ui/inventory_drag_preview.tscn"
+)
+
 # ===========================
 # 仓库卡片（拖放源）
 # ===========================
 # 说明：
-# 1. 卡片同时支持“点击”与“拖动”两种交互。
-# 2. 当鼠标移动超过阈值时，交由 Godot 拖放系统发起拖拽；
-#    未超过阈值时，左键释放视为点击。
-
+# 1. 卡片同时支持点击与拖拽两种交互。
+# 2. 鼠标移动超过阈值后，由 Godot GUI 拖拽系统接管后续流程。
 signal card_clicked(item_id: String, item_data: Dictionary)
 
 const DRAG_THRESHOLD: float = 6.0
@@ -23,6 +25,7 @@ var _pressing_left: bool = false
 var _moved_enough_for_drag: bool = false
 
 
+# 写入卡片展示数据和拖拽载荷，避免外层直接改内部状态。
 func setup_card(
 	p_item_id: String,
 	p_item_data: Dictionary,
@@ -35,6 +38,7 @@ func setup_card(
 	drag_enabled = p_drag_enabled
 
 
+# 在点击与拖拽之间做阈值分流，短按视为点击，超阈值交给 Godot 拖拽。
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		var mouse_btn: InputEventMouseButton = event as InputEventMouseButton
@@ -55,22 +59,14 @@ func _gui_input(event: InputEvent) -> void:
 			_moved_enough_for_drag = true
 
 
+# 构建统一的拖拽预览场景，并返回深拷贝后的业务载荷。
 func _get_drag_data(_at_position: Vector2) -> Variant:
 	if not drag_enabled:
 		return null
 	if drag_payload.is_empty():
 		return null
 
-	# 拖影使用简化文本卡片，避免依赖外部图集资源。
-	var preview := PanelContainer.new()
-	preview.custom_minimum_size = Vector2(120, 52)
-	preview.modulate = Color(1.0, 1.0, 1.0, 0.8)
-	var label := Label.new()
-	label.text = str(item_data.get("name", item_id))
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	label.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	preview.add_child(label)
+	var preview = INVENTORY_DRAG_PREVIEW_SCENE.instantiate()
+	preview.setup_preview(str(item_data.get("name", item_id)))
 	set_drag_preview(preview)
 	return drag_payload.duplicate(true)

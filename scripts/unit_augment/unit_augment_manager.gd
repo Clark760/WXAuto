@@ -6,6 +6,8 @@ signal skill_effect_damage(event: Dictionary)
 signal skill_effect_heal(event: Dictionary)
 signal buff_event(event: Dictionary)
 
+const PROBE_SCOPE_UNIT_AUGMENT_MANAGER_PROCESS: String = "unit_augment_manager_process"
+
 @export var trigger_poll_interval: float = 0.12
 @export var tag_linkage_stagger_buckets: int = 8
 
@@ -23,6 +25,7 @@ const UNIT_STATE_SERVICE_SCRIPT: Script = preload("res://scripts/unit_augment/un
 const BATTLE_RUNTIME_SCRIPT: Script = preload("res://scripts/unit_augment/unit_augment_battle_runtime.gd")
 const TRIGGER_RUNTIME_SCRIPT: Script = preload("res://scripts/unit_augment/unit_augment_trigger_runtime.gd")
 const COMBAT_EVENT_BRIDGE_SCRIPT: Script = preload("res://scripts/unit_augment/unit_augment_combat_event_bridge.gd")
+var _services: ServiceRegistry = null
 
 var _registry = REGISTRY_SCRIPT.new()
 var _buff_manager = BUFF_MANAGER_SCRIPT.new()
@@ -32,7 +35,7 @@ var _tag_linkage_resolver = TAG_LINKAGE_RESOLVER_SCRIPT.new()
 var _tag_linkage_scheduler = TAG_LINKAGE_SCHEDULER_SCRIPT.new()
 var _skill_target_service = SKILL_TARGET_SERVICE_SCRIPT.new()
 var _telemetry_emitter = TELEMETRY_EMITTER_SCRIPT.new()
-var _unit_data_script: Script = load("res://scripts/data/unit_data.gd")
+var _unit_data_script: Script = load("res://scripts/domain/unit/unit_data.gd")
 var _state_service = UNIT_STATE_SERVICE_SCRIPT.new(
 	_registry,
 	_effect_engine,
@@ -43,6 +46,11 @@ var _state_service = UNIT_STATE_SERVICE_SCRIPT.new(
 var _battle_runtime = BATTLE_RUNTIME_SCRIPT.new()
 var _trigger_runtime = TRIGGER_RUNTIME_SCRIPT.new()
 var _combat_event_bridge = COMBAT_EVENT_BRIDGE_SCRIPT.new()
+
+
+# 记录 ServiceRegistry，供 facade 向下游服务转发依赖。
+func bind_runtime_services(services: ServiceRegistry) -> void:
+	_services = services
 
 
 # manager facade 只负责装配和对外契约，不承载实际规则实现。
@@ -58,7 +66,9 @@ func _ready() -> void:
 # 运行时 tick 统一交给 battle runtime，facade 本身不写业务分支。
 # facade 在这里唯一做的事是把 Godot 生命周期转发给运行时服务。
 func _process(delta: float) -> void:
+	var process_begin_us: int = _probe_begin_timing()
 	_battle_runtime.advance(self, delta)
+	_probe_commit_timing(PROBE_SCOPE_UNIT_AUGMENT_MANAGER_PROCESS, process_begin_us)
 
 
 # 数据热重载后要同步 registry、tag registry 和 buff definitions。
@@ -408,25 +418,31 @@ func _disconnect_combat_signals() -> void:
 	_combat_event_bridge.disconnect_combat_signals(combat_manager)
 
 
-# EventBus 仍是 AutoLoad，因此 manager 只能从 SceneTree 根节点安全获取。
+# EventBus 只从显式注入的 ServiceRegistry 获取。
 func _get_event_bus() -> Node:
-	var tree: SceneTree = _get_scene_tree()
-	if tree == null:
+	if _services == null:
 		return null
-	return tree.root.get_node_or_null("EventBus")
+	return _services.event_bus
 
 
-# DataManager 同样是 AutoLoad，reload_from_data 统一从根节点查一次即可。
+# DataManager 同样只从显式注入的 ServiceRegistry 获取。
 func _get_data_manager() -> Node:
-	var tree: SceneTree = _get_scene_tree()
-	if tree == null:
+	if _services == null:
 		return null
-	return tree.root.get_node_or_null("DataManager")
+	return _services.data_repository
 
 
-# 某些测试环境不一定运行完整主场景，这里先判断 MainLoop 类型再返回 SceneTree。
-func _get_scene_tree() -> SceneTree:
-	var main_loop: MainLoop = Engine.get_main_loop()
-	if not (main_loop is SceneTree):
-		return null
-	return main_loop as SceneTree
+# manager 自己的 _process scope 也统一写回 RuntimeProbe，便于和 Combat 主循环拆开看。
+func _probe_begin_timing() -> int:
+	var runtime_probe = _services.runtime_probe if _services != null else null
+	if runtime_probe == null or not runtime_probe.has_method("begin_timing"):
+		return 0
+	return int(runtime_probe.begin_timing())
+
+
+# UnitAugment 的主循环单独挂 scope，方便压测时确认 buff/trigger 是否在抢预算。
+func _probe_commit_timing(scope_name: String, begin_us: int) -> void:
+	var runtime_probe = _services.runtime_probe if _services != null else null
+	if runtime_probe == null or not runtime_probe.has_method("commit_timing"):
+		return
+	runtime_probe.commit_timing(scope_name, begin_us)

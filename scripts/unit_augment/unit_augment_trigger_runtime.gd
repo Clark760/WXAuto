@@ -23,9 +23,13 @@ func reset_battle_counters() -> void:
 func poll_auto_triggers(manager: Node) -> void:
 	var state_service: Variant = manager.get_state_service()
 	var unit_states: Dictionary = state_service.get_unit_states()
+	var bucket_count: int = _resolve_poll_bucket_count(state_service.get_battle_units().size())
+	var bucket_index: int = _resolve_poll_bucket_index(manager, bucket_count)
 
 	for key in unit_states.keys():
 		var iid: int = int(key)
+		if bucket_count > 1 and posmod(iid, bucket_count) != bucket_index:
+			continue
 		var state: Dictionary = unit_states[iid]
 		var unit: Node = state.get("unit", null)
 		if unit == null or not is_instance_valid(unit):
@@ -33,19 +37,15 @@ func poll_auto_triggers(manager: Node) -> void:
 		if not state_service.is_unit_alive(unit):
 			continue
 
-		var triggers: Array = state.get("triggers", [])
-		for idx in range(triggers.size()):
-			var entry: Dictionary = triggers[idx]
-			var trigger_name: String = _normalize_trigger_name(
-				str(entry.get("trigger", "")).strip_edges().to_lower()
-			)
-			if _is_poll_trigger(trigger_name):
-				if can_trigger_entry(manager, unit, entry, {}):
-					try_fire_skill(manager, unit, entry, {})
-			triggers[idx] = entry
-
-		state["triggers"] = triggers
-		state_service.set_state_by_id(iid, state)
+		var poll_triggers: Array = state.get("poll_triggers", [])
+		if poll_triggers.is_empty():
+			continue
+		for entry_value in poll_triggers:
+			if not (entry_value is Dictionary):
+				continue
+			var entry: Dictionary = entry_value as Dictionary
+			if can_trigger_entry(manager, unit, entry, {}):
+				try_fire_skill(manager, unit, entry, {})
 
 
 # 全体广播型 trigger 只遍历 battle units，不直接扫场景树。
@@ -143,3 +143,22 @@ func _normalize_trigger_name(trigger_name: String) -> String:
 	if trigger_name == "on_buff_expire":
 		return "on_buff_expired"
 	return trigger_name
+
+
+# 高密度战斗把自动触发轮询拆成多桶，优先压住一次性大尖峰。
+func _resolve_poll_bucket_count(unit_count: int) -> int:
+	if unit_count >= 220:
+		return 5
+	if unit_count >= 120:
+		return 3
+	return 1
+
+
+# 轮询桶索引直接由 battle_elapsed 和 poll_interval 推导，避免再维护额外计数器。
+func _resolve_poll_bucket_index(manager: Node, bucket_count: int) -> int:
+	if bucket_count <= 1:
+		return 0
+	var poll_interval: float = maxf(manager.trigger_poll_interval, 0.05)
+	var battle_elapsed: float = manager.get_battle_runtime().get_battle_elapsed()
+	var poll_round: int = int(floor(battle_elapsed / poll_interval))
+	return posmod(poll_round, bucket_count)

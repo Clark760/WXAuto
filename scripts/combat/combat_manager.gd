@@ -39,6 +39,7 @@ const COMBAT_ATTACK_SERVICE_SCRIPT: Script = preload("res://scripts/combat/comba
 const COMBAT_TERRAIN_SERVICE_SCRIPT: Script = preload("res://scripts/combat/combat_terrain_service.gd")
 const COMBAT_EVENT_BRIDGE_SCRIPT: Script = preload("res://scripts/combat/combat_event_bridge.gd")
 const TERRAIN_MANAGER_SCRIPT: Script = preload("res://scripts/combat/terrain_manager.gd")
+const PROBE_SCOPE_COMBAT_MANAGER_PROCESS: String = "combat_manager_process"
 
 @export var logic_fps: float = 10.0
 @export var logic_max_substeps: int = 6
@@ -55,9 +56,13 @@ const TERRAIN_MANAGER_SCRIPT: Script = preload("res://scripts/combat/terrain_man
 @export var allow_equal_cost_side_step: bool = true
 @export var allow_uphill_escape_step: bool = true
 @export var prioritize_targets_in_attack_range: bool = true
+@export var target_rescan_interval_frames: int = 4
+@export var loop_animation_reduce_unit_threshold: int = 180
 
 var _hex_grid: Node = null
 var _vfx_factory: Node = null
+var _services: ServiceRegistry = null
+var _runtime_probe = null
 
 var _spatial_hash = SPATIAL_HASH_SCRIPT.new(64.0)
 var _flow_to_enemy = FLOW_FIELD_SCRIPT.new()
@@ -97,6 +102,9 @@ var _team_cells_cache: Dictionary = {
 # 组件缓存：减少热路径中重复 get_node_or_null 的开销。
 var _combat_cache: Dictionary = {} # instance_id -> UnitCombat 组件
 var _movement_cache: Dictionary = {} # instance_id -> UnitMovement 组件
+var _target_memory: Dictionary = {} # attacker_iid -> retained target_iid
+var _target_refresh_frame: Dictionary = {} # attacker_iid -> last reselection logic_frame
+var _loop_animation_reduced: bool = false
 
 # 压测指标：用于定位高密度战斗下的瓶颈与卡格热点。
 var _metric_tick_units: int = 0
@@ -150,6 +158,13 @@ var _attack_service = COMBAT_ATTACK_SERVICE_SCRIPT.new()
 var _terrain_service = COMBAT_TERRAIN_SERVICE_SCRIPT.new()
 var _event_bridge_service = COMBAT_EVENT_BRIDGE_SCRIPT.new()
 
+# 绑定运行时服务后，允许地形注册表从 DataManager 拉取配置。
+func bind_runtime_services(services: ServiceRegistry) -> void:
+	_services = services
+	_runtime_probe = services.runtime_probe if services != null else null
+	if is_inside_tree():
+		reload_terrain_registry()
+
 # 初始化逻辑步长、空间索引和地形 registry 缓存。
 func _ready() -> void:
 	_logic_step = 1.0 / maxf(logic_fps, 1.0)
@@ -161,7 +176,12 @@ func _ready() -> void:
 
 # 主循环仅委托给运行时服务推进战斗帧。
 func _process(delta: float) -> void:
+	var process_begin_us: int = 0
+	if _runtime_probe != null and _runtime_probe.has_method("begin_timing"):
+		process_begin_us = int(_runtime_probe.begin_timing())
 	_runtime_service.process(self, delta)
+	if _runtime_probe != null and _runtime_probe.has_method("commit_timing"):
+		_runtime_probe.commit_timing(PROBE_SCOPE_COMBAT_MANAGER_PROCESS, process_begin_us)
 
 # 注入 HexGrid 和 VFX 依赖，并强制刷新一次地形表现。
 func configure_dependencies(hex_grid: Node, vfx_factory: Node) -> void:
@@ -174,12 +194,11 @@ func configure_dependencies(hex_grid: Node, vfx_factory: Node) -> void:
 func reload_terrain_registry(data_manager: Node = null) -> void:
 	_terrain_service.reload_terrain_registry(self, data_manager)
 
-# 统一从场景树根节点查找 DataManager。
+# Combat 侧只从显式注入的 ServiceRegistry 获取 DataManager。
 func _get_data_manager_node() -> Node:
-	var tree: SceneTree = get_tree()
-	if tree == null or tree.root == null:
+	if _services == null:
 		return null
-	return tree.root.get_node_or_null("DataManager")
+	return _services.data_repository
 
 # 写入关卡静态阻挡格，并标记流场需要重建。
 func set_static_blocked_cells(cells: Array[Vector2i]) -> void:
@@ -442,12 +461,11 @@ func _rebuild_flow_fields() -> void:
 func _tick_terrain(delta: float) -> void:
 	_terrain_service.tick_terrain(self, delta)
 
-# 从场景根节点查找 UnitAugmentManager。
+# Combat 侧只从显式注入的 ServiceRegistry 获取 UnitAugmentManager。
 func _get_unit_augment_manager() -> Node:
-	var tree: SceneTree = get_tree()
-	if tree == null or tree.root == null:
+	if _services == null:
 		return null
-	return tree.root.get_node_or_null("UnitAugmentManager")
+	return _services.unit_augment_manager
 
 # 执行单个单位的攻击与移动逻辑。
 func _run_unit_logic(unit: Node, delta: float, allow_attack: bool = true, allow_move: bool = true) -> void:

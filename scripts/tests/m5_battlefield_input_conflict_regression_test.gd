@@ -1,6 +1,11 @@
 ﻿extends SceneTree
 
 const BATTLEFIELD_SCENE: PackedScene = preload("res://scenes/battle/battlefield_scene.tscn")
+const EVENT_BUS_SCRIPT: Script = preload("res://scripts/core/event_bus.gd")
+const OBJECT_POOL_SCRIPT: Script = preload("res://scripts/core/object_pool.gd")
+const DATA_MANAGER_SCRIPT: Script = preload("res://scripts/data/data_manager.gd")
+const MOD_LOADER_SCRIPT: Script = preload("res://scripts/core/mod_loader.gd")
+const UNIT_AUGMENT_MANAGER_SCRIPT: Script = preload("res://scripts/unit_augment/unit_augment_manager.gd")
 
 var _failed: int = 0
 
@@ -102,18 +107,26 @@ func _test_hud_hit_test_covers_runtime_panels() -> void:
 
 
 func _create_battlefield() -> Dictionary:
-	var unit_augment_manager := Node.new()
-	unit_augment_manager.name = "UnitAugmentManager"
-	root.add_child(unit_augment_manager)
+	var unit_augment_manager: Node = UNIT_AUGMENT_MANAGER_SCRIPT.new()
+	var services: ServiceRegistry = _build_services(unit_augment_manager)
+	var runtime_nodes: Array[Node] = [
+		services.event_bus,
+		services.object_pool,
+		services.data_repository,
+		services.mod_loader
+	]
 
 	var battlefield: Node = BATTLEFIELD_SCENE.instantiate()
+	battlefield.bind_app_services(services)
 	root.add_child(battlefield)
 	await process_frame
 	await process_frame
 
 	return {
 		"battlefield": battlefield,
-		"unit_augment_manager": unit_augment_manager
+		"unit_augment_manager": unit_augment_manager,
+		"services": services,
+		"runtime_nodes": runtime_nodes
 	}
 
 
@@ -121,9 +134,17 @@ func _cleanup_battlefield(ctx: Dictionary) -> void:
 	var battlefield: Node = ctx.get("battlefield", null)
 	if battlefield != null:
 		battlefield.queue_free()
-	var singleton: Node = ctx.get("unit_augment_manager", null)
-	if singleton != null:
-		singleton.queue_free()
+	var runtime_nodes: Variant = ctx.get("runtime_nodes", [])
+	if runtime_nodes is Array:
+		for node_value in runtime_nodes:
+			if not (node_value is Node):
+				continue
+			var runtime_node: Node = node_value as Node
+			if is_instance_valid(runtime_node):
+				runtime_node.free()
+	var unit_augment_manager: Node = ctx.get("unit_augment_manager", null)
+	if unit_augment_manager != null:
+		unit_augment_manager.free()
 	await process_frame
 
 
@@ -147,3 +168,21 @@ func _assert_true(condition: bool, message: String) -> void:
 		return
 	_failed += 1
 	push_error("ASSERT FAILED: %s" % message)
+
+
+func _build_services(unit_augment_manager: Node) -> ServiceRegistry:
+	var services := ServiceRegistry.new()
+	var event_bus: Node = EVENT_BUS_SCRIPT.new()
+	var object_pool: Node = OBJECT_POOL_SCRIPT.new()
+	var data_manager: Node = DATA_MANAGER_SCRIPT.new()
+	var mod_loader: Node = MOD_LOADER_SCRIPT.new()
+	services.register_event_bus(event_bus)
+	services.register_object_pool(object_pool)
+	services.register_data_repository(data_manager)
+	services.register_mod_loader(mod_loader)
+	services.register_unit_augment_manager(unit_augment_manager)
+	services.register_app_session(AppSessionState.new())
+	for runtime_node in [object_pool, data_manager, mod_loader, unit_augment_manager]:
+		if runtime_node.has_method("bind_runtime_services"):
+			runtime_node.call("bind_runtime_services", services)
+	return services

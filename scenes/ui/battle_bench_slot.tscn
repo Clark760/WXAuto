@@ -1,0 +1,39 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/battle_bench_slot_view.gd" id="1_view"]
+
+[node name="BattleBenchSlot" type="PanelContainer"]
+custom_minimum_size = Vector2(112, 136)
+mouse_filter = 1
+script = ExtResource("1_view")
+
+[node name="Content" type="VBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 1
+
+[node name="IconRect" type="ColorRect" parent="Content"]
+custom_minimum_size = Vector2(102, 74)
+layout_mode = 2
+color = Color(0.16, 0.19, 0.23, 0.65)
+
+[node name="NameLabel" type="Label" parent="Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+horizontal_alignment = 1
+clip_text = true
+text_overrun_behavior = 1
+autowrap_mode = 0
+theme_override_font_sizes/font_size = 22
+text = "空"
+
+[node name="StarLabel" type="Label" parent="Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+horizontal_alignment = 1
+clip_text = true
+text_overrun_behavior = 1
+autowrap_mode = 0
+theme_override_font_sizes/font_size = 24
+text = ""

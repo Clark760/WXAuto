@@ -1,6 +1,6 @@
 extends SceneTree
 
-const UNIT_DATA_SCRIPT: Script = preload("res://scripts/data/unit_data.gd")
+const UNIT_DATA_SCRIPT: Script = preload("res://scripts/domain/unit/unit_data.gd")
 const UNIT_AUGMENT_MANAGER_SCRIPT: Script = preload("res://scripts/unit_augment/unit_augment_manager.gd")
 const UNIT_STATE_SERVICE_SCRIPT: Script = preload("res://scripts/unit_augment/unit_augment_unit_state_service.gd")
 
@@ -108,7 +108,7 @@ func _test_manager_accepts_any_equipment_type_with_dynamic_slots() -> void:
 			manager.get_effect_engine(),
 			manager.get_buff_manager(),
 			manager.get_tag_linkage_scheduler(),
-			load("res://scripts/data/unit_data.gd")
+			load("res://scripts/domain/unit/unit_data.gd")
 		)
 	)
 

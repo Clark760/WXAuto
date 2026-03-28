@@ -18,8 +18,13 @@ extends Node
 #   }
 # }
 var _pools: Dictionary = {}
+var _services: ServiceRegistry = null
 
+# 绑定 bind runtime services
+func bind_runtime_services(services: ServiceRegistry) -> void:
+	_services = services
 
+# 处理 register factory
 func register_factory(
 	pool_key: String,
 	factory: Callable,
@@ -47,7 +52,7 @@ func register_factory(
 
 		var event_bus_update: Node = _get_event_bus()
 		if event_bus_update != null:
-			event_bus_update.call("emit_object_pool_registered", pool_key)
+			event_bus_update.emit_object_pool_registered(pool_key)
 		return true
 
 	_pools[pool_key] = {
@@ -62,14 +67,14 @@ func register_factory(
 
 	var event_bus: Node = _get_event_bus()
 	if event_bus != null:
-		event_bus.call("emit_object_pool_registered", pool_key)
+		event_bus.emit_object_pool_registered(pool_key)
 	return true
 
-
+# 判断 has pool
 func has_pool(pool_key: String) -> bool:
 	return _pools.has(pool_key)
 
-
+# 处理 acquire
 func acquire(pool_key: String, parent_override: Node = null) -> Node:
 	if not _pools.has(pool_key):
 		push_error("ObjectPool: 获取失败，未注册的 pool_key=%s" % pool_key)
@@ -105,10 +110,10 @@ func acquire(pool_key: String, parent_override: Node = null) -> Node:
 
 	var event_bus: Node = _get_event_bus()
 	if event_bus != null:
-		event_bus.call("emit_object_pool_acquired", pool_key, node.get_instance_id())
+		event_bus.emit_object_pool_acquired(pool_key, node.get_instance_id())
 	return node
 
-
+# 处理 release
 func release(pool_key: String, node: Node) -> bool:
 	if node == null:
 		return false
@@ -139,10 +144,10 @@ func release(pool_key: String, node: Node) -> bool:
 
 	var event_bus: Node = _get_event_bus()
 	if event_bus != null:
-		event_bus.call("emit_object_pool_released", pool_key, instance_id)
+		event_bus.emit_object_pool_released(pool_key, instance_id)
 	return true
 
-
+# 清理 clear pool
 func clear_pool(pool_key: String, free_nodes: bool = false) -> void:
 	if not _pools.has(pool_key):
 		return
@@ -165,7 +170,7 @@ func clear_pool(pool_key: String, free_nodes: bool = false) -> void:
 	pool["in_use"] = {}
 	_pools[pool_key] = pool
 
-
+# 获取 get pool stats
 func get_pool_stats(pool_key: String) -> Dictionary:
 	if not _pools.has(pool_key):
 		return {}
@@ -176,14 +181,14 @@ func get_pool_stats(pool_key: String) -> Dictionary:
 		"in_use": (pool["in_use"] as Dictionary).size()
 	}
 
-
+# 获取 get all pool stats
 func get_all_pool_stats() -> Array[Dictionary]:
 	var stats: Array[Dictionary] = []
 	for pool_key in _pools.keys():
 		stats.append(get_pool_stats(str(pool_key)))
 	return stats
 
-
+# 处理 prewarm pool
 func _prewarm_pool(pool_key: String, count: int) -> void:
 	var pool: Dictionary = _pools[pool_key]
 	var available: Array = pool["available"]
@@ -198,7 +203,7 @@ func _prewarm_pool(pool_key: String, count: int) -> void:
 	pool["available"] = available
 	_pools[pool_key] = pool
 
-
+# 构建 create instance
 func _create_instance(pool_key: String, parent_override: Node) -> Node:
 	var pool: Dictionary = _pools[pool_key]
 	var factory: Callable = pool["factory"]
@@ -215,7 +220,7 @@ func _create_instance(pool_key: String, parent_override: Node) -> Node:
 	_attach_parent_if_needed(node, pool, parent_override)
 	return node
 
-
+# 绑定 attach parent if needed
 func _attach_parent_if_needed(node: Node, pool: Dictionary, parent_override: Node) -> void:
 	if not is_instance_valid(node):
 		return
@@ -235,7 +240,7 @@ func _attach_parent_if_needed(node: Node, pool: Dictionary, parent_override: Nod
 	if target_parent != null and is_instance_valid(target_parent):
 		target_parent.add_child(node)
 
-
+# 设置 set node active
 func _set_node_active(node: Node, is_active: bool) -> void:
 	if node == null:
 		return
@@ -252,7 +257,7 @@ func _set_node_active(node: Node, is_active: bool) -> void:
 	node.set_process_input(is_active)
 	node.set_process_unhandled_input(is_active)
 
-
+# 处理 filter valid nodes
 func _filter_valid_nodes(nodes: Variant) -> Array:
 	var output: Array = []
 	if nodes is Array:
@@ -262,7 +267,7 @@ func _filter_valid_nodes(nodes: Variant) -> Array:
 				output.append(live_node)
 	return output
 
-
+# 处理 filter valid in use
 func _filter_valid_in_use(value: Variant) -> Dictionary:
 	var output: Dictionary = {}
 	if value is Dictionary:
@@ -273,7 +278,7 @@ func _filter_valid_in_use(value: Variant) -> Dictionary:
 				output[instance_id] = live_node
 	return output
 
-
+# 处理 to live node
 func _to_live_node(value: Variant) -> Node:
 	# 先做实例有效性检查，再进行类型转换。
 	# 这样可避免对“已释放实例”执行 `is` 判断时报：
@@ -284,12 +289,8 @@ func _to_live_node(value: Variant) -> Node:
 	var node: Node = value as Node
 	return node
 
-
+# 获取 get event bus
 func _get_event_bus() -> Node:
-	var main_loop: MainLoop = Engine.get_main_loop()
-	if not (main_loop is SceneTree):
+	if _services == null:
 		return null
-	var tree: SceneTree = main_loop
-	if tree == null or tree.root == null:
-		return null
-	return tree.root.get_node_or_null("EventBus")
+	return _services.event_bus

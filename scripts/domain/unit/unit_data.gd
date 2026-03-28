@@ -1,11 +1,14 @@
 extends RefCounted
+class_name UnitData
 
-# ===========================
 # 角色数据解析器
-# ===========================
 # 说明：
-# 1. DataManager 负责“通用 JSON 加载”，而 UnitData 负责“角色字段语义化解析”。
-# 2. 本脚本只处理 units 分类，统一补默认值、清洗字段并输出可直接给 UnitBase 使用的结构。
+# 1. DataManager 负责原始 JSON 加载，UnitData 负责字段语义化和默认值补齐。
+# 2. 本文件只处理 units 配置，不访问场景树和运行时节点。
+# 3. 这里产出的结构会被 UnitFactory、UnitBase 和测试共同复用。
+# 4. 新增字段时先在这里确定默认口径，再放给运行时读取。
+# 5. 目标是把坏输入裁掉，把缺省值补齐，把结构固定下来。
+# 6. 角色星级成长、槽位展开和标签去重都在这里统一定标。
 
 const DEFAULT_BASE_STATS := {
 	"hp": 500.0,
@@ -29,9 +32,13 @@ const QUALITY_TO_COST := {
 	"orange": 5
 }
 
+# 默认属性表就是角色 schema 的最低保底线。
+# 品质到价格映射只作为 cost 缺省值，不覆盖显式配置。
+# 这里保留集中常量，是为了让测试和运行时看到同一份默认语义。
 
+
+# 规范化单条角色记录，统一补默认值并裁掉非法输入。
 static func normalize_unit_record(raw_record: Dictionary) -> Dictionary:
-	# 角色记录必须包含 id；缺失时返回空对象，调用方应跳过。
 	var unit_id: String = str(raw_record.get("id", "")).strip_edges()
 	if unit_id.is_empty():
 		return {}
@@ -56,7 +63,6 @@ static func normalize_unit_record(raw_record: Dictionary) -> Dictionary:
 	result["initial_gongfa"] = initial_gongfa
 	result["gongfa_slots"] = _normalize_gongfa_slots(raw_record.get("gongfa_slots", {}), initial_gongfa)
 
-	# 装备槽位支持按数据动态扩展，max_equip_count 决定可同时生效上限。
 	var equip_slots: Dictionary = _normalize_equip_slots(raw_record.get("equip_slots", {}))
 	var default_equip_count: int = maxi(equip_slots.size(), 2)
 	var max_equip_count: int = int(raw_record.get("max_equip_count", default_equip_count))
@@ -85,7 +91,6 @@ static func normalize_unit_record(raw_record: Dictionary) -> Dictionary:
 	result["max_star"] = clampi(int(raw_record.get("max_star", 3)), 1, 3)
 	result["tags"] = _normalize_tags(raw_record.get("tags", []))
 
-	# 保留原始 meta 字段，便于调试来源定位。
 	if raw_record.has("_meta_source_file"):
 		result["_meta_source_file"] = raw_record["_meta_source_file"]
 	if raw_record.has("_meta_source_tag"):
@@ -94,9 +99,8 @@ static func normalize_unit_record(raw_record: Dictionary) -> Dictionary:
 	return result
 
 
+# 按星级倍率构建运行时属性，并保持非战斗向字段不被放大。
 static func build_runtime_stats(base_stats: Dictionary, star_level: int) -> Dictionary:
-	# 升星倍率在数据层统一维护，便于后续整体调平：
-	# 1星 1.0x, 2星 1.8x, 3星 3.0x
 	var multiplier: float = 1.0
 	match star_level:
 		2:
@@ -106,7 +110,6 @@ static func build_runtime_stats(base_stats: Dictionary, star_level: int) -> Dict
 		_:
 			multiplier = 1.0
 
-	# 升星仅影响核心战斗数值；MP/RNG/SPD/WIS 为固定基础值（可被 effect 改写）。
 	var scaled_keys: Array[String] = ["hp", "atk", "iat", "def", "idr"]
 	var runtime_stats: Dictionary = {}
 	for stat_key in base_stats.keys():
@@ -115,15 +118,14 @@ static func build_runtime_stats(base_stats: Dictionary, star_level: int) -> Dict
 			runtime_stats[stat_key] = value * multiplier
 		else:
 			runtime_stats[stat_key] = value
-	# 运行时底线约束：
-	# - rng 最小 1（不能为 0）
-	# - spd/wis 最小 0
+
 	runtime_stats["rng"] = maxf(float(runtime_stats.get("rng", 1.0)), 1.0)
 	runtime_stats["spd"] = maxf(float(runtime_stats.get("spd", 0.0)), 0.0)
 	runtime_stats["wis"] = maxf(float(runtime_stats.get("wis", 0.0)), 0.0)
 	return runtime_stats
 
 
+# 基础属性规范化会补齐缺省字段，并钳制非法下界。
 static func _normalize_stats(value: Variant) -> Dictionary:
 	var output: Dictionary = DEFAULT_BASE_STATS.duplicate(true)
 	if value is Dictionary:
@@ -131,7 +133,6 @@ static func _normalize_stats(value: Variant) -> Dictionary:
 		for stat_key in DEFAULT_BASE_STATS.keys():
 			if input_stats.has(stat_key):
 				output[stat_key] = float(input_stats[stat_key])
-	# 明确约束：rng >= 1；spd/wis >= 0；其他基础属性 >= 0。
 	for stat_key in output.keys():
 		output[stat_key] = maxf(float(output[stat_key]), 0.0)
 	output["rng"] = maxf(float(output.get("rng", 1.0)), 1.0)
@@ -140,6 +141,7 @@ static func _normalize_stats(value: Variant) -> Dictionary:
 	return output
 
 
+# 标签数组会去空、去重并保留第一次出现的写法。
 static func _normalize_tags(value: Variant) -> Array[String]:
 	var tags: Array[String] = []
 	var seen: Dictionary = {}
@@ -156,6 +158,7 @@ static func _normalize_tags(value: Variant) -> Array[String]:
 	return tags
 
 
+# trait 规范化会递归清洗内部 tags，保证查询口径稳定。
 static func _normalize_traits(value: Variant) -> Array[Dictionary]:
 	var traits: Array[Dictionary] = []
 	if value is Array:
@@ -167,6 +170,7 @@ static func _normalize_traits(value: Variant) -> Array[Dictionary]:
 	return traits
 
 
+# 品质值只允许落入当前支持的品质枚举。
 static func _normalize_quality(quality: String) -> String:
 	var normalized: String = quality.to_lower()
 	if QUALITY_TO_COST.has(normalized):
@@ -174,6 +178,7 @@ static func _normalize_quality(quality: String) -> String:
 	return "white"
 
 
+# 功法槽位保持固定结构，缺失槽位统一补空字符串。
 static func _normalize_gongfa_slots(value: Variant, _initial_gongfa: Array[String]) -> Dictionary:
 	var slots: Dictionary = {
 		"neigong": "",
@@ -184,10 +189,10 @@ static func _normalize_gongfa_slots(value: Variant, _initial_gongfa: Array[Strin
 	if value is Dictionary:
 		for key in slots.keys():
 			slots[key] = str((value as Dictionary).get(key, "")).strip_edges()
-
 	return slots
 
 
+# 装备槽位支持动态扩展，并补齐到 max_equip_count 需要的数量。
 static func _normalize_equip_slots(value: Variant, desired_count: int = 0) -> Dictionary:
 	var slots: Dictionary = {}
 	if value is Dictionary:

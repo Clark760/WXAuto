@@ -6,7 +6,6 @@ const SINGLETON_SCRIPT_PATHS: Dictionary = {
 	"ObjectPool": "res://scripts/core/object_pool.gd",
 	"DataManager": "res://scripts/data/data_manager.gd",
 	"ModLoader": "res://scripts/core/mod_loader.gd",
-	"GameManager": "res://scripts/core/game_manager.gd",
 	"UnitAugmentManager": "res://scripts/unit_augment/unit_augment_manager.gd"
 }
 
@@ -88,6 +87,7 @@ var _battle_done: bool = false
 var _failed: bool = false
 var _shutdown_started: bool = false
 var _created_singletons: Array[Node] = []
+var _runtime_services: ServiceRegistry = null
 var _result: Dictionary = {
 	"battle_started": false,
 	"battle_ended": false,
@@ -116,18 +116,18 @@ func _run() -> void:
 	print("[m5_replay] run begin")
 	await _ensure_runtime_singletons()
 	print("[m5_replay] singletons ready")
-	var data_manager: Node = _get_root_node("DataManager")
+	var data_manager: Node = _runtime_services.data_repository if _runtime_services != null else null
 	if data_manager == null:
-		await _abort("DataManager autoload is missing.")
+		await _abort("DataManager runtime service is missing.")
 		return
 
 	_result["data_summary"] = data_manager.call("load_base_data")
 	print("[m5_replay] data loaded")
-	var mod_loader: Node = _get_root_node("ModLoader")
+	var mod_loader: Node = _runtime_services.mod_loader if _runtime_services != null else null
 	if mod_loader != null and mod_loader.has_method("load_and_apply_mods"):
 		_result["mod_summary"] = mod_loader.call("load_and_apply_mods")
 		print("[m5_replay] test mods loaded")
-	_unit_augment_manager = _get_root_node("UnitAugmentManager")
+	_unit_augment_manager = _runtime_services.unit_augment_manager if _runtime_services != null else null
 	if _unit_augment_manager != null and _unit_augment_manager.has_method("reload_from_data"):
 		_unit_augment_manager.call("reload_from_data")
 	await process_frame
@@ -138,6 +138,7 @@ func _run() -> void:
 		return
 
 	_battlefield = BATTLEFIELD_SCENE.instantiate()
+	_battlefield.bind_app_services(_build_battlefield_services())
 	root.add_child(_battlefield)
 	await process_frame
 	await process_frame
@@ -577,11 +578,15 @@ func _clear_runtime_refs() -> void:
 	_hex_grid = null
 	_world_controller = null
 	_hud_presenter = null
+	_runtime_services = null
 
 
 func _ensure_runtime_singletons() -> void:
+	var runtime_nodes: Dictionary = {}
 	for singleton_name in SINGLETON_SCRIPT_PATHS.keys():
-		if _get_root_node(singleton_name) != null:
+		var existing: Node = _get_root_node(singleton_name)
+		if existing != null:
+			runtime_nodes[singleton_name] = existing
 			continue
 		var script_path: String = str(SINGLETON_SCRIPT_PATHS.get(singleton_name, "")).strip_edges()
 		if script_path.is_empty():
@@ -596,10 +601,43 @@ func _ensure_runtime_singletons() -> void:
 			continue
 		var node_instance: Node = singleton_node as Node
 		node_instance.name = singleton_name
-		root.add_child(node_instance)
-		_created_singletons.append(node_instance)
+		runtime_nodes[singleton_name] = node_instance
+	_create_runtime_services(runtime_nodes)
+	for singleton_name in SINGLETON_SCRIPT_PATHS.keys():
+		if not runtime_nodes.has(singleton_name):
+			continue
+		var runtime_node: Node = runtime_nodes[singleton_name]
+		if runtime_node == null or runtime_node.get_parent() != null:
+			continue
+		root.add_child(runtime_node)
+		_created_singletons.append(runtime_node)
 	# Ensure all _ready callbacks run before using these services.
 	await process_frame
+
+
+func _create_runtime_services(runtime_nodes: Dictionary) -> void:
+	_runtime_services = ServiceRegistry.new()
+	_runtime_services.register_event_bus(runtime_nodes.get("EventBus", null))
+	_runtime_services.register_object_pool(runtime_nodes.get("ObjectPool", null))
+	_runtime_services.register_data_repository(runtime_nodes.get("DataManager", null))
+	_runtime_services.register_mod_loader(runtime_nodes.get("ModLoader", null))
+	_runtime_services.register_unit_augment_manager(runtime_nodes.get("UnitAugmentManager", null))
+	for node_value in runtime_nodes.values():
+		var runtime_node: Node = node_value as Node
+		if runtime_node != null and runtime_node.has_method("bind_runtime_services"):
+			runtime_node.call("bind_runtime_services", _runtime_services)
+
+
+func _build_battlefield_services() -> ServiceRegistry:
+	var services := ServiceRegistry.new()
+	if _runtime_services != null:
+		services.register_event_bus(_runtime_services.event_bus)
+		services.register_object_pool(_runtime_services.object_pool)
+		services.register_data_repository(_runtime_services.data_repository)
+		services.register_mod_loader(_runtime_services.mod_loader)
+		services.register_unit_augment_manager(_runtime_services.unit_augment_manager)
+	services.register_app_session(AppSessionState.new())
+	return services
 
 
 func _get_root_node(node_name: String) -> Node:

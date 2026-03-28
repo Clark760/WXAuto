@@ -2,9 +2,12 @@ extends SceneTree
 
 const SHOP_MANAGER_SCRIPT: Script = preload("res://scripts/economy/shop_manager.gd")
 const STAGE_DATA_SCRIPT: Script = preload("res://scripts/domain/stage/stage_data.gd")
-const UNIT_DATA_SCRIPT: Script = preload("res://scripts/data/unit_data.gd")
+const UNIT_DATA_SCRIPT: Script = preload("res://scripts/domain/unit/unit_data.gd")
+const DATA_MANAGER_SCRIPT: Script = preload("res://scripts/data/data_manager.gd")
+const HUD_SUPPORT_SCRIPT: Script = preload("res://scripts/app/battlefield/battlefield_hud_support.gd")
 const STAGE_SCHEMA_PATH: String = "res://data/stages/_schema/stage.schema.json"
 const EQUIPMENT_SCHEMA_PATH: String = "res://data/equipment/_schema/equipment.schema.json"
+const UI_TEXTS_MOD_DIR: String = "res://mods/base/data/ui_texts"
 
 class DummyUnitFactory:
 	extends Node
@@ -42,6 +45,20 @@ class DummyUnitAugmentManager:
 		return _equipment.duplicate(true)
 
 
+class DummyHudRefs:
+	extends Node
+	var data_repository: Node = null
+	var unit_augment_manager = null
+	var bench_ui = null
+	var combat_manager = null
+
+	func setup(data_repository_value: Node) -> void:
+		data_repository = data_repository_value
+
+	func get_data_repository() -> Node:
+		return data_repository
+
+
 var _failed: int = 0
 
 
@@ -62,6 +79,7 @@ func _run() -> void:
 	_test_stage_normalizes_enemy_rows_without_inline_build_fields()
 	_test_stage_type_fallback_from_unknown_value()
 	_test_stage_schema_type_enum_values()
+	_test_battlefield_hud_display_config_loads_from_data()
 
 
 func _test_unit_normalize_shop_visible_default() -> void:
@@ -254,6 +272,85 @@ func _test_stage_schema_type_enum_values() -> void:
 	_assert_true(enum_array.size() == 4, "stage schema type enum should only contain 4 supported values")
 
 
+func _test_battlefield_hud_display_config_loads_from_data() -> void:
+	var data_manager: Node = DATA_MANAGER_SCRIPT.new()
+	var supported_categories: Array[String] = data_manager.get_supported_categories()
+	_assert_true(supported_categories.has("ui_texts"), "data_manager should support ui_texts category")
+
+	var base_summary: Dictionary = data_manager.load_base_data()
+	var category_counts: Dictionary = base_summary.get("categories", {})
+	_assert_true(category_counts.has("ui_texts"), "base data summary should include ui_texts category")
+
+	var ui_texts_result: Dictionary = data_manager.load_category_from_dir(
+		"ui_texts",
+		UI_TEXTS_MOD_DIR,
+		"mod:test_ui_texts"
+	)
+	_assert_true(int(ui_texts_result.get("records", 0)) == 1, "ui_texts mod data should load one record")
+
+	var display_record: Dictionary = data_manager.get_record("ui_texts", "battlefield_hud_display")
+	_assert_true(not display_record.is_empty(), "battlefield_hud_display record should exist")
+	if display_record.is_empty():
+		data_manager.free()
+		return
+
+	var refs: DummyHudRefs = DummyHudRefs.new()
+	refs.setup(data_manager)
+	var support = HUD_SUPPORT_SCRIPT.new()
+	support.initialize(null, refs, null)
+	support.reload_external_item_data()
+
+	var slot_labels: Dictionary = display_record.get("slot_labels", {})
+	var neigong_entry: Dictionary = slot_labels.get("neigong", {})
+	_assert_true(
+		str(neigong_entry.get("text", "")) == support.slot_to_cn("neigong"),
+		"slot_to_cn should read label from ui_texts config"
+	)
+	_assert_true(
+		str(neigong_entry.get("icon", "")) == support.slot_icon("neigong"),
+		"slot_icon should read icon from ui_texts config"
+	)
+
+	var equip_labels: Dictionary = display_record.get("equip_type_labels", {})
+	var weapon_entry: Dictionary = equip_labels.get("weapon", {})
+	_assert_true(
+		str(weapon_entry.get("text", "")) == support.equip_type_to_cn("weapon"),
+		"equip_type_to_cn should read label from ui_texts config"
+	)
+	_assert_true(
+		str(weapon_entry.get("icon", "")) == support.equip_icon("weapon"),
+		"equip_icon should read icon from ui_texts config"
+	)
+
+	var stat_labels: Dictionary = display_record.get("stat_labels", {})
+	_assert_true(
+		str(stat_labels.get("hp", "")) == support.stat_key_to_cn("hp"),
+		"stat_key_to_cn should read label from ui_texts config"
+	)
+
+	var quality_labels: Dictionary = display_record.get("quality_labels", {})
+	_assert_true(
+		str(quality_labels.get("orange", "")) == support.quality_to_cn("orange"),
+		"quality_to_cn should read label from ui_texts config"
+	)
+
+	var quality_colors: Dictionary = display_record.get("quality_colors", {})
+	_assert_color_equals_array(
+		support.quality_color("orange"),
+		quality_colors.get("orange", []),
+		"quality_color should read rgba from ui_texts config"
+	)
+
+	var damage_type_labels: Dictionary = display_record.get("damage_type_labels", {})
+	_assert_true(
+		str(damage_type_labels.get("reflect", "")) == support.damage_type_to_cn("reflect"),
+		"damage_type_to_cn should read label from ui_texts config"
+	)
+
+	refs.free()
+	data_manager.free()
+
+
 func _offers_contain_item(offers: Array, item_id: String) -> bool:
 	for offer_value in offers:
 		if not (offer_value is Dictionary):
@@ -261,6 +358,23 @@ func _offers_contain_item(offers: Array, item_id: String) -> bool:
 		if str((offer_value as Dictionary).get("item_id", "")) == item_id:
 			return true
 	return false
+
+
+func _assert_color_equals_array(actual: Color, expected_value: Variant, message: String) -> void:
+	_assert_true(expected_value is Array, "%s (expected array)" % message)
+	if not (expected_value is Array):
+		return
+	var channels: Array = expected_value as Array
+	_assert_true(channels.size() >= 4, "%s (expected 4 channels)" % message)
+	if channels.size() < 4:
+		return
+	_assert_true(
+		is_equal_approx(actual.r, float(channels[0]))
+		and is_equal_approx(actual.g, float(channels[1]))
+		and is_equal_approx(actual.b, float(channels[2]))
+		and is_equal_approx(actual.a, float(channels[3])),
+		message
+	)
 
 
 func _assert_true(condition: bool, message: String) -> void:

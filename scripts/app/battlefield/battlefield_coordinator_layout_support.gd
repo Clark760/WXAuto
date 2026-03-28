@@ -12,7 +12,10 @@
 # 1. 这里优先解释为什么要重排容器，而不是重复节点名。
 
 const STAGE_PREPARATION: int = 0 # 回收区只在备战期可用。
-const RECYCLE_DROP_ZONE_SCRIPT: Script = preload("res://scripts/ui/recycle_drop_zone.gd") # 回收区脚本。
+const RECYCLE_DROP_ZONE_SCENE_ID: String = "recycle_drop_zone" # 回收区子场景 id。
+const RECYCLE_DROP_ZONE_SCENE_FALLBACK: PackedScene = preload(
+	"res://scenes/ui/recycle_drop_zone.tscn"
+) # 回收区子场景兜底。
 
 var _owner = null # coordinator facade。
 var _scene_root = null # 根场景入口。
@@ -74,8 +77,17 @@ func ensure_recycle_zone_created() -> void:
 		bench_scroll.clip_contents = true
 	var recycle_zone: PanelContainer = wrap_runtime.get_node_or_null("RecycleDropZone") as PanelContainer
 	if recycle_zone == null:
-		recycle_zone = RECYCLE_DROP_ZONE_SCRIPT.new() as PanelContainer
+		var recycle_scene: PackedScene = _resolve_ui_scene(
+			RECYCLE_DROP_ZONE_SCENE_ID,
+			RECYCLE_DROP_ZONE_SCENE_FALLBACK
+		)
+		if recycle_scene == null:
+			return
+		var recycle_node: Node = recycle_scene.instantiate()
+		recycle_zone = recycle_node as PanelContainer
 		if recycle_zone == null:
+			if recycle_node != null:
+				recycle_node.queue_free()
 			return
 		recycle_zone.name = "RecycleDropZone"
 		recycle_zone.custom_minimum_size = Vector2(148, 118)
@@ -98,8 +110,10 @@ func layout_bench_recycle_wrap() -> void:
 		return
 	var root_vbox: VBoxContainer = _refs.bottom_panel.get_node_or_null("RootVBox") as VBoxContainer
 	var wrap_runtime: Control = root_vbox.get_node_or_null("BenchRecycleWrapRuntime") as Control
-	var bench_control: Control = _refs.bench_ui as Control
-	if root_vbox == null or wrap_runtime == null or bench_control == null:
+	var bench_ui: BattleBenchUI = _refs.bench_ui as BattleBenchUI
+	var bench_control: Control = bench_ui as Control
+	var recycle_drop_zone = _refs.recycle_drop_zone
+	if root_vbox == null or wrap_runtime == null or bench_control == null or recycle_drop_zone == null:
 		return
 	if wrap_runtime.size.x <= 1.0 or wrap_runtime.size.y <= 1.0:
 		return
@@ -122,16 +136,22 @@ func layout_bench_recycle_wrap() -> void:
 	bench_control.clip_contents = true
 	bench_control.custom_minimum_size = Vector2(0.0, row_height)
 	bench_control.size = Vector2(bench_width, row_height)
-	if _refs.bench_ui.has_method("set_layout_width"):
-		_refs.bench_ui.call("set_layout_width", bench_width)
-	_refs.recycle_drop_zone.position = Vector2(wrap_size.x - recycle_width, 0.0)
-	_refs.recycle_drop_zone.size = Vector2(recycle_width, row_height)
-	_refs.recycle_drop_zone.custom_minimum_size = Vector2(recycle_width, row_height)
-	_refs.recycle_drop_zone.visible = int(_state.stage) == STAGE_PREPARATION
-	if _refs.recycle_drop_zone.has_method("set_drop_enabled"):
-		_refs.recycle_drop_zone.call("set_drop_enabled", int(_state.stage) == STAGE_PREPARATION)
+	bench_ui.set_layout_width(bench_width)
+	recycle_drop_zone.position = Vector2(wrap_size.x - recycle_width, 0.0)
+	recycle_drop_zone.size = Vector2(recycle_width, row_height)
+	recycle_drop_zone.custom_minimum_size = Vector2(recycle_width, row_height)
+	recycle_drop_zone.visible = int(_state.stage) == STAGE_PREPARATION
+	recycle_drop_zone.set_drop_enabled(int(_state.stage) == STAGE_PREPARATION)
 	wrap_runtime.custom_minimum_size = Vector2(0.0, row_height)
-	if _refs.bench_ui.has_method("refresh_adaptive_layout"):
-		_refs.bench_ui.call_deferred("refresh_adaptive_layout")
+	bench_ui.call_deferred("refresh_adaptive_layout")
+
+
+# 优先从 refs 场景库解析 UI 子场景，缺失时回退到本地 fallback。
+func _resolve_ui_scene(scene_id: String, fallback_scene: PackedScene) -> PackedScene:
+	if _refs != null and _refs.has_method("get_ui_scene"):
+		var scene_value: Variant = _refs.get_ui_scene(scene_id)
+		if scene_value is PackedScene:
+			return scene_value as PackedScene
+	return fallback_scene
 
 

@@ -122,6 +122,32 @@ func _run_checks() -> void:
 	test_script_paths.erase(COVERAGE_SELF_PATH)
 	var test_scripts_text: String = _join_texts(test_script_paths)
 	var combat_manager_text: String = _read_text("res://scripts/combat/combat_manager.gd")
+	var vfx_factory_text: String = _read_text("res://scripts/vfx/vfx_factory.gd")
+	var unit_augment_manager_text: String = _read_text("res://scripts/unit_augment/unit_augment_manager.gd")
+	var battlefield_scene_text: String = _read_text("res://scripts/app/battlefield/battlefield_scene.gd")
+	var economy_manager_text: String = _read_text("res://scripts/economy/economy_manager.gd")
+	var shop_manager_text: String = _read_text("res://scripts/economy/shop_manager.gd")
+	var reward_manager_text: String = _read_text("res://scripts/stage/reward_manager.gd")
+	var stage_manager_text: String = _read_text("res://scripts/stage/stage_manager.gd")
+	var battlefield_coordinator_text: String = _read_text("res://scripts/app/battlefield/battlefield_coordinator.gd")
+	var battlefield_economy_support_text: String = _read_text("res://scripts/app/battlefield/battlefield_coordinator_economy_support.gd")
+	var battlefield_layout_support_text: String = _read_text("res://scripts/app/battlefield/battlefield_coordinator_layout_support.gd")
+	var battlefield_statistics_support_text: String = _read_text("res://scripts/app/battlefield/battlefield_coordinator_statistics_support.gd")
+	var battlefield_hud_support_text: String = _read_text("res://scripts/app/battlefield/battlefield_hud_support.gd")
+	var battlefield_hud_detail_view_text: String = _read_text("res://scripts/app/battlefield/battlefield_hud_detail_view.gd")
+	var battlefield_hud_shop_inventory_view_text: String = _read_text("res://scripts/app/battlefield/battlefield_hud_shop_inventory_view.gd")
+	var battlefield_hud_runtime_view_text: String = _read_text("res://scripts/app/battlefield/battlefield_hud_runtime_view.gd")
+	var battlefield_hud_presenter_text: String = _read_text("res://scripts/app/battlefield/battlefield_hud_presenter.gd")
+	var main_scene_text: String = _read_text("res://scripts/main/main_scene.gd")
+	var data_manager_text: String = _read_text("res://scripts/data/data_manager.gd")
+	var mod_loader_text: String = _read_text("res://scripts/core/mod_loader.gd")
+	var object_pool_text: String = _read_text("res://scripts/core/object_pool.gd")
+	var obstacle_manager_text: String = _read_text("res://scripts/stage/obstacle_manager.gd")
+	var app_root_text: String = _read_text("res://scripts/infra/app_root.gd")
+	var app_session_state_text: String = _read_text("res://scripts/infra/app_session_state.gd")
+	var scene_navigator_text: String = _read_text("res://scripts/infra/scene_navigator.gd")
+	var battle_stats_panel_text: String = _read_text("res://scripts/ui/battle_stats_panel.gd")
+	var battle_statistics_text: String = _read_text("res://scripts/battle/battle_statistics.gd")
 	var terrain_data_text: String = _join_texts(_collect_files_under_dir(TERRAIN_DATA_DIR, ".json"))
 	var project_text: String = _read_text("res://project.godot")
 
@@ -133,6 +159,46 @@ func _run_checks() -> void:
 	_check_data_counts()
 	_check_effect_engine_cleanup(project_text, active_scripts_text, test_scripts_text)
 	_check_combat_split(combat_manager_text, active_scripts_text)
+	_check_runtime_service_injection(
+		combat_manager_text,
+		vfx_factory_text,
+		unit_augment_manager_text,
+		battlefield_scene_text
+	)
+	_check_runtime_service_calls_removed(
+		economy_manager_text,
+		shop_manager_text,
+		reward_manager_text,
+		stage_manager_text,
+		battlefield_coordinator_text,
+		battlefield_economy_support_text,
+		main_scene_text,
+		data_manager_text,
+		mod_loader_text,
+		object_pool_text
+	)
+	_check_domain_migrations(
+		active_scripts_text,
+		test_scripts_text,
+		economy_manager_text,
+		shop_manager_text,
+		battle_statistics_text
+	)
+	_check_phase4_hud_and_infra_calls_removed(
+		battlefield_scene_text,
+		battlefield_layout_support_text,
+		battlefield_statistics_support_text,
+		battlefield_hud_support_text,
+		battlefield_hud_detail_view_text,
+		battlefield_hud_shop_inventory_view_text,
+		battlefield_hud_runtime_view_text,
+		battlefield_hud_presenter_text,
+		obstacle_manager_text,
+		app_root_text,
+		app_session_state_text,
+		scene_navigator_text,
+		battle_stats_panel_text
+	)
 	_check_linkage_removed()
 
 
@@ -172,8 +238,20 @@ func _check_linkage_removed() -> void:
 
 func _check_effect_engine_cleanup(project_text: String, active_scripts_text: String, test_scripts_text: String) -> void:
 	_assert_true(
-		project_text.find('UnitAugmentManager="*res://scripts/unit_augment/unit_augment_manager.gd"') != -1,
-		"project autoload should point to UnitAugmentManager"
+		project_text.find('run/main_scene="res://scenes/app/app_root.tscn"') != -1,
+		"project main scene should point to AppRoot"
+	)
+	_assert_true(
+		project_text.find("[autoload]") == -1,
+		"project should not keep runtime provider autoloads"
+	)
+	_assert_true(
+		project_text.find("GameManager=") == -1,
+		"project should not keep GameManager autoload"
+	)
+	_assert_true(
+		not FileAccess.file_exists("res://scripts/core/game_manager.gd"),
+		"legacy game_manager.gd removed"
 	)
 	_assert_true(
 		project_text.find("GongfaManager=") == -1,
@@ -335,6 +413,331 @@ func _check_combat_split(combat_manager_text: String, active_scripts_text: Strin
 	_assert_true(
 		combat_manager_text.find("combat.call(\"tick_logic\", delta)") == -1,
 		"combat_manager should not keep inline unit logic body"
+	)
+
+
+func _check_runtime_service_injection(
+	combat_manager_text: String,
+	vfx_factory_text: String,
+	unit_augment_manager_text: String,
+	battlefield_scene_text: String
+) -> void:
+	_assert_true(
+		combat_manager_text.find("bind_runtime_services(services: ServiceRegistry)") != -1,
+		"combat_manager should expose bind_runtime_services"
+	)
+	_assert_true(
+		combat_manager_text.find("tree.root.get_node_or_null(\"DataManager\")") == -1,
+		"combat_manager should not resolve DataManager from root"
+	)
+	_assert_true(
+		combat_manager_text.find("tree.root.get_node_or_null(\"UnitAugmentManager\")") == -1,
+		"combat_manager should not resolve UnitAugmentManager from root"
+	)
+	_assert_true(
+		vfx_factory_text.find("bind_runtime_services(services: ServiceRegistry)") != -1,
+		"vfx_factory should expose bind_runtime_services"
+	)
+	_assert_true(
+		vfx_factory_text.find("Engine.get_main_loop()") == -1,
+		"vfx_factory should not depend on Engine.get_main_loop"
+	)
+	_assert_true(
+		vfx_factory_text.find("tree.root.get_node_or_null(\"EventBus\")") == -1,
+		"vfx_factory should not resolve EventBus from root"
+	)
+	_assert_true(
+		vfx_factory_text.find("tree.root.get_node_or_null(\"DataManager\")") == -1,
+		"vfx_factory should not resolve DataManager from root"
+	)
+	_assert_true(
+		vfx_factory_text.find("tree.root.get_node_or_null(\"ObjectPool\")") == -1,
+		"vfx_factory should not resolve ObjectPool from root"
+	)
+	_assert_true(
+		unit_augment_manager_text.find("Engine.get_main_loop()") == -1,
+		"unit_augment_manager should not keep Engine.get_main_loop helper"
+	)
+	_assert_true(
+		battlefield_scene_text.find("_bind_runtime_services_on_path(\"CombatManager\")") != -1,
+		"battlefield_scene should inject CombatManager services explicitly"
+	)
+	_assert_true(
+		battlefield_scene_text.find("_bind_runtime_services_on_path(\"WorldContainer/VfxLayer/VfxFactory\")") != -1,
+		"battlefield_scene should inject VfxFactory services explicitly"
+	)
+
+
+func _check_runtime_service_calls_removed(
+	economy_manager_text: String,
+	shop_manager_text: String,
+	reward_manager_text: String,
+	stage_manager_text: String,
+	battlefield_coordinator_text: String,
+	battlefield_economy_support_text: String,
+	main_scene_text: String,
+	data_manager_text: String,
+	mod_loader_text: String,
+	object_pool_text: String
+) -> void:
+	_assert_true(
+		economy_manager_text.find("data_manager.call(") == -1,
+		"economy_manager should not use data_manager.call"
+	)
+	_assert_true(
+		shop_manager_text.find("unit_factory.call(") == -1,
+		"shop_manager should not use unit_factory.call"
+	)
+	_assert_true(
+		shop_manager_text.find("unit_augment_manager.call(") == -1,
+		"shop_manager should not use unit_augment_manager.call"
+	)
+	_assert_true(
+		reward_manager_text.find("economy_manager.call(") == -1,
+		"reward_manager should not use economy_manager.call"
+	)
+	_assert_true(
+		reward_manager_text.find("battlefield.call(") == -1,
+		"reward_manager should not use battlefield.call"
+	)
+	_assert_true(
+		reward_manager_text.find("unit_factory.call(") == -1,
+		"reward_manager should not keep unit_factory fallback call chain"
+	)
+	_assert_true(
+		stage_manager_text.find("data_manager.call(") == -1,
+		"stage_manager should not use data_manager.call"
+	)
+	_assert_true(
+		stage_manager_text.find("event_bus.call(") == -1,
+		"stage_manager should not use event_bus.call"
+	)
+	_assert_true(
+		stage_manager_text.find("callv(") == -1,
+		"stage_manager should not use callv for stage event dispatch"
+	)
+	_assert_true(
+		battlefield_coordinator_text.find("runtime_economy_manager.call(") == -1,
+		"battlefield_coordinator should not use runtime_economy_manager.call"
+	)
+	_assert_true(
+		battlefield_coordinator_text.find("runtime_stage_manager.call(") == -1,
+		"battlefield_coordinator should not use runtime_stage_manager.call"
+	)
+	_assert_true(
+		battlefield_economy_support_text.find("runtime_economy_manager.call(") == -1,
+		"battlefield_coordinator_economy_support should not use runtime_economy_manager.call"
+	)
+	_assert_true(
+		battlefield_economy_support_text.find("runtime_shop_manager.call(") == -1,
+		"battlefield_coordinator_economy_support should not use runtime_shop_manager.call"
+	)
+	_assert_true(
+		battlefield_economy_support_text.find("unit_factory.call(") == -1,
+		"battlefield_coordinator_economy_support should not use unit_factory.call"
+	)
+	_assert_true(
+		battlefield_economy_support_text.find("runtime_unit_deploy_manager.call(") == -1,
+		"battlefield_coordinator_economy_support should not use runtime_unit_deploy_manager.call"
+	)
+	_assert_true(
+		battlefield_economy_support_text.find("unit_augment_manager.call(") == -1,
+		"battlefield_coordinator_economy_support should not use unit_augment_manager.call"
+	)
+	_assert_true(
+		main_scene_text.find("data_manager.call(") == -1,
+		"main_scene should not use data_manager.call"
+	)
+	_assert_true(
+		data_manager_text.find("event_bus.call(") == -1,
+		"data_manager should not use event_bus.call"
+	)
+	_assert_true(
+		mod_loader_text.find("data_manager.call(") == -1,
+		"mod_loader should not use data_manager.call"
+	)
+	_assert_true(
+		mod_loader_text.find("event_bus.call(") == -1,
+		"mod_loader should not use event_bus.call"
+	)
+	_assert_true(
+		object_pool_text.find("event_bus.call(") == -1,
+		"object_pool should not use event_bus.call"
+	)
+
+
+func _check_domain_migrations(
+	active_scripts_text: String,
+	test_scripts_text: String,
+	economy_manager_text: String,
+	shop_manager_text: String,
+	battle_statistics_text: String
+) -> void:
+	var required_domain_files: Array[String] = [
+		"res://scripts/domain/unit/unit_data.gd",
+		"res://scripts/domain/economy/economy_progression_service.gd",
+		"res://scripts/domain/shop/shop_catalog_service.gd",
+		"res://scripts/domain/combat/battle_statistics_service.gd"
+	]
+	for path in required_domain_files:
+		_assert_true(FileAccess.file_exists(path), "domain migration file exists: %s" % path)
+
+	_assert_true(
+		not FileAccess.file_exists("res://scripts/data/unit_data.gd"),
+		"legacy unit_data.gd removed"
+	)
+	_assert_true(
+		active_scripts_text.find("res://scripts/data/unit_data.gd") == -1,
+		"active scripts should not reference legacy unit_data.gd"
+	)
+	_assert_true(
+		test_scripts_text.find("res://scripts/data/unit_data.gd") == -1,
+		"tests should not reference legacy unit_data.gd"
+	)
+	_assert_true(
+		active_scripts_text.find("res://scripts/domain/unit/unit_data.gd") != -1,
+		"active scripts should reference domain unit_data.gd"
+	)
+	_assert_true(
+		economy_manager_text.find("res://scripts/domain/economy/economy_progression_service.gd") != -1,
+		"economy_manager should delegate to domain economy_progression_service"
+	)
+	_assert_true(
+		economy_manager_text.find("DEFAULT_LEVEL_ROWS") == -1,
+		"economy_manager should not keep level curve rules inline"
+	)
+	_assert_true(
+		shop_manager_text.find("res://scripts/domain/shop/shop_catalog_service.gd") != -1,
+		"shop_manager should delegate to domain shop_catalog_service"
+	)
+	_assert_true(
+		shop_manager_text.find("_generate_recruit_offers") == -1,
+		"shop_manager should not keep recruit offer generation inline"
+	)
+	_assert_true(
+		shop_manager_text.find("_rebuild_unit_pool") == -1,
+		"shop_manager should not keep pool rebuild logic inline"
+	)
+	_assert_true(
+		battle_statistics_text.find("res://scripts/domain/combat/battle_statistics_service.gd") != -1,
+		"battle_statistics should delegate to domain battle_statistics_service"
+	)
+	_assert_true(
+		battle_statistics_text.find("_register_fallback_unit") == -1,
+		"battle_statistics wrapper should not keep fallback registration rules inline"
+	)
+	_assert_true(
+		battle_statistics_text.find("_unit_stats") == -1,
+		"battle_statistics wrapper should not keep statistics state inline"
+	)
+
+
+func _check_phase4_hud_and_infra_calls_removed(
+	battlefield_scene_text: String,
+	battlefield_layout_support_text: String,
+	battlefield_statistics_support_text: String,
+	battlefield_hud_support_text: String,
+	battlefield_hud_detail_view_text: String,
+	battlefield_hud_shop_inventory_view_text: String,
+	battlefield_hud_runtime_view_text: String,
+	battlefield_hud_presenter_text: String,
+	obstacle_manager_text: String,
+	app_root_text: String,
+	app_session_state_text: String,
+	scene_navigator_text: String,
+	battle_stats_panel_text: String
+) -> void:
+	_assert_true(
+		battlefield_scene_text.find('runtime_node.call("bind_runtime_services"') == -1,
+		"battlefield_scene should not use runtime_node.call for service injection"
+	)
+	_assert_true(
+		battlefield_layout_support_text.find("bench_ui.call(") == -1,
+		"battlefield_coordinator_layout_support should not use bench_ui.call"
+	)
+	_assert_true(
+		battlefield_layout_support_text.find("recycle_drop_zone.call(") == -1,
+		"battlefield_coordinator_layout_support should not use recycle_drop_zone.call"
+	)
+	_assert_true(
+		battlefield_statistics_support_text.find("battle_stats_panel.call(") == -1,
+		"battlefield_coordinator_statistics_support should not use battle_stats_panel.call"
+	)
+	_assert_true(
+		battlefield_statistics_support_text.find("_battle_statistics.call(") == -1,
+		"battlefield_coordinator_statistics_support should not use battle_statistics.call"
+	)
+	_assert_true(
+		battlefield_hud_support_text.find("unit_augment_manager.call(") == -1,
+		"battlefield_hud_support should not use unit_augment_manager.call"
+	)
+	_assert_true(
+		battlefield_hud_support_text.find("combat_manager.call(") == -1,
+		"battlefield_hud_support should not use combat_manager.call"
+	)
+	_assert_true(
+		battlefield_hud_support_text.find("bench_ui.call(") == -1,
+		"battlefield_hud_support should not use bench_ui.call"
+	)
+	_assert_true(
+		battlefield_hud_detail_view_text.find("unit_augment_manager.call(") == -1,
+		"battlefield_hud_detail_view should not use unit_augment_manager.call"
+	)
+	_assert_true(
+		battlefield_hud_shop_inventory_view_text.find("runtime_economy_manager.call(") == -1,
+		"battlefield_hud_shop_inventory_view should not use runtime_economy_manager.call"
+	)
+	_assert_true(
+		battlefield_hud_shop_inventory_view_text.find("runtime_shop_manager.call(") == -1,
+		"battlefield_hud_shop_inventory_view should not use runtime_shop_manager.call"
+	)
+	_assert_true(
+		battlefield_hud_shop_inventory_view_text.find("unit_augment_manager.call(") == -1,
+		"battlefield_hud_shop_inventory_view should not use unit_augment_manager.call"
+	)
+	_assert_true(
+		battlefield_hud_runtime_view_text.find("combat_manager.call(") == -1,
+		"battlefield_hud_runtime_view should not use combat_manager.call"
+	)
+	_assert_true(
+		battlefield_hud_presenter_text.find("battle_stats_panel.call(") == -1,
+		"battlefield_hud_presenter should not use battle_stats_panel.call"
+	)
+	_assert_true(
+		obstacle_manager_text.find("hex_grid.call(") == -1,
+		"obstacle_manager should not use hex_grid.call"
+	)
+	_assert_true(
+		app_root_text.find("service_node.call(") == -1,
+		"app_root should not use service_node.call"
+	)
+	_assert_true(
+		app_session_state_text.find("_event_bus.call(") == -1,
+		"app_session_state should not use _event_bus.call"
+	)
+	_assert_true(
+		scene_navigator_text.find("next_scene.call(") == -1,
+		"scene_navigator should not use next_scene.call"
+	)
+	_assert_true(
+		scene_navigator_text.find("data_repository.call(") == -1,
+		"scene_navigator should not use data_repository.call"
+	)
+	_assert_true(
+		scene_navigator_text.find("mod_loader.call(") == -1,
+		"scene_navigator should not use mod_loader.call"
+	)
+	_assert_true(
+		scene_navigator_text.find("unit_augment_manager.call(") == -1,
+		"scene_navigator should not use unit_augment_manager.call"
+	)
+	_assert_true(
+		scene_navigator_text.find("event_bus.call(") == -1,
+		"scene_navigator should not use event_bus.call"
+	)
+	_assert_true(
+		battle_stats_panel_text.find("_statistics.call(") == -1,
+		"battle_stats_panel should not use statistics.call"
 	)
 
 

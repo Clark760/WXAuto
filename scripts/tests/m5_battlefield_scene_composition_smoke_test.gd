@@ -1,6 +1,11 @@
 extends SceneTree
 
 const BATTLEFIELD_SCENE: PackedScene = preload("res://scenes/battle/battlefield_scene.tscn")
+const EVENT_BUS_SCRIPT: Script = preload("res://scripts/core/event_bus.gd")
+const OBJECT_POOL_SCRIPT: Script = preload("res://scripts/core/object_pool.gd")
+const DATA_MANAGER_SCRIPT: Script = preload("res://scripts/data/data_manager.gd")
+const MOD_LOADER_SCRIPT: Script = preload("res://scripts/core/mod_loader.gd")
+const UNIT_AUGMENT_MANAGER_SCRIPT: Script = preload("res://scripts/unit_augment/unit_augment_manager.gd")
 const NEW_ROOT_SCRIPT_PATH: String = "res://scripts/app/battlefield/battlefield_scene.gd"
 const LEGACY_BATTLEFIELD_SCENE_PATH: String = "res://scenes/battle/" + "battlefield.tscn"
 const LEGACY_ENTRY_TOKEN: String = "res://scenes/battle/" + "battlefield.tscn"
@@ -27,11 +32,12 @@ func _init() -> void:
 
 
 func _run() -> void:
-	var unit_augment_manager := Node.new()
-	unit_augment_manager.name = "UnitAugmentManager"
-	root.add_child(unit_augment_manager)
+	var unit_augment_manager: Node = UNIT_AUGMENT_MANAGER_SCRIPT.new()
+	var service_bundle: Dictionary = _build_services(unit_augment_manager)
+	var services: ServiceRegistry = service_bundle.get("services", null)
 
 	var battlefield: Node = BATTLEFIELD_SCENE.instantiate()
+	battlefield.bind_app_services(services)
 	root.add_child(battlefield)
 	await process_frame
 	await process_frame
@@ -137,7 +143,7 @@ func _run() -> void:
 	)
 
 	battlefield.queue_free()
-	unit_augment_manager.queue_free()
+	_cleanup_runtime_nodes(service_bundle)
 	await process_frame
 
 	if _failed > 0:
@@ -154,6 +160,39 @@ func _assert_true(condition: bool, message: String) -> void:
 		return
 	_failed += 1
 	push_error(message)
+
+
+func _build_services(unit_augment_manager: Node) -> Dictionary:
+	var services := ServiceRegistry.new()
+	var event_bus: Node = EVENT_BUS_SCRIPT.new()
+	var object_pool: Node = OBJECT_POOL_SCRIPT.new()
+	var data_manager: Node = DATA_MANAGER_SCRIPT.new()
+	var mod_loader: Node = MOD_LOADER_SCRIPT.new()
+	services.register_event_bus(event_bus)
+	services.register_object_pool(object_pool)
+	services.register_data_repository(data_manager)
+	services.register_mod_loader(mod_loader)
+	services.register_unit_augment_manager(unit_augment_manager)
+	services.register_app_session(AppSessionState.new())
+	for runtime_node in [object_pool, data_manager, mod_loader, unit_augment_manager]:
+		if runtime_node.has_method("bind_runtime_services"):
+			runtime_node.call("bind_runtime_services", services)
+	return {
+		"services": services,
+		"runtime_nodes": [event_bus, object_pool, data_manager, mod_loader, unit_augment_manager]
+	}
+
+
+func _cleanup_runtime_nodes(service_bundle: Dictionary) -> void:
+	var runtime_nodes: Variant = service_bundle.get("runtime_nodes", [])
+	if not (runtime_nodes is Array):
+		return
+	for node_value in runtime_nodes:
+		if not (node_value is Node):
+			continue
+		var runtime_node: Node = node_value as Node
+		if is_instance_valid(runtime_node):
+			runtime_node.free()
 
 
 func _find_legacy_entry_refs() -> Array[String]:

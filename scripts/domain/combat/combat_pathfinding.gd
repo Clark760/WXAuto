@@ -72,7 +72,8 @@ func pick_best_adjacent_cell(
 	flow_to_ally,
 	allow_equal_cost_side_step: bool,
 	group_focus_target_id: Dictionary,
-	unit_by_id: Dictionary
+	unit_by_id: Dictionary,
+	team_alive_cache: Dictionary
 ) -> Vector2i:
 	var team_id: int = int(unit.get("team_id"))
 	var enemy_team: int = 2 if team_id == 1 else 1
@@ -139,6 +140,18 @@ func pick_best_adjacent_cell(
 	# 没有明确主路径时，才允许退回“同代价但更靠近焦点”的横移方案。
 	if allow_equal_cost_side_step and side_step_found and current_cost > 2:
 		return side_step_cell
+	var follow_ally_cell: Vector2i = _pick_follow_ally_cell(
+		runtime_port,
+		unit,
+		current_cell,
+		flow_field,
+		team_alive_cache,
+		team_id,
+		focus_cell,
+		has_focus_cell
+	)
+	if follow_ally_cell != current_cell:
+		return follow_ally_cell
 	return best_cell
 
 
@@ -165,3 +178,84 @@ func _is_better_candidate(
 			and candidate_focus_dist < best_focus_dist
 		)
 	)
+
+
+# 当正面通路被友军堵住时，允许后排向更靠前的最近友军贴近，维持队形前压。
+func _pick_follow_ally_cell(
+	runtime_port: Node,
+	unit: Node,
+	current_cell: Vector2i,
+	flow_field,
+	team_alive_cache: Dictionary,
+	team_id: int,
+	focus_cell: Vector2i,
+	has_focus_cell: bool
+) -> Vector2i:
+	var own_alive: Array = team_alive_cache.get(team_id, [])
+	if own_alive.is_empty():
+		return current_cell
+
+	var best_anchor_cell: Vector2i = Vector2i(-1, -1)
+	var best_anchor_dist: int = 1 << 30
+	var self_focus_dist: int = 1 << 30
+	if has_focus_cell:
+		self_focus_dist = runtime_port._hex_distance(current_cell, focus_cell)
+
+	for ally_value in own_alive:
+		var ally: Node = ally_value as Node
+		if ally == null or ally == unit:
+			continue
+		if not runtime_port._is_live_unit(ally) or not runtime_port._is_unit_alive(ally):
+			continue
+		var ally_cell: Vector2i = runtime_port._get_unit_cell(ally)
+		if ally_cell.x < 0 or ally_cell == current_cell:
+			continue
+		if has_focus_cell:
+			var ally_focus_dist: int = runtime_port._hex_distance(ally_cell, focus_cell)
+			if ally_focus_dist >= self_focus_dist:
+				continue
+		var anchor_dist: int = runtime_port._hex_distance(current_cell, ally_cell)
+		if anchor_dist < best_anchor_dist:
+			best_anchor_dist = anchor_dist
+			best_anchor_cell = ally_cell
+
+	if best_anchor_cell.x < 0:
+		return current_cell
+
+	var current_anchor_dist: int = runtime_port._hex_distance(current_cell, best_anchor_cell)
+	var current_focus_dist: int = self_focus_dist
+	var best_follow_cell: Vector2i = current_cell
+	var best_follow_anchor_dist: int = current_anchor_dist
+	var best_follow_focus_dist: int = current_focus_dist
+	var best_follow_cost: int = 1 << 30
+	for neighbor in runtime_port._neighbors_of(current_cell):
+		if not runtime_port._is_cell_free(neighbor):
+			continue
+		var neighbor_anchor_dist: int = runtime_port._hex_distance(neighbor, best_anchor_cell)
+		if neighbor_anchor_dist > current_anchor_dist:
+			continue
+		var neighbor_focus_dist: int = current_focus_dist
+		if has_focus_cell:
+			neighbor_focus_dist = runtime_port._hex_distance(neighbor, focus_cell)
+			if neighbor_anchor_dist == current_anchor_dist and neighbor_focus_dist > current_focus_dist:
+				continue
+		var neighbor_cost: int = flow_field.sample_cost(neighbor)
+		if neighbor_cost < 0:
+			neighbor_cost = 1 << 29
+		if neighbor_anchor_dist < best_follow_anchor_dist:
+			best_follow_anchor_dist = neighbor_anchor_dist
+			best_follow_focus_dist = neighbor_focus_dist
+			best_follow_cost = neighbor_cost
+			best_follow_cell = neighbor
+			continue
+		if neighbor_anchor_dist == best_follow_anchor_dist and neighbor_focus_dist < best_follow_focus_dist:
+			best_follow_focus_dist = neighbor_focus_dist
+			best_follow_cost = neighbor_cost
+			best_follow_cell = neighbor
+			continue
+		if neighbor_anchor_dist == best_follow_anchor_dist \
+		and neighbor_focus_dist == best_follow_focus_dist \
+		and neighbor_cost < best_follow_cost:
+			best_follow_cost = neighbor_cost
+			best_follow_cell = neighbor
+	return best_follow_cell

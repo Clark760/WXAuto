@@ -1,71 +1,45 @@
 extends Node
 
-# ===========================
-# 战斗统计管理器
-# ===========================
-# 设计目标：
-# 1. 用统一字典维护每个单位在单场战斗内的关键统计数据。
-# 2. 对外提供“记录伤害/治疗/击杀”和“查询排行/MVP”的最小接口。
-# 3. 统计逻辑独立于战斗逻辑，避免 CombatManager 变得臃肿难维护。
+# 战斗统计运行时壳层
+# 说明：
+# 1. 保留 Node 生命周期、信号和对外公开 API。
+# 2. 统计状态与排序规则全部委托给 domain combat service。
 
 signal battle_stat_updated(unit_instance_id: int, stat_type: String, value: int)
 
-const STAT_KEYS: Array[String] = [
-	"damage_dealt",
-	"damage_dealt_total",
-	"damage_taken",
-	"damage_taken_total",
-	"shield_absorbed",
-	"damage_immune_blocked",
-	"healing_done",
-	"kills",
-	"deaths"
-]
+const BATTLE_STATISTICS_SERVICE_SCRIPT: Script = preload(
+	"res://scripts/domain/combat/battle_statistics_service.gd"
+)
 
-var _unit_stats: Dictionary = {} # unit_instance_id -> Dictionary
-var _fallback_key_to_iid: Dictionary = {} # fallback key -> pseudo iid(negative)
-var _next_fallback_iid: int = -1
-var _sort_stat_key: String = "damage_dealt"
+var _service: RefCounted = BATTLE_STATISTICS_SERVICE_SCRIPT.new()
 
 
+# 初始化时只桥接 domain service 的统计更新信号。
+func _init() -> void:
+	_connect_service_signals()
+
+
+# 清空统计时继续保留原有 facade 方法名。
 func clear_stats() -> void:
-	_unit_stats.clear()
-	_fallback_key_to_iid.clear()
-	_next_fallback_iid = -1
+	_service.clear_stats()
 
 
+# 开战时把 Node 单位投影成纯字典，再交给 domain service 建立快照。
 func start_battle(units: Array[Node]) -> void:
-	# 每场战斗开始时清空统计，保证不会串场累计。
-	_unit_stats.clear()
-	_fallback_key_to_iid.clear()
-	_next_fallback_iid = -1
+	var unit_rows: Array[Dictionary] = []
 	for unit in units:
-		register_unit(unit)
+		var row: Dictionary = _build_unit_snapshot(unit)
+		if not row.is_empty():
+			unit_rows.append(row)
+	_service.start_battle(unit_rows)
 
 
+# 注册单位时继续允许外层传入真实节点，壳层负责摘出统计字段。
 func register_unit(unit: Node) -> int:
-	if not _is_valid_unit(unit):
-		return 0
-	var iid: int = unit.get_instance_id()
-	if _unit_stats.has(iid):
-		return iid
-	_unit_stats[iid] = {
-		"unit_name": str(unit.get("unit_name")),
-		"unit_id": str(unit.get("unit_id")),
-		"team_id": int(unit.get("team_id")),
-		"damage_dealt": 0,
-		"damage_dealt_total": 0,
-		"damage_taken": 0,
-		"damage_taken_total": 0,
-		"shield_absorbed": 0,
-		"damage_immune_blocked": 0,
-		"healing_done": 0,
-		"kills": 0,
-		"deaths": 0
-	}
-	return iid
+	return _service.register_unit(_build_unit_snapshot(unit))
 
 
+# 伤害记录入口继续接受节点和 fallback 字典，内部转换后交给 domain service。
 func record_damage(
 	source: Node,
 	target: Node,
@@ -73,25 +47,16 @@ func record_damage(
 	source_fallback: Dictionary = {},
 	target_fallback: Dictionary = {}
 ) -> void:
-	var value: int = maxi(int(round(amount)), 0)
-	if value <= 0:
-		return
-	var source_iid: int = register_unit(source)
-	if source_iid <= 0 and not source_fallback.is_empty():
-		source_iid = _register_fallback_unit(source_fallback)
-	if source_iid > 0:
-		_add_stat_value(source_iid, "damage_dealt", value)
-	elif source_iid < 0:
-		_add_stat_value(source_iid, "damage_dealt", value)
-	var target_iid: int = register_unit(target)
-	if target_iid <= 0 and not target_fallback.is_empty():
-		target_iid = _register_fallback_unit(target_fallback)
-	if target_iid > 0:
-		_add_stat_value(target_iid, "damage_taken", value)
-	elif target_iid < 0:
-		_add_stat_value(target_iid, "damage_taken", value)
+	_service.record_damage(
+		_build_unit_snapshot(source),
+		_build_unit_snapshot(target),
+		amount,
+		source_fallback,
+		target_fallback
+	)
 
 
+# 治疗记录入口继续沿用旧契约，避免 coordinator 改调用面。
 func record_healing(
 	source: Node,
 	target: Node,
@@ -99,154 +64,67 @@ func record_healing(
 	source_fallback: Dictionary = {},
 	target_fallback: Dictionary = {}
 ) -> void:
-	var value: int = maxi(int(round(amount)), 0)
-	if value <= 0:
-		return
-	# 优先记在施法者名下；若来源缺失，则退化为记在受治疗单位名下。
-	var source_iid: int = register_unit(source)
-	if source_iid <= 0 and not source_fallback.is_empty():
-		source_iid = _register_fallback_unit(source_fallback)
-	if source_iid <= 0:
-		source_iid = register_unit(target)
-	if source_iid <= 0 and not target_fallback.is_empty():
-		source_iid = _register_fallback_unit(target_fallback)
-	if source_iid > 0:
-		_add_stat_value(source_iid, "healing_done", value)
-	elif source_iid < 0:
-		_add_stat_value(source_iid, "healing_done", value)
+	_service.record_healing(
+		_build_unit_snapshot(source),
+		_build_unit_snapshot(target),
+		amount,
+		source_fallback,
+		target_fallback
+	)
 
 
+# 额外统计项写入继续由 facade 接受节点，再透传给 domain service。
 func record_stat(unit: Node, stat_key: String, delta: float, fallback: Dictionary = {}) -> void:
-	var value: int = int(round(delta))
-	if value == 0:
-		return
-	var unit_iid: int = register_unit(unit)
-	if unit_iid <= 0 and not fallback.is_empty():
-		unit_iid = _register_fallback_unit(fallback)
-	if unit_iid == 0:
-		return
-	_add_stat_value(unit_iid, stat_key, value)
+	_service.record_stat(_build_unit_snapshot(unit), stat_key, delta, fallback)
 
 
+# 击杀记录继续接受运行时节点，避免调用方关心纯字典结构。
 func record_kill(killer: Node, dead_unit: Node) -> void:
-	var killer_iid: int = register_unit(killer)
-	if killer_iid > 0:
-		_add_stat_value(killer_iid, "kills", 1)
-	var dead_iid: int = register_unit(dead_unit)
-	if dead_iid > 0:
-		_add_stat_value(dead_iid, "deaths", 1)
+	_service.record_kill(_build_unit_snapshot(killer), _build_unit_snapshot(dead_unit))
 
 
+# 对外暴露统计快照时继续直接透传 domain service 结果。
 func get_stats_snapshot() -> Dictionary:
-	var out: Dictionary = {}
-	for key in _unit_stats.keys():
-		out[key] = (_unit_stats[key] as Dictionary).duplicate(true)
-	return out
+	return _service.get_stats_snapshot()
 
 
+# 排行查询继续复用原有方法签名，供结果面板直接读取。
 func get_ranked_stats(
 	stat_key: String,
 	limit: int = 8,
 	min_value: int = 0,
 	team_id: int = 0
 ) -> Array[Dictionary]:
-	var rows: Array[Dictionary] = []
-	for key in _unit_stats.keys():
-		var row: Dictionary = (_unit_stats[key] as Dictionary).duplicate(true)
-		if team_id > 0 and int(row.get("team_id", 0)) != team_id:
-			continue
-		row["unit_instance_id"] = int(key)
-		row["value"] = int(row.get(stat_key, 0))
-		if int(row.get("value", 0)) < min_value:
-			continue
-		rows.append(row)
-	_sort_stat_key = stat_key
-	rows.sort_custom(Callable(self, "_sort_rows_desc"))
-	if limit > 0 and rows.size() > limit:
-		rows.resize(limit)
-	return rows
+	return _service.get_ranked_stats(stat_key, limit, min_value, team_id)
 
 
+# MVP 查询继续透传 domain service，保持结果页逻辑不变。
 func get_mvp(team_id: int = 0) -> Dictionary:
-	# MVP 先按伤害排序，伤害相同再看击杀数。
-	var rows: Array[Dictionary] = get_ranked_stats("damage_dealt", 1, -2147483648, team_id)
-	if rows.is_empty():
-		return {}
-	return (rows[0] as Dictionary).duplicate(true)
+	return _service.get_mvp(team_id)
 
 
-func _add_stat_value(unit_iid: int, stat_key: String, delta: int) -> void:
-	if delta == 0:
-		return
-	if not _unit_stats.has(unit_iid):
-		return
-	var row: Dictionary = _unit_stats[unit_iid]
-	row[stat_key] = int(row.get(stat_key, 0)) + delta
-	_unit_stats[unit_iid] = row
-	battle_stat_updated.emit(unit_iid, stat_key, int(row.get(stat_key, 0)))
+# 统一把 domain service 的统计变化桥接回 Node facade 信号。
+func _connect_service_signals() -> void:
+	var cb: Callable = Callable(self, "_on_service_battle_stat_updated")
+	if not _service.is_connected("battle_stat_updated", cb):
+		_service.connect("battle_stat_updated", cb)
 
 
-func _sort_rows_desc(a: Dictionary, b: Dictionary) -> bool:
-	var av: int = int(a.get(_sort_stat_key, 0))
-	var bv: int = int(b.get(_sort_stat_key, 0))
-	if av != bv:
-		return av > bv
-	var ak: int = int(a.get("kills", 0))
-	var bk: int = int(b.get("kills", 0))
-	if ak != bk:
-		return ak > bk
-	return str(a.get("unit_name", "")) < str(b.get("unit_name", ""))
+# 转发统计变化信号，保持现有 coordinator 监听口径稳定。
+func _on_service_battle_stat_updated(unit_instance_id: int, stat_type: String, value: int) -> void:
+	battle_stat_updated.emit(unit_instance_id, stat_type, value)
 
 
-func _is_valid_unit(unit: Variant) -> bool:
+# 把运行时节点投影成纯统计快照，隔离 domain service 对 Node 的依赖。
+func _build_unit_snapshot(unit: Variant) -> Dictionary:
 	if not is_instance_valid(unit):
-		return false
-	return (unit as Node) != null
-
-
-func _register_fallback_unit(fallback: Dictionary) -> int:
-	var normalized: Dictionary = _normalize_fallback(fallback)
-	if normalized.is_empty():
-		return 0
-	var key: String = "%s|%s|%d" % [
-		str(normalized.get("unit_id", "")),
-		str(normalized.get("unit_name", "")),
-		int(normalized.get("team_id", 0))
-	]
-	if _fallback_key_to_iid.has(key):
-		return int(_fallback_key_to_iid[key])
-	var iid: int = _next_fallback_iid
-	_next_fallback_iid -= 1
-	_fallback_key_to_iid[key] = iid
-	_unit_stats[iid] = {
-		"unit_name": str(normalized.get("unit_name", "遗留效果")),
-		"unit_id": str(normalized.get("unit_id", "")),
-		"team_id": int(normalized.get("team_id", 0)),
-		"damage_dealt": 0,
-		"damage_dealt_total": 0,
-		"damage_taken": 0,
-		"damage_taken_total": 0,
-		"shield_absorbed": 0,
-		"damage_immune_blocked": 0,
-		"healing_done": 0,
-		"kills": 0,
-		"deaths": 0
-	}
-	return iid
-
-
-func _normalize_fallback(fallback: Dictionary) -> Dictionary:
-	if fallback.is_empty():
 		return {}
-	var unit_id: String = str(fallback.get("unit_id", fallback.get("source_unit_id", ""))).strip_edges()
-	var unit_name: String = str(fallback.get("unit_name", fallback.get("source_name", ""))).strip_edges()
-	var team_id: int = int(fallback.get("team_id", fallback.get("source_team", 0)))
-	if unit_name.is_empty() and not unit_id.is_empty():
-		unit_name = unit_id
-	if unit_id.is_empty() and unit_name.is_empty():
+	var node: Node = unit as Node
+	if node == null:
 		return {}
 	return {
-		"unit_id": unit_id,
-		"unit_name": unit_name,
-		"team_id": team_id
+		"instance_id": node.get_instance_id(),
+		"unit_name": str(node.get("unit_name")),
+		"unit_id": str(node.get("unit_id")),
+		"team_id": int(node.get("team_id"))
 	}

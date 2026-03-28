@@ -26,9 +26,7 @@ func _init() -> void:
 func apply_stage_rewards(
 	rewards_config: Dictionary,
 	economy_manager: Node,
-	bench_ui: Node,
-	battlefield: Node,
-	unit_factory: Node
+	battlefield: Node
 ) -> Dictionary:
 	var result: Dictionary = {
 		"silver": 0,
@@ -47,10 +45,10 @@ func apply_stage_rewards(
 
 	# 固定奖励（银两/经验）优先落地，掉落失败不会影响这两项。
 	if economy_manager != null and is_instance_valid(economy_manager):
-		if silver_reward > 0 and economy_manager.has_method("add_silver"):
-			economy_manager.call("add_silver", silver_reward)
-		if exp_reward > 0 and economy_manager.has_method("add_exp"):
-			economy_manager.call("add_exp", exp_reward)
+		if silver_reward > 0:
+			economy_manager.add_silver(silver_reward)
+		if exp_reward > 0:
+			economy_manager.add_exp(exp_reward)
 	result["silver"] = silver_reward
 	result["exp"] = exp_reward
 
@@ -78,13 +76,7 @@ func apply_stage_rewards(
 			"unit":
 				# 角色掉落会区分授予成功和丢弃结果。
 				var unit_star: int = clampi(int(drop.get("star", 1)), 1, 3)
-				var grant_info: Dictionary = _grant_unit_drop(
-					picked_id,
-					unit_star,
-					bench_ui,
-					battlefield,
-					unit_factory
-				)
+				var grant_info: Dictionary = _grant_unit_drop(picked_id, unit_star, battlefield)
 				if bool(grant_info.get("granted", false)):
 					(result["granted_units"] as Array).append(grant_info)
 				else:
@@ -99,9 +91,7 @@ func apply_stage_rewards(
 func _grant_item_drop(battlefield: Node, item_type: String, item_id: String) -> bool:
 	if battlefield == null or not is_instance_valid(battlefield):
 		return false
-	if battlefield.has_method("grant_stage_reward_item"):
-		return bool(battlefield.call("grant_stage_reward_item", item_type, item_id, 1))
-	return false
+	return bool(battlefield.grant_stage_reward_item(item_type, item_id, 1))
 
 
 # 角色掉落优先尝试 coordinator 提供的直连入口。
@@ -110,36 +100,9 @@ func _grant_item_drop(battlefield: Node, item_type: String, item_id: String) -> 
 func _grant_unit_drop(
 	unit_id: String,
 	star: int,
-	bench_ui: Node,
-	battlefield: Node,
-	unit_factory: Node
+	battlefield: Node
 ) -> Dictionary:
-	if battlefield != null and is_instance_valid(battlefield) and battlefield.has_method("grant_stage_reward_unit"):
-		var direct_result: Variant = battlefield.call("grant_stage_reward_unit", unit_id, star)
-		if direct_result is Dictionary:
-			return direct_result
-	if bench_ui == null or unit_factory == null or battlefield == null:
-		return {
-			"type": "unit",
-			"id": unit_id,
-			"star": star,
-			"granted": false,
-			"placement": "discarded"
-		}
-	return _fallback_grant_unit_drop(unit_id, star, bench_ui, battlefield, unit_factory)
-
-
-# 回退链路只处理最小可用的“造单位 -> 放替补席”流程。
-# 放入替补席失败时立即释放对象，避免悬挂实例泄漏。
-# 返回结构保持与直连入口一致，外层无需区分来源。
-func _fallback_grant_unit_drop(
-	unit_id: String,
-	star: int,
-	bench_ui: Node,
-	battlefield: Node,
-	unit_factory: Node
-) -> Dictionary:
-	if not (bench_ui is Node) or not (unit_factory is Node):
+	if battlefield == null or not is_instance_valid(battlefield):
 		return {
 			"type": "unit",
 			"id": unit_id,
@@ -148,38 +111,9 @@ func _fallback_grant_unit_drop(
 			"placement": "discarded"
 		}
 
-	# 单位层节点用于设置新单位初始父节点。
-	var unit_layer: Node = null
-	if battlefield is Node and (battlefield as Node).has_method("get"):
-		var layer_variant: Variant = (battlefield as Node).get("unit_layer")
-		if layer_variant is Node:
-			unit_layer = layer_variant as Node
-
-	# 先从工厂取单位，再统一初始化阵营与替补状态。
-	var unit_node: Node = unit_factory.call("acquire_unit", unit_id, star, unit_layer)
-	if unit_node == null:
-		return {
-			"type": "unit",
-			"id": unit_id,
-			"star": star,
-			"granted": false,
-			"placement": "discarded"
-		}
-	unit_node.call("set_team", 1)
-	unit_node.call("set_on_bench_state", true, -1)
-	unit_node.set("is_in_combat", false)
-
-	# 成功入席时返回 granted=true，失败则回收对象并标记 discarded。
-	if bench_ui.has_method("add_unit") and bool(bench_ui.call("add_unit", unit_node)):
-		return {
-			"type": "unit",
-			"id": unit_id,
-			"star": star,
-			"granted": true,
-			"placement": "bench"
-		}
-	if unit_factory.has_method("release_unit"):
-		unit_factory.call("release_unit", unit_node)
+	var direct_result: Variant = battlefield.grant_stage_reward_unit(unit_id, star)
+	if direct_result is Dictionary:
+		return direct_result
 	return {
 		"type": "unit",
 		"id": unit_id,
@@ -187,4 +121,3 @@ func _fallback_grant_unit_drop(
 		"granted": false,
 		"placement": "discarded"
 	}
-

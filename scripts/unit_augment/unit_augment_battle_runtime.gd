@@ -1,6 +1,9 @@
 extends RefCounted
 class_name UnitAugmentBattleRuntime
 
+const PROBE_SCOPE_UNIT_AUGMENT_BUFF_TICK: String = "unit_augment_buff_tick"
+const PROBE_SCOPE_UNIT_AUGMENT_AUTO_TRIGGER_POLL: String = "unit_augment_auto_trigger_poll"
+
 var _bound_combat_manager: Node = null
 var _bound_hex_grid: Node = null
 var _bound_vfx_factory: Node = null
@@ -86,17 +89,26 @@ func advance(manager: Node, delta: float) -> void:
 	var buff_manager: Variant = manager.get_buff_manager()
 	var trigger_runtime: Variant = manager.get_trigger_runtime()
 
+	var buff_tick_begin_us: int = _probe_begin_timing(manager)
 	var buff_tick: Dictionary = buff_manager.tick(delta, {
 		"all_units": state_service.get_battle_units(),
+		"unit_lookup": state_service.get_unit_lookup(),
 		"combat_manager": _bound_combat_manager,
 		"hex_grid": _bound_hex_grid
 	})
+	_probe_commit_timing(manager, PROBE_SCOPE_UNIT_AUGMENT_BUFF_TICK, buff_tick_begin_us)
 	_execute_buff_tick_requests(manager, buff_tick.get("tick_requests", []))
 	state_service.reapply_changed_units(buff_tick.get("changed_unit_ids", []))
 
 	if _trigger_accum >= maxf(manager.trigger_poll_interval, 0.05):
 		_trigger_accum = 0.0
+		var trigger_poll_begin_us: int = _probe_begin_timing(manager)
 		trigger_runtime.poll_auto_triggers(manager)
+		_probe_commit_timing(
+			manager,
+			PROBE_SCOPE_UNIT_AUGMENT_AUTO_TRIGGER_POLL,
+			trigger_poll_begin_us
+		)
 
 
 # Buff tick 只负责“回放 effect 请求”，不生成新的 tick 请求。
@@ -241,3 +253,19 @@ func get_bound_vfx_factory() -> Node:
 # 这里不暴露更多场景节点，避免 runtime 再长成隐式 locator。
 func get_bound_combat_manager() -> Node:
 	return _bound_combat_manager
+
+
+# UnitAugment runtime 也复用同一份 RuntimeProbe，避免再维护另一套计时器。
+func _probe_begin_timing(manager: Node) -> int:
+	var runtime_probe = manager._services.runtime_probe if manager._services != null else null
+	if runtime_probe == null or not runtime_probe.has_method("begin_timing"):
+		return 0
+	return int(runtime_probe.begin_timing())
+
+
+# buff tick / auto trigger poll 分开记账，便于确认究竟是哪条链路在吃 CPU。
+func _probe_commit_timing(manager: Node, scope_name: String, begin_us: int) -> void:
+	var runtime_probe = manager._services.runtime_probe if manager._services != null else null
+	if runtime_probe == null or not runtime_probe.has_method("commit_timing"):
+		return
+	runtime_probe.commit_timing(scope_name, begin_us)

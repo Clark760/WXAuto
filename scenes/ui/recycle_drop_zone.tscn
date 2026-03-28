@@ -1,0 +1,49 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/recycle_drop_zone.gd" id="1_script"]
+
+[node name="RecycleDropZone" type="PanelContainer"]
+custom_minimum_size = Vector2(148, 118)
+mouse_filter = 1
+script = ExtResource("1_script")
+
+[node name="RootVBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 1
+theme_override_constants/separation = 6
+
+[node name="IconLabel" type="Label" parent="RootVBox"]
+layout_mode = 2
+text = "🗏"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 30
+
+[node name="HintLabel" type="Label" parent="RootVBox"]
+layout_mode = 2
+text = "拖入出售"
+horizontal_alignment = 1
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 15
+
+[node name="PriceLabel" type="Label" parent="RootVBox"]
+layout_mode = 2
+text = "💰 ?"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 18
+
+[node name="RejectIcon" type="Label" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 9
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -36.0
+offset_top = 6.0
+offset_right = -8.0
+offset_bottom = 34.0
+mouse_filter = 2
+text = "⛔"
+horizontal_alignment = 2
+vertical_alignment = 0

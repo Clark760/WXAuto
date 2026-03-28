@@ -8,7 +8,8 @@ extends Node2D
 # 2. 组合战斗、移动、动画组件（组合优于继承）。
 # 3. 支持拖拽部署、升星、状态切换的可视化反馈。
 
-const _UNIT_DATA_SCRIPT: Script = preload("res://scripts/data/unit_data.gd")
+const _UNIT_DATA_SCRIPT: Script = preload("res://scripts/domain/unit/unit_data.gd")
+const PROBE_SCOPE_UNIT_BASE_PROCESS: String = "unit_base_process"
 
 signal drag_started(unit: Node)
 signal drag_updated(unit: Node, world_position: Vector2)
@@ -57,6 +58,7 @@ var tags: Array[String] = []
 
 var sprite_path: String = ""
 var portrait_path: String = ""
+var _services: ServiceRegistry = null
 
 var team_id: int = 1
 var battle_uid: int = -1
@@ -70,7 +72,11 @@ var deployed_cell: Vector2i = Vector2i(-999, -999)
 var is_dragging: bool = false
 var _pending_texture: Texture2D = null
 
+# 绑定 bind runtime services
+func bind_runtime_services(services: ServiceRegistry) -> void:
+	_services = services
 
+# 处理 ready
 func _ready() -> void:
 	_bind_components()
 	if not unit_id.is_empty():
@@ -80,16 +86,18 @@ func _ready() -> void:
 	_apply_pending_texture_if_needed()
 	refresh_process_state()
 
-
+# 处理 process
 func _process(delta: float) -> void:
+	var process_begin_us: int = _probe_begin_timing()
 	# 移动组件统一负责拖拽归位与战场位移推进。
 	if movement_component != null:
 		movement_component.call("tick", delta)
 		# 移动完成后关闭 process，减少空转开销。
 		if not bool(movement_component.get("has_target")):
 			set_process(false)
+	_probe_commit_timing(PROBE_SCOPE_UNIT_BASE_PROCESS, process_begin_us)
 
-
+# 处理 refresh process state
 func refresh_process_state() -> void:
 	var should_process: bool = false
 	if is_dragging:
@@ -98,7 +106,7 @@ func refresh_process_state() -> void:
 		should_process = bool(movement_component.get("has_target"))
 	set_process(should_process)
 
-
+# 准备 setup from unit record
 func setup_from_unit_record(unit_record: Dictionary, forced_star: int = -1) -> void:
 	unit_id = str(unit_record.get("id", ""))
 	unit_name = str(unit_record.get("name", unit_id))
@@ -134,7 +142,7 @@ func setup_from_unit_record(unit_record: Dictionary, forced_star: int = -1) -> v
 	max_equip_count = _resolve_max_equip_count(configured_max_equip, equip_slots)
 	# 不能在“未进入场景树”的节点上直接 get_node("/root/...")，
 	# 这里改为通过 SceneTree 根节点安全查询 AutoLoad，避免初始化期报错。
-	var gm: Node = _get_autoload_node("UnitAugmentManager")
+	var gm: Node = _get_unit_augment_manager()
 	if gm != null and not initial_gongfa.is_empty():
 		var reg = gm.get("_registry")
 		if reg != null:
@@ -179,17 +187,24 @@ func setup_from_unit_record(unit_record: Dictionary, forced_star: int = -1) -> v
 	runtime_equipped_gongfa_ids = get_equipped_gongfa_ids()
 	runtime_equipped_equip_ids = get_equipped_equip_ids()
 
-
-func _get_autoload_node(node_name: String) -> Node:
-	var main_loop: MainLoop = Engine.get_main_loop()
-	if not (main_loop is SceneTree):
+# 获取 get unit augment manager
+func _get_unit_augment_manager() -> Node:
+	if _services == null:
 		return null
-	var tree: SceneTree = main_loop as SceneTree
-	if tree.root == null:
-		return null
-	return tree.root.get_node_or_null(node_name)
+	return _services.unit_augment_manager
 
 
+# 子节点动画器需要从 unit 上取 RuntimeProbe，这里统一暴露稳定入口。
+func get_runtime_probe():
+	return _services.runtime_probe if _services != null else null
+
+
+
+
+
+
+
+# 处理 base star set
 func base_star_set(unit_record: Dictionary, forced_star: int) -> void:
 	var base_star: int = clampi(int(unit_record.get("base_star", 1)), 1, 3)
 	max_star = clampi(int(unit_record.get("max_star", 3)), 1, 3)
@@ -198,12 +213,12 @@ func base_star_set(unit_record: Dictionary, forced_star: int) -> void:
 	else:
 		star_level = clampi(base_star, 1, max_star)
 
-
+# 设置 set display texture
 func set_display_texture(texture: Texture2D) -> void:
 	_pending_texture = texture
 	_apply_pending_texture_if_needed()
 
-
+# 设置 set star level
 func set_star_level(next_star: int) -> void:
 	var clamped: int = clampi(next_star, 1, max_star)
 	if clamped == star_level:
@@ -219,7 +234,7 @@ func set_star_level(next_star: int) -> void:
 		sprite_animator.call("play_state", 3, {}) # SKILL 动画用于升星特效反馈
 	star_changed.emit(self, previous, star_level)
 
-
+# 设置 set on bench state
 func set_on_bench_state(value: bool, slot_index: int = -1) -> void:
 	is_on_bench = value
 	bench_slot_index = slot_index if value else -1
@@ -237,12 +252,12 @@ func set_on_bench_state(value: bool, slot_index: int = -1) -> void:
 			visual_root.rotation = 0.0
 		sprite_animator.call("play_state", 0, {}) # IDLE
 
-
+# 设置 set team
 func set_team(value: int) -> void:
 	team_id = value
 	_refresh_visual()
 
-
+# 处理 enter combat
 func enter_combat() -> void:
 	# 上一局死亡后可能被隐藏，这里入战前强制恢复可见。
 	visible = true
@@ -260,19 +275,19 @@ func enter_combat() -> void:
 	play_anim_state(0, {})
 	refresh_process_state()
 
-
+# 处理 leave combat
 func leave_combat() -> void:
 	is_in_combat = false
 	_apply_label_visibility()
 	refresh_process_state()
 
-
+# 处理 kill quick step tween
 func kill_quick_step_tween() -> void:
 	if _quick_step_tween != null and _quick_step_tween.is_valid():
 		_quick_step_tween.kill()
 	_quick_step_tween = null
 
-
+# 清理 reset visual transform
 func reset_visual_transform() -> void:
 	kill_quick_step_tween()
 	# 战后统一重置视觉节点，清除循环动画残留旋转/缩放。
@@ -287,13 +302,21 @@ func reset_visual_transform() -> void:
 		return
 	_sync_sprite_animator_rest_anchor()
 
-
+# 处理 play anim state
 func play_anim_state(state: int, context: Dictionary = {}) -> void:
 	if sprite_animator == null:
 		return
 	sprite_animator.call("play_state", state, context)
 
 
+# 战斗高密度降级只影响循环动画，不改攻击/受击/死亡等一次性反馈。
+func set_loop_animation_enabled(enabled: bool) -> void:
+	if sprite_animator == null or not sprite_animator.has_method("set_loop_animation_enabled"):
+		return
+	var animator_api: Variant = sprite_animator
+	animator_api.set_loop_animation_enabled(enabled)
+
+# 处理 contains point
 func contains_point(world_position: Vector2) -> bool:
 	# 角色拾取检测：
 	# - 若有贴图，使用贴图矩形范围。
@@ -308,13 +331,13 @@ func contains_point(world_position: Vector2) -> bool:
 
 	return global_position.distance_to(world_position) <= 16.0
 
-
+# 设置 set compact visual mode
 func set_compact_visual_mode(is_compact: bool) -> void:
 	# 战斗中强制显示名称/星级，非战斗时按 compact 规则显示。
 	_compact_visual_mode = is_compact
 	_apply_label_visibility()
 
-
+# 处理 play quick cell step
 func play_quick_cell_step(target_world: Vector2, duration: float = 0.08) -> void:
 	# 严格六角格模式里，逻辑占格已经瞬时完成。
 	# 这里补一段很短的视觉位移动画，避免看起来像瞬移。
@@ -325,8 +348,7 @@ func play_quick_cell_step(target_world: Vector2, duration: float = 0.08) -> void
 
 	if unit_node.position.distance_to(target_world) <= 0.5:
 		unit_node.position = target_world
-		# 移动完成后同步动画静止锚点，避免状态切换时出现水平漂移。
-		_sync_sprite_animator_rest_anchor()
+		_finish_sprite_animator_move_visual()
 		return
 
 	var step_duration: float = clampf(duration, 0.03, 0.14)
@@ -336,17 +358,30 @@ func play_quick_cell_step(target_world: Vector2, duration: float = 0.08) -> void
 	_quick_step_tween.tween_property(unit_node, "position", target_world, step_duration)
 	_quick_step_tween.finished.connect(func() -> void:
 		_quick_step_tween = null
-		# Tween 结束后重置 rest/base，避免下一次 IDLE 继承 MOVE 残留偏移。
-		_sync_sprite_animator_rest_anchor()
+		unit_node.position = target_world
+		_finish_sprite_animator_move_visual()
 	)
 
 
+func _finish_sprite_animator_move_visual() -> void:
+	if sprite_animator != null and sprite_animator.has_method("finish_move_visual"):
+		sprite_animator.call("finish_move_visual")
+		return
+	if visual_root != null:
+		visual_root.position = Vector2.ZERO
+		visual_root.scale = Vector2.ONE
+		visual_root.rotation = 0.0
+		if visual_root is CanvasItem:
+			(visual_root as CanvasItem).modulate = Color(1, 1, 1, 1)
+	play_anim_state(0, {})
+
+# 应用 sync sprite animator rest anchor
 func _sync_sprite_animator_rest_anchor() -> void:
 	if sprite_animator == null:
 		return
 	sprite_animator.call("sync_rest_transform_to_current")
 
-
+# 处理 begin drag
 func begin_drag() -> void:
 	if is_in_combat:
 		return
@@ -361,14 +396,14 @@ func begin_drag() -> void:
 	play_anim_state(1, {}) # MOVE
 	drag_started.emit(self)
 
-
+# 设置 update drag
 func update_drag(world_position: Vector2) -> void:
 	if not is_dragging:
 		return
 	global_position = world_position
 	drag_updated.emit(self, world_position)
 
-
+# 处理 end drag
 func end_drag(world_position: Vector2) -> void:
 	if not is_dragging:
 		return
@@ -381,7 +416,7 @@ func end_drag(world_position: Vector2) -> void:
 		visual_root.rotation = 0.0
 	drag_ended.emit(self, world_position)
 
-
+# 应用 apply runtime stats
 func _apply_runtime_stats() -> void:
 	# 角色运行时属性由 UnitData 统一按星级倍率计算，便于后续做统一平衡。
 	runtime_stats = _UNIT_DATA_SCRIPT.call("build_runtime_stats", base_stats, star_level)
@@ -393,7 +428,7 @@ func _apply_runtime_stats() -> void:
 	if movement_component != null:
 		movement_component.call("reset_from_stats", runtime_stats)
 
-
+# 获取 get equipped gongfa ids
 func get_equipped_gongfa_ids() -> Array[String]:
 	# 槽位顺序固定，保证 UI 展示和触发优先级稳定可预期。
 	# 规则修正：功法按“类型槽位”装备，不再按总数量上限截断。
@@ -408,7 +443,7 @@ func get_equipped_gongfa_ids() -> Array[String]:
 		ids.append(gid)
 	return ids
 
-
+# 获取 get equipped equip ids
 func get_equipped_equip_ids() -> Array[String]:
 	# 装备槽位顺序固定，保证详情展示与属性重算顺序稳定。
 	var ids: Array[String] = []
@@ -424,7 +459,7 @@ func get_equipped_equip_ids() -> Array[String]:
 			return ids
 	return ids
 
-
+# 规范 resolve max equip count
 func _resolve_max_equip_count(configured_value: int, slots: Dictionary) -> int:
 	var derived: int = configured_value
 	if derived <= 0:
@@ -433,7 +468,7 @@ func _resolve_max_equip_count(configured_value: int, slots: Dictionary) -> int:
 		derived = 2
 	return maxi(derived, 1)
 
-
+# 规范 normalize equip slots dict
 func _normalize_equip_slots_dict(raw: Variant, desired_count: int = 0) -> Dictionary:
 	var slots: Dictionary = {}
 	if raw is Dictionary:
@@ -453,7 +488,7 @@ func _normalize_equip_slots_dict(raw: Variant, desired_count: int = 0) -> Dictio
 				slots[key] = ""
 	return slots
 
-
+# 获取 get sorted equip slot keys
 func _get_sorted_equip_slot_keys(slots_value: Variant) -> Array[String]:
 	var keys: Array[String] = []
 	if slots_value is Dictionary:
@@ -467,7 +502,7 @@ func _get_sorted_equip_slot_keys(slots_value: Variant) -> Array[String]:
 	keys.sort_custom(Callable(self, "_compare_equip_slot_key"))
 	return keys
 
-
+# 比较 compare equip slot key
 func _compare_equip_slot_key(a: String, b: String) -> bool:
 	var a_index: int = _extract_slot_index(a)
 	var b_index: int = _extract_slot_index(b)
@@ -481,7 +516,7 @@ func _compare_equip_slot_key(a: String, b: String) -> bool:
 		return false
 	return a < b
 
-
+# 处理 extract slot index
 func _extract_slot_index(slot_key: String) -> int:
 	var key: String = slot_key.strip_edges().to_lower()
 	if not key.begins_with("slot_"):
@@ -491,7 +526,7 @@ func _extract_slot_index(slot_key: String) -> int:
 		return -1
 	return int(tail)
 
-
+# 获取 get trait tags
 func get_trait_tags() -> Array[String]:
 	var merged: Array[String] = []
 	var seen: Dictionary = {}
@@ -508,7 +543,7 @@ func get_trait_tags() -> Array[String]:
 			merged.append(tag)
 	return merged
 
-
+# 判断 has trait tag
 func has_trait_tag(tag: String) -> bool:
 	var target: String = tag.strip_edges().to_lower()
 	if target.is_empty():
@@ -518,7 +553,7 @@ func has_trait_tag(tag: String) -> bool:
 			return true
 	return false
 
-
+# 判断 has unit tag
 func has_unit_tag(tag: String, include_trait_tags: bool = true) -> bool:
 	var target: String = tag.strip_edges().to_lower()
 	if target.is_empty():
@@ -530,19 +565,19 @@ func has_unit_tag(tag: String, include_trait_tags: bool = true) -> bool:
 		return has_trait_tag(target)
 	return false
 
-
+# 应用 apply animation overrides
 func _apply_animation_overrides() -> void:
 	if sprite_animator != null:
 		sprite_animator.call("set_overrides", animation_overrides)
 
-
+# 绑定 bind components
 func _bind_components() -> void:
 	if combat_component != null:
 		combat_component.call("bind_unit", self)
 	if movement_component != null:
 		movement_component.call("bind_unit", self)
 
-
+# 处理 refresh visual
 func _refresh_visual() -> void:
 	if name_label == null or star_label == null:
 		return
@@ -553,7 +588,7 @@ func _refresh_visual() -> void:
 	_apply_label_visibility()
 	modulate = _get_quality_tint(quality) * _get_team_tint(team_id)
 
-
+# 应用 apply label visibility
 func _apply_label_visibility() -> void:
 	# 中文说明：
 	# 1) 战斗中始终显示名称与星级，便于读场面和找单位。
@@ -564,7 +599,7 @@ func _apply_label_visibility() -> void:
 	if star_label != null:
 		star_label.visible = should_show_labels
 
-
+# 应用 apply pending texture if needed
 func _apply_pending_texture_if_needed() -> void:
 	if sprite_2d == null:
 		return
@@ -572,7 +607,7 @@ func _apply_pending_texture_if_needed() -> void:
 		return
 	sprite_2d.texture = _pending_texture
 
-
+# 规范 normalize tag array
 func _normalize_tag_array(value: Variant) -> Array[String]:
 	var out: Array[String] = []
 	var seen: Dictionary = {}
@@ -588,7 +623,7 @@ func _normalize_tag_array(value: Variant) -> Array[String]:
 			out.append(tag_text)
 	return out
 
-
+# 规范 normalize traits tags
 func _normalize_traits_tags(raw_traits: Array[Dictionary]) -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
 	for trait_data in raw_traits:
@@ -597,7 +632,7 @@ func _normalize_traits_tags(raw_traits: Array[Dictionary]) -> Array[Dictionary]:
 		out.append(row)
 	return out
 
-
+# 获取 get star color
 func _get_star_color(star: int) -> Color:
 	match star:
 		1:
@@ -609,7 +644,7 @@ func _get_star_color(star: int) -> Color:
 		_:
 			return Color(1, 1, 1, 1)
 
-
+# 获取 get quality tint
 func _get_quality_tint(q: String) -> Color:
 	match q:
 		"white":
@@ -625,7 +660,7 @@ func _get_quality_tint(q: String) -> Color:
 		_:
 			return Color(1, 1, 1, 1)
 
-
+# 获取 get team name color
 func _get_team_name_color(team: int) -> Color:
 	match team:
 		2:
@@ -637,7 +672,7 @@ func _get_team_name_color(team: int) -> Color:
 		_:
 			return Color(0.9, 0.9, 0.9, 1.0)
 
-
+# 获取 get team tint
 func _get_team_tint(team: int) -> Color:
 	match team:
 		2:
@@ -645,3 +680,19 @@ func _get_team_tint(team: int) -> Color:
 			return Color(1.08, 0.9, 0.9, 1.0)
 		_:
 			return Color(1, 1, 1, 1)
+
+
+# UnitBase 自己的 _process 很轻，但需要和移动 tween/动画一起看整体占比。
+func _probe_begin_timing() -> int:
+	var runtime_probe = _services.runtime_probe if _services != null else null
+	if runtime_probe == null or not runtime_probe.has_method("begin_timing"):
+		return 0
+	return int(runtime_probe.begin_timing())
+
+
+# 逐帧移动推进的 scope 单独落表，方便确认 UnitBase 是否仍然在高密度下空转。
+func _probe_commit_timing(scope_name: String, begin_us: int) -> void:
+	var runtime_probe = _services.runtime_probe if _services != null else null
+	if runtime_probe == null or not runtime_probe.has_method("commit_timing"):
+		return
+	runtime_probe.commit_timing(scope_name, begin_us)

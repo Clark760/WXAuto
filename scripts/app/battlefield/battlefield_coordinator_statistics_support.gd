@@ -18,7 +18,7 @@ var _scene_root = null # 根场景入口。
 var _refs = null # 场景引用表。
 var _state = null # 会话状态表。
 
-var _battle_statistics: Node = null # 运行时统计实例。
+var _battle_statistics = null # 运行时统计实例。
 var _unit_lookup: Dictionary = {} # instance_id 到单位节点的回查表。
 
 
@@ -40,35 +40,36 @@ func get_battle_statistics() -> Node:
 func ensure_battle_statistics_created() -> void:
 	if _battle_statistics != null and is_instance_valid(_battle_statistics):
 		return
-	_battle_statistics = BATTLE_STATISTICS_SCRIPT.new() as Node
+	_battle_statistics = BATTLE_STATISTICS_SCRIPT.new()
 	if _battle_statistics == null:
 		return
 	_battle_statistics.name = "RuntimeBattleStatistics"
 	_owner.add_child(_battle_statistics)
-	if _refs.battle_stats_panel != null and _refs.battle_stats_panel.has_method("bind_statistics"):
-		_refs.battle_stats_panel.call("bind_statistics", _battle_statistics)
+	var battle_stats_panel = _get_battle_stats_panel()
+	if battle_stats_panel != null:
+		battle_stats_panel.bind_statistics(_battle_statistics)
 	relayout_stats_panel()
 
 
 # 视口变化后重新布局统计面板，避免结果界面错位。
 # 布局只看可见视口，不依赖具体窗口模式，方便 headless smoke 对齐。
 func relayout_stats_panel() -> void:
-	if _refs.battle_stats_panel == null or not _refs.battle_stats_panel.has_method("relayout"):
+	var battle_stats_panel = _get_battle_stats_panel()
+	if battle_stats_panel == null:
 		return
 	var viewport_size: Vector2 = _scene_root.get_viewport().get_visible_rect().size
-	_refs.battle_stats_panel.call("relayout", viewport_size)
+	battle_stats_panel.relayout(viewport_size)
 
 
 # 显示结果统计面板，并立即刷新内容。
 # 结果阶段可能刚刚切入，这里主动刷新一次能避免首帧出现旧统计。
 func show_battle_stats_panel(team_id: int) -> void:
-	if _refs.battle_stats_panel == null:
+	var battle_stats_panel = _get_battle_stats_panel()
+	if battle_stats_panel == null:
 		return
 	_state.battle_stats_visible = true
-	if _refs.battle_stats_panel.has_method("show_panel"):
-		_refs.battle_stats_panel.call("show_panel", team_id)
-	if _refs.battle_stats_panel.has_method("refresh_content"):
-		_refs.battle_stats_panel.call("refresh_content")
+	battle_stats_panel.show_panel(team_id)
+	battle_stats_panel.refresh_content()
 
 
 # 开战时把参战单位写入统计系统，并补齐运行时信号。
@@ -86,9 +87,10 @@ func start_battle_capture(ally_units: Array[Node], enemy_units: Array[Node]) -> 
 		remember_unit(unit)
 		bind_unit_runtime_signals(unit)
 		all_units.append(unit)
-	_battle_statistics.call("start_battle", all_units)
-	if _refs.battle_stats_panel != null and _refs.battle_stats_panel.has_method("refresh_content"):
-		_refs.battle_stats_panel.call("refresh_content")
+	_battle_statistics.start_battle(all_units)
+	var battle_stats_panel = _get_battle_stats_panel()
+	if battle_stats_panel != null:
+		battle_stats_panel.refresh_content()
 
 
 # 把单位加入 instance_id 索引，供后续战斗事件回查。
@@ -139,8 +141,7 @@ func record_damage_with_breakdown(
 	var immune_value: int = maxi(int(round(immune_absorbed)), 0)
 	var total_value: int = dealt_value + shield_value + immune_value
 	if dealt_value > 0:
-		_battle_statistics.call(
-			"record_damage",
+		_battle_statistics.record_damage(
 			source_unit,
 			target_unit,
 			dealt_value,
@@ -149,31 +150,27 @@ func record_damage_with_breakdown(
 		)
 	if total_value <= 0:
 		return
-	_battle_statistics.call(
-		"record_stat",
+	_battle_statistics.record_stat(
 		source_unit,
 		"damage_dealt_total",
 		total_value,
 		source_fallback
 	)
-	_battle_statistics.call(
-		"record_stat",
+	_battle_statistics.record_stat(
 		target_unit,
 		"damage_taken_total",
 		total_value,
 		target_fallback
 	)
 	if shield_value > 0:
-		_battle_statistics.call(
-			"record_stat",
+		_battle_statistics.record_stat(
 			target_unit,
 			"shield_absorbed",
 			shield_value,
 			target_fallback
 		)
 	if immune_value > 0:
-		_battle_statistics.call(
-			"record_stat",
+		_battle_statistics.record_stat(
 			target_unit,
 			"damage_immune_blocked",
 			immune_value,
@@ -209,5 +206,12 @@ func find_unit_by_instance_id(instance_id: int) -> Node:
 	if _unit_lookup.has(instance_id):
 		return _unit_lookup[instance_id] as Node
 	return null
+
+
+# 统计面板节点统一从 refs 读取，避免每处重复做可见性与方法判定。
+func _get_battle_stats_panel():
+	if _refs == null:
+		return null
+	return _refs.battle_stats_panel
 
 

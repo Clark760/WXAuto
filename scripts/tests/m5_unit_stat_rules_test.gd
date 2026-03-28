@@ -1,6 +1,6 @@
 extends SceneTree
 
-const UNIT_DATA_SCRIPT: Script = preload("res://scripts/data/unit_data.gd")
+const UNIT_DATA_SCRIPT: Script = preload("res://scripts/domain/unit/unit_data.gd")
 const UNIT_COMBAT_SCRIPT: Script = preload("res://scripts/unit/unit_combat.gd")
 
 var _failed: int = 0

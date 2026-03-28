@@ -49,7 +49,8 @@ func pick_best_adjacent_cell(owner: Node, unit: Node, current_cell: Vector2i) ->
 		owner.get("_flow_to_ally"),
 		bool(owner.get("allow_equal_cost_side_step")),
 		owner.get("_group_focus_target_id"),
-		owner.get("_unit_by_instance_id")
+		owner.get("_unit_by_instance_id"),
+		owner.get("_team_alive_cache")
 	)
 
 

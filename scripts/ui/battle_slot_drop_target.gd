@@ -5,32 +5,35 @@ class_name BattleSlotDropTarget
 # 详情槽位（拖放接收器）
 # ===========================
 # 说明：
-# 1. 每个槽位绑定一个 category + key，用于做类型匹配。
-# 2. _can_drop_data 返回匹配结果，Godot 会基于该返回值决定是否允许松手放下。
-
+# 1. 每个槽位绑定 category 与 key，用于做类型匹配。
+# 2. 是否接受拖放只在这里判定，业务层只接收结果信号。
 signal item_dropped(slot_category: String, slot_key: String, item_id: String)
 
-var slot_category: String = "" # "gongfa" / "equipment"
-var slot_key: String = ""      # "neigong" / "slot_1" ...
+var slot_category: String = ""
+var slot_key: String = ""
 var drop_enabled: bool = true
 var _default_modulate: Color = Color(1, 1, 1, 1)
 var _reject_icon: Label = null
 
 
+# 节点就绪后缓存默认显色，并绑定固定的拒绝图标节点。
 func _ready() -> void:
 	_default_modulate = modulate
 	_ensure_reject_icon()
 
 
+# 写入槽位分类与 key，后续拖拽判定只依赖这两个标识。
 func setup_slot(category: String, key: String) -> void:
 	slot_category = category
 	slot_key = key
 
 
+# 外层可临时禁用拖放能力，但不改变槽位的分类信息。
 func set_drop_enabled(enabled: bool) -> void:
 	drop_enabled = enabled
 
 
+# 只负责判断当前载荷能否放下，并同步刷新高亮或拒绝态。
 func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 	if not (data is Dictionary):
 		_reset_drop_visual()
@@ -41,6 +44,7 @@ func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 	return accepted
 
 
+# 真正放下时只抛出标准化信号，不在这里承担装备或功法业务逻辑。
 func _drop_data(_at_position: Vector2, data: Variant) -> void:
 	if not _can_drop_data(_at_position, data):
 		return
@@ -53,12 +57,11 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 	_reset_drop_visual()
 
 
+# 监听拖拽开始和结束，确保鼠标不悬停也能及时看到槽位接受状态。
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_DRAG_END:
 		_reset_drop_visual()
 	elif what == NOTIFICATION_DRAG_BEGIN:
-		# 拖拽开始时主动评估一次当前槽位状态，立即给出匹配/拒绝视觉提示。
-		# 这样用户无需把鼠标移到每个槽位上，也能立刻看到哪些槽位可放下。
 		var drag_data: Variant = get_viewport().gui_get_drag_data()
 		if not (drag_data is Dictionary):
 			_reset_drop_visual()
@@ -68,11 +71,13 @@ func _notification(what: int) -> void:
 		_apply_drop_visual(accepted)
 
 
+# 绑定 RejectIcon 子节点，并把缺失场景结构视为配置错误而不是兼容处理。
 func _ensure_reject_icon() -> void:
 	if _reject_icon != null and is_instance_valid(_reject_icon):
 		return
-	_reject_icon = Label.new()
-	_reject_icon.text = "🚫"
+	_reject_icon = get_node_or_null("RejectIcon") as Label
+	assert(_reject_icon != null, "BattleSlotDropTarget requires a RejectIcon child node.")
+	_reject_icon.text = "X"
 	_reject_icon.visible = false
 	_reject_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_reject_icon.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
@@ -83,15 +88,15 @@ func _ensure_reject_icon() -> void:
 	_reject_icon.anchor_right = 1.0
 	_reject_icon.anchor_top = 0.0
 	_reject_icon.anchor_bottom = 1.0
-	add_child(_reject_icon)
 
 
+# 清空拖放反馈，恢复默认色并隐藏拒绝标记。
 func _reset_drop_visual() -> void:
 	modulate = _default_modulate
-	if _reject_icon != null:
-		_reject_icon.visible = false
+	_reject_icon.visible = false
 
 
+# 根据槽位分类与 payload 类型做最小职责的接受判断。
 func _is_payload_accepted(payload: Dictionary) -> bool:
 	if not drop_enabled:
 		return false
@@ -104,10 +109,7 @@ func _is_payload_accepted(payload: Dictionary) -> bool:
 	return false
 
 
+# 统一维护接受与拒绝的视觉反馈，避免各个槽位子类分散定义颜色规则。
 func _apply_drop_visual(accepted: bool) -> void:
-	# 统一拖放视觉反馈：
-	# - 匹配槽位：浅绿色高亮
-	# - 不匹配槽位：浅红色高亮 + 🚫 图标
 	modulate = Color(0.86, 1.0, 0.86, 1.0) if accepted else Color(1.0, 0.84, 0.84, 1.0)
-	if _reject_icon != null:
-		_reject_icon.visible = not accepted
+	_reject_icon.visible = not accepted

@@ -1,19 +1,14 @@
 extends Node
 class_name ObstacleManager
 
-# ===========================
-# 障碍物管理器（M5）
-# ===========================
-# 目标：
-# 1. 维护关卡障碍物生命周期与阻挡格集合；
-# 2. 提供“是否阻挡”查询，供战场部署与战斗寻路读取；
-# 3. 提供轻量可视化，方便调试关卡地形配置。
-
+# 障碍管理器
+# 负责维护阻挡格
+# 负责同步调试颜色
 const BLOCK_MOVE_TYPES: Dictionary = {
 	"rock": true,
 	"bamboo": true,
 	"fire_pit": true,
-	# 水地形可通过（后续可叠加减速逻辑），当前不阻挡路径。
+	# 水地形当前只做标记，不阻挡寻路。
 	"water": false
 }
 
@@ -28,53 +23,65 @@ var _obstacles: Array[Dictionary] = []
 var _blocked_cells: Dictionary = {} # int(cell_key) -> true
 
 
+# 根据配置重建障碍与阻挡格
 func spawn_obstacles(obstacles: Array, hex_grid: Node) -> void:
 	clear_all_obstacles()
 	clear_visuals_from_grid(hex_grid)
 	if hex_grid == null or not is_instance_valid(hex_grid):
 		return
+
+	var grid = hex_grid
 	for obstacle_value in obstacles:
 		if not (obstacle_value is Dictionary):
 			continue
+
 		var obstacle: Dictionary = obstacle_value
 		var obstacle_type: String = str(obstacle.get("type", "rock")).strip_edges().to_lower()
 		var cells_value: Variant = obstacle.get("cells", [])
 		if not (cells_value is Array):
 			continue
+
 		var cells: Array = cells_value
 		if cells.is_empty():
 			continue
+
 		var normalized_cells: Array[Vector2i] = []
 		for cell_value in cells:
 			var cell: Vector2i = _to_cell(cell_value)
 			if cell.x < 0 or cell.y < 0:
 				continue
-			if not bool(hex_grid.call("is_inside_grid", cell)):
+			if not bool(grid.is_inside_grid(cell)):
 				continue
 			normalized_cells.append(cell)
 			if _is_move_block_type(obstacle_type):
 				_blocked_cells[_cell_key_int(cell)] = true
+
 		if normalized_cells.is_empty():
 			continue
+
 		_obstacles.append({
 			"type": obstacle_type,
 			"cells": normalized_cells
 		})
-	# 统一交由 HexGrid 按当前网格参数绘制障碍格，避免独立节点错位。
+
+	# 统一交给 HexGrid 绘制，避免额外节点错位。
 	apply_visuals_to_grid(hex_grid)
 
 
+# 清空逻辑障碍缓存
 func clear_all_obstacles() -> void:
 	_obstacles.clear()
 	_blocked_cells.clear()
 
 
+# 把障碍颜色映射回写到 HexGrid
 func apply_visuals_to_grid(hex_grid: Node) -> void:
-	# 将障碍物格颜色映射注入 HexGrid，由 HexGrid._draw() 统一绘制。
 	if hex_grid == null or not is_instance_valid(hex_grid):
 		return
 	if not hex_grid.has_method("set_obstacle_cells"):
 		return
+
+	var grid = hex_grid
 	var cells_colors: Dictionary = {}
 	for obstacle in _obstacles:
 		var obstacle_type: String = str(obstacle.get("type", "rock"))
@@ -86,18 +93,23 @@ func apply_visuals_to_grid(hex_grid: Node) -> void:
 			if cell_value is Vector2i:
 				var cell: Vector2i = cell_value as Vector2i
 				cells_colors[_cell_key_int(cell)] = color
-	hex_grid.call("set_obstacle_cells", cells_colors)
+
+	grid.set_obstacle_cells(cells_colors)
 
 
+# 清理 HexGrid 上的障碍高亮
 func clear_visuals_from_grid(hex_grid: Node) -> void:
 	if hex_grid != null and is_instance_valid(hex_grid) and hex_grid.has_method("clear_obstacle_cells"):
-		hex_grid.call("clear_obstacle_cells")
+		var grid = hex_grid
+		grid.clear_obstacle_cells()
 
 
+# 查询格子是否被阻挡
 func is_cell_blocked(cell: Vector2i) -> bool:
 	return _blocked_cells.has(_cell_key_int(cell))
 
 
+# 返回命中格子的障碍配置
 func get_obstacle_at(cell: Vector2i) -> Dictionary:
 	for obstacle in _obstacles:
 		var cells_value: Variant = obstacle.get("cells", [])
@@ -109,6 +121,7 @@ func get_obstacle_at(cell: Vector2i) -> Dictionary:
 	return {}
 
 
+# 导出全部阻挡格
 func get_all_blocked_cells() -> Array[Vector2i]:
 	var cells: Array[Vector2i] = []
 	for key_value in _blocked_cells.keys():
@@ -117,12 +130,14 @@ func get_all_blocked_cells() -> Array[Vector2i]:
 	return cells
 
 
+# 判定障碍类型是否阻挡移动
 func _is_move_block_type(obstacle_type: String) -> bool:
 	if BLOCK_MOVE_TYPES.has(obstacle_type):
 		return bool(BLOCK_MOVE_TYPES[obstacle_type])
 	return true
 
 
+# 兼容多种格子输入格式
 func _to_cell(value: Variant) -> Vector2i:
 	if value is Vector2i:
 		return value
@@ -136,10 +151,12 @@ func _to_cell(value: Variant) -> Vector2i:
 	return Vector2i(-1, -1)
 
 
+# 把格子打包成整型键
 func _cell_key_int(cell: Vector2i) -> int:
 	return ((cell.x & 0xFFFF) << 16) | (cell.y & 0xFFFF)
 
 
+# 把整型键还原成格子
 func _cell_from_int_key(int_key: int) -> Vector2i:
 	var x_raw: int = (int_key >> 16) & 0xFFFF
 	var y_raw: int = int_key & 0xFFFF

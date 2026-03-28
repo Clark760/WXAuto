@@ -1,6 +1,13 @@
 ﻿extends Node
 class_name BattlefieldWorldController
 
+const WORLD_VIEW_SUPPORT_SCRIPT: Script = preload(
+	"res://scripts/app/battlefield/battlefield_world_view_support.gd"
+)
+const WORLD_INPUT_SUPPORT_SCRIPT: Script = preload(
+	"res://scripts/app/battlefield/battlefield_world_input_support.gd"
+)
+
 # ===========================
 # 战场世界控制器
 # ===========================
@@ -70,11 +77,12 @@ var _refs: Node = null # 场景引用表。
 var _state: RefCounted = null # 会话状态表。
 var _initialized: bool = false # 世界层装配是否完成。
 var _signals_connected: bool = false # 世界层信号是否已收口。
-var _bottom_tween: Tween = null # 底栏开合动画句柄。
 
 var _unit_deploy_manager: Node = null # 部署规则协作者。
 var _drag_controller: Node = null # 世界拖拽协作者。
 var _battlefield_renderer: Node = null # 世界渲染协作者。
+var _world_view_support = null # 世界视图与布局支撑。
+var _world_input_support = null # 世界输入与镜头支撑。
 
 
 # 按固定顺序装配世界控制器，避免运行时节点初始化顺序漂移。
@@ -90,6 +98,33 @@ func initialize(
 	_unit_deploy_manager = _refs.runtime_unit_deploy_manager
 	_drag_controller = _refs.runtime_drag_controller
 	_battlefield_renderer = _refs.runtime_battlefield_renderer
+	_world_view_support = WORLD_VIEW_SUPPORT_SCRIPT.new()
+	_world_view_support.initialize(
+		self,
+		_scene_root,
+		_refs,
+		_state,
+		Stage.PREPARATION,
+		Stage.COMBAT,
+		Stage.RESULT,
+		min_hex_size,
+		max_hex_size,
+		bottom_reserved_preparation
+	)
+	_world_input_support = WORLD_INPUT_SUPPORT_SCRIPT.new()
+	_world_input_support.initialize(
+		self,
+		_scene_root,
+		_refs,
+		_state,
+		Stage.PREPARATION,
+		Stage.COMBAT,
+		CLICK_DRAG_THRESHOLD,
+		world_zoom_min,
+		world_zoom_max,
+		world_zoom_step,
+		world_pan_speed
+	)
 
 	_initialize_runtime_collaborators()
 	_initialize_scene_defaults()
@@ -118,89 +153,27 @@ func is_initialized() -> bool:
 # 根场景把 `_input` 统一转发到这里，世界输入优先级只在这一处维护。
 # 左键、滚轮、右键平移都在这里分流，避免旧入口脚本继续偷接输入。
 func handle_input(event: InputEvent) -> void:
-	if _state == null:
-		return
-
-	if event is InputEventMouseButton:
-		var mouse_button: InputEventMouseButton = event as InputEventMouseButton
-		if _consume_bench_wheel_input(mouse_button):
-			_scene_root.get_viewport().set_input_as_handled()
-			return
-		if _handle_world_view_input(event):
-			_scene_root.get_viewport().set_input_as_handled()
-			return
-		if mouse_button.button_index != MOUSE_BUTTON_LEFT:
-			return
-
-		if mouse_button.pressed:
-			_handle_left_button_pressed(mouse_button)
-			return
-		_handle_left_button_released(mouse_button)
-		return
-
-	if event is InputEventMouseMotion:
-		var motion: InputEventMouseMotion = event as InputEventMouseMotion
-		if _handle_world_view_input(event):
-			_scene_root.get_viewport().set_input_as_handled()
-			return
-		_handle_mouse_motion(motion)
+	if _world_input_support != null:
+		_world_input_support.handle_input(event)
 
 
 # 根场景把 `_unhandled_input` 转发到这里，世界快捷键不再散回入口脚本。
 func handle_unhandled_input(event: InputEvent) -> void:
-	if not (event is InputEventKey):
-		return
-	var key_event: InputEventKey = event as InputEventKey
-	if not key_event.pressed or key_event.echo:
-		return
-	if key_event.keycode == KEY_SPACE:
-		_reset_view()
-		_scene_root.get_viewport().set_input_as_handled()
+	if _world_input_support != null:
+		_world_input_support.handle_unhandled_input(event)
 
 
 # 逐帧驱动世界视角和 hover 检测，避免把这些状态放回根场景。
 # combat_elapsed 也在这里累加，是因为世界层最清楚战斗期是否仍在运行视角逻辑。
 func process_world(delta: float) -> void:
-	if _state == null:
-		return
-	_update_world_pan_by_keyboard(delta)
-	_update_hover(delta)
-	if int(_state.stage) == Stage.COMBAT:
-		_state.combat_elapsed += delta
+	if _world_input_support != null:
+		_world_input_support.process_world(delta)
 
 
 # 拖拽高亮仍由根节点绘制，但具体几何和颜色判断由世界控制器给出。
 func draw_overlay(canvas: Node2D) -> void:
-	if canvas == null or _state == null:
-		return
-	if _state.dragging_unit == null or _state.drag_target_cell.x < 0:
-		return
-	var hex_grid: Node = _refs.hex_grid
-	if hex_grid == null:
-		return
-
-	var fill: Color = (
-		Color(0.3, 0.85, 0.45, 0.24)
-		if _state.drag_target_valid
-		else Color(0.9, 0.26, 0.26, 0.24)
-	)
-	var border_color: Color = (
-		Color(0.6, 1.0, 0.7, 0.9)
-		if _state.drag_target_valid
-		else Color(1.0, 0.48, 0.48, 0.9)
-	)
-	var local_points: PackedVector2Array = hex_grid.get_hex_points_local(_state.drag_target_cell)
-	if local_points.size() < 3:
-		return
-
-	var screen_points := PackedVector2Array()
-	for point in local_points:
-		var world_local: Vector2 = hex_grid.transform * point
-		screen_points.append(_refs.world_container.to_global(world_local))
-	canvas.draw_colored_polygon(screen_points, fill)
-	var border: PackedVector2Array = screen_points.duplicate()
-	border.append(screen_points[0])
-	canvas.draw_polyline(border, border_color, 2.0, true)
+	if _world_input_support != null:
+		_world_input_support.draw_overlay(canvas)
 
 
 # 对外暴露阶段切换入口，后续给 coordinator 复用同一世界层口径。
@@ -293,195 +266,67 @@ func _bind_runtime_dependencies() -> void:
 # 左键按下时只记录准备期世界输入来源，点击和拖拽在这里分流。
 # 这里只记来源，不立即启动拖拽，能让点击和拖拽共享同一阈值判断。
 func _handle_left_button_pressed(mouse_button: InputEventMouseButton) -> void:
-	_state.left_click_pending = true
-	_state.left_press_pos = mouse_button.position
-	_state.bench_press_slot = -1
-	_state.world_press_unit = null
-	_state.world_press_cell = INVALID_CELL
-
-	if int(_state.stage) != Stage.PREPARATION:
-		return
-	if _refs.bench_ui != null and _refs.bench_ui.is_screen_point_inside(mouse_button.position):
-		var slot: int = _refs.bench_ui.get_slot_index_at_screen_pos(mouse_button.position)
-		if slot >= 0 and _refs.bench_ui.get_unit_at_slot(slot) != null:
-			_state.bench_press_slot = slot
-			_state.bench_press_pos = mouse_button.position
-			_scene_root.get_viewport().set_input_as_handled()
-			return
-
-	var world_pos_press: Vector2 = _screen_to_world(mouse_button.position)
-	var world_unit: Node = _pick_deployed_ally_unit_at(world_pos_press)
-	if world_unit != null:
-		_state.world_press_unit = world_unit
-		_state.world_press_pos = mouse_button.position
-		_state.world_press_cell = world_unit.get("deployed_cell")
-		_scene_root.get_viewport().set_input_as_handled()
+	if _world_input_support != null:
+		_world_input_support._handle_left_button_pressed(mouse_button)
 
 
 # 左键释放时统一结算拖拽、棋盘点击和备战席点击的后续动作。
 # 先处理拖拽再处理点击，避免一次释放同时触发拖放和详情点击。
 func _handle_left_button_released(mouse_button: InputEventMouseButton) -> void:
-	if int(_state.stage) == Stage.PREPARATION and _state.dragging_unit != null:
-		_try_end_drag(mouse_button.position)
-		_reset_press_state()
-		_scene_root.get_viewport().set_input_as_handled()
-		return
-
-	if int(_state.stage) == Stage.PREPARATION and _state.bench_press_slot >= 0 and _state.dragging_unit == null:
-		var slot_index: int = _state.bench_press_slot
-		var click_like_bench: bool = mouse_button.position.distance_to(_state.bench_press_pos) <= CLICK_DRAG_THRESHOLD
-		_reset_press_state()
-		if click_like_bench:
-			_notify_bench_slot_clicked(slot_index)
-			_scene_root.get_viewport().set_input_as_handled()
-		return
-
-	if int(_state.stage) == Stage.PREPARATION and _state.world_press_unit != null and _state.dragging_unit == null:
-		var clicked_unit: Node = _state.world_press_unit
-		var click_like_world: bool = mouse_button.position.distance_to(_state.world_press_pos) <= CLICK_DRAG_THRESHOLD
-		_state.world_press_unit = null
-		_state.world_press_cell = INVALID_CELL
-		_state.left_click_pending = false
-		if click_like_world and _is_valid_unit(clicked_unit):
-			_notify_world_unit_clicked(clicked_unit, mouse_button.position)
-			_scene_root.get_viewport().set_input_as_handled()
-		return
-
-	var click_like: bool = (
-		_state.left_click_pending
-		and mouse_button.position.distance_to(_state.left_press_pos) <= CLICK_DRAG_THRESHOLD
-	)
-	_state.left_click_pending = false
-	if click_like and _state.dragging_unit == null:
-		_try_notify_click(mouse_button.position)
+	if _world_input_support != null:
+		_world_input_support._handle_left_button_released(mouse_button)
 
 
 # 鼠标移动既要处理拖拽阈值，也要处理拖拽中的预览与目标刷新。
 # bench/world 两类起手都走同一阈值，保证玩家感受到的拖拽手感一致。
 func _handle_mouse_motion(motion: InputEventMouseMotion) -> void:
-	if _state.left_click_pending and motion.position.distance_to(_state.left_press_pos) > CLICK_DRAG_THRESHOLD:
-		_state.left_click_pending = false
-
-	if _state.bench_press_slot >= 0 and int(_state.stage) == Stage.PREPARATION and _state.dragging_unit == null:
-		if motion.position.distance_to(_state.bench_press_pos) > CLICK_DRAG_THRESHOLD:
-			var bench_unit: Node = _refs.bench_ui.remove_unit_at(_state.bench_press_slot)
-			var origin_slot: int = _state.bench_press_slot
-			_state.bench_press_slot = -1
-			if bench_unit != null:
-				_begin_drag(bench_unit, "bench", origin_slot, INVALID_CELL, motion.position)
-				_scene_root.get_viewport().set_input_as_handled()
-		return
-
-	if _state.world_press_unit != null and int(_state.stage) == Stage.PREPARATION and _state.dragging_unit == null:
-		if motion.position.distance_to(_state.world_press_pos) > CLICK_DRAG_THRESHOLD:
-			var pressed_unit: Node = _state.world_press_unit
-			var origin_cell: Vector2i = _state.world_press_cell
-			_state.world_press_unit = null
-			_state.world_press_cell = INVALID_CELL
-			if _is_valid_unit(pressed_unit):
-				_remove_ally_mapping(pressed_unit)
-				_begin_drag(pressed_unit, "battlefield", -1, origin_cell, motion.position)
-				_scene_root.get_viewport().set_input_as_handled()
-		return
-
-	if int(_state.stage) == Stage.PREPARATION and _state.dragging_unit != null:
-		_update_drag_preview(motion.position)
-		_update_drag_target(motion.position)
-		_scene_root.get_viewport().set_input_as_handled()
+	if _world_input_support != null:
+		_world_input_support._handle_mouse_motion(motion)
 
 
 # 视角缩放和平移的输入优先级高于准备期拖拽，是世界层的统一入口。
 # 右键平移在任意阶段都可用，所以不能把这套逻辑藏在 preparation 分支里。
 func _handle_world_view_input(event: InputEvent) -> bool:
-	if event is InputEventMouseButton:
-		var mouse_button: InputEventMouseButton = event as InputEventMouseButton
-		if mouse_button.button_index == MOUSE_BUTTON_WHEEL_UP and mouse_button.pressed:
-			_zoom_at(mouse_button.position, 1.0 + world_zoom_step)
-			return true
-		if mouse_button.button_index == MOUSE_BUTTON_WHEEL_DOWN and mouse_button.pressed:
-			_zoom_at(mouse_button.position, 1.0 - world_zoom_step)
-			return true
-		if mouse_button.button_index == MOUSE_BUTTON_RIGHT:
-			_state.is_panning = mouse_button.pressed
-			return true
-	if event is InputEventMouseMotion and _state.is_panning:
-		var motion: InputEventMouseMotion = event as InputEventMouseMotion
-		_pan(motion.relative)
-		return true
+	if _world_input_support != null:
+		return bool(_world_input_support.handle_world_view_input(event))
 	return false
 
 
 # 备战席滚轮要先消费，避免同一滚轮事件同时触发棋盘缩放。
 func _consume_bench_wheel_input(mouse_button: InputEventMouseButton) -> bool:
-	if mouse_button == null or not mouse_button.pressed:
-		return false
-	if mouse_button.button_index != MOUSE_BUTTON_WHEEL_UP and mouse_button.button_index != MOUSE_BUTTON_WHEEL_DOWN:
-		return false
-	if _refs.bench_ui == null or not is_instance_valid(_refs.bench_ui):
-		return false
-
-	var inside_bench: bool = false
-	if _refs.bench_ui.has_method("is_screen_point_inside"):
-		inside_bench = bool(_refs.bench_ui.is_screen_point_inside(mouse_button.position))
-	if not inside_bench and _refs.bottom_panel != null:
-		var bottom_panel: Control = _refs.bottom_panel as Control
-		if bottom_panel != null and bottom_panel.visible:
-			inside_bench = bottom_panel.get_global_rect().has_point(mouse_button.position)
-	if not inside_bench:
-		return false
-	if _refs.bench_ui.has_method("consume_wheel_input"):
-		return bool(_refs.bench_ui.consume_wheel_input(mouse_button.button_index))
-	return true
+	if _world_input_support != null:
+		return bool(_world_input_support.consume_bench_wheel_input(mouse_button))
+	return false
 
 
 # 键盘平移沿用旧战场 WASD 口径，但状态统一写入 session state。
 func _update_world_pan_by_keyboard(delta: float) -> void:
-	var direction: Vector2 = Vector2.ZERO
-	if Input.is_key_pressed(KEY_A):
-		direction.x += 1.0
-	if Input.is_key_pressed(KEY_D):
-		direction.x -= 1.0
-	if Input.is_key_pressed(KEY_W):
-		direction.y += 1.0
-	if Input.is_key_pressed(KEY_S):
-		direction.y -= 1.0
-	if direction.is_zero_approx():
-		return
-	_pan(direction.normalized() * world_pan_speed * delta)
+	if _world_input_support != null:
+		_world_input_support.update_world_pan_by_keyboard(delta)
 
 
 # 世界变换只作用于 WorldContainer，禁止对子节点分别做位移和缩放。
 func _apply_world_transform() -> void:
-	_refs.world_container.position = _state.world_offset
-	_refs.world_container.scale = Vector2.ONE * _state.world_zoom
-	if _state.dragging_unit != null:
-		_scene_root.queue_redraw()
+	if _world_input_support != null:
+		_world_input_support.apply_world_transform()
 
 
 # 以鼠标位置为锚点缩放，保持缩放前后的光标落点稳定。
 func _zoom_at(screen_pos: Vector2, factor: float) -> void:
-	var old_zoom: float = _state.world_zoom
-	var next_zoom: float = clampf(old_zoom * factor, world_zoom_min, world_zoom_max)
-	if is_equal_approx(next_zoom, old_zoom):
-		return
-	var world_point: Vector2 = (screen_pos - _state.world_offset) / maxf(old_zoom, 0.0001)
-	_state.world_zoom = next_zoom
-	_state.world_offset = screen_pos - world_point * _state.world_zoom
-	_apply_world_transform()
+	if _world_input_support != null:
+		_world_input_support.zoom_at(screen_pos, factor)
 
 
 # 平移直接累加世界偏移，并立即刷新 WorldContainer 变换。
 func _pan(relative: Vector2) -> void:
-	_state.world_offset += relative
-	_apply_world_transform()
+	if _world_input_support != null:
+		_world_input_support.pan(relative)
 
 
 # 重置视角时统一恢复缩放、偏移和右键平移状态。
 func _reset_view() -> void:
-	_state.world_zoom = 1.0
-	_state.world_offset = Vector2.ZERO
-	_state.is_panning = false
-	_apply_world_transform()
+	if _world_input_support != null:
+		_world_input_support.reset_view()
 
 
 # 对 drag controller 的入口封装留在这里，根场景不直接碰 runtime 节点。
@@ -572,46 +417,23 @@ func _get_drag_origin_kind() -> String:
 
 # 从已部署友军里按碰撞半径拾取单位，用于准备期棋盘点击和拖拽。
 func _pick_deployed_ally_unit_at(world_pos: Vector2) -> Node:
-	for unit in _state.ally_deployed.values():
-		if _is_valid_unit(unit) and _is_point_on_unit(unit, world_pos):
-			return unit
+	if _world_view_support != null:
+		return _world_view_support.pick_deployed_ally_unit_at(world_pos)
 	return null
 
 
 # hover 检测既兼容战斗期索引查询，也兼容准备期直接遍历部署映射。
 func _pick_visible_unit_at_world(world_pos: Vector2) -> Node:
-	var pick_radius: float = maxf(float(_refs.hex_grid.hex_size) * 0.72 * _state.unit_scale_factor, 12.0)
-	if int(_state.stage) == Stage.COMBAT:
-		if _refs.combat_manager != null and _refs.combat_manager.has_method("pick_unit_at_world"):
-			var indexed_candidate: Variant = _refs.combat_manager.pick_unit_at_world(
-				world_pos,
-				pick_radius
-			)
-			if indexed_candidate is Node and _is_valid_unit(indexed_candidate):
-				var indexed_unit: Node = indexed_candidate as Node
-				if (
-					indexed_unit is CanvasItem
-					and (indexed_unit as CanvasItem).visible
-					and _is_point_on_unit(indexed_unit, world_pos)
-				):
-					return indexed_unit
-	var candidate: Node = null
-	for unit in _state.ally_deployed.values():
-		if _is_valid_unit(unit) and (unit as CanvasItem).visible and _is_point_on_unit(unit, world_pos):
-			candidate = unit
-	for unit in _state.enemy_deployed.values():
-		if _is_valid_unit(unit) and (unit as CanvasItem).visible and _is_point_on_unit(unit, world_pos):
-			candidate = unit
-	return candidate
+	if _world_view_support != null:
+		return _world_view_support.pick_visible_unit_at_world(world_pos)
+	return null
 
 
 # 单位碰撞半径跟随棋格缩放变化，保证不同分辨率下点击手感一致。
 func _is_point_on_unit(unit: Node, world_pos: Vector2) -> bool:
-	var node2d: Node2D = unit as Node2D
-	if node2d == null:
-		return false
-	var radius: float = maxf(float(_refs.hex_grid.hex_size) * 0.62 * _state.unit_scale_factor, 10.0)
-	return node2d.position.distance_squared_to(world_pos) <= radius * radius
+	if _world_view_support != null:
+		return bool(_world_view_support.is_point_on_unit(unit, world_pos))
+	return false
 
 
 # 友军部署校验统一委托给 unit_deploy_manager，world controller 不复制规则。
@@ -648,8 +470,8 @@ func _remove_ally_mapping(unit: Node) -> void:
 
 # MultiMesh 刷新入口统一放在这里，根场景不直接碰渲染协作者。
 func _refresh_multimesh() -> void:
-	if _battlefield_renderer != null:
-		_battlefield_renderer.refresh_multimesh()
+	if _world_view_support != null:
+		_world_view_support.refresh_multimesh()
 
 
 # world 变化后的 HUD 投影只通过 presenter 收口，避免世界层继续写 UI 节点。
@@ -663,175 +485,80 @@ func _refresh_all_ui() -> void:
 
 # 棋盘自适应仍由 renderer 负责，world controller 只保留统一入口。
 func _refit_hex_grid() -> void:
-	if _battlefield_renderer != null:
-		_battlefield_renderer.refit_hex_grid()
+	if _world_view_support != null:
+		_world_view_support.refit_hex_grid()
 
 
 # 这里保留尺寸计算包装口，便于后续测试直接校验 renderer 输出。
 func _calculate_fit_hex_size(available_w: float, available_h: float) -> float:
-	if _battlefield_renderer != null:
-		return float(_battlefield_renderer.calculate_fit_hex_size(available_w, available_h))
+	if _world_view_support != null:
+		return float(_world_view_support.calculate_fit_hex_size(available_w, available_h))
 	return clampf(minf(available_w, available_h), min_hex_size, max_hex_size)
 
 
 # 这里保留棋盘像素尺寸包装口，方便后续世界回归测试复用。
 func _calculate_board_pixel_size(hex_size: float) -> Vector2:
-	if _battlefield_renderer != null:
-		var value: Variant = _battlefield_renderer.calculate_board_pixel_size(hex_size)
-		if value is Vector2:
-			return value
+	if _world_view_support != null:
+		return _world_view_support.calculate_board_pixel_size(hex_size)
 	return Vector2.ZERO
 
 
 # 单位视觉状态只按“备战席/棋盘”和当前阶段切换，不承接 HUD 投影。
 func _apply_unit_visual_presentation(unit: Node) -> void:
-	if not _is_valid_unit(unit):
-		return
-	var on_bench: bool = bool(unit.get("is_on_bench"))
-	if on_bench:
-		(unit as CanvasItem).visible = false
-		(unit as Node2D).scale = Vector2.ONE
-		unit.set_compact_visual_mode(false)
-		return
-	(unit as CanvasItem).visible = true
-	(unit as Node2D).scale = Vector2.ONE * _state.unit_scale_factor
-	unit.set_compact_visual_mode(int(_state.stage) == Stage.COMBAT)
+	if _world_view_support != null:
+		_world_view_support.apply_unit_visual_presentation(unit)
 
 
 # 批量刷新所有单位视觉表现，保证缩放或阶段变化后表现一致。
 func _apply_visual_to_all_units() -> void:
-	if _refs.bench_ui != null:
-		for unit in _refs.bench_ui.get_all_units():
-			_apply_unit_visual_presentation(unit)
-	for unit in _state.ally_deployed.values():
-		_apply_unit_visual_presentation(unit)
-	for unit in _state.enemy_deployed.values():
-		_apply_unit_visual_presentation(unit)
+	if _world_view_support != null:
+		_world_view_support.apply_visual_to_all_units()
 
 
 # 棋盘格大小或布局变化后，需要重算所有已部署单位的世界坐标。
 func _refresh_deployed_positions() -> void:
-	for unit in _state.ally_deployed.values():
-		if _is_valid_unit(unit):
-			(unit as Node2D).position = _refs.hex_grid.axial_to_world(unit.get("deployed_cell"))
-	for unit in _state.enemy_deployed.values():
-		if _is_valid_unit(unit):
-			(unit as Node2D).position = _refs.hex_grid.axial_to_world(unit.get("deployed_cell"))
+	if _world_view_support != null:
+		_world_view_support.refresh_deployed_positions()
 
 
 # hover 采用悬停延迟显示口径，防止鼠标划过单位时 tooltip 抖动。
 func _update_hover(delta: float) -> void:
-	if _state.dragging_unit != null:
-		_state.tooltip_visible = false
-		_state.hover_candidate_unit = null
-		_state.hover_hold_time = 0.0
-		_state.tooltip_hide_delay = 0.0
+	if _world_view_support == null:
+		return
+	var hover_projection: Dictionary = _world_view_support.update_hover(delta)
+	var action: String = str(hover_projection.get("action", ""))
+	if action == "clear":
 		_notify_hover_cleared()
-		return
-
-	var mouse_screen: Vector2 = _scene_root.get_viewport().get_mouse_position()
-	var world_pos: Vector2 = _screen_to_world(mouse_screen)
-	var hovered: Node = _pick_visible_unit_at_world(world_pos)
-	if hovered == _state.hover_candidate_unit:
-		_state.hover_hold_time += delta
-	else:
-		_state.hover_candidate_unit = hovered
-		_state.hover_hold_time = 0.0
-	if hovered == null:
-		if _state.tooltip_visible:
-			_state.tooltip_hide_delay += delta
-			if _state.tooltip_hide_delay >= 0.15:
-				_state.tooltip_visible = false
-				_notify_hover_cleared()
-		return
-
-	_state.tooltip_hide_delay = 0.0
-	if _state.hover_hold_time >= 0.3:
-		_state.tooltip_visible = true
-		_notify_hover_unit(hovered, mouse_screen)
+	elif action == "show":
+		_notify_hover_unit(
+			hover_projection.get("unit") as Node,
+			hover_projection.get("screen_pos", Vector2.ZERO)
+		)
 
 
 # 阶段切换在世界层只处理交互性和布局，不处理战斗编排与面板内容。
 func _set_stage(next_stage: int) -> void:
-	_state.stage = next_stage
-	if _refs.bench_ui != null and _refs.bench_ui.has_method("set_interactable"):
-		_refs.bench_ui.set_interactable(next_stage == Stage.PREPARATION)
-	if _refs.deploy_overlay != null:
-		_refs.deploy_overlay.visible = next_stage == Stage.PREPARATION
-	_set_bottom_expanded(next_stage != Stage.COMBAT, next_stage != Stage.PREPARATION)
-	_apply_visual_to_all_units()
-	_refit_hex_grid()
-	_refresh_deployed_positions()
+	if _world_view_support != null:
+		_world_view_support.set_stage(next_stage)
 	_refresh_all_ui()
 
 
 # 底栏展开态会直接影响棋盘可用高度，因此必须由世界层统一控制。
 func _set_bottom_expanded(expanded: bool, animate: bool) -> void:
-	_state.bottom_expanded = expanded
-	if _refs.bottom_panel == null:
-		return
-	var viewport_size: Vector2 = _scene_root.get_viewport().get_visible_rect().size
-	var height: float = bottom_reserved_preparation if expanded else 42.0
-	var target_left: float = 12.0
-	var target_right: float = -12.0
-	var target_top: float = -height - 8.0
-	var target_bottom: float = -8.0
-	if _bottom_tween != null:
-		_bottom_tween.kill()
-		_bottom_tween = null
-	if animate:
-		_bottom_tween = create_tween()
-		_bottom_tween.tween_property(
-			_refs.bottom_panel,
-			"offset_left",
-			target_left,
-			0.28
-		).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
-		_bottom_tween.parallel().tween_property(
-			_refs.bottom_panel,
-			"offset_right",
-			target_right,
-			0.28
-		).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
-		_bottom_tween.parallel().tween_property(
-			_refs.bottom_panel,
-			"offset_top",
-			target_top,
-			0.28
-		).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
-		_bottom_tween.parallel().tween_property(
-			_refs.bottom_panel,
-			"offset_bottom",
-			target_bottom,
-			0.28
-		).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
-	else:
-		_refs.bottom_panel.offset_left = target_left
-		_refs.bottom_panel.offset_right = target_right
-		_refs.bottom_panel.offset_top = target_top
-		_refs.bottom_panel.offset_bottom = target_bottom
-	if _refs.toggle_button != null:
-		_refs.toggle_button.text = "▼" if expanded else "▲"
-		_refs.toggle_button.position = Vector2(viewport_size.x * 0.5 - 24.0, viewport_size.y - 34.0)
-	if _refs.bench_ui != null and _refs.bench_ui.has_method("refresh_adaptive_layout"):
-		_refs.bench_ui.call_deferred("refresh_adaptive_layout")
+	if _world_view_support != null:
+		_world_view_support.set_bottom_expanded(expanded, animate)
 
 
 # 视口变化后要同步底栏、棋盘和拖拽高亮，避免分辨率切换后错位。
 func _on_viewport_size_changed() -> void:
-	_set_bottom_expanded(_state.bottom_expanded, false)
-	if _refs.bench_ui != null and _refs.bench_ui.has_method("refresh_adaptive_layout"):
-		_refs.bench_ui.call_deferred("refresh_adaptive_layout")
-	_refit_hex_grid()
-	_refresh_deployed_positions()
-	_request_drag_overlay_redraw()
+	if _world_view_support != null:
+		_world_view_support.on_viewport_size_changed()
 
 
 # 底栏切换按钮只改变世界布局，不在这里掺入任何 HUD 业务逻辑。
 func _on_toggle_bottom_pressed() -> void:
-	_set_bottom_expanded(not _state.bottom_expanded, true)
-	_refit_hex_grid()
-	_refresh_deployed_positions()
+	if _world_view_support != null:
+		_world_view_support.on_toggle_bottom_pressed()
 
 
 # 备战席变化后做最小刷新，确保调试文案与 hover 数据不陈旧。
@@ -841,13 +568,15 @@ func _on_bench_changed() -> void:
 
 # 拖拽高亮需要重绘时，只允许通过这里请求根节点 queue_redraw。
 func _request_drag_overlay_redraw(force: bool = false) -> void:
-	if force or _state.dragging_unit != null or _state.drag_target_cell.x >= 0:
-		_scene_root.queue_redraw()
+	if _world_view_support != null:
+		_world_view_support.request_drag_overlay_redraw(force)
 
 
 # 屏幕坐标转世界坐标统一走 WorldContainer 逆矩阵，避免多处自算偏移。
 func _screen_to_world(screen_pos: Vector2) -> Vector2:
-	return _refs.world_container.get_global_transform().affine_inverse() * screen_pos
+	if _world_view_support != null:
+		return _world_view_support.screen_to_world(screen_pos)
+	return screen_pos
 
 
 # 单元格洗牌逻辑收在世界层，供自动部署和敌军落位共用。
@@ -861,11 +590,15 @@ func _shuffle_cells(cells: Array[Vector2i], rng: RandomNumberGenerator) -> void:
 
 # 统一 cell key 格式，避免部署映射在不同调用点写出不同字符串口径。
 func _cell_key(cell: Vector2i) -> String:
+	if _world_view_support != null:
+		return str(_world_view_support.cell_key(cell))
 	return "%d,%d" % [cell.x, cell.y]
 
 
 # 只认仍然活着的实例化节点，避免悬空引用继续留在部署映射里。
 func _is_valid_unit(unit: Variant) -> bool:
+	if _world_view_support != null:
+		return bool(_world_view_support.is_valid_unit(unit))
 	if not is_instance_valid(unit):
 		return false
 	return (unit as Node) != null
@@ -873,25 +606,21 @@ func _is_valid_unit(unit: Variant) -> bool:
 
 # 给单位节点写入映射缓存，后续删除时可以优先走 O(1) 路径。
 func _set_unit_map_cache(unit: Node, map_key: String, team_id: int) -> void:
-	if not _is_valid_unit(unit):
-		return
-	unit.set_meta("map_cell_key", map_key)
-	unit.set_meta("map_team_id", team_id)
+	if _world_view_support != null:
+		_world_view_support.set_unit_map_cache(unit, map_key, team_id)
 
 
 # 读取映射缓存 key，供 deploy manager 删除映射时做快速命中。
 func _get_unit_map_key(unit: Node) -> String:
-	if not _is_valid_unit(unit):
-		return ""
-	return str(unit.get_meta("map_cell_key", ""))
+	if _world_view_support != null:
+		return str(_world_view_support.get_unit_map_key(unit))
+	return ""
 
 
 # 清空单位上的映射缓存，避免旧格子信息带到下一次部署。
 func _clear_unit_map_cache(unit: Node) -> void:
-	if not _is_valid_unit(unit):
-		return
-	unit.remove_meta("map_cell_key")
-	unit.remove_meta("map_team_id")
+	if _world_view_support != null:
+		_world_view_support.clear_unit_map_cache(unit)
 
 
 # 非拖拽点击只尝试做“世界单位点选”，不会在这里直接操作详情面板。
@@ -972,20 +701,9 @@ func _reset_press_state() -> void:
 
 # 世界调试态先整理成快照，再交给 HUD facade 决定怎么投影。
 func _build_world_debug_snapshot() -> Dictionary:
-	var bench_count: int = 0
-	if _refs.bench_ui != null and _refs.bench_ui.has_method("get_unit_count"):
-		bench_count = int(_refs.bench_ui.get_unit_count())
-	var stage_name: String = "PREPARATION"
-	if int(_state.stage) == Stage.COMBAT:
-		stage_name = "COMBAT"
-	elif int(_state.stage) == Stage.RESULT:
-		stage_name = "RESULT"
-	return {
-		"stage_name": stage_name,
-		"bench_count": bench_count,
-		"ally_count": _state.ally_deployed.size(),
-		"enemy_count": _state.enemy_deployed.size()
-	}
+	if _world_view_support != null:
+		return _world_view_support.build_world_debug_snapshot()
+	return {}
 
 
 # 通过根场景 getter 读取 presenter，避免 world controller 直接写死子节点路径。

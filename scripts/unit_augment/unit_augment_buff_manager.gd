@@ -483,6 +483,11 @@ func remove_source_bound_auras_from_source(source: Node, context: Dictionary = {
 # battlefield effect 与 tick 请求生成统一由 runtime 子服务处理。
 # manager 只继续暴露原来的对外方法名，避免 battle runtime 感知内部拆分。
 func tick(delta: float, context: Dictionary = {}) -> Dictionary:
+	if _active_by_unit.is_empty() and _battlefield_effects.is_empty():
+		return {
+			"changed_unit_ids": [],
+			"tick_requests": []
+		}
 	return _battlefield_runtime.tick(self, delta, context)
 
 
@@ -495,6 +500,13 @@ func add_battlefield_effect(effect_config: Dictionary, source: Node = null) -> b
 # context 中的 `all_units` 是 aura 和 tick 清理找目标节点的统一入口。
 # 这里保持纯查找语义，不附带任何创建或 fallback 装配。
 func _find_unit_in_context(unit_iid: int, context: Dictionary) -> Node:
+	var unit_lookup_value: Variant = context.get("unit_lookup", {})
+	if unit_lookup_value is Dictionary:
+		var unit_lookup: Dictionary = unit_lookup_value
+		if unit_lookup.has(unit_iid):
+			var lookup_unit: Node = unit_lookup[unit_iid] as Node
+			if lookup_unit != null and is_instance_valid(lookup_unit):
+				return lookup_unit
 	var all_units_value: Variant = context.get("all_units", [])
 	if not (all_units_value is Array):
 		return null

@@ -21,12 +21,17 @@ const STAGE_RESULT: int = 2 # 结算期 HUD 让位给结果统计。
 
 const BATTLE_LOG_MAX_LINES: int = 50 # 日志缓存上限。
 const BATTLE_LOG_FLUSH_INTERVAL: float = 0.12 # 日志批量刷新的节奏。
+const TOP_HUD_REFRESH_INTERVAL_PREP: float = 0.20 # 非战斗期顶栏 5Hz 足够可读。
+const TOP_HUD_REFRESH_INTERVAL_COMBAT: float = 0.16 # 普通战斗期顶栏刷新节流。
+const TOP_HUD_REFRESH_INTERVAL_DENSE_COMBAT: float = 0.32 # 高密度战斗期进一步减少 UI 改写。
+const DENSE_COMBAT_UNIT_THRESHOLD: int = 120 # 超过阈值后按高密度战斗节流顶栏。
 
 var _owner = null # HUD facade。
 var _scene_root = null # 根场景入口。
 var _refs = null # 场景引用表。
 var _state = null # 会话状态表。
 var _support = null # HUD 共享支撑。
+var _top_hud_refresh_accum: float = 0.0 # 顶栏节流累计时间。
 
 
 # 绑定 runtime view 所需的 facade、引用表、状态和共享 support。
@@ -36,6 +41,16 @@ func initialize(owner, scene_root, refs, state, support) -> void:
 	_refs = refs
 	_state = state
 	_support = support
+	_top_hud_refresh_accum = 0.0
+
+# 清理 runtime view 的场景引用，等待下次重新装配。
+func shutdown() -> void:
+	_owner = null
+	_scene_root = null
+	_refs = null
+	_state = null
+	_support = null
+	_top_hud_refresh_accum = 0.0
 
 
 # 新入口初始化时统一收拢 HUD 默认显隐和按钮状态。
@@ -60,22 +75,34 @@ func initialize_view_defaults() -> void:
 
 
 # 刷新顶栏回合、计时和战力条，保证世界变化后 HUD 立即同步。
-# 战力条按存活人数实时计算，不缓存旧值，避免战斗开始后读到准备期数据。
-func refresh_top_runtime_hud() -> void:
-	if _refs.round_label != null:
-		_refs.round_label.text = "第 %d 回合" % maxi(_state.round_index, 1)
+# 这里显式做节流和“值未变化不写 UI”，避免高密度战斗里每帧触发 Control 树重排。
+func refresh_top_runtime_hud(delta: float = 0.0, force: bool = false) -> void:
+	if _state == null or _refs == null or _support == null:
+		return
+	if not force:
+		_top_hud_refresh_accum += maxf(delta, 0.0)
+		if _top_hud_refresh_accum < _resolve_top_hud_refresh_interval():
+			return
+	_top_hud_refresh_accum = 0.0
+
+	var round_text: String = "第 %d 回合" % maxi(_state.round_index, 1)
+	_set_label_text_if_changed(_refs.round_label, round_text)
+
 	var render_fps: int = int(Engine.get_frames_per_second())
-	if _refs.timer_label != null:
-		if int(_state.stage) == STAGE_COMBAT:
-			_refs.timer_label.text = "%.1fs | %d fps" % [_state.combat_elapsed, render_fps]
-		else:
-			_refs.timer_label.text = "-- | %d fps" % render_fps
-	if _refs.power_bar != null:
-		var ally_alive: int = _support.get_alive_count(_support.TEAM_ALLY)
-		var enemy_alive: int = _support.get_alive_count(_support.TEAM_ENEMY)
-		var total_alive: int = maxi(ally_alive + enemy_alive, 1)
-		_refs.power_bar.value = float(ally_alive) / float(total_alive) * 100.0
-		_refs.power_bar.tooltip_text = "己方 %d / 敌方 %d" % [ally_alive, enemy_alive]
+	var timer_text: String = "-- | %d fps" % render_fps
+	if int(_state.stage) == STAGE_COMBAT:
+		timer_text = "%.1fs | %d fps" % [_state.combat_elapsed, render_fps]
+	_set_label_text_if_changed(_refs.timer_label, timer_text)
+
+	if _refs.power_bar == null:
+		return
+	var ally_alive: int = _support.get_alive_count(_support.TEAM_ALLY)
+	var enemy_alive: int = _support.get_alive_count(_support.TEAM_ENEMY)
+	var total_alive: int = maxi(ally_alive + enemy_alive, 1)
+	var power_value: float = float(ally_alive) / float(total_alive) * 100.0
+	var power_tooltip: String = "己方 %d / 敌方 %d" % [ally_alive, enemy_alive]
+	_set_progress_value_if_changed(_refs.power_bar, power_value)
+	_set_control_tooltip_if_changed(_refs.power_bar, power_tooltip)
 
 
 # 顶栏快捷按钮只根据当前阶段和战斗运行态切换可用性。
@@ -83,8 +110,9 @@ func refresh_top_runtime_hud() -> void:
 func refresh_top_quick_action_buttons() -> void:
 	var editable_stage: bool = int(_state.stage) == STAGE_PREPARATION
 	var battle_running: bool = false
-	if _refs.combat_manager != null and _refs.combat_manager.has_method("is_battle_running"):
-		battle_running = bool(_refs.combat_manager.call("is_battle_running"))
+	var combat_manager = _get_combat_manager()
+	if combat_manager != null:
+		battle_running = bool(combat_manager.is_battle_running())
 	if _refs.shop_open_button != null:
 		_refs.shop_open_button.text = "商店(B)"
 		_refs.shop_open_button.disabled = not editable_stage
@@ -277,14 +305,14 @@ func sync_world_debug_status(snapshot: Dictionary) -> void:
 	if _refs.debug_label == null:
 		return
 	if snapshot.is_empty():
-		_refs.debug_label.text = ""
+		_set_label_text_if_changed(_refs.debug_label, "")
 		return
-	_refs.debug_label.text = "阶段:%s  备战:%d  己方:%d  敌方:%d" % [
+	_set_label_text_if_changed(_refs.debug_label, "阶段:%s  备战:%d  己方:%d  敌方:%d" % [
 		str(snapshot.get("stage_name", "PREPARATION")),
 		int(snapshot.get("bench_count", 0)),
 		int(snapshot.get("ally_count", 0)),
 		int(snapshot.get("enemy_count", 0))
-	]
+	])
 
 
 # 星级颜色只服务拖拽预览，不把这组表现规则散回 world controller。
@@ -299,3 +327,45 @@ func _drag_preview_star_color(star: int) -> Color:
 		_:
 			return Color(1, 1, 1, 1)
 
+
+# 统一读取 CombatManager，避免顶栏按钮重复写 refs 判空。
+func _get_combat_manager():
+	if _refs == null:
+		return null
+	return _refs.combat_manager
+
+
+# 顶栏节流跟随战斗密度变化，高密度时优先把预算留给战斗本身。
+func _resolve_top_hud_refresh_interval() -> float:
+	var stage_id: int = int(_state.stage) if _state != null else STAGE_PREPARATION
+	if stage_id != STAGE_COMBAT:
+		return TOP_HUD_REFRESH_INTERVAL_PREP
+	var total_units: int = 0
+	if _state != null:
+		total_units = _state.ally_deployed.size() + _state.enemy_deployed.size()
+	if total_units >= DENSE_COMBAT_UNIT_THRESHOLD:
+		return TOP_HUD_REFRESH_INTERVAL_DENSE_COMBAT
+	return TOP_HUD_REFRESH_INTERVAL_COMBAT
+
+
+# 只有文案真的变化时才写 Label，避免无意义触发 UI 脏标记。
+func _set_label_text_if_changed(label: Label, value: String) -> void:
+	if label == null or label.text == value:
+		return
+	label.text = value
+
+
+# 进度条变化很小时不重复写回，减少 Control 树内部同步成本。
+func _set_progress_value_if_changed(bar: ProgressBar, value: float) -> void:
+	if bar == null:
+		return
+	if absf(bar.value - value) <= 0.01:
+		return
+	bar.value = value
+
+
+# tooltip 同样走“值变化才写回”的口径，避免每次刷新都碰 UI 属性。
+func _set_control_tooltip_if_changed(control: Control, value: String) -> void:
+	if control == null or control.tooltip_text == value:
+		return
+	control.tooltip_text = value

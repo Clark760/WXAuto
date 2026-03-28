@@ -8,6 +8,8 @@ extends Node
 # 2. 一次性动画（ATTACK/SKILL/HIT/DEATH）保留 Tween，保障打击感与可读性。
 # 3. 高频逻辑帧重复下发同一循环状态时直接忽略，避免动画相位不断重置。
 
+const PROBE_SCOPE_SPRITE_ANIMATOR_PROCESS: String = "sprite_animator_process"
+
 enum AnimState {
 	IDLE,
 	MOVE,
@@ -38,6 +40,7 @@ var _has_rest_transform: bool = false
 
 var _loop_anim_time: float = 0.0
 var _loop_state_active: bool = false
+var _loop_animation_enabled: bool = true
 var _impulse_anim_time: float = 0.0
 var _impulse_duration: float = 0.0
 var _impulse_direction: Vector2 = Vector2.ZERO
@@ -63,6 +66,7 @@ var _params: Dictionary = {
 }
 
 
+# 进入场景后解析目标节点，并建立静止基准。
 func _ready() -> void:
 	_resolve_target()
 	_cache_base_transform()
@@ -70,23 +74,30 @@ func _ready() -> void:
 	play_state(AnimState.IDLE)
 
 
+# 退出树时统一停止 Tween，避免对象池复用带出旧动画。
 func _exit_tree() -> void:
 	_stop_tween()
 
 
+# 逐帧只推进循环态和脉冲态，静止状态不额外占用 _process。
 func _process(delta: float) -> void:
+	var process_begin_us: int = _probe_begin_timing()
 	if _target == null or not is_instance_valid(_target):
+		_probe_commit_timing(process_begin_us)
 		return
 
 	if _loop_state_active:
 		_loop_anim_time += delta
 		_apply_loop_pose(_loop_anim_time)
+		_probe_commit_timing(process_begin_us)
 		return
 	if _state == AnimState.ATTACK or _state == AnimState.HIT:
 		_impulse_anim_time += delta
 		_apply_impulse_pose()
+	_probe_commit_timing(process_begin_us)
 
 
+# 只覆盖显式传入的动画参数，未提供的继续沿用默认值。
 func set_overrides(overrides: Dictionary) -> void:
 	# 允许 JSON 只覆盖部分字段，未提供键值继续使用默认参数。
 	for key in overrides.keys():
@@ -94,6 +105,25 @@ func set_overrides(overrides: Dictionary) -> void:
 			_params[key] = overrides[key]
 
 
+# 高密度战斗里允许关闭循环动画，只保留攻击/受击/死亡等一次性动作。
+func set_loop_animation_enabled(enabled: bool) -> void:
+	if _loop_animation_enabled == enabled:
+		return
+	_loop_animation_enabled = enabled
+	if not _is_loop_state(_state):
+		return
+	if _loop_animation_enabled:
+		_loop_state_active = true
+		_loop_anim_time = 0.0
+		set_process(true)
+		_apply_loop_pose(0.0)
+		return
+	_loop_state_active = false
+	set_process(false)
+	_reset_to_base()
+
+
+# 状态切换入口统一负责清理旧动画并决定本次驱动方式。
 func play_state(state: int, context: Dictionary = {}) -> void:
 	_resolve_target()
 	if _target == null:
@@ -113,6 +143,11 @@ func play_state(state: int, context: Dictionary = {}) -> void:
 	_loop_anim_time = 0.0
 
 	if _is_loop_state(_state):
+		if not _loop_animation_enabled:
+			_loop_state_active = false
+			set_process(false)
+			_reset_to_base()
+			return
 		_loop_state_active = true
 		set_process(true)
 		_apply_loop_pose(0.0)
@@ -135,10 +170,12 @@ func play_state(state: int, context: Dictionary = {}) -> void:
 			play_state(AnimState.IDLE)
 
 
+# 判断某个状态是否属于持续循环播放的轻量动画。
 func _is_loop_state(state: int) -> bool:
 	return state == AnimState.IDLE or state == AnimState.MOVE or state == AnimState.BENCH or state == AnimState.VICTORY
 
 
+# ATTACK/HIT 这类一次性脉冲动作走统一插值逻辑。
 func _apply_impulse_pose() -> void:
 	if _target == null:
 		return
@@ -171,6 +208,7 @@ func _apply_impulse_pose() -> void:
 		_switch_to_idle_if_current(_state)
 
 
+# 循环态根据当前状态把基础姿态投影成轻量摆动。
 func _apply_loop_pose(anim_time: float) -> void:
 	if _target == null:
 		return
@@ -217,6 +255,7 @@ func _apply_loop_pose(anim_time: float) -> void:
 			pass
 
 
+# 切状态前先把目标节点拉回静止基准，避免旧偏移累积。
 func _normalize_base_before_state(state: int) -> void:
 	if _target == null:
 		return
@@ -243,6 +282,7 @@ func _normalize_base_before_state(state: int) -> void:
 		canvas.modulate = c
 
 
+# target_path 为空时，默认把父节点当成动画作用目标。
 func _resolve_target() -> void:
 	if _target != null and is_instance_valid(_target):
 		return
@@ -254,6 +294,7 @@ func _resolve_target() -> void:
 		_target = get_parent() as Node2D
 
 
+# 首次缓存静止姿态，并在后续状态切换时复用这份基准。
 func _cache_base_transform() -> void:
 	if _target == null:
 		return
@@ -277,6 +318,7 @@ func _cache_base_transform() -> void:
 		_base_modulate = _rest_modulate
 
 
+# 格子位移完成后只更新静止锚点，不改变其它静态参数。
 func update_rest_position(new_position: Vector2) -> void:
 	# 仅更新静止位置，适合“格子位移完成后”修正漂移锚点。
 	_rest_position = new_position
@@ -286,6 +328,7 @@ func update_rest_position(new_position: Vector2) -> void:
 	_has_rest_transform = true
 
 
+# 用当前姿态重建 rest/base，适合对象池复用后的锚点对齐。
 func sync_rest_transform_to_current() -> void:
 	# 以当前 target 姿态重建 rest/base，避免坐标系假设错误。
 	_resolve_target()
@@ -304,6 +347,30 @@ func sync_rest_transform_to_current() -> void:
 	_has_rest_transform = true
 
 
+# 格子移动收尾必须回到干净静止态，不能把 MOVE 的中间帧写成新的 rest。
+func finish_move_visual() -> void:
+	_resolve_target()
+	if _target == null:
+		return
+	if _state != AnimState.MOVE:
+		return
+
+	_rest_position = Vector2.ZERO
+	_rest_scale = Vector2.ONE
+	_rest_rotation = 0.0
+	if _target is CanvasItem:
+		_rest_modulate = Color(1, 1, 1, 1)
+	_base_position = _rest_position
+	_base_scale = _rest_scale
+	_base_rotation = _rest_rotation
+	if _target is CanvasItem:
+		_base_modulate = _rest_modulate
+	_has_rest_transform = true
+	_reset_to_base()
+	play_state(AnimState.IDLE)
+
+
+# 对外暴露的强制重置入口，用于对象池复用和战后清理。
 func force_reset_rest_transform() -> void:
 	# 对外统一暴露的“强制重置锚点”接口：
 	# - 用于对象池复用、战后重置和异常姿态兜底
@@ -325,6 +392,7 @@ func force_reset_rest_transform() -> void:
 	set_process(false)
 
 
+# 把当前目标节点拉回到最近一次缓存的基础姿态。
 func _reset_to_base() -> void:
 	if _target == null:
 		return
@@ -335,23 +403,27 @@ func _reset_to_base() -> void:
 		(_target as CanvasItem).modulate = _base_modulate
 
 
+# 杀掉旧 Tween，避免多个一次性动画互相叠加。
 func _stop_tween() -> void:
 	if _tween != null and _tween.is_valid():
 		_tween.kill()
 	_tween = null
 
 
+# 清空短脉冲动画状态，供状态切换时复用。
 func _clear_impulse_state() -> void:
 	_impulse_anim_time = 0.0
 	_impulse_duration = 0.0
 	_impulse_direction = Vector2.ZERO
 
 
+# 一次性动作结束后只在状态未被外部改写时回到 IDLE。
 func _switch_to_idle_if_current(expected_state: int) -> void:
 	if _state == expected_state:
 		play_state(AnimState.IDLE)
 
 
+# ATTACK 通过短冲刺实现前扑感，不额外创建 Tween。
 func _play_attack(direction: Vector2) -> void:
 	_reset_to_base()
 	var dash_dir: Vector2 = direction.normalized()
@@ -364,6 +436,7 @@ func _play_attack(direction: Vector2) -> void:
 	_apply_impulse_pose()
 
 
+# SKILL 保留拉伸和闪光 Tween，保证释放反馈的辨识度。
 func _play_skill() -> void:
 	_reset_to_base()
 	_tween = create_tween()
@@ -385,6 +458,7 @@ func _play_skill() -> void:
 	)
 
 
+# HIT 走短促的反向击退脉冲，和 ATTACK 共享同一套脉冲播放器。
 func _play_hit(direction: Vector2) -> void:
 	_reset_to_base()
 	var back_dir: Vector2 = -direction.normalized()
@@ -397,15 +471,30 @@ func _play_hit(direction: Vector2) -> void:
 	_apply_impulse_pose()
 
 
+# DEATH 保留缩放和下沉 Tween，结尾再统一隐藏单位根节点。
 func _play_death() -> void:
 	_reset_to_base()
 	_tween = create_tween()
 
 	var duration: float = maxf(float(_params["death_duration"]), 0.01)
-	_tween.parallel().tween_property(_target, "scale", _base_scale * 0.2, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
-	_tween.parallel().tween_property(_target, "position:y", _base_position.y + 12.0, duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	_tween.parallel() \
+		.tween_property(_target, "scale", _base_scale * 0.2, duration) \
+		.set_trans(Tween.TRANS_CUBIC) \
+		.set_ease(Tween.EASE_IN)
+	_tween.parallel() \
+		.tween_property(
+			_target,
+			"position:y",
+			_base_position.y + 12.0,
+			duration
+		) \
+		.set_trans(Tween.TRANS_SINE) \
+		.set_ease(Tween.EASE_IN)
 	if _target is CanvasItem:
-		_tween.parallel().tween_property(_target, "modulate:a", 0.0, duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+		_tween.parallel() \
+			.tween_property(_target, "modulate:a", 0.0, duration) \
+			.set_trans(Tween.TRANS_SINE) \
+			.set_ease(Tween.EASE_IN)
 
 	_tween.finished.connect(func() -> void:
 		# 死亡状态通常由外部管理，不自动切回 IDLE。
@@ -415,3 +504,28 @@ func _play_death() -> void:
 		if unit_root != null and unit_root is CanvasItem:
 			(unit_root as CanvasItem).visible = false
 	)
+
+
+# SpriteAnimator 没有直接持有 ServiceRegistry，因此从父单位读取 RuntimeProbe。
+func _probe_begin_timing() -> int:
+	var runtime_probe = _get_runtime_probe()
+	if runtime_probe == null or not runtime_probe.has_method("begin_timing"):
+		return 0
+	return int(runtime_probe.begin_timing())
+
+
+# 动画器自己的 _process 不在 CombatManager scope 内，必须单独统计。
+func _probe_commit_timing(begin_us: int) -> void:
+	var runtime_probe = _get_runtime_probe()
+	if runtime_probe == null or not runtime_probe.has_method("commit_timing"):
+		return
+	runtime_probe.commit_timing(PROBE_SCOPE_SPRITE_ANIMATOR_PROCESS, begin_us)
+
+
+# 父节点是 UnitBase 时走显式 getter；其它宿主则静默视为没有探针。
+func _get_runtime_probe():
+	var host_unit: Node = get_parent()
+	if host_unit == null or not host_unit.has_method("get_runtime_probe"):
+		return null
+	var host_api: Variant = host_unit
+	return host_api.get_runtime_probe()

@@ -43,16 +43,12 @@ func initialize(owner, refs, state, rng: RandomNumberGenerator) -> void:
 func refresh_shop_for_preparation(force_refresh: bool) -> void:
 	if _refs.runtime_economy_manager == null or _refs.runtime_shop_manager == null:
 		return
-	var locked: bool = false
-	if _refs.runtime_economy_manager.has_method("is_shop_locked"):
-		locked = bool(_refs.runtime_economy_manager.call("is_shop_locked"))
-	if _refs.runtime_shop_manager.has_method("refresh_shop"):
-		_refs.runtime_shop_manager.call(
-			"refresh_shop",
-			_refs.runtime_economy_manager.call("get_shop_probabilities"),
-			locked,
-			force_refresh
-		)
+	var locked: bool = _refs.runtime_economy_manager.is_shop_locked()
+	_refs.runtime_shop_manager.refresh_shop(
+		_refs.runtime_economy_manager.get_shop_probabilities(),
+		locked,
+		force_refresh
+	)
 	_owner._refresh_presenter()
 
 
@@ -63,22 +59,26 @@ func purchase_shop_offer(tab_id: String, index: int) -> void:
 		return
 	if _refs.runtime_economy_manager == null or _refs.runtime_shop_manager == null:
 		return
-	var offer: Dictionary = _refs.runtime_shop_manager.call("get_offer", tab_id, index)
+	var offer: Dictionary = _refs.runtime_shop_manager.get_offer(tab_id, index)
 	if offer.is_empty() or bool(offer.get("sold", false)):
 		return
 	var price: int = maxi(int(offer.get("price", 0)), 0)
-	if not bool(_refs.runtime_economy_manager.call("spend_silver", price)):
+	if not _refs.runtime_economy_manager.spend_silver(price):
 		if _refs.debug_label != null:
 			_refs.debug_label.text = "银两不足：购买失败。"
 		return
 	if not _grant_offer(offer):
-		_refs.runtime_economy_manager.call("add_silver", price)
+		_refs.runtime_economy_manager.add_silver(price)
 		return
-	_refs.runtime_shop_manager.call("purchase_offer", tab_id, index)
+	_refs.runtime_shop_manager.purchase_offer(tab_id, index)
 	_owner._append_battle_log(
 		"商店购买：%s（- %d 银两）" % [str(offer.get("name", "未知")), price],
 		"system"
 	)
+	var presenter: Node = _owner._get_hud_presenter()
+	if tab_id == "recruit" and presenter != null and presenter.has_method("refresh_after_recruit_purchase"):
+		presenter.refresh_after_recruit_purchase()
+		return
 	_owner._refresh_presenter()
 
 
@@ -89,15 +89,14 @@ func refresh_shop_from_button() -> void:
 		return
 	if _refs.runtime_economy_manager == null or _refs.runtime_shop_manager == null:
 		return
-	var cost: int = int(_refs.runtime_economy_manager.call("get_refresh_cost"))
-	if not bool(_refs.runtime_economy_manager.call("spend_silver", cost)):
+	var cost: int = _refs.runtime_economy_manager.get_refresh_cost()
+	if not _refs.runtime_economy_manager.spend_silver(cost):
 		if _refs.debug_label != null:
 			_refs.debug_label.text = "银两不足：刷新需要 %d 银两" % cost
 		return
-	_refs.runtime_economy_manager.call("set_shop_locked", false)
-	_refs.runtime_shop_manager.call(
-		"refresh_shop",
-		_refs.runtime_economy_manager.call("get_shop_probabilities"),
+	_refs.runtime_economy_manager.set_shop_locked(false)
+	_refs.runtime_shop_manager.refresh_shop(
+		_refs.runtime_economy_manager.get_shop_probabilities(),
 		false,
 		true
 	)
@@ -110,8 +109,8 @@ func refresh_shop_from_button() -> void:
 func toggle_shop_lock() -> void:
 	if int(_state.stage) != STAGE_PREPARATION or _refs.runtime_economy_manager == null:
 		return
-	var next_locked: bool = not bool(_refs.runtime_economy_manager.call("is_shop_locked"))
-	_refs.runtime_economy_manager.call("set_shop_locked", next_locked)
+	var next_locked: bool = not _refs.runtime_economy_manager.is_shop_locked()
+	_refs.runtime_economy_manager.set_shop_locked(next_locked)
 	if _refs.debug_label != null:
 		if next_locked:
 			_refs.debug_label.text = "商店已锁定，下回合将保留当前商品。"
@@ -125,16 +124,16 @@ func toggle_shop_lock() -> void:
 func buy_shop_upgrade() -> void:
 	if int(_state.stage) != STAGE_PREPARATION or _refs.runtime_economy_manager == null:
 		return
-	if not bool(_refs.runtime_economy_manager.call("buy_exp_with_silver")):
+	if not _refs.runtime_economy_manager.buy_exp_with_silver():
 		if _refs.debug_label != null:
 			_refs.debug_label.text = "银两不足：升级需要 %d 银两" % int(
-				_refs.runtime_economy_manager.call("get_upgrade_cost")
+				_refs.runtime_economy_manager.get_upgrade_cost()
 			)
 		return
 	_owner._append_battle_log(
 		"门派修炼：消耗 %d 银两，获得 %d 经验" % [
-			int(_refs.runtime_economy_manager.call("get_upgrade_cost")),
-			int(_refs.runtime_economy_manager.call("get_upgrade_exp_gain"))
+			_refs.runtime_economy_manager.get_upgrade_cost(),
+			_refs.runtime_economy_manager.get_upgrade_exp_gain()
 		],
 		"system"
 	)
@@ -146,7 +145,7 @@ func buy_shop_upgrade() -> void:
 func add_test_silver() -> void:
 	if _refs.runtime_economy_manager == null:
 		return
-	_refs.runtime_economy_manager.call("add_silver", 10)
+	_refs.runtime_economy_manager.add_silver(10)
 	_owner._append_battle_log("测试指令：银两 +10", "system")
 	_owner._refresh_presenter()
 
@@ -156,7 +155,7 @@ func add_test_silver() -> void:
 func add_test_exp() -> void:
 	if _refs.runtime_economy_manager == null:
 		return
-	_refs.runtime_economy_manager.call("add_exp", 5)
+	_refs.runtime_economy_manager.add_exp(5)
 	_owner._append_battle_log("测试指令：经验 +5", "system")
 	_owner._refresh_presenter()
 
@@ -170,8 +169,7 @@ func try_sell_dragging_unit() -> bool:
 		return false
 	var origin_kind: String = ""
 	if _refs.runtime_drag_controller != null:
-		if _refs.runtime_drag_controller.has_method("get_drag_origin_kind"):
-			origin_kind = str(_refs.runtime_drag_controller.call("get_drag_origin_kind"))
+		origin_kind = str(_refs.runtime_drag_controller.get_drag_origin_kind())
 	if origin_kind != "bench":
 		return false
 	return _sell_unit_node(_state.dragging_unit)
@@ -209,28 +207,26 @@ func grant_stage_reward_unit(unit_id: String, star: int = 1) -> Dictionary:
 	}
 	if unit_id.strip_edges().is_empty() or _refs.unit_factory == null:
 		return result
-	var unit_node: Node = _refs.unit_factory.call("acquire_unit", unit_id, clampi(star, 1, 3), _refs.unit_layer)
+	var unit_node: Node = _refs.unit_factory.acquire_unit(unit_id, clampi(star, 1, 3), _refs.unit_layer)
 	if unit_node == null:
 		return result
-	unit_node.call("set_team", 1)
-	unit_node.call("set_on_bench_state", true, -1)
+	unit_node.set_team(1)
+	unit_node.set_on_bench_state(true, -1)
 	unit_node.set("is_in_combat", false)
-	if _refs.bench_ui != null and _refs.bench_ui.has_method("add_unit"):
-		if bool(_refs.bench_ui.call("add_unit", unit_node)):
-			result["granted"] = true
-			result["placement"] = "bench"
-			_owner._get_world_controller().refresh_world_layout()
-			return result
+	if _refs.bench_ui != null and _refs.bench_ui.add_unit(unit_node):
+		result["granted"] = true
+		result["placement"] = "bench"
+		_owner._get_world_controller().refresh_world_layout()
+		return result
 	var board_cell: Vector2i = _find_reward_unit_board_cell(unit_node)
 	if board_cell.x >= 0 and _refs.runtime_unit_deploy_manager != null:
-		if _refs.runtime_unit_deploy_manager.has_method("deploy_ally_unit_to_cell"):
-			_refs.runtime_unit_deploy_manager.call("deploy_ally_unit_to_cell", unit_node, board_cell)
-			result["granted"] = true
-			result["placement"] = "board"
-			result["cell"] = board_cell
-			_owner._get_world_controller().refresh_world_layout()
-			return result
-	_refs.unit_factory.call("release_unit", unit_node)
+		_refs.runtime_unit_deploy_manager.deploy_ally_unit_to_cell(unit_node, board_cell)
+		result["granted"] = true
+		result["placement"] = "board"
+		result["cell"] = board_cell
+		_owner._get_world_controller().refresh_world_layout()
+		return result
+	_refs.unit_factory.release_unit(unit_node)
 	return result
 
 
@@ -266,7 +262,7 @@ func on_recycle_sell_requested(payload: Dictionary, price: int) -> void:
 	var final_price: int = RECYCLE_PRICING_SCRIPT.item_sell_price(item_data)
 	if final_price <= 0:
 		final_price = maxi(price, 0)
-	_refs.runtime_economy_manager.call("add_silver", final_price)
+	_refs.runtime_economy_manager.add_silver(final_price)
 	_owner._append_battle_log(
 		"出售%s：%s（+%d 银两）" % [
 			"功法" if item_type == "gongfa" else "装备",
@@ -305,24 +301,23 @@ func _grant_offer(offer: Dictionary) -> bool:
 func _grant_recruit_unit(unit_id: String) -> bool:
 	if _refs.bench_ui == null or _refs.unit_factory == null:
 		return false
-	if int(_refs.bench_ui.call("get_unit_count")) >= int(_refs.bench_ui.call("get_slot_count")):
+	if _refs.bench_ui.get_unit_count() >= _refs.bench_ui.get_slot_count():
 		if _refs.debug_label != null:
 			_refs.debug_label.text = "备战区已满，无法招募。"
 		return false
-	var unit_node: Node = _refs.unit_factory.call("acquire_unit", unit_id, -1, _refs.unit_layer)
+	var unit_node: Node = _refs.unit_factory.acquire_unit(unit_id, -1, _refs.unit_layer)
 	if unit_node == null:
 		if _refs.debug_label != null:
 			_refs.debug_label.text = "招募失败：无法创建角色 %s" % unit_id
 		return false
-	unit_node.call("set_team", 1)
-	unit_node.call("set_on_bench_state", true, -1)
+	unit_node.set_team(1)
+	unit_node.set_on_bench_state(true, -1)
 	unit_node.set("is_in_combat", false)
-	if not bool(_refs.bench_ui.call("add_unit", unit_node)):
-		_refs.unit_factory.call("release_unit", unit_node)
+	if not _refs.bench_ui.add_unit(unit_node):
+		_refs.unit_factory.release_unit(unit_node)
 		if _refs.debug_label != null:
 			_refs.debug_label.text = "备战区已满，无法招募。"
 		return false
-	_owner._get_world_controller().refresh_world_layout()
 	return true
 
 
@@ -331,7 +326,7 @@ func _grant_recruit_unit(unit_id: String) -> bool:
 func _find_reward_unit_board_cell(unit_node: Node = null) -> Vector2i:
 	if _refs.runtime_unit_deploy_manager == null:
 		return Vector2i(-1, -1)
-	var candidates: Array[Vector2i] = _refs.runtime_unit_deploy_manager.call("collect_ally_spawn_cells")
+	var candidates: Array[Vector2i] = _refs.runtime_unit_deploy_manager.collect_ally_spawn_cells()
 	if candidates.is_empty():
 		return Vector2i(-1, -1)
 	_shuffle_cells(candidates)
@@ -341,9 +336,8 @@ func _find_reward_unit_board_cell(unit_node: Node = null) -> Vector2i:
 			continue
 		if _is_stage_cell_blocked(cell):
 			continue
-		if unit_node != null and _refs.runtime_unit_deploy_manager.has_method("can_deploy_ally_to_cell"):
-			if not bool(_refs.runtime_unit_deploy_manager.call("can_deploy_ally_to_cell", unit_node, cell)):
-				continue
+		if unit_node != null and not _refs.runtime_unit_deploy_manager.can_deploy_ally_to_cell(unit_node, cell):
+			continue
 		return cell
 	return Vector2i(-1, -1)
 
@@ -351,9 +345,9 @@ func _find_reward_unit_board_cell(unit_node: Node = null) -> Vector2i:
 # 奖励落位前仍要遵循战场当前阻挡格规则。
 # 这样 terrain、障碍和单位占位的限制，在奖励入口也能保持一致。
 func _is_stage_cell_blocked(cell: Vector2i) -> bool:
-	if _refs.combat_manager == null or not _refs.combat_manager.has_method("is_cell_blocked"):
+	if _refs.combat_manager == null:
 		return false
-	return bool(_refs.combat_manager.call("is_cell_blocked", cell))
+	return bool(_refs.combat_manager.is_cell_blocked(cell))
 
 
 # 出售角色时只允许备战席单位进入回收流程。
@@ -363,11 +357,11 @@ func _sell_unit_node(unit_node: Node) -> bool:
 		return false
 	var unit_name: String = str(_safe_node_prop(unit_node, "unit_name", "未知角色"))
 	var in_bench: bool = bool(unit_node.get("is_on_bench"))
-	if _refs.bench_ui != null and _refs.bench_ui.has_method("find_slot_of_unit"):
-		var slot: int = int(_refs.bench_ui.call("find_slot_of_unit", unit_node))
+	if _refs.bench_ui != null:
+		var slot: int = _refs.bench_ui.find_slot_of_unit(unit_node)
 		if slot >= 0:
 			in_bench = true
-			_refs.bench_ui.call("remove_unit_at", slot)
+			_refs.bench_ui.remove_unit_at(slot)
 	if not in_bench:
 		return false
 	if _state.detail_unit == unit_node:
@@ -375,9 +369,9 @@ func _sell_unit_node(unit_node: Node) -> bool:
 		if presenter != null:
 			presenter.force_close_detail_panel(false)
 	if _refs.unit_factory != null:
-		_refs.unit_factory.call("release_unit", unit_node)
+		_refs.unit_factory.release_unit(unit_node)
 	var unit_price: int = maxi(int(_safe_node_prop(unit_node, "cost", 0)), 0)
-	_refs.runtime_economy_manager.call("add_silver", unit_price)
+	_refs.runtime_economy_manager.add_silver(unit_price)
 	_owner._append_battle_log("出售角色：%s（+%d 银两）" % [unit_name, unit_price], "system")
 	_owner._refresh_presenter()
 	return true
@@ -388,9 +382,9 @@ func _resolve_sell_item_name(item_type: String, item_id: String) -> String:
 		return item_id
 	var data: Dictionary = {}
 	if item_type == "gongfa":
-		data = _refs.unit_augment_manager.call("get_gongfa_data", item_id)
+		data = _refs.unit_augment_manager.get_gongfa_data(item_id)
 	else:
-		data = _refs.unit_augment_manager.call("get_equipment_data", item_id)
+		data = _refs.unit_augment_manager.get_equipment_data(item_id)
 	return str(data.get("name", item_id))
 
 

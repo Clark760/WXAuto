@@ -31,12 +31,19 @@ const COORDINATOR_LAYOUT_SUPPORT_SCRIPT: Script = preload(
 const COORDINATOR_STATISTICS_SUPPORT_SCRIPT: Script = preload(
 	"res://scripts/app/battlefield/battlefield_coordinator_statistics_support.gd"
 ) # 战斗统计支撑脚本。
+const COORDINATOR_SIGNAL_SUPPORT_SCRIPT: Script = preload(
+	"res://scripts/app/battlefield/battlefield_coordinator_signal_support.gd"
+) # 运行时信号接线支撑脚本。
+const COORDINATOR_STAGE_RUNTIME_SUPPORT_SCRIPT: Script = preload(
+	"res://scripts/app/battlefield/battlefield_coordinator_stage_runtime_support.gd"
+) # 关卡网格与地形投影支撑脚本。
 const STAGE_RUNTIME_RULES_SCRIPT: Script = preload(
 	"res://scripts/domain/stage/stage_runtime_rules.gd"
 ) # 关卡运行时纯规则脚本。
 
 @export var enemy_wave_size: int = 200 # 默认敌军波次规模。
 @export var max_auto_deploy: int = 50 # 自动部署兜底上限。
+@export var battle_start_enemy_spawn_batch_size: int = 24 # 开战前敌军分帧生成批大小。
 
 var _scene_root: Node = null # 根场景入口。
 var _refs: Node = null # 场景引用表。
@@ -44,12 +51,21 @@ var _state: RefCounted = null # 会话状态总表。
 var _initialized: bool = false # 基础装配是否完成。
 var _session_started: bool = false # 是否已启动首轮关卡加载。
 var _signals_connected: bool = false # 运行时信号是否已经收口。
+var _battle_start_pending: bool = false # 是否正在分帧准备开战。
 
 var _capture_running: bool = false # 战斗统计捕获是否进行中。
 var _stage_enemy_rng: RandomNumberGenerator = RandomNumberGenerator.new() # 敌军落位随机源。
 var _economy_support = null # 商店/奖励/出售支撑。
 var _layout_support = null # 底栏布局支撑。
 var _statistics_support = null # 统计面板与统计写入支撑。
+var _signal_support = null # 运行时信号接线支撑。
+var _stage_runtime_support = null # 关卡运行时投影支撑。
+var _services: ServiceRegistry = null
+
+
+# 战场场景通过这个入口把全局服务交给 coordinator。
+func bind_app_services(services: ServiceRegistry) -> void:
+	_services = services
 
 
  # 装配 coordinator 和各类支撑协作者，保证编排入口显式化。
@@ -68,6 +84,10 @@ func initialize(scene_root: Node, refs: Node, state: RefCounted) -> void:
 	_statistics_support.initialize(self, _scene_root, _refs, _state)
 	_layout_support.ensure_recycle_zone_created()
 	_statistics_support.ensure_battle_statistics_created()
+	_signal_support = COORDINATOR_SIGNAL_SUPPORT_SCRIPT.new()
+	_signal_support.initialize(self, _scene_root, _refs, _statistics_support)
+	_stage_runtime_support = COORDINATOR_STAGE_RUNTIME_SUPPORT_SCRIPT.new()
+	_stage_runtime_support.initialize(_refs, _state, STAGE_RUNTIME_RULES_SCRIPT)
 	_initialized = _scene_root != null and _refs != null and _state != null
 
 
@@ -98,7 +118,10 @@ func process_runtime(_delta: float) -> void:
 # 开始战斗请求统一经过这里，自动部署、敌军刷出和 prepare/start 顺序都收口在此。
 # 只要未来还存在“开战”概念，就必须经过这一处，不能绕过编排顺序。
 func request_battle_start() -> void:
-	start_battle_from_session(0, true)
+	if _battle_start_pending:
+		return
+	_battle_start_pending = true
+	call_deferred("_request_battle_start_async")
 
 
 # 回放和自动化测试统一走这个开战入口，避免再直接编排 manager 调用顺序。
@@ -106,33 +129,30 @@ func start_battle_from_session(
 	battle_seed: int = 0,
 	prepare_missing_deployment: bool = false
 ) -> bool:
+	if _battle_start_pending and prepare_missing_deployment:
+		return false
 	if _state == null or int(_state.stage) != Stage.PREPARATION:
 		return false
 	if _refs.combat_manager != null \
-	and _refs.combat_manager.has_method("is_battle_running") \
-	and bool(_refs.combat_manager.call("is_battle_running")):
+	and bool(_refs.combat_manager.is_battle_running()):
 		return false
 	# 非战斗关卡直接走 stage manager 完成，不再强行创建战斗单位。
 	if STAGE_RUNTIME_RULES_SCRIPT.is_non_combat_stage(_state.current_stage_config):
-		if _refs.runtime_stage_manager != null \
-		and _refs.runtime_stage_manager.has_method("complete_current_stage_without_battle"):
-			_refs.runtime_stage_manager.call("complete_current_stage_without_battle")
+		if _refs.runtime_stage_manager != null:
+			_refs.runtime_stage_manager.complete_current_stage_without_battle()
 			return true
 		return false
 
 	# 自动部署只在己方完全未上场时触发，避免覆盖玩家已有布阵。
 	if prepare_missing_deployment:
 		var auto_limit: int = max_auto_deploy
-		if _refs.runtime_economy_manager != null \
-		and _refs.runtime_economy_manager.has_method("get_max_deploy_limit"):
-			auto_limit = int(_refs.runtime_economy_manager.call("get_max_deploy_limit"))
+		if _refs.runtime_economy_manager != null:
+			auto_limit = _refs.runtime_economy_manager.get_max_deploy_limit()
 		if _state.ally_deployed.is_empty() \
-		and _refs.runtime_unit_deploy_manager != null \
-		and _refs.runtime_unit_deploy_manager.has_method("auto_deploy_from_bench"):
-			_refs.runtime_unit_deploy_manager.call("auto_deploy_from_bench", auto_limit)
-		if _refs.runtime_unit_deploy_manager != null \
-		and _refs.runtime_unit_deploy_manager.has_method("spawn_enemy_wave"):
-			_refs.runtime_unit_deploy_manager.call("spawn_enemy_wave", enemy_wave_size)
+		and _refs.runtime_unit_deploy_manager != null:
+			_refs.runtime_unit_deploy_manager.auto_deploy_from_bench(auto_limit)
+		if _refs.runtime_unit_deploy_manager != null:
+			_refs.runtime_unit_deploy_manager.spawn_enemy_wave(enemy_wave_size)
 
 	# ally/enemy 数组统一从部署映射收口，后续 prepare/start 只看这一份数据。
 	var ally_units: Array[Node] = _collect_units_from_map(_state.ally_deployed)
@@ -145,10 +165,8 @@ func start_battle_from_session(
 	_state.combat_elapsed = 0.0
 	_prepare_for_battle_start()
 	# prepare_battle 必须发生在 start_battle 前，保证附魔和地形上下文齐全。
-	if _refs.unit_augment_manager != null \
-	and _refs.unit_augment_manager.has_method("prepare_battle"):
-		_refs.unit_augment_manager.call(
-			"prepare_battle",
+	if _refs.unit_augment_manager != null:
+		_refs.unit_augment_manager.prepare_battle(
 			ally_units,
 			enemy_units,
 			_refs.hex_grid,
@@ -157,8 +175,8 @@ func start_battle_from_session(
 		)
 
 	var started: bool = false
-	if _refs.combat_manager != null and _refs.combat_manager.has_method("start_battle"):
-		started = bool(_refs.combat_manager.call("start_battle", ally_units, enemy_units, battle_seed))
+	if _refs.combat_manager != null:
+		started = bool(_refs.combat_manager.start_battle(ally_units, enemy_units, battle_seed))
 	if not started:
 		if _refs.debug_label != null:
 			_refs.debug_label.text = "CombatManager 启动失败。"
@@ -166,20 +184,81 @@ func start_battle_from_session(
 
 	# 进入战斗态后的视觉切换仍保留在各单位自身，coordinator 只负责顺序编排。
 	for unit in ally_units:
-		if unit != null and is_instance_valid(unit) and unit.has_method("enter_combat"):
-			unit.call("enter_combat")
+		if unit != null and is_instance_valid(unit):
+			unit.enter_combat()
 	for unit in enemy_units:
-		if unit != null and is_instance_valid(unit) and unit.has_method("enter_combat"):
-			unit.call("enter_combat")
+		if unit != null and is_instance_valid(unit):
+			unit.enter_combat()
 
-	if _refs.runtime_stage_manager != null \
-	and _refs.runtime_stage_manager.has_method("notify_stage_combat_started"):
-		_refs.runtime_stage_manager.call("notify_stage_combat_started")
+	if _refs.runtime_stage_manager != null:
+		_refs.runtime_stage_manager.notify_stage_combat_started()
 	_start_battle_capture(ally_units, enemy_units)
 	_get_world_controller().set_stage(Stage.COMBAT)
 	_sync_presenter_stage()
 	_refresh_presenter()
 	return true
+
+
+func _request_battle_start_async() -> void:
+	var started: bool = await _start_battle_from_session_async(0, true)
+	_battle_start_pending = false
+	if started:
+		return
+	if _refs != null and _refs.debug_label != null and _refs.debug_label.text.is_empty():
+		_refs.debug_label.text = "开战准备失败。"
+
+
+func _start_battle_from_session_async(
+	battle_seed: int = 0,
+	prepare_missing_deployment: bool = false
+):
+	if _state == null or int(_state.stage) != Stage.PREPARATION:
+		return false
+	if _refs.combat_manager != null and bool(_refs.combat_manager.is_battle_running()):
+		return false
+	if STAGE_RUNTIME_RULES_SCRIPT.is_non_combat_stage(_state.current_stage_config):
+		return start_battle_from_session(battle_seed, prepare_missing_deployment)
+
+	if prepare_missing_deployment:
+		var auto_limit: int = max_auto_deploy
+		if _refs.runtime_economy_manager != null:
+			auto_limit = _refs.runtime_economy_manager.get_max_deploy_limit()
+		if _state.ally_deployed.is_empty() and _refs.runtime_unit_deploy_manager != null:
+			_refs.runtime_unit_deploy_manager.auto_deploy_from_bench(auto_limit)
+		if _state.enemy_deployed.is_empty():
+			await _spawn_enemy_wave_in_batches(enemy_wave_size)
+			await get_tree().process_frame
+
+	return start_battle_from_session(battle_seed, false)
+
+
+func _spawn_enemy_wave_in_batches(enemy_count: int) -> void:
+	if _refs.runtime_unit_deploy_manager == null:
+		return
+	if not _state.enemy_deployed.is_empty():
+		return
+	if not _refs.runtime_unit_deploy_manager.has_method("build_enemy_wave_plan"):
+		_refs.runtime_unit_deploy_manager.spawn_enemy_wave(enemy_count)
+		return
+
+	var spawn_plan: Variant = _refs.runtime_unit_deploy_manager.build_enemy_wave_plan(enemy_count)
+	if not (spawn_plan is Array):
+		return
+	var spawn_entries: Array = spawn_plan
+	if spawn_entries.is_empty():
+		return
+
+	var batch_size: int = maxi(battle_start_enemy_spawn_batch_size, 1)
+	for start_index in range(0, spawn_entries.size(), batch_size):
+		_refs.runtime_unit_deploy_manager.spawn_enemy_wave_from_plan(
+			spawn_entries,
+			start_index,
+			batch_size
+		)
+		if _refs.debug_label != null:
+			var spawned_count: int = mini(start_index + batch_size, spawn_entries.size())
+			_refs.debug_label.text = "正在准备战斗…敌军 %d/%d" % [spawned_count, spawn_entries.size()]
+		await get_tree().process_frame
 
 
  # 手动重开战场时只设置 reload 状态并延迟发出场景切换请求。
@@ -189,10 +268,8 @@ func request_battlefield_reload() -> void:
 		return
 	_state.scene_reload_requested = true
 	if _refs.combat_manager != null \
-	and _refs.combat_manager.has_method("is_battle_running") \
-	and bool(_refs.combat_manager.call("is_battle_running")) \
-	and _refs.combat_manager.has_method("stop_battle"):
-		_refs.combat_manager.call("stop_battle", "manual_reload", 0)
+	and bool(_refs.combat_manager.is_battle_running()):
+		_refs.combat_manager.stop_battle("manual_reload", 0)
 	call_deferred("_emit_battlefield_reload_requested")
 
 
@@ -249,18 +326,13 @@ func grant_stage_reward_unit(unit_id: String, star: int = 1) -> Dictionary:
  # 运行时服务初始化只做依赖注入，不在这里推进关卡或战斗。
  # stage manager 与 economy manager 的 wiring 统一放这里，避免 reload 时漏接。
 func _setup_runtime_services() -> void:
-	var data_manager: Node = _get_root_node("DataManager")
-	if _refs.runtime_economy_manager != null \
-	and _refs.runtime_economy_manager.has_method("setup_from_data_manager"):
-		_refs.runtime_economy_manager.call("setup_from_data_manager", data_manager)
-	if _refs.runtime_stage_manager != null \
-	and _refs.runtime_stage_manager.has_method("configure_runtime_context"):
-		_refs.runtime_stage_manager.call(
-			"configure_runtime_context",
+	var data_manager: Node = _get_data_repository()
+	if _refs.runtime_economy_manager != null:
+		_refs.runtime_economy_manager.setup_from_data_manager(data_manager)
+	if _refs.runtime_stage_manager != null:
+		_refs.runtime_stage_manager.configure_runtime_context(
 			_refs.runtime_economy_manager,
-			_refs.bench_ui,
 			self,
-			_refs.unit_factory,
 			TEAM_ALLY
 		)
 
@@ -268,10 +340,10 @@ func _setup_runtime_services() -> void:
  # 数据缓存重建统一在这里收口，避免 reload 逻辑散到多个回调里。
  # 当前只重建商店池和地形注册表，后续扩展也应继续挂在这里。
 func _rebuild_battle_data_caches() -> void:
-	if _refs.runtime_shop_manager != null and _refs.runtime_shop_manager.has_method("reload_pools"):
-		_refs.runtime_shop_manager.call("reload_pools", _refs.unit_factory, _refs.unit_augment_manager)
-	if _refs.combat_manager != null and _refs.combat_manager.has_method("reload_terrain_registry"):
-		_refs.combat_manager.call("reload_terrain_registry", _get_root_node("DataManager"))
+	if _refs.runtime_shop_manager != null:
+		_refs.runtime_shop_manager.reload_pools(_refs.unit_factory, _refs.unit_augment_manager)
+	if _refs.combat_manager != null:
+		_refs.combat_manager.reload_terrain_registry(_get_data_repository())
 
 
  # 所有运行时信号都在这里集中连接，避免阶段回调散落在各协作者内部。
@@ -279,184 +351,36 @@ func _rebuild_battle_data_caches() -> void:
 func _connect_signals() -> void:
 	if _signals_connected:
 		return
-	_connect_viewport_signal()
-	_connect_economy_signals()
-	_connect_shop_signals()
-	_connect_stage_signals()
-	_connect_combat_signals()
-	_connect_unit_augment_signals()
-	_connect_result_panel_signals()
-	_connect_event_bus_signals()
+	_signal_support.connect_all(_get_event_bus())
 	_signals_connected = true
 
 
-# 视口尺寸变化只在这里绑定一次，供底栏回收区与统计面板共用。
-# coordinator 只关心“有布局变化”，具体怎么排版交给 support 层。
-func _connect_viewport_signal() -> void:
-	var viewport: Viewport = _scene_root.get_viewport()
-	if viewport == null:
-		return
-	var resize_cb: Callable = Callable(self, "_on_viewport_size_changed")
-	if not viewport.is_connected("size_changed", resize_cb):
-		viewport.connect("size_changed", resize_cb)
-
-
-# 经济管理器的资产与锁店信号统一接入到 presenter 刷新。
-# coordinator 不在资产变更时做隐式业务，只负责通知 HUD 重画。
-func _connect_economy_signals() -> void:
-	if _refs.runtime_economy_manager == null:
-		return
-	var assets_cb: Callable = Callable(self, "_on_assets_changed")
-	if _refs.runtime_economy_manager.has_signal("assets_changed"):
-		if not _refs.runtime_economy_manager.is_connected("assets_changed", assets_cb):
-			_refs.runtime_economy_manager.connect("assets_changed", assets_cb)
-	var lock_cb: Callable = Callable(self, "_on_shop_locked_changed")
-	if _refs.runtime_economy_manager.has_signal("shop_lock_changed"):
-		if not _refs.runtime_economy_manager.is_connected("shop_lock_changed", lock_cb):
-			_refs.runtime_economy_manager.connect("shop_lock_changed", lock_cb)
-
-
-# 商店快照变化只需要触发 HUD 刷新，不在这里处理额外业务。
-# 购买、刷新、售罄等业务结果已经在别处完成，这里避免二次结算。
-func _connect_shop_signals() -> void:
-	if _refs.runtime_shop_manager == null:
-		return
-	var shop_cb: Callable = Callable(self, "_on_shop_snapshot_refreshed")
-	if _refs.runtime_shop_manager.has_signal("shop_refreshed"):
-		if not _refs.runtime_shop_manager.is_connected("shop_refreshed", shop_cb):
-			_refs.runtime_shop_manager.connect("shop_refreshed", shop_cb)
-
-
-# 关卡管理器的推进信号统一接入到 coordinator 的阶段回调。
-# 这样 stage manager 只暴露事件，不需要知道 presenter/world 的存在。
-func _connect_stage_signals() -> void:
-	if _refs.runtime_stage_manager == null:
-		return
-	var loaded_cb: Callable = Callable(self, "_on_stage_loaded")
-	if _refs.runtime_stage_manager.has_signal("stage_loaded"):
-		if not _refs.runtime_stage_manager.is_connected("stage_loaded", loaded_cb):
-			_refs.runtime_stage_manager.connect("stage_loaded", loaded_cb)
-	var combat_cb: Callable = Callable(self, "_on_stage_combat_started")
-	if _refs.runtime_stage_manager.has_signal("stage_combat_started"):
-		if not _refs.runtime_stage_manager.is_connected("stage_combat_started", combat_cb):
-			_refs.runtime_stage_manager.connect("stage_combat_started", combat_cb)
-	var completed_cb: Callable = Callable(self, "_on_stage_completed")
-	if _refs.runtime_stage_manager.has_signal("stage_completed"):
-		if not _refs.runtime_stage_manager.is_connected("stage_completed", completed_cb):
-			_refs.runtime_stage_manager.connect("stage_completed", completed_cb)
-	var failed_cb: Callable = Callable(self, "_on_stage_failed")
-	if _refs.runtime_stage_manager.has_signal("stage_failed"):
-		if not _refs.runtime_stage_manager.is_connected("stage_failed", failed_cb):
-			_refs.runtime_stage_manager.connect("stage_failed", failed_cb)
-	var all_cb: Callable = Callable(self, "_on_all_stages_cleared")
-	if _refs.runtime_stage_manager.has_signal("all_stages_cleared"):
-		if not _refs.runtime_stage_manager.is_connected("all_stages_cleared", all_cb):
-			_refs.runtime_stage_manager.connect("all_stages_cleared", all_cb)
-
-
-# 战斗系统的伤害、死亡和结束信号统一进入统计与结果编排。
-# 统计面板刷新信号也顺便接在这里，保证结果链路单入口。
-func _connect_combat_signals() -> void:
-	if _refs.combat_manager != null:
-		var damage_cb: Callable = Callable(self, "_on_damage_resolved")
-		if _refs.combat_manager.has_signal("damage_resolved"):
-			if not _refs.combat_manager.is_connected("damage_resolved", damage_cb):
-				_refs.combat_manager.connect("damage_resolved", damage_cb)
-		var dead_cb: Callable = Callable(self, "_on_unit_died")
-		if _refs.combat_manager.has_signal("unit_died"):
-			if not _refs.combat_manager.is_connected("unit_died", dead_cb):
-				_refs.combat_manager.connect("unit_died", dead_cb)
-		var end_cb: Callable = Callable(self, "_on_battle_ended")
-		if _refs.combat_manager.has_signal("battle_ended"):
-			if not _refs.combat_manager.is_connected("battle_ended", end_cb):
-				_refs.combat_manager.connect("battle_ended", end_cb)
-	var battle_statistics: Node = _statistics_support.get_battle_statistics()
-	if battle_statistics == null:
-		return
-	var stat_cb: Callable = Callable(self, "_on_battle_stat_updated")
-	if battle_statistics.has_signal("battle_stat_updated"):
-		if not battle_statistics.is_connected("battle_stat_updated", stat_cb):
-			battle_statistics.connect("battle_stat_updated", stat_cb)
-
-
-# 功法系统的技能效果和数据重载信号统一接入到同一编排入口。
-# 技能伤害/治疗走同口径统计，避免最终面板只记普攻不记技能。
-func _connect_unit_augment_signals() -> void:
-	if _refs.unit_augment_manager == null:
-		return
-	var skill_damage_cb: Callable = Callable(self, "_on_skill_effect_damage")
-	if _refs.unit_augment_manager.has_signal("skill_effect_damage"):
-		if not _refs.unit_augment_manager.is_connected("skill_effect_damage", skill_damage_cb):
-			_refs.unit_augment_manager.connect("skill_effect_damage", skill_damage_cb)
-	var skill_heal_cb: Callable = Callable(self, "_on_skill_effect_heal")
-	if _refs.unit_augment_manager.has_signal("skill_effect_heal"):
-		if not _refs.unit_augment_manager.is_connected("skill_effect_heal", skill_heal_cb):
-			_refs.unit_augment_manager.connect("skill_effect_heal", skill_heal_cb)
-	var reload_cb: Callable = Callable(self, "_on_unit_augment_data_reloaded")
-	if _refs.unit_augment_manager.has_signal("unit_augment_data_reloaded"):
-		if not _refs.unit_augment_manager.is_connected("unit_augment_data_reloaded", reload_cb):
-			_refs.unit_augment_manager.connect("unit_augment_data_reloaded", reload_cb)
-
-
-# 回收区和结果面板的 UI 关闭事件统一在这里连接。
-# 这类 UI 事件会反向影响局内流程，所以必须由 coordinator 接住。
-func _connect_result_panel_signals() -> void:
-	if _refs.recycle_drop_zone != null:
-		var sell_cb: Callable = Callable(self, "_on_recycle_sell_requested")
-		if _refs.recycle_drop_zone.has_signal("sell_requested"):
-			if not _refs.recycle_drop_zone.is_connected("sell_requested", sell_cb):
-				_refs.recycle_drop_zone.connect("sell_requested", sell_cb)
-	if _refs.battle_stats_panel == null:
-		return
-	var panel_cb: Callable = Callable(self, "_on_battle_stats_panel_closed")
-	if _refs.battle_stats_panel.has_signal("panel_closed"):
-		if not _refs.battle_stats_panel.is_connected("panel_closed", panel_cb):
-			_refs.battle_stats_panel.connect("panel_closed", panel_cb)
-
-
-# EventBus 的数据重载信号只在 coordinator 内集中监听一次。
-# 其他协作者只接收 coordinator 转发后的“已重载”结果，避免各自订阅总线。
-func _connect_event_bus_signals() -> void:
-	var event_bus: Node = _get_root_node("EventBus")
-	if event_bus == null:
-		return
-	var data_reload_cb: Callable = Callable(self, "_on_data_reloaded")
-	if event_bus.has_signal("data_reloaded"):
-		if not event_bus.is_connected("data_reloaded", data_reload_cb):
-			event_bus.connect("data_reloaded", data_reload_cb)
-
-
- # 启动阶段序列时先尝试消费 GameManager 指定序列，再回退默认序列。
- # 这样测试入口和正式入口都能复用同一启动逻辑，而不是分两套 scene path。
+ # 启动阶段序列时只消费 AppSessionState 写入的请求序列。
+ # Batch 1 后测试入口和正式入口都必须走同一套显式注入链路。
 func _initialize_stage_progression() -> void:
 	if _refs.runtime_stage_manager == null or not is_instance_valid(_refs.runtime_stage_manager):
 		return
-	var data_manager: Node = _get_root_node("DataManager")
+	var data_manager: Node = _get_data_repository()
 	var requested_sequence_id: String = _consume_requested_stage_sequence_id()
 	if requested_sequence_id.is_empty():
-		_refs.runtime_stage_manager.call("load_stage_sequence", data_manager)
+		_refs.runtime_stage_manager.load_stage_sequence(data_manager)
 	else:
-		_refs.runtime_stage_manager.call("load_stage_sequence", data_manager, requested_sequence_id)
-	var started: bool = bool(_refs.runtime_stage_manager.call("start_first_stage"))
+		_refs.runtime_stage_manager.load_stage_sequence(data_manager, requested_sequence_id)
+	var started: bool = bool(_refs.runtime_stage_manager.start_first_stage())
 	if not started and not requested_sequence_id.is_empty():
-		_refs.runtime_stage_manager.call("load_stage_sequence", data_manager)
-		started = bool(_refs.runtime_stage_manager.call("start_first_stage"))
+		_refs.runtime_stage_manager.load_stage_sequence(data_manager)
+		started = bool(_refs.runtime_stage_manager.start_first_stage())
 		if started:
 			_append_battle_log("指定章节序列不可用：%s，已回退默认序列。" % requested_sequence_id, "system")
 	if not started and _refs.debug_label != null:
 		_refs.debug_label.text = "Phase 2 提示：未检测到关卡配置，沿用基础战场模式。"
 
 
- # 统一消费外部请求的关卡序列 id，兼容新旧入口字段名。
- # 兼容层只留在这里，后续删旧字段时也只需要改这一处。
+ # 统一消费外部请求的关卡序列 id。
+ # 没有注入 AppSessionState 时直接视为空请求，不再回退旧全局管理器。
 func _consume_requested_stage_sequence_id() -> String:
-	var game_manager: Node = _get_root_node("GameManager")
-	if game_manager == null or not is_instance_valid(game_manager):
-		return ""
-	if game_manager.has_method("consume_requested_stage_sequence_id"):
-		return str(game_manager.call("consume_requested_stage_sequence_id")).strip_edges()
-	if game_manager.has_method("consume_requested_stage_id"):
-		return str(game_manager.call("consume_requested_stage_id")).strip_edges()
+	if _services != null and _services.app_session != null:
+		return _services.app_session.consume_requested_stage_sequence_id()
 	return ""
 
 
@@ -535,97 +459,15 @@ func _on_all_stages_cleared() -> void:
  # 关卡运行时配置统一在这里下发给经济、部署和 presenter 相关状态。
  # 先处理棋盘和地形，再清战斗，再刷新世界布局，顺序不能倒。
 func _apply_stage_runtime_config(config: Dictionary) -> void:
-	_apply_stage_grid_config(config.get("grid", {}))
-	_apply_stage_terrains(config.get("terrains", []), config.get("obstacles", []))
-	if _refs.runtime_unit_deploy_manager != null \
-	and _refs.runtime_unit_deploy_manager.has_method("clear_enemy_wave"):
-		_refs.runtime_unit_deploy_manager.call("clear_enemy_wave")
+	_stage_runtime_support.apply_stage_runtime_config(config)
+	if _refs.runtime_unit_deploy_manager != null:
+		_refs.runtime_unit_deploy_manager.clear_enemy_wave()
 	if _refs.combat_manager != null \
-	and _refs.combat_manager.has_method("is_battle_running") \
-	and bool(_refs.combat_manager.call("is_battle_running")) \
-	and _refs.combat_manager.has_method("stop_battle"):
-		_refs.combat_manager.call("stop_battle", "stage_switched", 0)
+	and bool(_refs.combat_manager.is_battle_running()):
+		_refs.combat_manager.stop_battle("stage_switched", 0)
 	_state.combat_elapsed = 0.0
 	_prepare_for_new_stage()
 	_get_world_controller().refresh_world_layout()
-
-
- # 棋盘尺寸与部署区配置都通过这个入口落到场景运行时。
- # deploy_zone 归一化交给 StageRuntimeRules，避免 coordinator 与 parser 口径漂移。
-func _apply_stage_grid_config(grid_value: Variant) -> void:
-	var fallback_deploy_zone: Dictionary = STAGE_RUNTIME_RULES_SCRIPT.DEFAULT_DEPLOY_ZONE
-	if _state.current_deploy_zone is Dictionary and not (_state.current_deploy_zone as Dictionary).is_empty():
-		fallback_deploy_zone = (_state.current_deploy_zone as Dictionary).duplicate(true)
-	var normalized_grid: Dictionary = STAGE_RUNTIME_RULES_SCRIPT.normalize_grid_config(
-		grid_value,
-		int(_refs.hex_grid.grid_width),
-		int(_refs.hex_grid.grid_height),
-		float(_refs.hex_grid.hex_size),
-		fallback_deploy_zone
-	)
-	var width: int = int(normalized_grid.get("width", int(_refs.hex_grid.grid_width)))
-	var height: int = int(normalized_grid.get("height", int(_refs.hex_grid.grid_height)))
-	_refs.hex_grid.grid_width = width
-	_refs.hex_grid.grid_height = height
-	_refs.hex_grid.hex_size = float(normalized_grid.get("hex_size", float(_refs.hex_grid.hex_size)))
-	var deploy_zone_value: Variant = normalized_grid.get("deploy_zone", STAGE_RUNTIME_RULES_SCRIPT.DEFAULT_DEPLOY_ZONE)
-	if deploy_zone_value is Dictionary:
-		_state.current_deploy_zone = (deploy_zone_value as Dictionary).duplicate(true)
-	else:
-		_state.current_deploy_zone = STAGE_RUNTIME_RULES_SCRIPT.DEFAULT_DEPLOY_ZONE.duplicate(true)
-	if _refs.deploy_overlay != null and _refs.deploy_overlay.has_method("set_deploy_zone_rect"):
-		_refs.deploy_overlay.call(
-			"set_deploy_zone_rect",
-			int(_state.current_deploy_zone.get("x_min", 0)),
-			int(_state.current_deploy_zone.get("x_max", width - 1)),
-			int(_state.current_deploy_zone.get("y_min", 0)),
-			int(_state.current_deploy_zone.get("y_max", height - 1))
-		)
-	_refs.hex_grid.queue_redraw()
-	if _refs.deploy_overlay != null:
-		_refs.deploy_overlay.queue_redraw()
-
-
- # 地形和障碍的运行时投影统一在这里进入 combat_manager。
- # 这里故意只做数据投影，不把 board 命名空间逻辑带回 coordinator。
-func _apply_stage_terrains(terrains_value: Variant, obstacles_value: Variant) -> void:
-	if _refs.combat_manager == null or not is_instance_valid(_refs.combat_manager):
-		return
-	if _refs.combat_manager.has_method("clear_static_terrains"):
-		_refs.combat_manager.call("clear_static_terrains")
-	var terrain_rows: Array[Dictionary] = STAGE_RUNTIME_RULES_SCRIPT.normalize_terrain_rows(
-		terrains_value,
-		obstacles_value
-	)
-	if terrain_rows.is_empty() or not _refs.combat_manager.has_method("add_static_terrain"):
-		return
-	# cells 支持 Vector2i / 数组 / 字典三种输入，统一在这里清洗成 combat 侧格式。
-	for row in terrain_rows:
-		var terrain_id: String = str(row.get("terrain_id", "")).strip_edges().to_lower()
-		if terrain_id.is_empty():
-			continue
-		var cells_value: Variant = row.get("cells", [])
-		if not (cells_value is Array):
-			continue
-		var normalized_cells: Array[Vector2i] = []
-		for cell_value in (cells_value as Array):
-			if cell_value is Vector2i:
-				normalized_cells.append(cell_value as Vector2i)
-			elif cell_value is Array:
-				var cell_array: Array = cell_value as Array
-				if cell_array.size() >= 2:
-					normalized_cells.append(Vector2i(int(cell_array[0]), int(cell_array[1])))
-			elif cell_value is Dictionary:
-				var cell_dict: Dictionary = cell_value as Dictionary
-				normalized_cells.append(Vector2i(int(cell_dict.get("x", -1)), int(cell_dict.get("y", -1))))
-		if normalized_cells.is_empty():
-			continue
-		var extra: Dictionary = {}
-		for key in row.keys():
-			if key == "terrain_id" or key == "cells":
-				continue
-			extra[key] = row[key]
-		_refs.combat_manager.call("add_static_terrain", terrain_id, normalized_cells, extra)
 
 
  # 新关卡开始前统一清理统计面板、捕获状态和旧结果显示。
@@ -633,8 +475,8 @@ func _apply_stage_terrains(terrains_value: Variant, obstacles_value: Variant) ->
 func _prepare_for_new_stage() -> void:
 	_capture_running = false
 	_state.battle_stats_visible = false
-	if _refs.battle_stats_panel != null and _refs.battle_stats_panel.has_method("hide_panel"):
-		_refs.battle_stats_panel.call("hide_panel")
+	if _refs.battle_stats_panel != null:
+		_refs.battle_stats_panel.hide_panel()
 
 
  # 开战前的准备阶段目前只需要复用新关卡清理流程。
@@ -650,8 +492,8 @@ func _start_battle_capture(ally_units: Array[Node], enemy_units: Array[Node]) ->
 		return
 	_statistics_support.start_battle_capture(ally_units, enemy_units)
 	_capture_running = true
-	if _refs.battle_stats_panel != null and _refs.battle_stats_panel.has_method("refresh_content"):
-		_refs.battle_stats_panel.call("refresh_content")
+	if _refs.battle_stats_panel != null:
+		_refs.battle_stats_panel.refresh_content()
 
 
  # 战斗结束后统一切结果阶段、展示统计并通知关卡管理器。
@@ -662,8 +504,8 @@ func _on_battle_ended(winner_team: int, summary: Dictionary) -> void:
 	_get_world_controller().set_stage(Stage.RESULT)
 	_sync_presenter_stage()
 	_statistics_support.show_battle_stats_panel(TEAM_ALLY)
-	if _refs.runtime_stage_manager != null and _refs.runtime_stage_manager.has_method("on_battle_ended"):
-		_refs.runtime_stage_manager.call("on_battle_ended", winner_team, summary)
+	if _refs.runtime_stage_manager != null:
+		_refs.runtime_stage_manager.on_battle_ended(winner_team, summary)
 	if _refs.debug_label != null:
 		if winner_team == TEAM_ALLY:
 			_refs.debug_label.text = "战斗结束：己方胜利。"
@@ -731,8 +573,7 @@ func _on_skill_effect_heal(event_dict: Dictionary) -> void:
 	var target_unit: Node = event_dict.get("target", null)
 	_statistics_support.remember_unit(source_unit)
 	_statistics_support.remember_unit(target_unit)
-	battle_statistics.call(
-		"record_healing",
+	battle_statistics.record_healing(
 		source_unit,
 		target_unit,
 		heal_value,
@@ -752,7 +593,7 @@ func _on_unit_healing_performed(source: Node, target: Node, amount: float, _heal
 		return
 	_statistics_support.remember_unit(source)
 	_statistics_support.remember_unit(target)
-	battle_statistics.call("record_healing", source, target, heal_value)
+	battle_statistics.record_healing(source, target, heal_value)
 
 
  # 反伤事件的统计写入和普通伤害保持同一拆解逻辑。
@@ -779,7 +620,7 @@ func _on_unit_died(dead_unit: Node, killer: Node, _team_id: int) -> void:
 		return
 	_statistics_support.remember_unit(dead_unit)
 	_statistics_support.remember_unit(killer)
-	battle_statistics.call("record_kill", killer, dead_unit)
+	battle_statistics.record_kill(killer, dead_unit)
 
 
  # 统计面板打开时，收到战斗统计变更后即时刷新内容。
@@ -789,7 +630,7 @@ func _on_battle_stat_updated(_unit_instance_id: int, _stat_type: String, _value:
 		return
 	if not _refs.battle_stats_panel.visible:
 		return
-	_refs.battle_stats_panel.call("refresh_content")
+	_refs.battle_stats_panel.refresh_content()
 
 
  # 结果统计面板关闭后，如有待推进关卡则继续进入下一阶段。
@@ -808,9 +649,9 @@ func _advance_to_next_stage_after_result() -> void:
 	var world_controller: Node = _get_world_controller()
 	if world_controller != null:
 		world_controller.reset_all_units_to_idle()
-	if _refs.runtime_stage_manager == null or not _refs.runtime_stage_manager.has_method("advance_to_next_stage"):
+	if _refs.runtime_stage_manager == null:
 		return
-	_refs.runtime_stage_manager.call("advance_to_next_stage")
+	_refs.runtime_stage_manager.advance_to_next_stage()
 
 
  # 回收区出售请求只做转发，具体出售规则由 economy support 承接。
@@ -838,11 +679,11 @@ func _on_shop_snapshot_refreshed(_snapshot: Dictionary) -> void:
 func _on_data_reloaded(is_full_reload: bool, summary: Dictionary) -> void:
 	_rebuild_battle_data_caches()
 	if _refs.runtime_stage_manager != null and is_instance_valid(_refs.runtime_stage_manager):
-		var data_manager: Node = _get_root_node("DataManager")
-		_refs.runtime_stage_manager.call("load_stage_sequence", data_manager)
-		var current_stage_id: String = str(_refs.runtime_stage_manager.call("get_current_stage_id"))
-		if current_stage_id.is_empty() or not bool(_refs.runtime_stage_manager.call("start_stage", current_stage_id)):
-			_refs.runtime_stage_manager.call("start_first_stage")
+		var data_manager: Node = _get_data_repository()
+		_refs.runtime_stage_manager.load_stage_sequence(data_manager)
+		var current_stage_id: String = str(_refs.runtime_stage_manager.get_current_stage_id())
+		if current_stage_id.is_empty() or not bool(_refs.runtime_stage_manager.start_stage(current_stage_id)):
+			_refs.runtime_stage_manager.start_first_stage()
 	refresh_shop_for_preparation(true)
 	var presenter: Node = _get_hud_presenter()
 	if presenter != null:
@@ -854,11 +695,11 @@ func _on_data_reloaded(is_full_reload: bool, summary: Dictionary) -> void:
 func _on_unit_augment_data_reloaded(summary: Dictionary) -> void:
 	_rebuild_battle_data_caches()
 	if _refs.runtime_stage_manager != null and is_instance_valid(_refs.runtime_stage_manager):
-		var data_manager: Node = _get_root_node("DataManager")
-		_refs.runtime_stage_manager.call("load_stage_sequence", data_manager)
-		var current_stage_id: String = str(_refs.runtime_stage_manager.call("get_current_stage_id"))
+		var data_manager: Node = _get_data_repository()
+		_refs.runtime_stage_manager.load_stage_sequence(data_manager)
+		var current_stage_id: String = str(_refs.runtime_stage_manager.get_current_stage_id())
 		if not current_stage_id.is_empty():
-			_refs.runtime_stage_manager.call("start_stage", current_stage_id)
+			_refs.runtime_stage_manager.start_stage(current_stage_id)
 	refresh_shop_for_preparation(true)
 	var presenter: Node = _get_hud_presenter()
 	if presenter != null:
@@ -877,9 +718,7 @@ func _on_viewport_size_changed() -> void:
 func _collect_units_from_map(map_value: Dictionary) -> Array[Node]:
 	if _refs.runtime_unit_deploy_manager == null:
 		return []
-	if not _refs.runtime_unit_deploy_manager.has_method("collect_units_from_map"):
-		return []
-	return _refs.runtime_unit_deploy_manager.call("collect_units_from_map", map_value)
+	return _refs.runtime_unit_deploy_manager.collect_units_from_map(map_value)
 
 
  # 往 HUD battle log 追加文案时统一经过 presenter。
@@ -906,31 +745,13 @@ func _sync_presenter_stage() -> void:
 		presenter.sync_stage()
 	_layout_support.layout_bench_recycle_wrap()
 
-
- # 打乱候选格顺序时统一复用 Fisher-Yates 洗牌口径。
-func _shuffle_cells(cells: Array[Vector2i], rng: RandomNumberGenerator) -> void:
-	for index in range(cells.size() - 1, 0, -1):
-		var swap_index: int = rng.randi_range(0, index)
-		var temp: Vector2i = cells[index]
-		cells[index] = cells[swap_index]
-		cells[swap_index] = temp
  # 通过 EventBus 发出战场重载请求，避免直接改根场景。
 func _emit_battlefield_reload_requested() -> void:
-	var event_bus: Node = _get_root_node("EventBus")
-	if event_bus != null and event_bus.has_method("emit_scene_change_requested"):
-		event_bus.call("emit_scene_change_requested", BATTLEFIELD_SCENE_PATH)
+	var event_bus: Node = _get_event_bus()
+	if event_bus != null:
+		event_bus.emit_scene_change_requested(BATTLEFIELD_SCENE_PATH)
 	else:
 		_state.scene_reload_requested = false
-
-
- # 安全读取节点属性，避免空节点或空值把编排流程打断。
-func _safe_node_prop(node: Node, key: String, fallback: Variant) -> Variant:
-	if node == null or not is_instance_valid(node):
-		return fallback
-	var value: Variant = node.get(key)
-	if value == null:
-		return fallback
-	return value
 
 
  # 通过根场景 getter 读取 HUD presenter，避免写死子节点路径。
@@ -949,15 +770,15 @@ func _get_world_controller() -> Node:
 
 
 
- # 统一从场景树根节点查找 autoload，避免 root 路径散落。
-func _get_root_node(node_name: String) -> Node:
-	var tree: SceneTree = get_tree()
-	if tree == null or tree.root == null:
+ # coordinator 只通过注入服务拿事件总线，不再回退根节点查找。
+func _get_event_bus() -> Node:
+	if _services == null:
 		return null
-	var direct: Node = tree.root.get_node_or_null(node_name)
-	if direct != null:
-		return direct
-	return tree.root.find_child(node_name, true, false)
+	return _services.event_bus
 
 
-
+ # coordinator 只通过注入服务拿数据仓库，避免把运行时再绑回 autoload。
+func _get_data_repository() -> Node:
+	if _services == null:
+		return null
+	return _services.data_repository

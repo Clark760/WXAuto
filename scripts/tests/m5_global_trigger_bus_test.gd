@@ -34,6 +34,10 @@ func _run() -> void:
 
 	var stage_manager: Node = STAGE_MANAGER_SCRIPT.new()
 	stage_manager.name = "StageManager"
+	var services := ServiceRegistry.new()
+	services.register_event_bus(event_bus)
+	if stage_manager.has_method("bind_runtime_services"):
+		stage_manager.call("bind_runtime_services", services)
 	root_node.add_child(stage_manager)
 
 	var cb_global: Callable = Callable(self, "_on_global_trigger")
