@@ -11,6 +11,12 @@ const EXECUTION_SERVICE_SCRIPT: Script = preload(
 var _condition_service = CONDITION_SERVICE_SCRIPT.new()
 var _execution_service = EXECUTION_SERVICE_SCRIPT.new()
 
+const PROBE_SCOPE_UNIT_AUGMENT_POLL_PASSIVE_AURA: String = "unit_augment_poll_passive_aura"
+const PROBE_SCOPE_UNIT_AUGMENT_POLL_PERIODIC: String = "unit_augment_poll_periodic"
+
+const ENTRY_META_TRY_FIRE_STATUS: String = "_unit_augment_try_fire_status"
+const TRY_FIRE_STATUS_DEFERRED: String = "deferred"
+
 
 # passive_aura 的 scope token 要按战斗重置，状态实际存放在执行服务里。
 # facade 本身不保存计数器，避免和执行服务出现双份状态。
@@ -23,12 +29,78 @@ func reset_battle_counters() -> void:
 func poll_auto_triggers(manager: Node) -> void:
 	var state_service: Variant = manager.get_state_service()
 	var unit_states: Dictionary = state_service.get_unit_states()
-	var bucket_count: int = _resolve_poll_bucket_count(state_service.get_battle_units().size())
+	var deep_probe_enabled: bool = bool(manager.get("deep_runtime_probe_enabled"))
+	_poll_passive_aura_triggers(manager, state_service, unit_states, deep_probe_enabled)
+	_poll_state_poll_triggers(manager, state_service, unit_states, deep_probe_enabled)
+	_poll_timed_poll_triggers(manager, state_service, unit_states, deep_probe_enabled)
+
+
+func _poll_passive_aura_triggers(
+	manager: Node,
+	state_service: Variant,
+	unit_states: Dictionary,
+	deep_probe_enabled: bool
+) -> void:
+	var battle_elapsed: float = manager.get_battle_runtime().get_battle_elapsed()
+	var aura_unit_ids: Array[int] = state_service.get_passive_aura_trigger_unit_ids()
+	var repair_bucket_count: int = _resolve_passive_aura_repair_bucket_count(aura_unit_ids.size())
+	var repair_bucket_index: int = _resolve_poll_bucket_index(manager, repair_bucket_count)
+
+	for iid in aura_unit_ids:
+		if not unit_states.has(iid):
+			continue
+		var state: Dictionary = unit_states[iid]
+		var dirty: bool = bool(state.get("passive_aura_dirty", false))
+		var next_dirty_poll_time: float = float(state.get("next_passive_aura_dirty_poll_time", 0.0))
+		var next_refresh_time: float = float(state.get("next_passive_aura_refresh_time", 0.0))
+		var dirty_due: bool = dirty and battle_elapsed >= next_dirty_poll_time
+		var repair_due: bool = (not dirty) and battle_elapsed >= next_refresh_time
+		if not dirty_due and not repair_due:
+			continue
+		if repair_due and repair_bucket_count > 1 and posmod(iid, repair_bucket_count) != repair_bucket_index:
+			continue
+
+		var unit: Node = state.get("unit", null)
+		if unit == null or not is_instance_valid(unit):
+			continue
+		if not state_service.is_unit_alive(unit):
+			continue
+
+		var passive_aura_triggers: Array = state.get("passive_aura_triggers", [])
+		if passive_aura_triggers.is_empty():
+			continue
+
+		var keep_dirty: bool = false
+		for entry_value in passive_aura_triggers:
+			if not (entry_value is Dictionary):
+				continue
+			var entry: Dictionary = entry_value as Dictionary
+			match _get_passive_aura_entry_state(entry, battle_elapsed):
+				1:
+					if dirty:
+						keep_dirty = true
+					continue
+				2:
+					continue
+			if not _poll_trigger_entry(manager, unit, entry, deep_probe_enabled):
+				keep_dirty = true
+		state_service.finalize_passive_aura_poll(iid, battle_elapsed, keep_dirty)
+
+
+func _poll_state_poll_triggers(
+	manager: Node,
+	state_service: Variant,
+	unit_states: Dictionary,
+	deep_probe_enabled: bool
+) -> void:
+	var poll_unit_ids: Array[int] = state_service.get_state_poll_trigger_unit_ids()
+	var bucket_count: int = _resolve_poll_bucket_count(poll_unit_ids.size())
 	var bucket_index: int = _resolve_poll_bucket_index(manager, bucket_count)
 
-	for key in unit_states.keys():
-		var iid: int = int(key)
+	for iid in poll_unit_ids:
 		if bucket_count > 1 and posmod(iid, bucket_count) != bucket_index:
+			continue
+		if not unit_states.has(iid):
 			continue
 		var state: Dictionary = unit_states[iid]
 		var unit: Node = state.get("unit", null)
@@ -37,15 +109,81 @@ func poll_auto_triggers(manager: Node) -> void:
 		if not state_service.is_unit_alive(unit):
 			continue
 
-		var poll_triggers: Array = state.get("poll_triggers", [])
+		var poll_triggers: Array = state.get("state_poll_triggers", [])
 		if poll_triggers.is_empty():
 			continue
 		for entry_value in poll_triggers:
 			if not (entry_value is Dictionary):
 				continue
+			_poll_trigger_entry(manager, unit, entry_value as Dictionary, deep_probe_enabled)
+
+
+func _poll_timed_poll_triggers(
+	manager: Node,
+	state_service: Variant,
+	unit_states: Dictionary,
+	deep_probe_enabled: bool
+) -> void:
+	var battle_elapsed: float = manager.get_battle_runtime().get_battle_elapsed()
+	var timed_unit_ids: Array[int] = state_service.get_timed_poll_trigger_unit_ids()
+	var bucket_count: int = _resolve_poll_bucket_count(timed_unit_ids.size())
+	var bucket_index: int = _resolve_poll_bucket_index(manager, bucket_count)
+
+	for iid in timed_unit_ids:
+		if bucket_count > 1 and posmod(iid, bucket_count) != bucket_index:
+			continue
+		if not unit_states.has(iid):
+			continue
+		var state: Dictionary = unit_states[iid]
+		var next_due_time: float = float(state.get("next_timed_poll_time", INF))
+		if battle_elapsed < next_due_time:
+			continue
+
+		var unit: Node = state.get("unit", null)
+		if unit == null or not is_instance_valid(unit):
+			continue
+		if not state_service.is_unit_alive(unit):
+			continue
+
+		var timed_poll_triggers: Array = state.get("timed_poll_triggers", [])
+		if timed_poll_triggers.is_empty():
+			continue
+
+		for entry_value in timed_poll_triggers:
+			if not (entry_value is Dictionary):
+				continue
 			var entry: Dictionary = entry_value as Dictionary
-			if can_trigger_entry(manager, unit, entry, {}):
-				try_fire_skill(manager, unit, entry, {})
+			if not _is_timed_trigger_due(entry, battle_elapsed):
+				continue
+			_poll_trigger_entry(manager, unit, entry, deep_probe_enabled)
+
+		state_service.refresh_timed_poll_state(iid)
+
+
+func _poll_trigger_entry(
+	manager: Node,
+	unit: Node,
+	entry: Dictionary,
+	deep_probe_enabled: bool
+) -> bool:
+	var probe_scope_name: String = ""
+	var probe_begin_us: int = 0
+	if deep_probe_enabled:
+		var trigger_name: String = str(entry.get("trigger", "")).strip_edges().to_lower()
+		probe_scope_name = _resolve_poll_probe_scope(trigger_name)
+		if not probe_scope_name.is_empty():
+			probe_begin_us = _probe_begin_timing(manager)
+	var fired: bool = false
+	entry.erase(ENTRY_META_TRY_FIRE_STATUS)
+	if can_trigger_entry(manager, unit, entry, {}):
+		fired = try_fire_skill(manager, unit, entry, {})
+	var try_fire_status: String = str(entry.get(ENTRY_META_TRY_FIRE_STATUS, "")).strip_edges()
+	entry.erase(ENTRY_META_TRY_FIRE_STATUS)
+	if not fired and try_fire_status == TRY_FIRE_STATUS_DEFERRED:
+		fired = true
+	if not probe_scope_name.is_empty():
+		_probe_commit_timing(manager, probe_scope_name, probe_begin_us)
+	return fired
 
 
 # 全体广播型 trigger 只遍历 battle units，不直接扫场景树。
@@ -146,12 +284,76 @@ func _normalize_trigger_name(trigger_name: String) -> String:
 
 
 # 高密度战斗把自动触发轮询拆成多桶，优先压住一次性大尖峰。
+func _is_timed_trigger_due(entry: Dictionary, battle_elapsed: float) -> bool:
+	var next_ready_time: float = float(entry.get("next_ready_time", 0.0))
+	if battle_elapsed < next_ready_time:
+		return false
+	var max_trigger_count: int = int(entry.get("max_trigger_count", 0))
+	if max_trigger_count > 0 and int(entry.get("trigger_count", 0)) >= max_trigger_count:
+		return false
+
+	var trigger_name: String = str(entry.get("trigger", "")).strip_edges().to_lower()
+	match trigger_name:
+		"periodic_seconds", "periodic":
+			var trigger_params: Dictionary = {}
+			var trigger_params_value: Variant = entry.get("trigger_params", {})
+			if trigger_params_value is Dictionary:
+				trigger_params = trigger_params_value as Dictionary
+			var skill_data: Dictionary = {}
+			var skill_data_value: Variant = entry.get("skill_data", {})
+			if skill_data_value is Dictionary:
+				skill_data = skill_data_value as Dictionary
+			var interval: float = maxf(
+				float(trigger_params.get("interval", skill_data.get("interval", 0.0))),
+				0.05
+			)
+			var next_periodic_time: float = float(entry.get("next_periodic_time", interval))
+			if next_periodic_time <= 0.0:
+				next_periodic_time = interval
+			return battle_elapsed >= next_periodic_time
+		"on_time_elapsed":
+			if bool(entry.get("time_elapsed_fired", false)):
+				return false
+			var trigger_params: Dictionary = {}
+			var trigger_params_value: Variant = entry.get("trigger_params", {})
+			if trigger_params_value is Dictionary:
+				trigger_params = trigger_params_value as Dictionary
+			var skill_data: Dictionary = {}
+			var skill_data_value: Variant = entry.get("skill_data", {})
+			if skill_data_value is Dictionary:
+				skill_data = skill_data_value as Dictionary
+			var at_seconds: float = maxf(
+				float(trigger_params.get("at_seconds", skill_data.get("at_seconds", -1.0))),
+				-1.0
+			)
+			return at_seconds >= 0.0 and battle_elapsed >= at_seconds
+		_:
+			return false
+
+
 func _resolve_poll_bucket_count(unit_count: int) -> int:
 	if unit_count >= 220:
 		return 5
 	if unit_count >= 120:
 		return 3
 	return 1
+
+
+func _resolve_passive_aura_repair_bucket_count(unit_count: int) -> int:
+	if unit_count >= 80:
+		return 5
+	if unit_count >= 32:
+		return 3
+	return 1
+
+
+func _get_passive_aura_entry_state(entry: Dictionary, battle_elapsed: float) -> int:
+	var max_trigger_count: int = int(entry.get("max_trigger_count", 0))
+	if max_trigger_count > 0 and int(entry.get("trigger_count", 0)) >= max_trigger_count:
+		return 2
+	if battle_elapsed < float(entry.get("next_ready_time", 0.0)):
+		return 1
+	return 0
 
 
 # 轮询桶索引直接由 battle_elapsed 和 poll_interval 推导，避免再维护额外计数器。
@@ -162,3 +364,25 @@ func _resolve_poll_bucket_index(manager: Node, bucket_count: int) -> int:
 	var battle_elapsed: float = manager.get_battle_runtime().get_battle_elapsed()
 	var poll_round: int = int(floor(battle_elapsed / poll_interval))
 	return posmod(poll_round, bucket_count)
+
+
+func _resolve_poll_probe_scope(trigger_name: String) -> String:
+	if trigger_name == "passive_aura":
+		return PROBE_SCOPE_UNIT_AUGMENT_POLL_PASSIVE_AURA
+	if trigger_name == "periodic_seconds" or trigger_name == "periodic":
+		return PROBE_SCOPE_UNIT_AUGMENT_POLL_PERIODIC
+	return ""
+
+
+func _probe_begin_timing(manager: Node) -> int:
+	var runtime_probe = manager._services.runtime_probe if manager._services != null else null
+	if runtime_probe == null or not runtime_probe.has_method("begin_timing"):
+		return 0
+	return int(runtime_probe.begin_timing())
+
+
+func _probe_commit_timing(manager: Node, scope_name: String, begin_us: int) -> void:
+	var runtime_probe = manager._services.runtime_probe if manager._services != null else null
+	if runtime_probe == null or not runtime_probe.has_method("commit_timing"):
+		return
+	runtime_probe.commit_timing(scope_name, begin_us)

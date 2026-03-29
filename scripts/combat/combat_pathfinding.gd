@@ -28,6 +28,16 @@ func rebuild_flow_fields(owner: Node) -> void:
 	)
 
 
+# 跟随友军锚点缓存和流场一样按 manager 当前缓存重建，供 move 阶段重复复用。
+func rebuild_follow_anchor_cache(owner: Node) -> Dictionary:
+	return _rules.rebuild_follow_anchor_cache(
+		owner,
+		owner.get("_group_focus_target_id"),
+		owner.get("_unit_by_instance_id"),
+		owner.get("_team_alive_cache")
+	)
+
+
 # 兼容旧的 blocked map 构造入口，供 manager 和测试复用。
 func build_blocked_cells_for_team(owner: Node, self_team: int) -> Dictionary:
 	return _rules.build_blocked_cells_for_team(
@@ -40,7 +50,12 @@ func build_blocked_cells_for_team(owner: Node, self_team: int) -> Dictionary:
 
 
 # 邻格选点仍按旧签名暴露给 movement service。
-func pick_best_adjacent_cell(owner: Node, unit: Node, current_cell: Vector2i) -> Vector2i:
+func pick_best_adjacent_cell(
+	owner: Node,
+	unit: Node,
+	current_cell: Vector2i,
+	attack_range_target: Node = null
+) -> Vector2i:
 	return _rules.pick_best_adjacent_cell(
 		owner,
 		unit,
@@ -50,7 +65,8 @@ func pick_best_adjacent_cell(owner: Node, unit: Node, current_cell: Vector2i) ->
 		bool(owner.get("allow_equal_cost_side_step")),
 		owner.get("_group_focus_target_id"),
 		owner.get("_unit_by_instance_id"),
-		owner.get("_team_alive_cache")
+		owner.get("_follow_anchor_by_unit_id"),
+		attack_range_target
 	)
 
 

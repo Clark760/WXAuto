@@ -5,8 +5,11 @@ const PROBE_SCOPE_COMBAT_LOGIC_TICK: String = "combat_logic_tick"
 const PROBE_SCOPE_COMBAT_PRE_TICK_SCAN: String = "combat_pre_tick_scan"
 const PROBE_SCOPE_COMBAT_TERRAIN_TICK: String = "combat_terrain_tick"
 const PROBE_SCOPE_COMBAT_GROUP_FOCUS: String = "combat_group_focus"
+const PROBE_SCOPE_COMBAT_FOLLOW_ANCHOR_REBUILD: String = "combat_follow_anchor_rebuild"
 const PROBE_SCOPE_COMBAT_FLOW_REBUILD: String = "combat_flow_rebuild"
 const PROBE_SCOPE_COMBAT_UNIT_LOGIC_TOTAL: String = "combat_unit_logic_total"
+const PROBE_SCOPE_COMBAT_START_PREWARM: String = "combat_start_prewarm"
+const PROBE_SCOPE_COMBAT_START_POSTWARM: String = "combat_start_postwarm"
 
 
 # 承接 Combat 的主循环、开战/停战与战报汇总。
@@ -53,14 +56,18 @@ func start_battle(
 		return false
 
 	setup_battle_seed(manager, battle_seed)
+	prepare_battle_loop(manager)
+	_warmup_battle_start_runtime(manager, PROBE_SCOPE_COMBAT_START_PREWARM)
 	begin_battle_loop(manager)
-	manager._pre_tick_scan()
 	manager._emit_team_alive_count_changed(manager.TEAM_ALLY)
 	manager._emit_team_alive_count_changed(manager.TEAM_ENEMY)
 	manager.battle_started.emit(
 		int(manager._alive_by_team.get(manager.TEAM_ALLY, 0)),
 		int(manager._alive_by_team.get(manager.TEAM_ENEMY, 0))
 	)
+	if manager._battle_running:
+		_warmup_battle_start_runtime(manager, PROBE_SCOPE_COMBAT_START_POSTWARM)
+		manager._skip_runtime_cache_refresh_once = true
 	return true
 
 
@@ -110,6 +117,9 @@ func logic_tick(manager, delta: float) -> void:
 		allow_attack_phase,
 		allow_move_phase
 	)
+	if should_refresh_runtime_caches and bool(manager._skip_runtime_cache_refresh_once):
+		should_refresh_runtime_caches = false
+		manager._skip_runtime_cache_refresh_once = false
 
 	# 预扫描必须先跑，后续地形和单位逻辑都依赖这批缓存。
 	if should_refresh_runtime_caches:
@@ -138,6 +148,13 @@ func logic_tick(manager, delta: float) -> void:
 		var group_focus_begin_us: int = _probe_begin_timing(manager)
 		manager._update_group_ai_focus()
 		_probe_commit_timing(manager, PROBE_SCOPE_COMBAT_GROUP_FOCUS, group_focus_begin_us)
+		var follow_anchor_begin_us: int = _probe_begin_timing(manager)
+		manager._rebuild_follow_anchor_cache()
+		_probe_commit_timing(
+			manager,
+			PROBE_SCOPE_COMBAT_FOLLOW_ANCHOR_REBUILD,
+			follow_anchor_begin_us
+		)
 		var refresh_interval: int = manager._get_effective_flow_refresh_interval()
 		# 流场只在“本帧会重建运行时缓存”时更新，移动帧直接复用上一帧的结果。
 		if (
@@ -149,6 +166,7 @@ func logic_tick(manager, delta: float) -> void:
 			manager._rebuild_flow_fields()
 			_probe_commit_timing(manager, PROBE_SCOPE_COMBAT_FLOW_REBUILD, flow_rebuild_begin_us)
 			manager._flow_force_rebuild = false
+			manager._move_replan_cooldown_frame.clear()
 
 	# 大规模战斗优先吞吐，逐 tick 洗牌只保留在中小规模场景。
 	var alive_total: int = int(manager._alive_by_team.get(manager.TEAM_ALLY, 0))
@@ -214,13 +232,18 @@ func setup_battle_seed(manager, battle_seed: int) -> void:
 # 这里只改运行时状态，不负责注册单位或广播信号。
 # 这样 Batch 3A 后，manager 就不再持有完整的“开战状态机”实现体。
 func begin_battle_loop(manager) -> void:
+	manager._battle_running = true
+
+
+func prepare_battle_loop(manager) -> void:
 	manager._logic_step = 1.0 / maxf(manager.logic_fps, 1.0)
 	manager._logic_accumulator = 0.0
 	manager._logic_frame = 0
 	manager._logic_time = 0.0
 	manager._next_attack_phase = true
 	manager._flow_force_rebuild = true
-	manager._battle_running = true
+	manager._battle_running = false
+	manager._skip_runtime_cache_refresh_once = false
 
 
 # 战报总结只暴露稳定字段，供 UI 和测试做契约断言。
@@ -265,6 +288,11 @@ func reset_battle_runtime_state(manager) -> void:
 	manager._movement_cache.clear()
 	manager._target_memory.clear()
 	manager._target_refresh_frame.clear()
+	manager._attack_range_target_memory.clear()
+	manager._attack_range_target_frame.clear()
+	manager._follow_anchor_by_unit_id.clear()
+	manager._move_replan_cooldown_frame.clear()
+	manager._target_query_ids_scratch.clear()
 	manager._loop_animation_reduced = false
 	manager._group_focus_target_id.clear()
 	manager._group_center.clear()
@@ -280,6 +308,7 @@ func reset_battle_runtime_state(manager) -> void:
 	manager._terrain_blocked_cells.clear()
 	manager._last_terrain_cells.clear()
 	manager._flow_force_rebuild = true
+	manager._skip_runtime_cache_refresh_once = false
 	# 临时地形在整局重开时必须一起清空，否则旧场景残留会污染新战斗。
 	if manager._terrain_manager != null:
 		manager.clear_temporary_terrains()
@@ -301,6 +330,38 @@ func _update_loop_animation_lod(manager) -> void:
 		if unit.has_method("set_loop_animation_enabled"):
 			var unit_api: Variant = unit
 			unit_api.set_loop_animation_enabled(not should_reduce)
+
+
+func _warmup_battle_start_runtime(manager, scope_name: String) -> void:
+	var warmup_begin_us: int = _probe_begin_timing(manager)
+
+	var pre_scan_begin_us: int = _probe_begin_timing(manager)
+	manager._pre_tick_scan()
+	_probe_commit_timing(manager, PROBE_SCOPE_COMBAT_PRE_TICK_SCAN, pre_scan_begin_us)
+
+	_update_loop_animation_lod(manager)
+	if manager._all_units.is_empty():
+		_probe_commit_timing(manager, scope_name, warmup_begin_us)
+		return
+
+	var group_focus_begin_us: int = _probe_begin_timing(manager)
+	manager._update_group_ai_focus()
+	_probe_commit_timing(manager, PROBE_SCOPE_COMBAT_GROUP_FOCUS, group_focus_begin_us)
+
+	var follow_anchor_begin_us: int = _probe_begin_timing(manager)
+	manager._rebuild_follow_anchor_cache()
+	_probe_commit_timing(
+		manager,
+		PROBE_SCOPE_COMBAT_FOLLOW_ANCHOR_REBUILD,
+		follow_anchor_begin_us
+	)
+
+	var flow_rebuild_begin_us: int = _probe_begin_timing(manager)
+	manager._rebuild_flow_fields()
+	_probe_commit_timing(manager, PROBE_SCOPE_COMBAT_FLOW_REBUILD, flow_rebuild_begin_us)
+	manager._flow_force_rebuild = false
+
+	_probe_commit_timing(manager, scope_name, warmup_begin_us)
 
 
 # 统一从 manager 的可选 runtime probe 获取计时起点。

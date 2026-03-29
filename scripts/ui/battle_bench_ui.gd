@@ -360,10 +360,13 @@ func _compact_slots() -> void:
 
 
 # 升星循环一直执行到当前已无新合成为止。
-func _try_star_upgrade_loop() -> void:
+func _try_star_upgrade_loop() -> bool:
+	var merged_any: bool = false
 	while true:
 		if not _try_star_merge_once():
 			break
+		merged_any = true
+	return merged_any
 
 
 # 只按槽位顺序做 3 合 1：保留最前一个，消耗后两个，不做整表重排。
@@ -408,7 +411,6 @@ func _try_star_merge_once() -> bool:
 		_refresh_single_slot_ui(consume_slot_a, null)
 		_refresh_single_slot_ui(consume_slot_b, null)
 		emit_signal("unit_star_upgraded", result_unit, consumed, int(result_unit.get("star_level")))
-		emit_signal("bench_changed")
 		return true
 
 	return false

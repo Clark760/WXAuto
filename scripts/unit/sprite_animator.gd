@@ -129,10 +129,13 @@ func play_state(state: int, context: Dictionary = {}) -> void:
 	if _target == null:
 		return
 
-	# 高频逻辑帧下，循环状态重复设置会造成抖动；直接忽略即可。
-	# 但仅在“循环状态已激活”时才允许早返回，避免 reset 后卡在静止姿态。
-	if _state == state and _is_loop_state(state) and _loop_state_active:
-		return
+	# 高频逻辑帧下，循环状态重复设置会造成无意义的重置。
+	# 循环动画已激活时可直接忽略；高单位数降级关闭循环动画时，同态请求也无需再走 reset 流程。
+	if _state == state and _is_loop_state(state):
+		if _loop_state_active:
+			return
+		if not _loop_animation_enabled:
+			return
 
 	_stop_tween()
 	_clear_impulse_state()

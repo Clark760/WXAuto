@@ -16,6 +16,8 @@ const ENEMY_COUNT: int = 200
 const CAPTURE_SECONDS: float = 8.0
 const HARD_TIMEOUT_SECONDS: float = 20.0
 const STRESS_SEED: int = 20260329
+const RENDER_MODE_ENV: String = "M5_RENDER_MODE"
+const DEEP_PROBE_ENV: String = "M5_DEEP_RUNTIME_PROBE"
 
 var _battlefield: Node = null
 var _scene_refs: Node = null
@@ -56,6 +58,11 @@ func _run() -> void:
 	_unit_augment_manager = _runtime_services.unit_augment_manager if _runtime_services != null else null
 	if _unit_augment_manager != null and _unit_augment_manager.has_method("reload_from_data"):
 		_unit_augment_manager.call("reload_from_data")
+	if _unit_augment_manager != null:
+		var deep_probe_enabled: bool = _get_deep_runtime_probe_enabled()
+		_unit_augment_manager.set("deep_runtime_probe_enabled", deep_probe_enabled)
+		if deep_probe_enabled and _runtime_probe != null:
+			_runtime_probe.sample_interval_frames = 1
 	await process_frame
 	await process_frame
 
@@ -88,6 +95,7 @@ func _run() -> void:
 		return
 
 	print("[stress_50v200] battle started")
+	_apply_render_mode_from_env()
 	var capture_begin_us: int = Time.get_ticks_usec()
 	var hard_timeout_us: int = int(HARD_TIMEOUT_SECONDS * 1000000.0)
 	var capture_target_us: int = int(CAPTURE_SECONDS * 1000000.0)
@@ -258,6 +266,64 @@ func _build_enemy_unit_ids(unit_ids: Array[String], required_count: int) -> Arra
 	return output
 
 
+func _apply_render_mode_from_env() -> void:
+	var render_mode: String = _get_render_mode()
+	if render_mode == "baseline":
+		return
+
+	match render_mode:
+		"hide_unit_visuals":
+			for unit in _collect_stress_units():
+				var visual_root: CanvasItem = unit.get_node_or_null("VisualRoot") as CanvasItem
+				if visual_root != null:
+					visual_root.visible = false
+		"hide_labels":
+			for unit in _collect_stress_units():
+				var visual_root: Node = unit.get_node_or_null("VisualRoot")
+				if visual_root != null:
+					visual_root.set("labels_visible", false)
+		"hide_vfx":
+			_set_canvas_item_visible(_scene_refs.get("vfx_factory") as CanvasItem, false)
+		"hide_ui":
+			_set_canvas_item_visible(_scene_refs.get("hud_layer") as CanvasItem, false)
+			_set_canvas_item_visible(_scene_refs.get("shop_panel_layer") as CanvasItem, false)
+			_set_canvas_item_visible(_scene_refs.get("tooltip_layer") as CanvasItem, false)
+			_set_canvas_item_visible(_scene_refs.get("detail_layer") as CanvasItem, false)
+			_set_canvas_item_visible(_scene_refs.get("bottom_layer") as CanvasItem, false)
+			_set_canvas_item_visible(_scene_refs.get("debug_layer") as CanvasItem, false)
+
+
+func _collect_stress_units() -> Array[Node]:
+	var units: Array[Node] = []
+	for unit_value in _session_state.ally_deployed.values():
+		var unit: Node = unit_value as Node
+		if unit != null and is_instance_valid(unit):
+			units.append(unit)
+	for unit_value in _session_state.enemy_deployed.values():
+		var unit: Node = unit_value as Node
+		if unit != null and is_instance_valid(unit):
+			units.append(unit)
+	return units
+
+
+func _set_canvas_item_visible(item: CanvasItem, visible_value: bool) -> void:
+	if item == null:
+		return
+	item.visible = visible_value
+
+
+func _get_render_mode() -> String:
+	var render_mode: String = OS.get_environment(RENDER_MODE_ENV).strip_edges().to_lower()
+	if render_mode.is_empty():
+		return "baseline"
+	return render_mode
+
+
+func _get_deep_runtime_probe_enabled() -> bool:
+	var raw: String = OS.get_environment(DEEP_PROBE_ENV).strip_edges().to_lower()
+	return raw == "1" or raw == "true" or raw == "yes" or raw == "on"
+
+
 func _on_battle_ended(winner_team: int, summary: Dictionary) -> void:
 	_battle_done = true
 	_battle_winner_team = winner_team
@@ -284,6 +350,7 @@ func _emit_report() -> void:
 
 	print("=== 50v200 Battlefield Stress Summary ===")
 	print("mode=headless_runtime_probe")
+	print("render_mode=%s" % _get_render_mode())
 	print("captured_frames=%d avg_wall_fps=%.2f avg_frame_budget_ms=%.2f" % [
 		int(probe_snapshot.get("frames", 0)),
 		avg_wall_fps,

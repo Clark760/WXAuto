@@ -90,6 +90,21 @@ func _test_follow_front_ally_when_forward_route_is_blocked() -> void:
 	runtime_port.unit_cells[rear_unit.get_instance_id()] = rear_cell
 	runtime_port.unit_cells[front_ally.get_instance_id()] = ally_cell
 	runtime_port.unit_cells[focus_enemy.get_instance_id()] = enemy_cell
+	var unit_by_id: Dictionary = {
+		rear_unit.get_instance_id(): rear_unit,
+		front_ally.get_instance_id(): front_ally,
+		focus_enemy.get_instance_id(): focus_enemy
+	}
+	var team_alive_cache: Dictionary = {
+		1: [rear_unit, front_ally],
+		2: [focus_enemy]
+	}
+	var follow_anchor_cache: Dictionary = rules.rebuild_follow_anchor_cache(
+		runtime_port,
+		{1: focus_enemy.get_instance_id()},
+		unit_by_id,
+		team_alive_cache
+	)
 
 	# 正前方盟友占位，常规流场无法给后排直接降代价路径。
 	runtime_port.free_cells = {
@@ -116,12 +131,9 @@ func _test_follow_front_ally_when_forward_route_is_blocked() -> void:
 		flow_field,
 		false,
 		{1: focus_enemy.get_instance_id()},
-		{
-			rear_unit.get_instance_id(): rear_unit,
-			front_ally.get_instance_id(): front_ally,
-			focus_enemy.get_instance_id(): focus_enemy
-		},
-		{1: [rear_unit, front_ally], 2: [focus_enemy]}
+		unit_by_id,
+		follow_anchor_cache,
+		null
 	)
 
 	_assert_true(

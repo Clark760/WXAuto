@@ -14,6 +14,8 @@ var _buff_defs: Dictionary = {}
 var _active_by_unit: Dictionary = {}
 var _battlefield_effects: Array[Dictionary] = []
 var _source_bound_auras: Dictionary = {}
+var _source_bound_aura_scope_index: Dictionary = {}
+var _source_bound_aura_source_index: Dictionary = {}
 var _aura_runtime = AURA_RUNTIME_SCRIPT.new()
 var _battlefield_runtime = BATTLEFIELD_RUNTIME_SCRIPT.new()
 
@@ -24,6 +26,8 @@ func clear_all() -> void:
 	_active_by_unit.clear()
 	_battlefield_effects.clear()
 	_source_bound_auras.clear()
+	_source_bound_aura_scope_index.clear()
+	_source_bound_aura_source_index.clear()
 
 
 # 定义快照由 registry 提供。
@@ -57,7 +61,7 @@ func apply_buff_with_options(
 	# 后续刷新实例只改当前桶，不回头追 live schema 或 live source。
 	var unit_iid: int = target.get_instance_id()
 	var unit_entries: Array = _active_by_unit.get(unit_iid, [])
-	var buff_data: Dictionary = (_buff_defs[buff_id] as Dictionary).duplicate(true)
+	var buff_data: Dictionary = (_buff_defs[buff_id] as Dictionary).duplicate(false)
 	var source_meta: Dictionary = _build_source_meta(source)
 	var source_id: int = int(source_meta.get("source_id", -1))
 	var application_key: String = _normalize_application_key(options.get("application_key", ""))
@@ -655,6 +659,91 @@ func _on_buff_entry_removed(target_id: int, entry: Dictionary, _reason: String) 
 	target_ids.erase(target_id)
 	aura_record["target_ids"] = target_ids
 	_source_bound_auras[application_key] = aura_record
+
+
+func _set_source_bound_aura_record(aura_key: String, aura_record: Dictionary) -> void:
+	var normalized_aura_key: String = _normalize_application_key(aura_key)
+	if normalized_aura_key.is_empty():
+		return
+	if _source_bound_auras.has(normalized_aura_key):
+		var previous_record: Dictionary = _source_bound_auras.get(normalized_aura_key, {})
+		_unindex_source_bound_aura_record(normalized_aura_key, previous_record)
+	_source_bound_auras[normalized_aura_key] = aura_record
+	_index_source_bound_aura_record(normalized_aura_key, aura_record)
+
+
+func _erase_source_bound_aura_record(aura_key: String) -> void:
+	var normalized_aura_key: String = _normalize_application_key(aura_key)
+	if normalized_aura_key.is_empty():
+		return
+	if not _source_bound_auras.has(normalized_aura_key):
+		return
+	var aura_record: Dictionary = _source_bound_auras.get(normalized_aura_key, {})
+	_unindex_source_bound_aura_record(normalized_aura_key, aura_record)
+	_source_bound_auras.erase(normalized_aura_key)
+
+
+func _get_source_bound_aura_keys_for_scope(scope_key: String) -> Array[String]:
+	var normalized_scope_key: String = scope_key.strip_edges()
+	if normalized_scope_key.is_empty():
+		return []
+	return _copy_source_bound_aura_keys(_source_bound_aura_scope_index.get(normalized_scope_key, {}))
+
+
+func _get_source_bound_aura_keys_for_source(source_id: int) -> Array[String]:
+	if source_id <= 0:
+		return []
+	return _copy_source_bound_aura_keys(_source_bound_aura_source_index.get(source_id, {}))
+
+
+func _index_source_bound_aura_record(aura_key: String, aura_record: Dictionary) -> void:
+	var normalized_aura_key: String = _normalize_application_key(aura_key)
+	if normalized_aura_key.is_empty():
+		return
+	var scope_key: String = str(aura_record.get("scope_key", "")).strip_edges()
+	if not scope_key.is_empty():
+		var scope_slot: Dictionary = _source_bound_aura_scope_index.get(scope_key, {})
+		scope_slot[normalized_aura_key] = true
+		_source_bound_aura_scope_index[scope_key] = scope_slot
+	var source_id: int = int(aura_record.get("source_id", -1))
+	if source_id > 0:
+		var source_slot: Dictionary = _source_bound_aura_source_index.get(source_id, {})
+		source_slot[normalized_aura_key] = true
+		_source_bound_aura_source_index[source_id] = source_slot
+
+
+func _unindex_source_bound_aura_record(aura_key: String, aura_record: Dictionary) -> void:
+	var normalized_aura_key: String = _normalize_application_key(aura_key)
+	if normalized_aura_key.is_empty():
+		return
+	var scope_key: String = str(aura_record.get("scope_key", "")).strip_edges()
+	if not scope_key.is_empty() and _source_bound_aura_scope_index.has(scope_key):
+		var scope_slot: Dictionary = _source_bound_aura_scope_index.get(scope_key, {})
+		scope_slot.erase(normalized_aura_key)
+		if scope_slot.is_empty():
+			_source_bound_aura_scope_index.erase(scope_key)
+		else:
+			_source_bound_aura_scope_index[scope_key] = scope_slot
+	var source_id: int = int(aura_record.get("source_id", -1))
+	if source_id > 0 and _source_bound_aura_source_index.has(source_id):
+		var source_slot: Dictionary = _source_bound_aura_source_index.get(source_id, {})
+		source_slot.erase(normalized_aura_key)
+		if source_slot.is_empty():
+			_source_bound_aura_source_index.erase(source_id)
+		else:
+			_source_bound_aura_source_index[source_id] = source_slot
+
+
+func _copy_source_bound_aura_keys(slot_value: Variant) -> Array[String]:
+	var aura_keys: Array[String] = []
+	if not (slot_value is Dictionary):
+		return aura_keys
+	for key_value in (slot_value as Dictionary).keys():
+		var aura_key: String = str(key_value).strip_edges()
+		if aura_key.is_empty():
+			continue
+		aura_keys.append(aura_key)
+	return aura_keys
 
 
 # 这里的 alive 判定只服务于 battlefield effect 目标筛选。

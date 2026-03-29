@@ -153,6 +153,10 @@ func _on_battle_started(_ally_count: int, _enemy_count: int) -> void:
 	if _manager == null:
 		return
 	_manager.get_battle_runtime().on_battle_started(_manager)
+	var state_service: Variant = _manager.get_state_service()
+	var combat_manager: Node = _manager.get_battle_runtime().get_bound_combat_manager()
+	state_service.sync_battle_cells_from_combat_manager(combat_manager)
+	state_service.mark_all_passive_aura_dirty()
 	_manager._fire_trigger_for_all("on_combat_start", {})
 
 
@@ -214,6 +218,7 @@ func _on_unit_died(dead_unit: Node, killer: Node, team_id: int) -> void:
 	# 击杀奖励和 ally_death 都属于死亡事件派生触发，必须在 Buff 清理前完成。
 	var state_service: Variant = _manager.get_state_service()
 	var buff_manager: Variant = _manager.get_buff_manager()
+	var dead_cell: Vector2i = state_service.get_unit_battle_cell(dead_unit)
 
 	if killer != null and is_instance_valid(killer):
 		_manager._fire_trigger_for_unit(killer, "on_kill", {"target": dead_unit})
@@ -229,6 +234,8 @@ func _on_unit_died(dead_unit: Node, killer: Node, team_id: int) -> void:
 		if not state_service.is_unit_alive(ally):
 			continue
 		_manager._fire_trigger_for_unit(ally, "on_ally_death", {"target": dead_unit})
+
+	state_service.mark_passive_aura_dirty_for_cell_change(dead_unit, dead_cell, dead_cell)
 
 	# 源绑定光环要先按 provider 清掉，再统一移除尸体身上的 Buff。
 	buff_manager.remove_source_bound_auras_from_source(dead_unit, {
@@ -292,6 +299,14 @@ func _on_unit_spawned_mid_battle(unit: Node, team_id: int) -> void:
 	if not state_service.get_unit_lookup().has(unit.get_instance_id()):
 		state_service.register_battle_unit(unit)
 		state_service.apply_unit_augment(unit, true)
+	var spawn_cell: Vector2i = Vector2i(-1, -1)
+	var combat_manager: Node = _manager.get_battle_runtime().get_bound_combat_manager()
+	if combat_manager != null and combat_manager.has_method("get_unit_cell_of"):
+		var spawn_cell_value: Variant = combat_manager.get_unit_cell_of(unit)
+		if spawn_cell_value is Vector2i:
+			spawn_cell = spawn_cell_value as Vector2i
+	state_service.set_unit_battle_cell(unit, spawn_cell)
+	state_service.mark_passive_aura_dirty_for_cell_change(unit, spawn_cell, spawn_cell)
 
 	_manager._fire_trigger_for_unit(unit, "on_unit_spawned_mid_battle", {
 		"unit": unit,
@@ -356,6 +371,7 @@ func _on_unit_move_success(unit: Node, from_cell: Vector2i, to_cell: Vector2i, s
 		return
 	if unit == null or not is_instance_valid(unit):
 		return
+	_manager.get_state_service().mark_passive_aura_dirty_for_cell_change(unit, from_cell, to_cell)
 	_manager._fire_trigger_for_unit(unit, "on_unit_move_success", {
 		"unit": unit,
 		"from_cell": from_cell,

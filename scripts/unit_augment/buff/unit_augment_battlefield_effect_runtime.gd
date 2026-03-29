@@ -1,6 +1,8 @@
 extends RefCounted
 class_name UnitAugmentBattlefieldEffectRuntime
 
+var _battlefield_query_ids_scratch: Array[int] = []
+
 
 # 战场级效果要求最小结构完整，尤其是中心格、tick_effects 和来源元数据。
 # 这里只负责把配置归一化后塞进运行时数组，不直接执行效果。
@@ -97,7 +99,7 @@ func _tick_unit_buffs(
 		for entry_value in entries:
 			if not (entry_value is Dictionary):
 				continue
-			var entry: Dictionary = (entry_value as Dictionary).duplicate(true)
+			var entry: Dictionary = entry_value as Dictionary
 			var buff_data: Dictionary = entry.get("data", {})
 			var previous_remaining: float = float(entry.get("remaining", 0.0))
 			var remaining: float = previous_remaining
@@ -164,7 +166,7 @@ func _tick_battlefield_effects(
 	for effect_value in manager._battlefield_effects:
 		if not (effect_value is Dictionary):
 			continue
-		var effect_entry: Dictionary = (effect_value as Dictionary).duplicate(true)
+		var effect_entry: Dictionary = effect_value as Dictionary
 		var previous_remaining: float = float(effect_entry.get("remaining", 0.0))
 		var remaining: float = previous_remaining
 		if remaining >= 0.0:
@@ -229,6 +231,18 @@ func _collect_battlefield_target_ids(manager, effect_entry: Dictionary, context:
 	var target_mode: String = str(effect_entry.get("target_mode", "enemies")).strip_edges().to_lower()
 	var combat_manager: Variant = context.get("combat_manager", null)
 	var hex_grid: Variant = context.get("hex_grid", null)
+	if _append_spatial_battlefield_targets(
+		manager,
+		combat_manager,
+		hex_grid,
+		center_cell,
+		radius_cells,
+		source_team,
+		target_mode,
+		output
+	):
+		return output
+
 	for unit_value in (all_units_value as Array):
 		# 这里先过活体、队伍和空间三道门。
 		# 只有全部命中后，才把 target_id 交给上层统一执行 tick_effects。
@@ -251,6 +265,64 @@ func _collect_battlefield_target_ids(manager, effect_entry: Dictionary, context:
 			continue
 		output.append(unit.get_instance_id())
 	return output
+
+
+func _append_spatial_battlefield_targets(
+	manager,
+	combat_manager: Variant,
+	hex_grid: Variant,
+	center_cell: Vector2i,
+	radius_cells: int,
+	source_team: int,
+	target_mode: String,
+	output: Array[int]
+) -> bool:
+	if combat_manager == null or not is_instance_valid(combat_manager):
+		return false
+	if hex_grid == null or not is_instance_valid(hex_grid):
+		return false
+	if not hex_grid.has_method("axial_to_world"):
+		return false
+
+	var spatial_hash: Variant = combat_manager.get("_spatial_hash")
+	var unit_lookup_value: Variant = combat_manager.get("_unit_by_instance_id")
+	if spatial_hash == null or not is_instance_valid(spatial_hash):
+		return false
+	if not (unit_lookup_value is Dictionary):
+		return false
+
+	var center_world: Vector2 = hex_grid.axial_to_world(center_cell)
+	var query_radius: float = _build_battlefield_query_radius(radius_cells, hex_grid)
+	var unit_lookup: Dictionary = unit_lookup_value as Dictionary
+	spatial_hash.query_radius_into(center_world, query_radius, _battlefield_query_ids_scratch)
+
+	for candidate_id in _battlefield_query_ids_scratch:
+		if not unit_lookup.has(candidate_id):
+			continue
+		var unit: Node = unit_lookup[candidate_id]
+		if unit == null or not is_instance_valid(unit):
+			continue
+		if not manager._is_unit_alive_node(unit):
+			continue
+		var team_id: int = int(unit.get("team_id"))
+		if target_mode == "allies" and source_team != 0 and team_id != source_team:
+			continue
+		if target_mode == "enemies" and source_team != 0 and team_id == source_team:
+			continue
+		var unit_cell: Vector2i = _resolve_unit_cell(unit, combat_manager, hex_grid)
+		if unit_cell.x < 0:
+			continue
+		if _hex_distance_cells(center_cell, unit_cell, hex_grid) > radius_cells:
+			continue
+		output.append(unit.get_instance_id())
+	return true
+
+
+func _build_battlefield_query_radius(radius_cells: int, hex_grid: Variant) -> float:
+	var hex_size: float = 26.0
+	if hex_grid != null and is_instance_valid(hex_grid):
+		hex_size = float(hex_grid.get("hex_size"))
+	return maxf(float(radius_cells) + 1.0, 1.0) * maxf(hex_size, 1.0) * 1.2
 
 
 # 单位格子优先读 combat manager 的运行时映射。

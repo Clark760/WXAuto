@@ -265,13 +265,18 @@ func refresh_after_world_change() -> void:
 		_detail_view.update_detail_panel(_state.detail_unit)
 
 
-# 招募角色只会影响顶栏资源、商店货架与可能打开的详情，不应连带重建整个仓库列表。
-func refresh_after_recruit_purchase() -> void:
+# 经济与商店信号只刷新顶栏、快捷按钮和商店，不把 inventory 一起重建。
+func refresh_after_shop_economy_change() -> void:
 	_runtime_view.refresh_top_runtime_hud(0.0, true)
 	_runtime_view.refresh_top_quick_action_buttons()
 	_shop_inventory_view.update_shop_ui()
 	if _state.detail_visible and _support.is_valid_unit(_state.detail_unit):
 		_detail_view.update_detail_panel(_state.detail_unit)
+
+
+# 招募角色只会影响顶栏资源、商店货架与可能打开的详情，不应连带重建整个仓库列表。
+func refresh_after_recruit_purchase() -> void:
+	refresh_after_shop_economy_change()
 
 
 # 世界拖拽开始或结束时，显隐统一收口到 HUD runtime view。

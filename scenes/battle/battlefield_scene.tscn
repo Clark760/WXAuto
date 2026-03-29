@@ -271,7 +271,7 @@ theme_override_font_sizes/font_size = 42
 text = "交锋开始"
 
 [node name="ShopPanelLayer" type="CanvasLayer" parent="." unique_id=1425204302]
-layer = 12
+layer = 20
 
 [node name="ShopPanel" type="PanelContainer" parent="ShopPanelLayer" unique_id=36728218]
 anchors_preset = 7
@@ -390,7 +390,7 @@ text = "锁定"
 layer = 30
 
 [node name="DetailLayer" type="CanvasLayer" parent="." unique_id=555614993]
-layer = 20
+layer = 12
 
 [node name="UnitDetailMask" type="ColorRect" parent="DetailLayer" unique_id=1382511439]
 visible = false

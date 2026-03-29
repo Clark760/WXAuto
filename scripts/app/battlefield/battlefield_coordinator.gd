@@ -248,6 +248,9 @@ func _spawn_enemy_wave_in_batches(enemy_count: int) -> void:
 	if spawn_entries.is_empty():
 		return
 
+	await _prewarm_spawn_plan_units_async(spawn_entries)
+	await get_tree().process_frame
+
 	var batch_size: int = maxi(battle_start_enemy_spawn_batch_size, 1)
 	for start_index in range(0, spawn_entries.size(), batch_size):
 		_refs.runtime_unit_deploy_manager.spawn_enemy_wave_from_plan(
@@ -661,16 +664,29 @@ func _on_recycle_sell_requested(payload: Dictionary, price: int) -> void:
 
  # 资产快照变化后统一刷新 presenter。
 func _on_assets_changed(_snapshot: Dictionary) -> void:
+	var presenter: Node = _get_hud_presenter()
+	if presenter != null and presenter.has_method("refresh_after_shop_economy_change"):
+		presenter.refresh_after_shop_economy_change()
+		return
 	_refresh_presenter()
 
 
  # 锁店状态变化后统一刷新 presenter。
 func _on_shop_locked_changed(_locked: bool) -> void:
+	var presenter: Node = _get_hud_presenter()
+	if presenter != null and presenter.has_method("refresh_after_shop_economy_change"):
+		presenter.refresh_after_shop_economy_change()
+		return
 	_refresh_presenter()
 
 
  # 商店快照变化后统一刷新 presenter。
 func _on_shop_snapshot_refreshed(_snapshot: Dictionary) -> void:
+	_prewarm_visible_recruit_offers(_snapshot)
+	var presenter: Node = _get_hud_presenter()
+	if presenter != null and presenter.has_method("refresh_after_shop_economy_change"):
+		presenter.refresh_after_shop_economy_change()
+		return
 	_refresh_presenter()
 
 
@@ -782,3 +798,74 @@ func _get_data_repository() -> Node:
 	if _services == null:
 		return null
 	return _services.data_repository
+
+
+func _prewarm_visible_recruit_offers(snapshot: Dictionary) -> void:
+	if _refs == null or _refs.unit_factory == null or _refs.unit_layer == null:
+		return
+	if not _refs.unit_factory.has_method("prewarm_unit_instances_by_count"):
+		return
+
+	var recruit_counts: Dictionary = _build_recruit_offer_counts(snapshot)
+	if recruit_counts.is_empty():
+		return
+	_refs.unit_factory.prewarm_unit_instances_by_count(recruit_counts, _refs.unit_layer)
+
+
+func _prewarm_spawn_plan_units_async(spawn_plan: Array[Dictionary]) -> void:
+	if _refs == null or _refs.unit_factory == null or _refs.unit_layer == null:
+		return
+	if not _refs.unit_factory.has_method("prewarm_unit_instances_by_count"):
+		return
+
+	var count_by_unit_id: Dictionary = _build_spawn_plan_unit_counts(spawn_plan)
+	if count_by_unit_id.is_empty():
+		return
+
+	var batch_budget: int = maxi(battle_start_enemy_spawn_batch_size, 1)
+	while true:
+		var warmed_count: int = int(
+			_refs.unit_factory.prewarm_unit_instances_by_count(
+				count_by_unit_id,
+				_refs.unit_layer,
+				batch_budget
+			)
+		)
+		if warmed_count <= 0:
+			return
+		if _refs.debug_label != null:
+			_refs.debug_label.text = "正在准备战斗…预热单位缓存"
+		await get_tree().process_frame
+
+
+func _build_recruit_offer_counts(snapshot: Dictionary) -> Dictionary:
+	var count_by_unit_id: Dictionary = {}
+	var offers_value: Variant = snapshot.get("recruit", [])
+	if not (offers_value is Array):
+		return count_by_unit_id
+	for offer_value in offers_value:
+		if not (offer_value is Dictionary):
+			continue
+		var offer: Dictionary = offer_value as Dictionary
+		if bool(offer.get("sold", false)):
+			continue
+		if str(offer.get("item_type", "")).strip_edges() != "unit":
+			continue
+		var unit_id: String = str(offer.get("item_id", "")).strip_edges()
+		if unit_id.is_empty():
+			continue
+		count_by_unit_id[unit_id] = int(count_by_unit_id.get(unit_id, 0)) + 1
+	return count_by_unit_id
+
+
+func _build_spawn_plan_unit_counts(spawn_plan: Array[Dictionary]) -> Dictionary:
+	var count_by_unit_id: Dictionary = {}
+	for entry_value in spawn_plan:
+		if not (entry_value is Dictionary):
+			continue
+		var entry: Dictionary = entry_value as Dictionary
+		var unit_id: String = str(entry.get("unit_id", "")).strip_edges()
+		if unit_id.is_empty():
+			continue
+		count_by_unit_id[unit_id] = int(count_by_unit_id.get(unit_id, 0)) + 1
+	return count_by_unit_id

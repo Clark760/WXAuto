@@ -44,6 +44,7 @@ func evaluate(owner: Node, config: Dictionary, context: Dictionary) -> Dictionar
 	var global_source_types: Array[String] = compiled.get("global_source_types", [])
 	var include_self: bool = bool(config.get("include_self", true))
 	var range_cells: int = maxi(int(config.get("range", 0)), 0)
+	var required_unit_team_scope: String = str(compiled.get("required_unit_team_scope", "all"))
 
 	# provider 列表会原样带回给上层，用于调试、观测和 stateful branch 后续复用。
 	# case evaluator 只负责计数和效果选择，不再回头触碰空间扫描过程。
@@ -52,7 +53,8 @@ func evaluate(owner: Node, config: Dictionary, context: Dictionary) -> Dictionar
 		eval_context,
 		range_cells,
 		include_self,
-		global_source_types
+		global_source_types,
+		required_unit_team_scope
 	)
 	var providers: Array[Dictionary] = provider_result.get("providers", [])
 	var case_result: Dictionary = _case_evaluator.evaluate(config, providers, compiled)
@@ -66,6 +68,7 @@ func evaluate(owner: Node, config: Dictionary, context: Dictionary) -> Dictionar
 	output["matched_case_ids"] = case_result.get("matched_case_ids", [])
 	output["effects"] = case_result.get("effects", [])
 	output["providers"] = providers
+	output["scan_cells"] = provider_result.get("scan_cells", [])
 	# debug 字段继续暴露扫描范围和编译摘要。
 	# 这样 contract test 可以盯住外观不变，同时内部实现已经切到新 domain 模块。
 	output["debug"] = {
@@ -75,6 +78,6 @@ func evaluate(owner: Node, config: Dictionary, context: Dictionary) -> Dictionar
 		"source_types": global_source_types,
 		"compiled_query_count": compiled_query_count,
 		"tag_registry_version": _query_compiler.get_tag_registry_version(),
-		"scan_cells": provider_result.get("scan_cells", [])
+		"scan_cells": output.get("scan_cells", [])
 	}
 	return output

@@ -90,6 +90,7 @@ class MockHexGrid:
 class MockCombatManager:
 	extends Node
 	var unit_cells: Dictionary = {}
+	var unit_lookup: Dictionary = {}
 	var static_cell_tags: Dictionary = {}
 	var dynamic_cell_tags: Dictionary = {}
 	var hex_grid: MockHexGrid = null
@@ -100,7 +101,9 @@ class MockCombatManager:
 	func register_unit_cell(unit: Node, cell: Vector2i) -> void:
 		if unit == null:
 			return
-		unit_cells[unit.get_instance_id()] = cell
+		var iid: int = unit.get_instance_id()
+		unit_cells[iid] = cell
+		unit_lookup[iid] = unit
 		if unit is Node2D and hex_grid != null:
 			(unit as Node2D).position = hex_grid.axial_to_world(cell)
 
@@ -111,6 +114,26 @@ class MockCombatManager:
 		if not unit_cells.has(iid):
 			return Vector2i(-1, -1)
 		return unit_cells[iid]
+
+	func collect_alive_units_in_cells(cells: Array[Vector2i], output: Array[Node]) -> void:
+		output.clear()
+		if cells.is_empty():
+			return
+		var seen_units: Dictionary = {}
+		for cell in cells:
+			for iid in unit_cells.keys():
+				if unit_cells[iid] != cell:
+					continue
+				if seen_units.has(iid) or not unit_lookup.has(iid):
+					continue
+				seen_units[iid] = true
+				var unit: Node = unit_lookup[iid]
+				if unit == null or not is_instance_valid(unit):
+					continue
+				var combat: Node = unit.get_node_or_null("Components/UnitCombat")
+				if combat == null or not bool(combat.get("is_alive")):
+					continue
+				output.append(unit)
 
 	func set_static_tags(cell: Vector2i, tags: Array) -> void:
 		static_cell_tags[_cell_key(cell)] = _normalize_tags(tags)

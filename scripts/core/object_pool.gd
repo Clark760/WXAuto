@@ -19,6 +19,7 @@ extends Node
 # }
 var _pools: Dictionary = {}
 var _services: ServiceRegistry = null
+const META_PREVIOUS_PROCESS_MODE: StringName = &"_object_pool_previous_process_mode"
 
 # 绑定 bind runtime services
 func bind_runtime_services(services: ServiceRegistry) -> void:
@@ -188,20 +189,37 @@ func get_all_pool_stats() -> Array[Dictionary]:
 		stats.append(get_pool_stats(str(pool_key)))
 	return stats
 
+func ensure_available(pool_key: String, target_available: int, parent_override: Node = null) -> int:
+	if not _pools.has(pool_key):
+		return 0
+
+	var pool: Dictionary = _pools[pool_key]
+	pool["available"] = _filter_valid_nodes(pool.get("available", []))
+	pool["in_use"] = _filter_valid_in_use(pool.get("in_use", {}))
+	_pools[pool_key] = pool
+
+	var available: Array = pool["available"]
+	var missing_count: int = maxi(target_available - available.size(), 0)
+	if missing_count <= 0:
+		return 0
+	return _prewarm_pool(pool_key, missing_count, parent_override)
+
 # 处理 prewarm pool
-func _prewarm_pool(pool_key: String, count: int) -> void:
+func _prewarm_pool(pool_key: String, count: int, parent_override: Node = null) -> int:
 	var pool: Dictionary = _pools[pool_key]
 	var available: Array = pool["available"]
+	var created_count: int = 0
 
-	# 预热会立即创建实例并放入空闲队列，避免战斗首帧创建峰值。
 	for i in range(count):
-		var node: Node = _create_instance(pool_key, null)
+		var node: Node = _create_instance(pool_key, parent_override)
 		if node != null:
 			_set_node_active(node, false)
 			available.append(node)
+			created_count += 1
 
 	pool["available"] = available
 	_pools[pool_key] = pool
+	return created_count
 
 # 构建 create instance
 func _create_instance(pool_key: String, parent_override: Node) -> Node:
@@ -252,10 +270,15 @@ func _set_node_active(node: Node, is_active: bool) -> void:
 	if canvas_item != null:
 		canvas_item.visible = is_active
 
-	node.set_process(is_active)
-	node.set_physics_process(is_active)
-	node.set_process_input(is_active)
-	node.set_process_unhandled_input(is_active)
+	if is_active:
+		if node.has_meta(META_PREVIOUS_PROCESS_MODE):
+			node.process_mode = int(node.get_meta(META_PREVIOUS_PROCESS_MODE))
+			node.remove_meta(META_PREVIOUS_PROCESS_MODE)
+		return
+
+	if not node.has_meta(META_PREVIOUS_PROCESS_MODE):
+		node.set_meta(META_PREVIOUS_PROCESS_MODE, node.process_mode)
+	node.process_mode = Node.PROCESS_MODE_DISABLED
 
 # 处理 filter valid nodes
 func _filter_valid_nodes(nodes: Variant) -> Array:

@@ -3,6 +3,8 @@ class_name UnitAugmentTargetQueryService
 
 const DEFAULT_HEX_SIZE: float = 26.0
 
+var _spatial_query_ids_scratch: Array[int] = []
+
 # query service 只负责目标与距离查询。
 # 调用方拿到结果后再决定副作用，避免查询层回写运行时。
 
@@ -32,21 +34,33 @@ func collect_enemy_units_in_radius(
 ) -> Array[Node]:
 	var enemies: Array[Node] = []
 	var source_team: int = int(source.get("team_id")) if source != null and is_instance_valid(source) else 0
+	var state_service: Variant = _get_state_service(context)
+	var combat_manager: Node = _get_query_combat_manager(context)
+	if combat_manager != null and _append_spatial_units_in_radius(
+		combat_manager,
+		center,
+		radius_world,
+		source,
+		source_team,
+		false,
+		false,
+		state_service,
+		enemies
+	):
+		return enemies
 
 	for unit in get_all_units(context):
-		# 这里不区分召唤物或英雄，只按敌我与存活状态过滤。
-		if unit == null or not is_instance_valid(unit):
-			continue
-		if unit == source:
-			continue
-		if source_team != 0 and int(unit.get("team_id")) == source_team:
-			continue
-		if not is_unit_alive(unit):
-			continue
-		if distance_sq(node_pos(unit), center) > radius_world * radius_world:
-			continue
-
-		enemies.append(unit)
+		if _passes_radius_team_filter(
+			unit,
+			source,
+			source_team,
+			false,
+			false,
+			center,
+			radius_world,
+			state_service
+		):
+			enemies.append(unit)
 
 	return enemies
 
@@ -62,21 +76,33 @@ func collect_ally_units_in_radius(
 ) -> Array[Node]:
 	var allies: Array[Node] = []
 	var source_team: int = int(source.get("team_id")) if source != null and is_instance_valid(source) else 0
+	var state_service: Variant = _get_state_service(context)
+	var combat_manager: Node = _get_query_combat_manager(context)
+	if combat_manager != null and _append_spatial_units_in_radius(
+		combat_manager,
+		center,
+		radius_world,
+		source,
+		source_team,
+		true,
+		exclude_self,
+		state_service,
+		allies
+	):
+		return allies
 
 	for unit in get_all_units(context):
-		# 友军查询沿用与敌军查询相同的世界距离口径，避免不同 op 结果不一致。
-		if unit == null or not is_instance_valid(unit):
-			continue
-		if exclude_self and unit == source:
-			continue
-		if source_team != 0 and int(unit.get("team_id")) != source_team:
-			continue
-		if not is_unit_alive(unit):
-			continue
-		if distance_sq(node_pos(unit), center) > radius_world * radius_world:
-			continue
-
-		allies.append(unit)
+		if _passes_radius_team_filter(
+			unit,
+			source,
+			source_team,
+			true,
+			exclude_self,
+			center,
+			radius_world,
+			state_service
+		):
+			allies.append(unit)
 
 	return allies
 
@@ -94,14 +120,26 @@ func pick_nearest_enemy_unit(
 	var best_d2: float = INF
 	var source_team: int = int(source.get("team_id")) if source != null and is_instance_valid(source) else 0
 	var max_d2: float = max_radius_world * max_radius_world
+	var state_service: Variant = _get_state_service(context)
+	var combat_manager: Node = _get_query_combat_manager(context)
+	if combat_manager != null:
+		var spatial_best: Node = _pick_nearest_enemy_from_spatial_query(
+			combat_manager,
+			center,
+			max_radius_world,
+			source_team,
+			visited,
+			state_service
+		)
+		if spatial_best != null:
+			return spatial_best
 
 	for unit in get_all_units(context):
-		# 最近目标查询会跳过 visited 集合，供链伤等效果连续选点。
 		if unit == null or not is_instance_valid(unit):
 			continue
 		if source_team != 0 and int(unit.get("team_id")) == source_team:
 			continue
-		if not is_unit_alive(unit):
+		if not _is_unit_alive_in_context(unit, state_service):
 			continue
 
 		var unit_id: int = unit.get_instance_id()
@@ -247,3 +285,142 @@ func node_pos(node: Node) -> Vector2:
 # 所有世界坐标半径比较都应该优先走这个入口，保持计算口径一致。
 func distance_sq(a: Vector2, b: Vector2) -> float:
 	return a.distance_squared_to(b)
+
+
+func _passes_radius_team_filter(
+	unit: Node,
+	source: Node,
+	source_team: int,
+	require_allies: bool,
+	exclude_self: bool,
+	center: Vector2,
+	radius_world: float,
+	state_service: Variant = null
+) -> bool:
+	if unit == null or not is_instance_valid(unit):
+		return false
+	if exclude_self and unit == source:
+		return false
+	if unit == source and not require_allies:
+		return false
+	var team_id: int = int(unit.get("team_id"))
+	if require_allies:
+		if source_team != 0 and team_id != source_team:
+			return false
+	else:
+		if source_team != 0 and team_id == source_team:
+			return false
+	if not _is_unit_alive_in_context(unit, state_service):
+		return false
+	return distance_sq(node_pos(unit), center) <= radius_world * radius_world
+
+
+func _get_query_combat_manager(context: Dictionary) -> Node:
+	var combat_manager: Variant = context.get("combat_manager", null)
+	if combat_manager == null or not is_instance_valid(combat_manager):
+		return null
+	return combat_manager as Node
+
+
+func _append_spatial_units_in_radius(
+	combat_manager: Node,
+	center: Vector2,
+	radius_world: float,
+	source: Node,
+	source_team: int,
+	require_allies: bool,
+	exclude_self: bool,
+	state_service: Variant,
+	output: Array[Node]
+) -> bool:
+	var spatial_hash: Variant = combat_manager.get("_spatial_hash")
+	var unit_lookup_value: Variant = combat_manager.get("_unit_by_instance_id")
+	if spatial_hash == null or not is_instance_valid(spatial_hash):
+		return false
+	if not (unit_lookup_value is Dictionary):
+		return false
+
+	var unit_lookup: Dictionary = unit_lookup_value as Dictionary
+	spatial_hash.query_radius_into(center, maxf(radius_world, 0.0), _spatial_query_ids_scratch)
+	for candidate_id in _spatial_query_ids_scratch:
+		if not unit_lookup.has(candidate_id):
+			continue
+		var unit: Node = unit_lookup[candidate_id]
+		if not _passes_radius_team_filter(
+			unit,
+			source,
+			source_team,
+			require_allies,
+			exclude_self,
+			center,
+			radius_world,
+			state_service
+		):
+			continue
+		output.append(unit)
+	return true
+
+
+func _pick_nearest_enemy_from_spatial_query(
+	combat_manager: Node,
+	center: Vector2,
+	max_radius_world: float,
+	source_team: int,
+	visited: Dictionary,
+	state_service: Variant = null
+) -> Node:
+	var spatial_hash: Variant = combat_manager.get("_spatial_hash")
+	var unit_lookup_value: Variant = combat_manager.get("_unit_by_instance_id")
+	if spatial_hash == null or not is_instance_valid(spatial_hash):
+		return null
+	if not (unit_lookup_value is Dictionary):
+		return null
+
+	var unit_lookup: Dictionary = unit_lookup_value as Dictionary
+	var query_radius: float = max_radius_world
+	if query_radius >= INF:
+		query_radius = 1000000.0
+	spatial_hash.query_radius_into(center, maxf(query_radius, 0.0), _spatial_query_ids_scratch)
+	var best: Node = null
+	var best_d2: float = INF
+	var max_d2: float = max_radius_world * max_radius_world
+	for candidate_id in _spatial_query_ids_scratch:
+		if not unit_lookup.has(candidate_id):
+			continue
+		var unit: Node = unit_lookup[candidate_id]
+		if unit == null or not is_instance_valid(unit):
+			continue
+		if source_team != 0 and int(unit.get("team_id")) == source_team:
+			continue
+		if not _is_unit_alive_in_context(unit, state_service):
+			continue
+		if visited.has(int(candidate_id)):
+			continue
+
+		var distance_value: float = distance_sq(node_pos(unit), center)
+		if max_radius_world < INF and distance_value > max_d2:
+			continue
+		if distance_value >= best_d2:
+			continue
+
+		best_d2 = distance_value
+		best = unit
+	return best
+
+
+func _get_state_service(context: Dictionary) -> Variant:
+	var state_service: Variant = context.get("state_service", null)
+	if state_service != null:
+		return state_service
+	var manager: Variant = context.get("unit_augment_manager", null)
+	if manager != null and manager.has_method("get_state_service"):
+		return manager.get_state_service()
+	return null
+
+
+func _is_unit_alive_in_context(unit: Node, state_service: Variant = null) -> bool:
+	if unit == null or not is_instance_valid(unit):
+		return false
+	if state_service != null and state_service.has_method("is_unit_alive"):
+		return bool(state_service.is_unit_alive(unit))
+	return is_unit_alive(unit)

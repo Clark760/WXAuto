@@ -1,15 +1,16 @@
-extends Node2D
+﻿extends Node2D
 
 # ===========================
-# 角色基类
+# 瑙掕壊鍩虹被
 # ===========================
-# 目标：
-# 1. 承载角色基础属性与运行态属性。
-# 2. 组合战斗、移动、动画组件（组合优于继承）。
-# 3. 支持拖拽部署、升星、状态切换的可视化反馈。
+# 鐩爣锛?
+# 1. 鎵胯浇瑙掕壊鍩虹灞炴€т笌杩愯鎬佸睘鎬с€?
+# 2. 缁勫悎鎴樻枟銆佺Щ鍔ㄣ€佸姩鐢荤粍浠讹紙缁勫悎浼樹簬缁ф壙锛夈€?
+# 3. 鏀寔鎷栨嫿閮ㄧ讲銆佸崌鏄熴€佺姸鎬佸垏鎹㈢殑鍙鍖栧弽棣堛€?
 
 const _UNIT_DATA_SCRIPT: Script = preload("res://scripts/domain/unit/unit_data.gd")
 const PROBE_SCOPE_UNIT_BASE_PROCESS: String = "unit_base_process"
+const PROBE_SCOPE_UNIT_SETUP_FROM_RECORD: String = "unit_setup_from_record"
 
 signal drag_started(unit: Node)
 signal drag_updated(unit: Node, world_position: Vector2)
@@ -17,9 +18,6 @@ signal drag_ended(unit: Node, world_position: Vector2)
 signal star_changed(unit: Node, previous_star: int, next_star: int)
 
 @onready var visual_root: Node2D = $VisualRoot
-@onready var sprite_2d: Sprite2D = $VisualRoot/Sprite2D
-@onready var name_label: Label = $VisualRoot/NameLabel
-@onready var star_label: Label = $VisualRoot/StarLabel
 
 @onready var combat_component: Node = $Components/UnitCombat
 @onready var movement_component: Node = $Components/UnitMovement
@@ -72,11 +70,11 @@ var deployed_cell: Vector2i = Vector2i(-999, -999)
 var is_dragging: bool = false
 var _pending_texture: Texture2D = null
 
-# 绑定 bind runtime services
+# 缁戝畾 bind runtime services
 func bind_runtime_services(services: ServiceRegistry) -> void:
 	_services = services
 
-# 处理 ready
+# 澶勭悊 ready
 func _ready() -> void:
 	_bind_components()
 	if not unit_id.is_empty():
@@ -86,18 +84,18 @@ func _ready() -> void:
 	_apply_pending_texture_if_needed()
 	refresh_process_state()
 
-# 处理 process
+# 澶勭悊 process
 func _process(delta: float) -> void:
 	var process_begin_us: int = _probe_begin_timing()
-	# 移动组件统一负责拖拽归位与战场位移推进。
+
 	if movement_component != null:
 		movement_component.call("tick", delta)
-		# 移动完成后关闭 process，减少空转开销。
+		# Stop per-frame ticking once the movement target is consumed.
 		if not bool(movement_component.get("has_target")):
 			set_process(false)
 	_probe_commit_timing(PROBE_SCOPE_UNIT_BASE_PROCESS, process_begin_us)
 
-# 处理 refresh process state
+# 澶勭悊 refresh process state
 func refresh_process_state() -> void:
 	var should_process: bool = false
 	if is_dragging:
@@ -106,8 +104,9 @@ func refresh_process_state() -> void:
 		should_process = bool(movement_component.get("has_target"))
 	set_process(should_process)
 
-# 准备 setup from unit record
+# 鍑嗗 setup from unit record
 func setup_from_unit_record(unit_record: Dictionary, forced_star: int = -1) -> void:
+	var setup_begin_us: int = _probe_begin_timing()
 	unit_id = str(unit_record.get("id", ""))
 	unit_name = str(unit_record.get("name", unit_id))
 	quality = str(unit_record.get("quality", "white"))
@@ -136,12 +135,12 @@ func setup_from_unit_record(unit_record: Dictionary, forced_star: int = -1) -> v
 		for slot in gongfa_slots.keys():
 			gongfa_slots[slot] = str(slots_raw.get(slot, ""))
 
-	# 装备槽位按数据动态读取；未配置时默认两槽。
+	# 瑁呭妲戒綅鎸夋暟鎹姩鎬佽鍙栵紱鏈厤缃椂榛樿涓ゆЫ銆?
 	var configured_max_equip: int = int(unit_record.get("max_equip_count", 0))
 	equip_slots = _normalize_equip_slots_dict(unit_record.get("equip_slots", {}), configured_max_equip)
 	max_equip_count = _resolve_max_equip_count(configured_max_equip, equip_slots)
-	# 不能在“未进入场景树”的节点上直接 get_node("/root/...")，
-	# 这里改为通过 SceneTree 根节点安全查询 AutoLoad，避免初始化期报错。
+	# 涓嶈兘鍦ㄢ€滄湭杩涘叆鍦烘櫙鏍戔€濈殑鑺傜偣涓婄洿鎺?get_node("/root/...")锛?
+	# 杩欓噷鏀逛负閫氳繃 SceneTree 鏍硅妭鐐瑰畨鍏ㄦ煡璇?AutoLoad锛岄伩鍏嶅垵濮嬪寲鏈熸姤閿欍€?
 	var gm: Node = _get_unit_augment_manager()
 	if gm != null and not initial_gongfa.is_empty():
 		var reg = gm.get("_registry")
@@ -186,15 +185,17 @@ func setup_from_unit_record(unit_record: Dictionary, forced_star: int = -1) -> v
 	is_in_combat = false
 	runtime_equipped_gongfa_ids = get_equipped_gongfa_ids()
 	runtime_equipped_equip_ids = get_equipped_equip_ids()
+	refresh_process_state()
+	_probe_commit_timing(PROBE_SCOPE_UNIT_SETUP_FROM_RECORD, setup_begin_us)
 
-# 获取 get unit augment manager
+# 鑾峰彇 get unit augment manager
 func _get_unit_augment_manager() -> Node:
 	if _services == null:
 		return null
 	return _services.unit_augment_manager
 
 
-# 子节点动画器需要从 unit 上取 RuntimeProbe，这里统一暴露稳定入口。
+
 func get_runtime_probe():
 	return _services.runtime_probe if _services != null else null
 
@@ -204,7 +205,7 @@ func get_runtime_probe():
 
 
 
-# 处理 base star set
+# 澶勭悊 base star set
 func base_star_set(unit_record: Dictionary, forced_star: int) -> void:
 	var base_star: int = clampi(int(unit_record.get("base_star", 1)), 1, 3)
 	max_star = clampi(int(unit_record.get("max_star", 3)), 1, 3)
@@ -213,12 +214,12 @@ func base_star_set(unit_record: Dictionary, forced_star: int) -> void:
 	else:
 		star_level = clampi(base_star, 1, max_star)
 
-# 设置 set display texture
+# 璁剧疆 set display texture
 func set_display_texture(texture: Texture2D) -> void:
 	_pending_texture = texture
 	_apply_pending_texture_if_needed()
 
-# 设置 set star level
+# 璁剧疆 set star level
 func set_star_level(next_star: int) -> void:
 	var clamped: int = clampi(next_star, 1, max_star)
 	if clamped == star_level:
@@ -231,10 +232,10 @@ func set_star_level(next_star: int) -> void:
 	_apply_animation_overrides()
 
 	if sprite_animator != null:
-		sprite_animator.call("play_state", 3, {}) # SKILL 动画用于升星特效反馈
+		sprite_animator.call("play_state", 3, {}) # SKILL 鍔ㄧ敾鐢ㄤ簬鍗囨槦鐗规晥鍙嶉
 	star_changed.emit(self, previous, star_level)
 
-# 设置 set on bench state
+# 璁剧疆 set on bench state
 func set_on_bench_state(value: bool, slot_index: int = -1) -> void:
 	is_on_bench = value
 	bench_slot_index = slot_index if value else -1
@@ -243,29 +244,31 @@ func set_on_bench_state(value: bool, slot_index: int = -1) -> void:
 	if sprite_animator == null:
 		return
 	if is_on_bench:
+		set_loop_animation_enabled(false)
 		sprite_animator.call("play_state", 7, {}) # BENCH
 	else:
-		# 离开备战席时立即归零旋转，防止继承 BENCH 摇摆角度。
+		set_loop_animation_enabled(true)
+		# 绂诲紑澶囨垬甯椂绔嬪嵆褰掗浂鏃嬭浆锛岄槻姝㈢户鎵?BENCH 鎽囨憜瑙掑害銆?
 		if visual_root != null:
 			visual_root.position = Vector2.ZERO
 			visual_root.scale = Vector2.ONE
 			visual_root.rotation = 0.0
 		sprite_animator.call("play_state", 0, {}) # IDLE
 
-# 设置 set team
+# 璁剧疆 set team
 func set_team(value: int) -> void:
 	team_id = value
 	_refresh_visual()
 
-# 处理 enter combat
+# 澶勭悊 enter combat
 func enter_combat() -> void:
-	# 上一局死亡后可能被隐藏，这里入战前强制恢复可见。
+	# 涓婁竴灞€姝讳骸鍚庡彲鑳借闅愯棌锛岃繖閲屽叆鎴樺墠寮哄埗鎭㈠鍙銆?
 	visible = true
 	is_in_combat = true
 	is_on_bench = false
 	bench_slot_index = -1
 	_apply_label_visibility()
-	# 对象池复用防御：每次入战先清空 visual_root 残留，再重建动画基准。
+	# 瀵硅薄姹犲鐢ㄩ槻寰★細姣忔鍏ユ垬鍏堟竻绌?visual_root 娈嬬暀锛屽啀閲嶅缓鍔ㄧ敾鍩哄噯銆?
 	if visual_root != null:
 		visual_root.position = Vector2.ZERO
 		visual_root.scale = Vector2.ONE
@@ -275,22 +278,22 @@ func enter_combat() -> void:
 	play_anim_state(0, {})
 	refresh_process_state()
 
-# 处理 leave combat
+# 澶勭悊 leave combat
 func leave_combat() -> void:
 	is_in_combat = false
 	_apply_label_visibility()
 	refresh_process_state()
 
-# 处理 kill quick step tween
+# 澶勭悊 kill quick step tween
 func kill_quick_step_tween() -> void:
 	if _quick_step_tween != null and _quick_step_tween.is_valid():
 		_quick_step_tween.kill()
 	_quick_step_tween = null
 
-# 清理 reset visual transform
+# 娓呯悊 reset visual transform
 func reset_visual_transform() -> void:
 	kill_quick_step_tween()
-	# 战后统一重置视觉节点，清除循环动画残留旋转/缩放。
+	# 鎴樺悗缁熶竴閲嶇疆瑙嗚鑺傜偣锛屾竻闄ゅ惊鐜姩鐢绘畫鐣欐棆杞?缂╂斁銆?
 	if visual_root != null:
 		visual_root.position = Vector2.ZERO
 		visual_root.scale = Vector2.ONE
@@ -302,45 +305,43 @@ func reset_visual_transform() -> void:
 		return
 	_sync_sprite_animator_rest_anchor()
 
-# 处理 play anim state
+# 澶勭悊 play anim state
 func play_anim_state(state: int, context: Dictionary = {}) -> void:
 	if sprite_animator == null:
 		return
 	sprite_animator.call("play_state", state, context)
 
 
-# 战斗高密度降级只影响循环动画，不改攻击/受击/死亡等一次性反馈。
+
 func set_loop_animation_enabled(enabled: bool) -> void:
 	if sprite_animator == null or not sprite_animator.has_method("set_loop_animation_enabled"):
 		return
 	var animator_api: Variant = sprite_animator
 	animator_api.set_loop_animation_enabled(enabled)
 
-# 处理 contains point
+# 澶勭悊 contains point
 func contains_point(world_position: Vector2) -> bool:
-	# 角色拾取检测：
-	# - 若有贴图，使用贴图矩形范围。
-	# - 若无贴图，使用默认 16 像素半径圆形区域。
-	if sprite_2d != null and sprite_2d.texture != null:
-		var tex_size: Vector2 = sprite_2d.texture.get_size()
-		# 需要计入全局缩放（单位缩放 + 视觉节点缩放），否则缩放后拾取范围会失真。
-		var scale_abs: Vector2 = sprite_2d.global_scale.abs()
-		var scaled_size: Vector2 = Vector2(tex_size.x * scale_abs.x, tex_size.y * scale_abs.y)
-		var rect: Rect2 = Rect2(sprite_2d.global_position - scaled_size * 0.5, scaled_size)
-		return rect.has_point(world_position)
-
+	# ???????????
+	# - ??????????????????????
+	# - ??????????????16 ??????????????
+	if visual_root != null and visual_root.has_method("get_sprite_texture_size"):
+		var tex_size: Vector2 = visual_root.call("get_sprite_texture_size")
+		if tex_size != Vector2.ZERO:
+			var scale_abs: Vector2 = visual_root.global_scale.abs()
+			var scaled_size: Vector2 = Vector2(tex_size.x * scale_abs.x, tex_size.y * scale_abs.y)
+			var rect: Rect2 = Rect2(visual_root.global_position - scaled_size * 0.5, scaled_size)
+			return rect.has_point(world_position)
 	return global_position.distance_to(world_position) <= 16.0
 
-# 设置 set compact visual mode
+# 璁剧疆 set compact visual mode
 func set_compact_visual_mode(is_compact: bool) -> void:
-	# 战斗中强制显示名称/星级，非战斗时按 compact 规则显示。
+	# 鎴樻枟涓己鍒舵樉绀哄悕绉?鏄熺骇锛岄潪鎴樻枟鏃舵寜 compact 瑙勫垯鏄剧ず銆?
 	_compact_visual_mode = is_compact
 	_apply_label_visibility()
 
-# 处理 play quick cell step
+# 澶勭悊 play quick cell step
 func play_quick_cell_step(target_world: Vector2, duration: float = 0.08) -> void:
-	# 严格六角格模式里，逻辑占格已经瞬时完成。
-	# 这里补一段很短的视觉位移动画，避免看起来像瞬移。
+	
 	if movement_component != null:
 		movement_component.call("clear_target")
 
@@ -375,20 +376,20 @@ func _finish_sprite_animator_move_visual() -> void:
 			(visual_root as CanvasItem).modulate = Color(1, 1, 1, 1)
 	play_anim_state(0, {})
 
-# 应用 sync sprite animator rest anchor
+# 搴旂敤 sync sprite animator rest anchor
 func _sync_sprite_animator_rest_anchor() -> void:
 	if sprite_animator == null:
 		return
 	sprite_animator.call("sync_rest_transform_to_current")
 
-# 处理 begin drag
+# 澶勭悊 begin drag
 func begin_drag() -> void:
 	if is_in_combat:
 		return
 	is_dragging = true
 	refresh_process_state()
 	z_index = 200
-	# 从备战席拖拽时，先清空摇摆残留角度，确保拖拽姿态端正。
+	# 浠庡鎴樺腑鎷栨嫿鏃讹紝鍏堟竻绌烘憞鎽嗘畫鐣欒搴︼紝纭繚鎷栨嫿濮挎€佺姝ｃ€?
 	if visual_root != null:
 		visual_root.position = Vector2.ZERO
 		visual_root.scale = Vector2.ONE
@@ -396,14 +397,14 @@ func begin_drag() -> void:
 	play_anim_state(1, {}) # MOVE
 	drag_started.emit(self)
 
-# 设置 update drag
+# 璁剧疆 update drag
 func update_drag(world_position: Vector2) -> void:
 	if not is_dragging:
 		return
 	global_position = world_position
 	drag_updated.emit(self, world_position)
 
-# 处理 end drag
+# 澶勭悊 end drag
 func end_drag(world_position: Vector2) -> void:
 	if not is_dragging:
 		return
@@ -416,9 +417,9 @@ func end_drag(world_position: Vector2) -> void:
 		visual_root.rotation = 0.0
 	drag_ended.emit(self, world_position)
 
-# 应用 apply runtime stats
+# 搴旂敤 apply runtime stats
 func _apply_runtime_stats() -> void:
-	# 角色运行时属性由 UnitData 统一按星级倍率计算，便于后续做统一平衡。
+	# 瑙掕壊杩愯鏃跺睘鎬х敱 UnitData 缁熶竴鎸夋槦绾у€嶇巼璁＄畻锛屼究浜庡悗缁仛缁熶竴骞宠　銆?
 	runtime_stats = _UNIT_DATA_SCRIPT.call("build_runtime_stats", base_stats, star_level)
 	runtime_equipped_gongfa_ids = get_equipped_gongfa_ids()
 	runtime_equipped_equip_ids = get_equipped_equip_ids()
@@ -428,10 +429,10 @@ func _apply_runtime_stats() -> void:
 	if movement_component != null:
 		movement_component.call("reset_from_stats", runtime_stats)
 
-# 获取 get equipped gongfa ids
+# 鑾峰彇 get equipped gongfa ids
 func get_equipped_gongfa_ids() -> Array[String]:
-	# 槽位顺序固定，保证 UI 展示和触发优先级稳定可预期。
-	# 规则修正：功法按“类型槽位”装备，不再按总数量上限截断。
+	# 妲戒綅椤哄簭鍥哄畾锛屼繚璇?UI 灞曠ず鍜岃Е鍙戜紭鍏堢骇绋冲畾鍙鏈熴€?
+	# 瑙勫垯淇锛氬姛娉曟寜鈥滅被鍨嬫Ы浣嶁€濊澶囷紝涓嶅啀鎸夋€绘暟閲忎笂闄愭埅鏂€?
 	var ids: Array[String] = []
 	var ordered_slots: Array[String] = ["neigong", "waigong", "qinggong", "zhenfa"]
 	for slot in ordered_slots:
@@ -443,9 +444,9 @@ func get_equipped_gongfa_ids() -> Array[String]:
 		ids.append(gid)
 	return ids
 
-# 获取 get equipped equip ids
+# 鑾峰彇 get equipped equip ids
 func get_equipped_equip_ids() -> Array[String]:
-	# 装备槽位顺序固定，保证详情展示与属性重算顺序稳定。
+	# 瑁呭妲戒綅椤哄簭鍥哄畾锛屼繚璇佽鎯呭睍绀轰笌灞炴€ч噸绠楅『搴忕ǔ瀹氥€?
 	var ids: Array[String] = []
 	var ordered_slots: Array[String] = _get_sorted_equip_slot_keys(equip_slots)
 	for slot in ordered_slots:
@@ -459,7 +460,7 @@ func get_equipped_equip_ids() -> Array[String]:
 			return ids
 	return ids
 
-# 规范 resolve max equip count
+# 瑙勮寖 resolve max equip count
 func _resolve_max_equip_count(configured_value: int, slots: Dictionary) -> int:
 	var derived: int = configured_value
 	if derived <= 0:
@@ -468,7 +469,7 @@ func _resolve_max_equip_count(configured_value: int, slots: Dictionary) -> int:
 		derived = 2
 	return maxi(derived, 1)
 
-# 规范 normalize equip slots dict
+# 瑙勮寖 normalize equip slots dict
 func _normalize_equip_slots_dict(raw: Variant, desired_count: int = 0) -> Dictionary:
 	var slots: Dictionary = {}
 	if raw is Dictionary:
@@ -488,7 +489,7 @@ func _normalize_equip_slots_dict(raw: Variant, desired_count: int = 0) -> Dictio
 				slots[key] = ""
 	return slots
 
-# 获取 get sorted equip slot keys
+# 鑾峰彇 get sorted equip slot keys
 func _get_sorted_equip_slot_keys(slots_value: Variant) -> Array[String]:
 	var keys: Array[String] = []
 	if slots_value is Dictionary:
@@ -502,7 +503,7 @@ func _get_sorted_equip_slot_keys(slots_value: Variant) -> Array[String]:
 	keys.sort_custom(Callable(self, "_compare_equip_slot_key"))
 	return keys
 
-# 比较 compare equip slot key
+# 姣旇緝 compare equip slot key
 func _compare_equip_slot_key(a: String, b: String) -> bool:
 	var a_index: int = _extract_slot_index(a)
 	var b_index: int = _extract_slot_index(b)
@@ -516,7 +517,7 @@ func _compare_equip_slot_key(a: String, b: String) -> bool:
 		return false
 	return a < b
 
-# 处理 extract slot index
+# 澶勭悊 extract slot index
 func _extract_slot_index(slot_key: String) -> int:
 	var key: String = slot_key.strip_edges().to_lower()
 	if not key.begins_with("slot_"):
@@ -526,7 +527,7 @@ func _extract_slot_index(slot_key: String) -> int:
 		return -1
 	return int(tail)
 
-# 获取 get trait tags
+# 鑾峰彇 get trait tags
 func get_trait_tags() -> Array[String]:
 	var merged: Array[String] = []
 	var seen: Dictionary = {}
@@ -543,7 +544,7 @@ func get_trait_tags() -> Array[String]:
 			merged.append(tag)
 	return merged
 
-# 判断 has trait tag
+# 鍒ゆ柇 has trait tag
 func has_trait_tag(tag: String) -> bool:
 	var target: String = tag.strip_edges().to_lower()
 	if target.is_empty():
@@ -553,7 +554,7 @@ func has_trait_tag(tag: String) -> bool:
 			return true
 	return false
 
-# 判断 has unit tag
+# 鍒ゆ柇 has unit tag
 func has_unit_tag(tag: String, include_trait_tags: bool = true) -> bool:
 	var target: String = tag.strip_edges().to_lower()
 	if target.is_empty():
@@ -565,49 +566,41 @@ func has_unit_tag(tag: String, include_trait_tags: bool = true) -> bool:
 		return has_trait_tag(target)
 	return false
 
-# 应用 apply animation overrides
+# 搴旂敤 apply animation overrides
 func _apply_animation_overrides() -> void:
 	if sprite_animator != null:
 		sprite_animator.call("set_overrides", animation_overrides)
 
-# 绑定 bind components
+# 缁戝畾 bind components
 func _bind_components() -> void:
 	if combat_component != null:
 		combat_component.call("bind_unit", self)
 	if movement_component != null:
 		movement_component.call("bind_unit", self)
 
-# 处理 refresh visual
+# 澶勭悊 refresh visual
 func _refresh_visual() -> void:
-	if name_label == null or star_label == null:
+	if visual_root == null:
 		return
-	name_label.text = "%s" % unit_name
-	star_label.text = "★".repeat(star_level)
-	star_label.modulate = _get_star_color(star_level)
-	name_label.modulate = _get_team_name_color(team_id)
+	visual_root.set("name_text", "%s" % unit_name)
+	visual_root.set("star_text", char(9733).repeat(star_level))
+	visual_root.set("star_color", _get_star_color(star_level))
+	visual_root.set("name_color", _get_team_name_color(team_id))
 	_apply_label_visibility()
 	modulate = _get_quality_tint(quality) * _get_team_tint(team_id)
 
-# 应用 apply label visibility
 func _apply_label_visibility() -> void:
-	# 中文说明：
-	# 1) 战斗中始终显示名称与星级，便于读场面和找单位。
-	# 2) 非战斗阶段遵循 compact 模式，避免日常界面过密。
 	var should_show_labels: bool = is_in_combat or not _compact_visual_mode
-	if name_label != null:
-		name_label.visible = should_show_labels
-	if star_label != null:
-		star_label.visible = should_show_labels
+	if visual_root != null:
+		visual_root.set("labels_visible", should_show_labels)
 
-# 应用 apply pending texture if needed
 func _apply_pending_texture_if_needed() -> void:
-	if sprite_2d == null:
+	if visual_root == null:
 		return
 	if _pending_texture == null:
 		return
-	sprite_2d.texture = _pending_texture
+	visual_root.set("sprite_texture", _pending_texture)
 
-# 规范 normalize tag array
 func _normalize_tag_array(value: Variant) -> Array[String]:
 	var out: Array[String] = []
 	var seen: Dictionary = {}
@@ -623,7 +616,7 @@ func _normalize_tag_array(value: Variant) -> Array[String]:
 			out.append(tag_text)
 	return out
 
-# 规范 normalize traits tags
+# 瑙勮寖 normalize traits tags
 func _normalize_traits_tags(raw_traits: Array[Dictionary]) -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
 	for trait_data in raw_traits:
@@ -632,7 +625,7 @@ func _normalize_traits_tags(raw_traits: Array[Dictionary]) -> Array[Dictionary]:
 		out.append(row)
 	return out
 
-# 获取 get star color
+# 鑾峰彇 get star color
 func _get_star_color(star: int) -> Color:
 	match star:
 		1:
@@ -644,7 +637,7 @@ func _get_star_color(star: int) -> Color:
 		_:
 			return Color(1, 1, 1, 1)
 
-# 获取 get quality tint
+# 鑾峰彇 get quality tint
 func _get_quality_tint(q: String) -> Color:
 	match q:
 		"white":
@@ -660,29 +653,28 @@ func _get_quality_tint(q: String) -> Color:
 		_:
 			return Color(1, 1, 1, 1)
 
-# 获取 get team name color
+# 鑾峰彇 get team name color
 func _get_team_name_color(team: int) -> Color:
 	match team:
 		2:
-			# 敌方名称暖红，突出敌我辨识。
+			# 鏁屾柟鍚嶇О鏆栫孩锛岀獊鍑烘晫鎴戣鲸璇嗐€?
 			return Color(1.0, 0.45, 0.45, 1.0)
 		1:
-			# 我方名称青蓝，和敌方颜色形成明显对比。
+			# 鎴戞柟鍚嶇О闈掕摑锛屽拰鏁屾柟棰滆壊褰㈡垚鏄庢樉瀵规瘮銆?
 			return Color(0.58, 0.9, 1.0, 1.0)
 		_:
 			return Color(0.9, 0.9, 0.9, 1.0)
 
-# 获取 get team tint
+# 鑾峰彇 get team tint
 func _get_team_tint(team: int) -> Color:
 	match team:
 		2:
-			# 敌方轻微偏红，保证大规模混战时阵营可辨识，但不压过品质色。
 			return Color(1.08, 0.9, 0.9, 1.0)
 		_:
 			return Color(1, 1, 1, 1)
 
 
-# UnitBase 自己的 _process 很轻，但需要和移动 tween/动画一起看整体占比。
+
 func _probe_begin_timing() -> int:
 	var runtime_probe = _services.runtime_probe if _services != null else null
 	if runtime_probe == null or not runtime_probe.has_method("begin_timing"):
@@ -690,9 +682,11 @@ func _probe_begin_timing() -> int:
 	return int(runtime_probe.begin_timing())
 
 
-# 逐帧移动推进的 scope 单独落表，方便确认 UnitBase 是否仍然在高密度下空转。
+
 func _probe_commit_timing(scope_name: String, begin_us: int) -> void:
 	var runtime_probe = _services.runtime_probe if _services != null else null
 	if runtime_probe == null or not runtime_probe.has_method("commit_timing"):
 		return
 	runtime_probe.commit_timing(scope_name, begin_us)
+
+

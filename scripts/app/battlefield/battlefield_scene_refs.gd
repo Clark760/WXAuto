@@ -169,6 +169,13 @@ func get_data_repository() -> Node:
 	return _services.data_repository
 
 
+# 统一暴露 RuntimeProbe，避免协作者重新回流到根场景或服务定位。
+func get_runtime_probe():
+	if _services == null:
+		return null
+	return _services.runtime_probe
+
+
 # 根场景只在这里做一次引用采集，后续扩展也必须从这个入口走。
 func bind_from_scene(scene_root_value: Node) -> void:
 	scene_root = scene_root_value

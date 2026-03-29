@@ -8,6 +8,7 @@ var _watchers: Dictionary = {}
 var _watchers_by_cell: Dictionary = {}
 var _watchers_by_unit: Dictionary = {}
 var _dirty_watchers: Dictionary = {}
+var _scan_cells_cache: Dictionary = {}
 
 
 # scheduler 维护的是 runtime watcher 状态。
@@ -17,6 +18,7 @@ func clear() -> void:
 	_watchers_by_cell.clear()
 	_watchers_by_unit.clear()
 	_dirty_watchers.clear()
+	_scan_cells_cache.clear()
 
 
 # combat manager 变化后必须重连信号。
@@ -78,7 +80,7 @@ func on_evaluated(owner: Node, effect: Dictionary, context: Dictionary, result: 
 	var watcher_key: String = _build_watcher_key(owner, effect)
 	var watcher: Dictionary = _ensure_watcher(watcher_key, owner, effect)
 	var range_cells: int = maxi(int(effect.get("range", 0)), 0)
-	var cells: Array[Vector2i] = _collect_scan_cells(owner, context, range_cells)
+	var cells: Array[Vector2i] = _resolve_result_scan_cells(result, owner, context, range_cells)
 	var units_map: Dictionary = {}
 	var providers_value: Variant = result.get("providers", [])
 	if providers_value is Array:
@@ -92,7 +94,6 @@ func on_evaluated(owner: Node, effect: Dictionary, context: Dictionary, result: 
 
 	_reindex_watcher_subscriptions(watcher_key, watcher, cells, units_map)
 	watcher["dirty"] = false
-	watcher["last_eval_time"] = Time.get_unix_time_from_system()
 	watcher["range"] = range_cells
 	_watchers[watcher_key] = watcher
 	_dirty_watchers.erase(watcher_key)
@@ -426,6 +427,12 @@ func _collect_scan_cells(owner: Node, context: Dictionary, range_cells: int) -> 
 		out.append(origin)
 		return out
 
+	var cache_key: String = _build_scan_cells_cache_key(hex_grid, origin, range_cells)
+	if not cache_key.is_empty() and _scan_cells_cache.has(cache_key):
+		var cached_value: Variant = _scan_cells_cache[cache_key]
+		if cached_value is Array:
+			return cached_value
+
 	var queue: Array[Vector2i] = [origin]
 	var visited: Dictionary = {_cell_key(origin): true}
 	while not queue.is_empty():
@@ -447,7 +454,41 @@ func _collect_scan_cells(owner: Node, context: Dictionary, range_cells: int) -> 
 				continue
 			visited[neighbor_key] = true
 			queue.append(neighbor)
+	if not cache_key.is_empty():
+		_scan_cells_cache[cache_key] = out
 	return out
+
+
+func _resolve_result_scan_cells(
+	result: Dictionary,
+	owner: Node,
+	context: Dictionary,
+	range_cells: int
+) -> Array[Vector2i]:
+	var scan_cells_value: Variant = result.get("scan_cells", null)
+	if scan_cells_value is Array:
+		return scan_cells_value
+	var debug_value: Variant = result.get("debug", {})
+	if debug_value is Dictionary:
+		var debug_scan_cells: Variant = (debug_value as Dictionary).get("scan_cells", null)
+		if debug_scan_cells is Array:
+			return debug_scan_cells
+	return _collect_scan_cells(owner, context, range_cells)
+
+
+func _build_scan_cells_cache_key(
+	hex_grid: Variant,
+	origin: Vector2i,
+	range_cells: int
+) -> String:
+	if hex_grid == null or not is_instance_valid(hex_grid):
+		return ""
+	return "%d|%d,%d|%d" % [
+		hex_grid.get_instance_id(),
+		origin.x,
+		origin.y,
+		range_cells
+	]
 
 
 # 单位格子优先取 combat manager 的运行时映射。

@@ -3,6 +3,16 @@ class_name UnitAugmentTriggerExecutionService
 
 var _next_source_bound_aura_scope_token: int = 1
 
+const PROBE_SCOPE_UNIT_AUGMENT_SKILL_PICK_TARGET: String = "unit_augment_skill_pick_target"
+const PROBE_SCOPE_UNIT_AUGMENT_EFFECT_CONTEXT_BUILD: String = "unit_augment_effect_context_build"
+const PROBE_SCOPE_UNIT_AUGMENT_TAG_LINKAGE_GATE: String = "unit_augment_tag_linkage_gate"
+const PROBE_SCOPE_UNIT_AUGMENT_EFFECT_EXECUTE: String = "unit_augment_effect_execute"
+const PROBE_SCOPE_UNIT_AUGMENT_TELEMETRY_EMIT: String = "unit_augment_telemetry_emit"
+const PROBE_SCOPE_UNIT_AUGMENT_PRESENTATION_TAIL: String = "unit_augment_presentation_tail"
+
+const ENTRY_META_TRY_FIRE_STATUS: String = "_unit_augment_try_fire_status"
+const TRY_FIRE_STATUS_DEFERRED: String = "deferred"
+
 
 # passive_aura 的 scope token 必须按战斗重置，避免跨战斗串状态。
 # 这个计数器只服务 source_bound_aura 生命周期，不参与普通 trigger 逻辑。
@@ -38,6 +48,10 @@ func try_fire_skill(manager: Node, source: Node, entry: Dictionary, event_contex
 
 	# 目标选择统一在执行前完成，避免 effect engine 里再重复写选敌逻辑。
 	# 这样 effect engine 拿到的一定是“已经补齐目标”的执行上下文。
+	var pick_target_begin_us: int = 0
+	var deep_probe_enabled: bool = bool(manager.get("deep_runtime_probe_enabled"))
+	if deep_probe_enabled:
+		pick_target_begin_us = _probe_begin_timing(manager)
 	var target: Node = _resolve_skill_target(
 		state_service,
 		battle_runtime,
@@ -48,58 +62,111 @@ func try_fire_skill(manager: Node, source: Node, entry: Dictionary, event_contex
 		event_context,
 		manager.DEFAULT_SKILL_CAST_RANGE_CELLS
 	)
+	if deep_probe_enabled:
+		_probe_commit_timing(manager, PROBE_SCOPE_UNIT_AUGMENT_SKILL_PICK_TARGET, pick_target_begin_us)
 	if target == null:
 		return false
 
 	var trigger_name: String = str(entry.get("trigger", "")).strip_edges().to_lower()
 	# effect context 是本次执行的共享上下文，后面 gate、effect engine 和 telemetry 都会复用它。
+	var effect_context_begin_us: int = 0
+	if deep_probe_enabled:
+		effect_context_begin_us = _probe_begin_timing(manager)
 	var execution_context: Dictionary = build_effect_context(manager, source, target, event_context)
+	if deep_probe_enabled:
+		_probe_commit_timing(
+			manager,
+			PROBE_SCOPE_UNIT_AUGMENT_EFFECT_CONTEXT_BUILD,
+			effect_context_begin_us
+		)
 	_prepare_passive_aura_scope(trigger_name, source, entry, execution_context)
 
 	# tag_linkage_branch 需要先算 gate map，其他 op 直接略过这一步。
 	# 这一步只做准入判定，不在这里执行任何 tag_linkage 分支逻辑。
+	var tag_linkage_gate_begin_us: int = 0
+	if deep_probe_enabled:
+		tag_linkage_gate_begin_us = _probe_begin_timing(manager)
 	var linkage_gate_result: Dictionary = _build_tag_linkage_gate_map(
 		manager,
 		source,
 		effect_list,
 		execution_context
 	)
+	if deep_probe_enabled:
+		_probe_commit_timing(
+			manager,
+			PROBE_SCOPE_UNIT_AUGMENT_TAG_LINKAGE_GATE,
+			tag_linkage_gate_begin_us
+		)
 	execution_context["tag_linkage_gate_map"] = linkage_gate_result.get("gate_map", {})
 	if bool(linkage_gate_result.get("has_only_tag_linkage", false)) \
 	and not bool(linkage_gate_result.get("has_allowed_tag_linkage", false)):
+		if bool(linkage_gate_result.get("deferred_by_stagger", false)):
+			entry[ENTRY_META_TRY_FIRE_STATUS] = TRY_FIRE_STATUS_DEFERRED
 		return false
-
 	# MP 真正扣除发生在一切准入条件之后，避免失败分支白白消耗资源。
 	if not _consume_trigger_mp_cost(source, entry):
 		return false
 
 	# 到这里说明已经具备完整 target/context，可直接把 effect 序列交给统一 effect engine 执行。
 	# 执行服务本身不解析单个 op，所有效果细节都继续下沉在 effect engine 内部。
+	var effect_execute_begin_us: int = 0
+	if deep_probe_enabled:
+		effect_execute_begin_us = _probe_begin_timing(manager)
 	var execution_summary: Dictionary = effect_engine.execute_active_effects(
 		source,
 		target,
 		effect_list,
 		execution_context
 	)
+	if deep_probe_enabled:
+		_probe_commit_timing(
+			manager,
+			PROBE_SCOPE_UNIT_AUGMENT_EFFECT_EXECUTE,
+			effect_execute_begin_us
+		)
 	_finalize_passive_aura_scope(buff_manager, trigger_name, execution_context)
 
 	# summary -> 外部信号 payload 的映射统一收口到 telemetry emitter。
 	# trigger execution service 只产出 summary，不直接拼 UI/日志侧 payload。
-	telemetry.emit_effect_log_events(
-		manager,
-		manager.get_registry(),
-		execution_summary,
-		source,
-		target,
-		"skill",
-		str(entry.get("gongfa_id", "")),
-		str(entry.get("trigger", "")),
-		{"event_type": "apply"}
-	)
+	var should_emit_telemetry: bool = _summary_has_effectful_events(execution_summary)
+	var linkage_only_aura: bool = trigger_name == "passive_aura" \
+		and bool(linkage_gate_result.get("has_only_tag_linkage", false))
+	if should_emit_telemetry:
+		var telemetry_begin_us: int = 0
+		if deep_probe_enabled:
+			telemetry_begin_us = _probe_begin_timing(manager)
+		telemetry.emit_effect_log_events(
+			manager,
+			manager.get_registry(),
+			execution_summary,
+			source,
+			target,
+			"skill",
+			str(entry.get("gongfa_id", "")),
+			str(entry.get("trigger", "")),
+			{"event_type": "apply"}
+		)
+		if deep_probe_enabled:
+			_probe_commit_timing(
+				manager,
+				PROBE_SCOPE_UNIT_AUGMENT_TELEMETRY_EMIT,
+				telemetry_begin_us
+			)
 
+	var presentation_tail_begin_us: int = 0
+	if deep_probe_enabled:
+		presentation_tail_begin_us = _probe_begin_timing(manager)
 	_play_skill_vfx(battle_runtime, skill_data, source, target)
-	_play_skill_animation(source)
+	if not linkage_only_aura:
+		_play_skill_animation(source)
 	_update_trigger_timing(battle_runtime, entry, skill_data, trigger_name)
+	if deep_probe_enabled:
+		_probe_commit_timing(
+			manager,
+			PROBE_SCOPE_UNIT_AUGMENT_PRESENTATION_TAIL,
+			presentation_tail_begin_us
+		)
 	manager.skill_triggered.emit(source, str(entry.get("gongfa_id", "")), str(entry.get("trigger", "")))
 	return true
 
@@ -135,6 +202,10 @@ func execute_external_effects(
 	# 调用方如果显式传入同名字段，会保持外层优先，不会被这里覆盖。
 	if not execution_context.has("all_units"):
 		execution_context["all_units"] = manager.get_state_service().get_battle_units()
+	if not execution_context.has("unit_lookup"):
+		execution_context["unit_lookup"] = manager.get_state_service().get_unit_lookup()
+	if not execution_context.has("state_service"):
+		execution_context["state_service"] = manager.get_state_service()
 	if not execution_context.has("combat_manager"):
 		execution_context["combat_manager"] = manager.get_battle_runtime().get_bound_combat_manager()
 	if not execution_context.has("hex_grid"):
@@ -207,6 +278,8 @@ func build_effect_context(manager: Node, source: Node, target: Node, event_conte
 		"target": target,
 		"event_context": event_context,
 		"all_units": manager.get_state_service().get_battle_units(),
+		"unit_lookup": manager.get_state_service().get_unit_lookup(),
+		"state_service": manager.get_state_service(),
 		"hex_size": hex_grid.get("hex_size") if hex_grid != null else 26.0,
 		"hex_grid": hex_grid,
 		"vfx_factory": battle_runtime.get_bound_vfx_factory(),
@@ -273,7 +346,8 @@ func _resolve_skill_target(
 			source,
 			skill_range_cells,
 			battle_runtime.get_bound_hex_grid(),
-			state_service
+			state_service,
+			battle_runtime.get_bound_combat_manager()
 		)
 	return target
 
@@ -407,6 +481,7 @@ func _build_tag_linkage_gate_map(
 	var has_tag_linkage: bool = false
 	var has_non_tag: bool = false
 	var has_allowed: bool = false
+	var deferred_by_stagger: bool = false
 
 	for effect_value in effect_list:
 		if not (effect_value is Dictionary):
@@ -420,16 +495,35 @@ func _build_tag_linkage_gate_map(
 		var effect_key: String = _tag_linkage_effect_key(effect)
 		var gate: Dictionary = manager.evaluate_tag_linkage_gate(source, effect, context)
 		var allowed: bool = bool(gate.get("allowed", true))
+		var gate_reason: String = str(gate.get("reason", "")).strip_edges()
+		var gate_dirty: bool = bool(gate.get("dirty", false))
 		gate_map[effect_key] = allowed
 		if allowed:
 			has_allowed = true
+		elif gate_reason == "stagger_skip" and not gate_dirty:
+			deferred_by_stagger = true
 
 	return {
 		"gate_map": gate_map,
 		"has_tag_linkage": has_tag_linkage,
 		"has_only_tag_linkage": has_tag_linkage and not has_non_tag,
-		"has_allowed_tag_linkage": has_allowed
+		"has_allowed_tag_linkage": has_allowed,
+		"deferred_by_stagger": deferred_by_stagger
 	}
+
+
+func _probe_begin_timing(manager: Node) -> int:
+	var runtime_probe = manager._services.runtime_probe if manager._services != null else null
+	if runtime_probe == null or not runtime_probe.has_method("begin_timing"):
+		return 0
+	return int(runtime_probe.begin_timing())
+
+
+func _probe_commit_timing(manager: Node, scope_name: String, begin_us: int) -> void:
+	var runtime_probe = manager._services.runtime_probe if manager._services != null else null
+	if runtime_probe == null or not runtime_probe.has_method("commit_timing"):
+		return
+	runtime_probe.commit_timing(scope_name, begin_us)
 
 
 # 这里的 `op` 判定只用于触发前的 gate map 预处理。
@@ -444,3 +538,30 @@ func _is_tag_linkage_effect_entry(effect: Dictionary) -> bool:
 # 这里故意不用 op/case_id 之类短键，防止不同配置误命中同一 gate 结果。
 func _tag_linkage_effect_key(effect: Dictionary) -> String:
 	return var_to_str(effect)
+
+
+func _summary_has_effectful_events(summary: Dictionary) -> bool:
+	if summary.is_empty():
+		return false
+	if float(summary.get("damage_total", 0.0)) > 0.0:
+		return true
+	if float(summary.get("heal_total", 0.0)) > 0.0:
+		return true
+	if float(summary.get("mp_total", 0.0)) > 0.0:
+		return true
+	if int(summary.get("summon_total", 0)) > 0:
+		return true
+	if int(summary.get("hazard_total", 0)) > 0:
+		return true
+	if int(summary.get("buff_applied", 0)) > 0:
+		return true
+	if int(summary.get("debuff_applied", 0)) > 0:
+		return true
+	return _summary_has_entries(summary.get("damage_events", [])) \
+		or _summary_has_entries(summary.get("heal_events", [])) \
+		or _summary_has_entries(summary.get("mp_events", [])) \
+		or _summary_has_entries(summary.get("buff_events", []))
+
+
+func _summary_has_entries(value: Variant) -> bool:
+	return value is Array and not (value as Array).is_empty()

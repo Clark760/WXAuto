@@ -201,10 +201,14 @@ func run_unit_logic(
 	if allow_attack and combat.has_method("can_attack"):
 		var combat_api: Variant = combat
 		can_attempt_attack = bool(combat_api.can_attack())
+	if allow_move and not allow_attack and _should_skip_move_replan(manager, unit):
+		_clear_unit_move_and_idle(unit, manager._get_movement(unit))
+		return
 	var target: Node = null
-	if can_attempt_attack or feared:
+	var should_pick_full_target: bool = feared or can_attempt_attack or (allow_attack and allow_move)
+	if should_pick_full_target:
 		var target_pick_begin_us: int = _probe_begin_timing(manager)
-		target = manager._pick_target_for_unit(unit)
+		target = manager._pick_target_for_unit(unit, allow_attack)
 		_probe_commit_timing(manager, PROBE_SCOPE_COMBAT_TARGET_PICK, target_pick_begin_us)
 
 	# fear 会覆盖普通寻路，但仍允许它复用同一套移动统计口径。
@@ -236,11 +240,25 @@ func run_unit_logic(
 	if not allow_move:
 		return
 
+	var attack_range_target: Node = _resolve_attack_range_target_for_move(
+		manager,
+		unit,
+		target,
+		enemy_team
+	)
+
 	# 目标已经在射程内时直接停步，避免“冷却中也来回抖动”的旧问题回流。
-	if _should_hold_position_in_attack_range(manager, unit, target):
+	if _should_hold_position_in_attack_range(manager, unit, attack_range_target):
 		return
 	var move_phase_begin_us: int = _probe_begin_timing(manager)
-	_run_move_phase(manager, unit, combat, target, enemy_team, allow_attack)
+	_run_move_phase(
+		manager,
+		unit,
+		combat,
+		target,
+		attack_range_target,
+		allow_attack
+	)
 	_probe_commit_timing(manager, PROBE_SCOPE_COMBAT_MOVE_PHASE, move_phase_begin_us)
 
 
@@ -305,8 +323,35 @@ func _clear_unit_move_and_idle(unit: Node, movement: Node = null) -> void:
 	unit_api.play_anim_state(0, {})
 
 
+func _should_skip_move_replan(manager, unit: Node) -> bool:
+	if manager == null or unit == null or not is_instance_valid(unit):
+		return false
+	var cooldown_frames: int = int(manager._get_effective_move_replan_cooldown_frames())
+	if cooldown_frames <= 0:
+		return false
+	var unit_id: int = unit.get_instance_id()
+	if not manager._move_replan_cooldown_frame.has(unit_id):
+		return false
+	return int(manager._move_replan_cooldown_frame.get(unit_id, -1)) >= manager._logic_frame
+
+
+func _mark_move_replan_cooldown(manager, unit: Node) -> void:
+	if manager == null or unit == null or not is_instance_valid(unit):
+		return
+	var cooldown_frames: int = int(manager._get_effective_move_replan_cooldown_frames())
+	if cooldown_frames <= 0:
+		return
+	manager._move_replan_cooldown_frame[unit.get_instance_id()] = manager._logic_frame + cooldown_frames
+
+
+func _clear_move_replan_cooldown(manager, unit: Node) -> void:
+	if manager == null or unit == null or not is_instance_valid(unit):
+		return
+	manager._move_replan_cooldown_frame.erase(unit.get_instance_id())
+
+
 # 对外的 move_failed 事件需要把 `unit` 与 `reason` 回写到 payload 中。
-# 这里仍使用深拷贝，避免监听者改写原始 context。
+# 当前 context 只承载扁平字段与节点引用，浅拷贝即可隔离监听者改写。
 # 所有移动失败分支都必须走这条统一出口。
 func emit_unit_move_failed(
 	manager,
@@ -316,7 +361,7 @@ func emit_unit_move_failed(
 ) -> void:
 	if unit == null or not is_instance_valid(unit):
 		return
-	var payload: Dictionary = context.duplicate(true)
+	var payload: Dictionary = context.duplicate(false)
 	payload["unit"] = unit
 	payload["reason"] = reason
 	manager.unit_move_failed.emit(unit, reason, payload)
@@ -345,7 +390,7 @@ func _run_feared_unit_logic(
 	):
 		resolved_target = manager._pick_target_in_attack_range(unit, enemy_team)
 		if resolved_target == null:
-			resolved_target = manager._pick_target_for_unit(unit)
+			resolved_target = manager._pick_target_for_unit(unit, false)
 	if resolved_target == null:
 		_clear_unit_move_and_idle(unit, manager._get_movement(unit))
 		return
@@ -381,6 +426,7 @@ func _should_hold_position_in_attack_range(
 	if target == null or not manager._is_target_in_attack_range(unit, target):
 		return false
 
+	_clear_move_replan_cooldown(manager, unit)
 	_clear_movement_target(manager._get_movement(unit))
 	var unit_api: Variant = unit
 	unit_api.play_anim_state(0, {})
@@ -400,7 +446,7 @@ func _run_move_phase(
 	unit: Node,
 	combat: Node,
 	target: Node,
-	enemy_team: int,
+	attack_range_target: Node,
 	allow_attack: bool
 ) -> void:
 	manager._metric_tick_move_checks += 1
@@ -426,11 +472,23 @@ func _run_move_phase(
 		manager._metric_total_flow_unreachable += 1
 
 	# 相邻格选择仍交给 pathfinding 模块，movement 只负责提交结果。
-	var best_next: Vector2i = manager._pick_best_adjacent_cell(unit, current_cell)
+	var best_next: Vector2i = manager._pick_best_adjacent_cell(
+		unit,
+		current_cell,
+		attack_range_target
+	)
 	if best_next == current_cell:
-		if _try_fallback_attack_when_blocked(manager, unit, combat, enemy_team, allow_attack):
+		if _try_fallback_attack_when_blocked(
+			manager,
+			unit,
+			combat,
+			attack_range_target,
+			allow_attack
+		):
+			_clear_move_replan_cooldown(manager, unit)
 			return
 		_clear_unit_move_and_idle(unit, manager._get_movement(unit))
+		_mark_move_replan_cooldown(manager, unit)
 		manager._metric_tick_move_blocked += 1
 		manager._metric_total_move_blocked += 1
 		emit_unit_move_failed(manager, unit, "block", {
@@ -443,6 +501,7 @@ func _run_move_phase(
 	# 提交移动前再验一次空格，避免同帧被其他单位抢占目标格。
 	if not manager._is_cell_free(best_next):
 		_clear_unit_move_and_idle(unit, manager._get_movement(unit))
+		_mark_move_replan_cooldown(manager, unit)
 		manager._metric_tick_move_conflicts += 1
 		manager._metric_total_move_conflicts += 1
 		emit_unit_move_failed(manager, unit, "conflict", {
@@ -454,6 +513,7 @@ func _run_move_phase(
 	# occupy 失败说明发生了竞争态，这里统一归类为 conflict。
 	if not manager._occupy_cell(best_next, unit):
 		_clear_unit_move_and_idle(unit, manager._get_movement(unit))
+		_mark_move_replan_cooldown(manager, unit)
 		manager._metric_tick_move_conflicts += 1
 		manager._metric_total_move_conflicts += 1
 		emit_unit_move_failed(manager, unit, "conflict", {
@@ -462,12 +522,12 @@ func _run_move_phase(
 		})
 		return
 
+	_clear_move_replan_cooldown(manager, unit)
 	_apply_move_visual(manager, unit, best_next)
 	var unit_api: Variant = unit
 	unit_api.play_anim_state(1, {})
 	manager._metric_tick_move_started += 1
 	manager._metric_total_move_started += 1
-	manager._flow_force_rebuild = true
 
 
 # 被卡住时允许再尝试一次“当前射程内是否有备选目标可打”。
@@ -477,15 +537,19 @@ func _try_fallback_attack_when_blocked(
 	manager,
 	unit: Node,
 	combat: Node,
-	enemy_team: int,
+	attack_range_target: Node,
 	allow_attack: bool
 ) -> bool:
 	if not allow_attack:
 		return false
-	var alt_target: Node = manager._pick_target_in_attack_range(unit, enemy_team)
-	if alt_target == null:
+	if attack_range_target == null:
 		return false
-	if not manager._attack_service.try_execute_attack(manager, unit, combat, alt_target):
+	if not manager._attack_service.try_execute_attack(
+		manager,
+		unit,
+		combat,
+		attack_range_target
+	):
 		return false
 	manager._metric_tick_attacks_performed += 1
 	manager._metric_total_attacks_performed += 1
@@ -602,3 +666,12 @@ func _clear_movement_target(movement: Node) -> void:
 	var movement_api: Variant = movement
 	# 清空 target 是所有停步、冲突和战斗结束路径的公共收尾动作。
 	movement_api.clear_target()
+func _resolve_attack_range_target_for_move(
+	manager,
+	unit: Node,
+	target: Node,
+	enemy_team: int
+) -> Node:
+	if target != null and manager._is_target_in_attack_range(unit, target):
+		return target
+	return manager._pick_target_in_attack_range(unit, enemy_team)

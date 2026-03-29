@@ -3,6 +3,8 @@ extends Node
 # 角色工厂入口
 const UNIT_SCENE_PATH := "res://scenes/units/unit_base.tscn"
 const UNIT_DATA_SCRIPT: Script = preload("res://scripts/domain/unit/unit_data.gd")
+const PROBE_SCOPE_UNIT_FACTORY_ACQUIRE: String = "unit_factory_acquire"
+const PROBE_SCOPE_UNIT_FACTORY_CONFIGURE: String = "unit_factory_configure"
 
 var _unit_scene: PackedScene = null
 var _unit_records: Dictionary = {}         # unit_id -> normalized record
@@ -92,11 +94,14 @@ func acquire_unit(unit_id: String, forced_star: int = -1, parent_override: Node 
 	if not _registered_pool_keys.has(pool_key):
 		_register_pool_for_unit(unit_id)
 
+	var acquire_begin_us: int = _probe_begin_timing()
 	var unit_node: Variant = object_pool.acquire(pool_key, parent_override)
 	if unit_node == null:
+		_probe_commit_timing(PROBE_SCOPE_UNIT_FACTORY_ACQUIRE, acquire_begin_us)
 		return null
 
 	_configure_unit_node(unit_node, unit_id, forced_star, pool_key)
+	_probe_commit_timing(PROBE_SCOPE_UNIT_FACTORY_ACQUIRE, acquire_begin_us)
 	return unit_node as Node
 
 
@@ -113,6 +118,88 @@ func release_unit(unit_node: Node) -> bool:
 	if object_pool == null:
 		return false
 	return bool(object_pool.release(pool_key, unit_node))
+
+
+func prewarm_unit_assets(unit_ids: Array[String]) -> int:
+	var warmed_count: int = 0
+	for unit_id in _collect_unique_unit_ids(unit_ids):
+		if not _unit_records.has(unit_id):
+			continue
+		_prewarm_unit_texture(unit_id)
+		warmed_count += 1
+	return warmed_count
+
+
+func prewarm_unit_instances(
+	unit_ids: Array[String],
+	count_per_id: int = 1,
+	parent_override: Node = null
+) -> int:
+	if count_per_id <= 0:
+		return 0
+	var count_by_unit_id: Dictionary = {}
+	for unit_id in _collect_unique_unit_ids(unit_ids):
+		count_by_unit_id[unit_id] = count_per_id
+	return prewarm_unit_instances_by_count(count_by_unit_id, parent_override)
+
+
+func prewarm_unit_instances_by_count(
+	count_by_unit_id: Dictionary,
+	parent_override: Node = null,
+	max_instances: int = -1
+) -> int:
+	var object_pool: Variant = _get_object_pool()
+	if object_pool == null:
+		return 0
+
+	var warmed_count: int = 0
+	var sorted_ids: Array[String] = []
+	for raw_key in count_by_unit_id.keys():
+		var unit_id: String = str(raw_key).strip_edges()
+		if unit_id.is_empty():
+			continue
+		sorted_ids.append(unit_id)
+	sorted_ids.sort()
+
+	for unit_id in sorted_ids:
+		if max_instances >= 0 and warmed_count >= max_instances:
+			break
+		if not _unit_records.has(unit_id):
+			continue
+
+		var requested_count: int = maxi(int(count_by_unit_id.get(unit_id, 0)), 0)
+		if requested_count <= 0:
+			continue
+
+		_register_pool_for_unit(unit_id)
+		_prewarm_unit_texture(unit_id)
+
+		var available_count: int = _get_available_pool_count(unit_id)
+		var missing_count: int = maxi(requested_count - available_count, 0)
+		if max_instances >= 0:
+			missing_count = mini(missing_count, max_instances - warmed_count)
+		if missing_count <= 0:
+			continue
+
+		if object_pool.has_method("ensure_available"):
+			warmed_count += int(
+				object_pool.ensure_available(
+					_pool_key_of(unit_id),
+					available_count + missing_count,
+					parent_override
+				)
+			)
+			continue
+
+		for _index in range(missing_count):
+			var unit_node: Node = acquire_unit(unit_id, -1, parent_override)
+			if unit_node == null:
+				break
+			if release_unit(unit_node):
+				warmed_count += 1
+				if max_instances >= 0 and warmed_count >= max_instances:
+					return warmed_count
+	return warmed_count
 
 
 # 注册单位对象池
@@ -152,6 +239,7 @@ func _create_unit_instance(unit_id: String) -> Node:
 func _configure_unit_node(unit_node: Variant, unit_id: String, forced_star: int, pool_key: String) -> void:
 	if unit_node == null:
 		return
+	var configure_begin_us: int = _probe_begin_timing()
 	if unit_node.has_method("bind_runtime_services"):
 		unit_node.bind_runtime_services(_services)
 	unit_node.set("pool_key", pool_key)
@@ -161,6 +249,17 @@ func _configure_unit_node(unit_node: Variant, unit_id: String, forced_star: int,
 	var quality: String = str(unit_node.get("quality"))
 	var texture: Texture2D = _resolve_unit_texture(sprite_path, quality)
 	unit_node.set_display_texture(texture)
+	_probe_commit_timing(PROBE_SCOPE_UNIT_FACTORY_CONFIGURE, configure_begin_us)
+
+
+func _prewarm_unit_texture(unit_id: String) -> void:
+	var record: Dictionary = _unit_records.get(unit_id, {})
+	if record.is_empty():
+		return
+	_resolve_unit_texture(
+		str(record.get("sprite_path", "")),
+		str(record.get("quality", "white"))
+	)
 
 
 # 解析最终贴图
@@ -236,6 +335,30 @@ func _pool_key_of(unit_id: String) -> String:
 	return pool_key
 
 
+func _collect_unique_unit_ids(unit_ids: Array[String]) -> Array[String]:
+	var output: Array[String] = []
+	var seen: Dictionary = {}
+	for raw_unit_id in unit_ids:
+		var unit_id: String = str(raw_unit_id).strip_edges()
+		if unit_id.is_empty():
+			continue
+		if seen.has(unit_id):
+			continue
+		seen[unit_id] = true
+		output.append(unit_id)
+	return output
+
+
+func _get_available_pool_count(unit_id: String) -> int:
+	var object_pool: Variant = _get_object_pool()
+	if object_pool == null or not object_pool.has_method("get_pool_stats"):
+		return 0
+	var stats_value: Variant = object_pool.get_pool_stats(_pool_key_of(unit_id))
+	if not (stats_value is Dictionary):
+		return 0
+	return maxi(int((stats_value as Dictionary).get("available", 0)), 0)
+
+
 # 连接数据事件
 func _connect_event_bus() -> void:
 	var event_bus: Node = _get_event_bus()
@@ -277,3 +400,17 @@ func _get_object_pool() -> Node:
 	if _services == null:
 		return null
 	return _services.object_pool
+
+
+func _probe_begin_timing() -> int:
+	var runtime_probe = _services.runtime_probe if _services != null else null
+	if runtime_probe == null or not runtime_probe.has_method("begin_timing"):
+		return 0
+	return int(runtime_probe.begin_timing())
+
+
+func _probe_commit_timing(scope_name: String, begin_us: int) -> void:
+	var runtime_probe = _services.runtime_probe if _services != null else null
+	if runtime_probe == null or not runtime_probe.has_method("commit_timing"):
+		return
+	runtime_probe.commit_timing(scope_name, begin_us)

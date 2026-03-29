@@ -72,8 +72,8 @@ func _buff_allies_aoe(
 	context: Dictionary,
 	summary: Dictionary
 ) -> void:
-	var buff_radius: float = _query_service.cells_to_world_distance(float(effect.get("radius", 3.0)), context)
 	var exclude_self: bool = bool(effect.get("exclude_self", false))
+	var buff_radius: float = _query_service.cells_to_world_distance(float(effect.get("radius", 3.0)), context)
 	var allies: Array[Node] = _query_service.collect_ally_units_in_radius(
 		source,
 		_query_service.node_pos(source),

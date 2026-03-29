@@ -107,6 +107,33 @@ func count_equipped_instances(mode: String, item_id: String) -> int:
 	return count
 
 
+# inventory 重建时先扫描一次全队已装备条目，避免按条目反复全表遍历。
+func build_equipped_count_map(mode: String) -> Dictionary:
+	var counts: Dictionary = {}
+	for unit in collect_player_units():
+		if not is_valid_unit(unit):
+			continue
+		if mode == "gongfa":
+			var gongfa_slots: Dictionary = normalize_unit_slots(unit.get("gongfa_slots"))
+			for slot in SLOT_ORDER:
+				var gongfa_id: String = str(gongfa_slots.get(slot, "")).strip_edges()
+				if gongfa_id.is_empty():
+					continue
+				counts[gongfa_id] = int(counts.get(gongfa_id, 0)) + 1
+			continue
+		var equip_slots: Dictionary = normalize_equip_slots(get_unit_equip_slots(unit))
+		var equip_order: Array[String] = get_sorted_equip_slot_keys(
+			equip_slots,
+			get_unit_max_equip_count(unit, equip_slots)
+		)
+		for equip_slot in equip_order:
+			var equip_id: String = str(equip_slots.get(equip_slot, "")).strip_edges()
+			if equip_id.is_empty():
+				continue
+			counts[equip_id] = int(counts.get(equip_id, 0)) + 1
+	return counts
+
+
 # 查找某个库存条目当前挂在哪个角色和槽位上，供 inventory 点击跳转详情。
 # 找到第一处命中就返回，inventory 只需要一个可跳转入口而不是完整列表。
 func find_equipped_info(item_id: String, inventory_mode: String) -> Dictionary:

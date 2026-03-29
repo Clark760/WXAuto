@@ -1,134 +1,128 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3 uid="uid://72qx1xiv3r32"]
 
-[ext_resource type="Script" path="res://scripts/ui/battle_stats_panel.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://bx00bq1xesw2n" path="res://scripts/ui/battle_stats_panel.gd" id="1_script"]
 
-[node name="BattleStatsPanel" type="PanelContainer"]
+[node name="BattleStatsPanel" type="PanelContainer" unique_id=1102599844]
 visible = false
 custom_minimum_size = Vector2(860, 520)
 mouse_filter = 1
 script = ExtResource("1_script")
 
-[node name="RootVBox" type="VBoxContainer" parent="."]
+[node name="RootVBox" type="VBoxContainer" parent="." unique_id=1146504957]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 10
 
-[node name="TitleLabel" type="Label" parent="RootVBox"]
+[node name="TitleLabel" type="Label" parent="RootVBox" unique_id=1263041049]
 layout_mode = 2
+theme_override_font_sizes/font_size = 26
 text = "战斗统计"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 26
 
-[node name="MvpLabel" type="Label" parent="RootVBox"]
+[node name="MvpLabel" type="Label" parent="RootVBox" unique_id=201093925]
 layout_mode = 2
+theme_override_font_sizes/font_size = 20
 text = "🏆 MVP：无"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 20
 
-[node name="TabRow" type="HBoxContainer" parent="RootVBox"]
+[node name="TabRow" type="HBoxContainer" parent="RootVBox" unique_id=1291452566]
 layout_mode = 2
 size_flags_horizontal = 3
-alignment = 1
 theme_override_constants/separation = 8
+alignment = 1
 
-[node name="AllyTabButton" type="Button" parent="RootVBox/TabRow"]
+[node name="AllyTabButton" type="Button" parent="RootVBox/TabRow" unique_id=822562607]
 layout_mode = 2
 toggle_mode = true
 button_pressed = true
 text = "己方统计"
 
-[node name="EnemyTabButton" type="Button" parent="RootVBox/TabRow"]
+[node name="EnemyTabButton" type="Button" parent="RootVBox/TabRow" unique_id=1387715718]
 layout_mode = 2
 toggle_mode = true
 text = "敌方统计"
 
-[node name="RankRow" type="HBoxContainer" parent="RootVBox"]
+[node name="RankRow" type="HBoxContainer" parent="RootVBox" unique_id=1269000860]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 10
 
-[node name="DamagePanel" type="PanelContainer" parent="RootVBox/RankRow"]
+[node name="DamagePanel" type="PanelContainer" parent="RootVBox/RankRow" unique_id=1293228337]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="PanelVBox" type="VBoxContainer" parent="RootVBox/RankRow/DamagePanel"]
+[node name="PanelVBox" type="VBoxContainer" parent="RootVBox/RankRow/DamagePanel" unique_id=66490333]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="TitleLabel" type="Label" parent="RootVBox/RankRow/DamagePanel/PanelVBox"]
+[node name="TitleLabel" type="Label" parent="RootVBox/RankRow/DamagePanel/PanelVBox" unique_id=909663622]
 layout_mode = 2
+theme_override_font_sizes/font_size = 18
 text = "伤害排行"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 18
 
-[node name="RankText" type="RichTextLabel" parent="RootVBox/RankRow/DamagePanel/PanelVBox"]
+[node name="RankText" type="RichTextLabel" parent="RootVBox/RankRow/DamagePanel/PanelVBox" unique_id=1747166983]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 bbcode_enabled = true
-scroll_active = true
-fit_content = false
 
-[node name="TankPanel" type="PanelContainer" parent="RootVBox/RankRow"]
+[node name="TankPanel" type="PanelContainer" parent="RootVBox/RankRow" unique_id=841013949]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="PanelVBox" type="VBoxContainer" parent="RootVBox/RankRow/TankPanel"]
+[node name="PanelVBox" type="VBoxContainer" parent="RootVBox/RankRow/TankPanel" unique_id=343519815]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="TitleLabel" type="Label" parent="RootVBox/RankRow/TankPanel/PanelVBox"]
+[node name="TitleLabel" type="Label" parent="RootVBox/RankRow/TankPanel/PanelVBox" unique_id=1841446354]
 layout_mode = 2
+theme_override_font_sizes/font_size = 18
 text = "承伤排行"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 18
 
-[node name="RankText" type="RichTextLabel" parent="RootVBox/RankRow/TankPanel/PanelVBox"]
+[node name="RankText" type="RichTextLabel" parent="RootVBox/RankRow/TankPanel/PanelVBox" unique_id=1409877570]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 bbcode_enabled = true
-scroll_active = true
-fit_content = false
 
-[node name="HealPanel" type="PanelContainer" parent="RootVBox/RankRow"]
+[node name="HealPanel" type="PanelContainer" parent="RootVBox/RankRow" unique_id=124100331]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="PanelVBox" type="VBoxContainer" parent="RootVBox/RankRow/HealPanel"]
+[node name="PanelVBox" type="VBoxContainer" parent="RootVBox/RankRow/HealPanel" unique_id=1122860798]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="TitleLabel" type="Label" parent="RootVBox/RankRow/HealPanel/PanelVBox"]
+[node name="TitleLabel" type="Label" parent="RootVBox/RankRow/HealPanel/PanelVBox" unique_id=2105200197]
 layout_mode = 2
+theme_override_font_sizes/font_size = 18
 text = "治疗排行"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 18
 
-[node name="RankText" type="RichTextLabel" parent="RootVBox/RankRow/HealPanel/PanelVBox"]
+[node name="RankText" type="RichTextLabel" parent="RootVBox/RankRow/HealPanel/PanelVBox" unique_id=1148672378]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 bbcode_enabled = true
-scroll_active = true
-fit_content = false
 
-[node name="CloseRow" type="HBoxContainer" parent="RootVBox"]
+[node name="CloseRow" type="HBoxContainer" parent="RootVBox" unique_id=1101212112]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Spacer" type="Control" parent="RootVBox/CloseRow"]
+[node name="Spacer" type="Control" parent="RootVBox/CloseRow" unique_id=1688348706]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="CloseButton" type="Button" parent="RootVBox/CloseRow"]
+[node name="CloseButton" type="Button" parent="RootVBox/CloseRow" unique_id=1938776669]
 layout_mode = 2
 text = "继续"

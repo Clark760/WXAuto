@@ -193,7 +193,8 @@ func _compile_config(config: Dictionary) -> Dictionary:
 		"global_source_types": global_source_types,
 		"global_team_scope": global_team_scope,
 		"count_mode": count_mode,
-		"compiled_queries": compiled_queries
+		"compiled_queries": compiled_queries,
+		"required_unit_team_scope": _resolve_required_unit_team_scope(compiled_queries)
 	}
 
 
@@ -274,6 +275,42 @@ func _compile_single_query(
 		"team_scope": query_team_scope,
 		"origin_scope": origin_scope
 	}
+
+
+func _resolve_required_unit_team_scope(compiled_queries: Array) -> String:
+	var needs_ally: bool = false
+	var needs_enemy: bool = false
+	for query_value in compiled_queries:
+		if not (query_value is Dictionary):
+			continue
+		var query: Dictionary = query_value as Dictionary
+		if not _query_uses_unit_providers(query):
+			continue
+		var team_scope: String = str(query.get("team_scope", "ally")).strip_edges().to_lower()
+		if team_scope == "all":
+			return "all"
+		if team_scope == "enemy":
+			needs_enemy = true
+		else:
+			needs_ally = true
+	if needs_ally and needs_enemy:
+		return "all"
+	if needs_enemy:
+		return "enemy"
+	if needs_ally:
+		return "ally"
+	return "none"
+
+
+func _query_uses_unit_providers(query: Dictionary) -> bool:
+	var source_types_value: Variant = query.get("source_types", [])
+	if not (source_types_value is Array):
+		return false
+	for source_type_value in (source_types_value as Array):
+		var source_type: String = str(source_type_value).strip_edges().to_lower()
+		if source_type == "unit" or source_type == "trait" or source_type == "gongfa" or source_type == "equipment":
+			return true
+	return false
 
 
 # mask 长度只由当前 registry 的标签总数决定。

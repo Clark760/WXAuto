@@ -10,6 +10,7 @@ const HEX_SPATIAL_SERVICE_SCRIPT: Script = preload("res://scripts/domain/unit_au
 var _query_service: Variant = QUERY_SERVICE_SCRIPT.new()
 var _hex_spatial_service: Variant = HEX_SPATIAL_SERVICE_SCRIPT.new()
 var _last_damage_meta: Dictionary = {}
+var _combat_units_in_cells_scratch: Array[Node] = []
 
 
 # `query_service` 只负责目标与距离查询，`hex_spatial_service` 只负责格子算法。
@@ -192,6 +193,8 @@ func build_source_bound_aura_key(source: Node, effect: Dictionary, scope_key: St
 	if source == null or not is_instance_valid(source):
 		return effect_signature
 	return "%d|%s" % [source.get_instance_id(), effect_signature]
+
+
 
 
 # mark 优先走 Buff，这样状态栏、驱散和条件判断都能复用。

@@ -61,7 +61,8 @@ func apply_passive_effects(
 func execute_active_effects(source: Node, target: Node, effects: Array, context: Dictionary = {}) -> Dictionary:
 	var summary: Dictionary = _summary_collector.create_empty_summary()
 	# effect 执行期间对 context 的临时写入都限定在副本里，避免污染调用方持有的原始上下文。
-	var runtime_context: Dictionary = context.duplicate(true)
+	# effect handlers 只读已有嵌套对象，这里保留顶层隔离即可，避免每次执行都深拷贝 all_units 等大对象。
+	var runtime_context: Dictionary = context.duplicate(false)
 	runtime_context["_unit_augment_runtime_gateway"] = _runtime_gateway
 
 	for effect_value in effects:

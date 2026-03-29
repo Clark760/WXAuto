@@ -9,10 +9,24 @@ var _effect_engine: Variant
 var _buff_manager: Variant
 var _tag_linkage_scheduler: Variant
 var _unit_data_script: Script
+var _tag_linkage_tag_to_index: Dictionary = {}
+var _tag_linkage_registry_version: int = 0
+var _tag_linkage_mask_word_count: int = 0
 
 var _battle_units: Array[Node] = []
 var _unit_lookup: Dictionary = {}
 var _unit_states: Dictionary = {}
+var _poll_trigger_unit_ids: Array[int] = []
+var _state_poll_trigger_unit_ids: Array[int] = []
+var _passive_aura_trigger_unit_ids: Array[int] = []
+var _timed_poll_trigger_unit_ids: Array[int] = []
+var _passive_aura_source_ids_by_cell: Dictionary = {}
+var _passive_aura_source_cell_by_unit: Dictionary = {}
+var _passive_aura_dirty_margin_by_unit: Dictionary = {}
+var _passive_aura_max_dirty_margin_cells: int = 0
+var _hex_radius_offsets_cache: Dictionary = {}
+var _combat_lookup: Dictionary = {}
+var _movement_lookup: Dictionary = {}
 var _next_trigger_entry_uid: int = 1
 
 # 依赖在构造时固定下来，避免运行时到处抓全局对象。
@@ -36,6 +50,17 @@ func reset_battle_state() -> void:
 	_battle_units.clear()
 	_unit_lookup.clear()
 	_unit_states.clear()
+	_poll_trigger_unit_ids.clear()
+	_state_poll_trigger_unit_ids.clear()
+	_passive_aura_trigger_unit_ids.clear()
+	_timed_poll_trigger_unit_ids.clear()
+	_passive_aura_source_ids_by_cell.clear()
+	_passive_aura_source_cell_by_unit.clear()
+	_passive_aura_dirty_margin_by_unit.clear()
+	_passive_aura_max_dirty_margin_cells = 0
+	_hex_radius_offsets_cache.clear()
+	_combat_lookup.clear()
+	_movement_lookup.clear()
 	_next_trigger_entry_uid = 1
 
 # battle runtime 通过这个入口登记参与单位，避免 manager 自己维护第二套数组。
@@ -48,6 +73,7 @@ func register_battle_unit(unit: Node) -> void:
 		return
 	_battle_units.append(unit)
 	_unit_lookup[iid] = unit
+	_cache_components_for_unit(unit)
 
 # `all_units` 会被 effect runtime、trigger runtime 和 tooltip 同时读取。
 # 这里返回节点引用数组本体，调用方只读使用，增删统一走 register/reset 两个显式入口。
@@ -64,12 +90,57 @@ func get_unit_lookup() -> Dictionary:
 func get_unit_states() -> Dictionary:
 	return _unit_states
 
+
+func get_poll_trigger_unit_ids() -> Array[int]:
+	return _poll_trigger_unit_ids
+
+
+func get_state_poll_trigger_unit_ids() -> Array[int]:
+	return _state_poll_trigger_unit_ids
+
+
+func get_passive_aura_trigger_unit_ids() -> Array[int]:
+	return _passive_aura_trigger_unit_ids
+
+
+func get_timed_poll_trigger_unit_ids() -> Array[int]:
+	return _timed_poll_trigger_unit_ids
+
+
+func configure_tag_linkage_registry(tag_to_index: Dictionary, version: int) -> void:
+	var normalized: Dictionary = {}
+	for raw_key in tag_to_index.keys():
+		var tag: String = str(raw_key).strip_edges().to_lower()
+		if tag.is_empty():
+			continue
+		normalized[tag] = int(tag_to_index[raw_key])
+	_tag_linkage_tag_to_index = normalized
+	_tag_linkage_registry_version = maxi(version, 0)
+	_tag_linkage_mask_word_count = int(ceili(float(_tag_linkage_tag_to_index.size()) / 64.0))
+
 # 运行时状态查询统一走 iid，避免外层重复拼接 get_instance_id 逻辑。
 # `unit` 为空或失效时直接回空字典，且返回值仍是副本，避免外层误写内部状态。
 func get_state_for_unit(unit: Node) -> Dictionary:
 	if unit == null or not is_instance_valid(unit):
 		return {}
 	return get_state_by_id(unit.get_instance_id())
+
+
+func get_tag_linkage_provider_cache(unit: Node) -> Dictionary:
+	if unit == null or not is_instance_valid(unit):
+		return {"available": false, "entries": []}
+	var iid: int = unit.get_instance_id()
+	if not _unit_states.has(iid):
+		return {"available": false, "entries": []}
+	var state: Dictionary = _unit_states[iid] as Dictionary
+	if not state.has("tag_linkage_provider_entries"):
+		return {"available": false, "entries": []}
+	if int(state.get("tag_linkage_registry_version", -1)) != _tag_linkage_registry_version:
+		return {"available": false, "entries": []}
+	var entries_value: Variant = state.get("tag_linkage_provider_entries", [])
+	if entries_value is Array:
+		return {"available": true, "entries": entries_value}
+	return {"available": true, "entries": []}
 
 # 外层只拿副本读状态，写状态必须走显式 setter。
 # 深拷贝是为了保护 triggers、baseline_stats 这些嵌套结构不被外层直接篡改。
@@ -83,6 +154,117 @@ func get_state_by_id(unit_id: int) -> Dictionary:
 # 这里不做 merge，是因为调用方已经持有完整副本并完成了本次改动。
 # 写回粒度保持在整份 state，避免局部字段更新遗漏联动状态。
 func set_state_by_id(unit_id: int, state: Dictionary) -> void:
+	_refresh_poll_state_metadata(unit_id, state)
+	_unit_states[unit_id] = state
+
+
+func get_unit_battle_cell(unit: Node) -> Vector2i:
+	if unit == null or not is_instance_valid(unit):
+		return Vector2i(-1, -1)
+	var iid: int = unit.get_instance_id()
+	if not _unit_states.has(iid):
+		return Vector2i(-1, -1)
+	var state: Dictionary = _unit_states[iid] as Dictionary
+	var cell_value: Variant = state.get("passive_aura_battle_cell", Vector2i(-1, -1))
+	if cell_value is Vector2i:
+		return cell_value as Vector2i
+	return Vector2i(-1, -1)
+
+
+func set_unit_battle_cell(unit: Node, cell: Vector2i) -> void:
+	if unit == null or not is_instance_valid(unit):
+		return
+	if cell.x < 0 or cell.y < 0:
+		return
+	var iid: int = unit.get_instance_id()
+	if not _unit_states.has(iid):
+		return
+	var state: Dictionary = _unit_states[iid] as Dictionary
+	state["passive_aura_battle_cell"] = cell
+	_unit_states[iid] = state
+	if _passive_aura_dirty_margin_by_unit.has(iid):
+		_move_passive_aura_source_in_cell_index(iid, cell)
+
+
+func sync_battle_cells_from_combat_manager(combat_manager: Node) -> void:
+	if combat_manager == null or not is_instance_valid(combat_manager):
+		return
+	if not combat_manager.has_method("get_unit_cell_of"):
+		return
+	for unit in _battle_units:
+		if unit == null or not is_instance_valid(unit):
+			continue
+		var cell_value: Variant = combat_manager.get_unit_cell_of(unit)
+		if cell_value is Vector2i:
+			set_unit_battle_cell(unit, cell_value as Vector2i)
+
+
+func mark_all_passive_aura_dirty() -> void:
+	for iid in _passive_aura_trigger_unit_ids:
+		_mark_passive_aura_dirty_by_id(iid)
+
+
+func mark_passive_aura_dirty_for_cell_change(
+	changed_unit: Node,
+	from_cell: Vector2i,
+	to_cell: Vector2i
+) -> void:
+	if changed_unit != null and is_instance_valid(changed_unit):
+		set_unit_battle_cell(changed_unit, to_cell)
+		if not is_unit_alive(changed_unit):
+			_remove_passive_aura_source_from_cell_index(changed_unit.get_instance_id())
+
+	var has_from_cell: bool = from_cell.x >= 0 and from_cell.y >= 0
+	var has_to_cell: bool = to_cell.x >= 0 and to_cell.y >= 0
+	if not has_from_cell and not has_to_cell:
+		return
+
+	var candidate_unit_ids: Array[int] = _collect_passive_aura_source_candidates(
+		changed_unit,
+		from_cell,
+		to_cell
+	)
+	for iid in candidate_unit_ids:
+		if not _unit_states.has(iid):
+			continue
+		var state: Dictionary = _unit_states[iid] as Dictionary
+		var source: Node = state.get("unit", null)
+		if source == null or not is_instance_valid(source):
+			continue
+		if source == changed_unit:
+			_mark_passive_aura_dirty_state(state)
+			_unit_states[iid] = state
+			continue
+		if not is_unit_alive(source):
+			continue
+
+		var source_cell: Vector2i = _read_state_battle_cell(state)
+		if source_cell.x < 0 or source_cell.y < 0:
+			continue
+		var dirty_radius_cells: float = maxf(float(state.get("passive_aura_dirty_radius_cells", 0.0)), 0.0)
+		if dirty_radius_cells <= 0.0:
+			continue
+		var dirty_margin_cells: int = int(ceili(dirty_radius_cells)) + 1
+		var affected: bool = false
+		if has_from_cell and _hex_distance(source_cell, from_cell) <= dirty_margin_cells:
+			affected = true
+		elif has_to_cell and _hex_distance(source_cell, to_cell) <= dirty_margin_cells:
+			affected = true
+		if not affected:
+			continue
+		_mark_passive_aura_dirty_state(state)
+		_unit_states[iid] = state
+
+
+func finalize_passive_aura_poll(unit_id: int, battle_elapsed: float, keep_dirty: bool) -> void:
+	if not _unit_states.has(unit_id):
+		return
+	var state: Dictionary = _unit_states[unit_id] as Dictionary
+	state["passive_aura_dirty"] = keep_dirty
+	state["next_passive_aura_dirty_poll_time"] = battle_elapsed + _resolve_passive_aura_dirty_poll_interval(
+		state
+	)
+	state["next_passive_aura_refresh_time"] = battle_elapsed + _resolve_passive_aura_repair_interval(state)
 	_unit_states[unit_id] = state
 
 # runtime ids 优先读单位当前 runtime 字段，缺失时才退回配置槽位解析。
@@ -146,6 +328,9 @@ func apply_unit_augment(unit: Node, defer_apply: bool = false) -> void:
 	var passive_effects: Array[Dictionary] = []
 	var triggers: Array[Dictionary] = []
 	var poll_triggers: Array[Dictionary] = []
+	var state_poll_triggers: Array[Dictionary] = []
+	var passive_aura_triggers: Array[Dictionary] = []
+	var timed_poll_triggers: Array[Dictionary] = []
 	var equipment_effects: Array[Dictionary] = []
 	var equip_triggers: Array[Dictionary] = []
 	var unit_traits: Array[Dictionary] = []
@@ -190,8 +375,15 @@ func apply_unit_augment(unit: Node, defer_apply: bool = false) -> void:
 
 	triggers.append_array(equip_triggers)
 	for entry in triggers:
-		if _is_poll_trigger_name(str(entry.get("trigger", ""))):
+		var trigger_name: String = str(entry.get("trigger", "")).strip_edges().to_lower()
+		if _is_poll_trigger_name(trigger_name):
 			poll_triggers.append(entry)
+			if _is_timed_poll_trigger_name(trigger_name):
+				timed_poll_triggers.append(entry)
+			elif trigger_name == "passive_aura":
+				passive_aura_triggers.append(entry)
+			else:
+				state_poll_triggers.append(entry)
 
 	# 这里写入的是 UnitAugment 自己维护的标准 state 结构，供后续轮询和重算复用。
 	_unit_states[iid] = {
@@ -200,11 +392,30 @@ func apply_unit_augment(unit: Node, defer_apply: bool = false) -> void:
 		"equipped_gongfa_ids": equipped_ids,
 		"equipped_equip_ids": equipped_equip_ids,
 		"unit_traits": unit_traits,
+		"tag_linkage_provider_entries": _build_tag_linkage_provider_entries(
+			unit,
+			unit_traits,
+			equipped_ids,
+			equipped_equip_ids
+		),
+		"tag_linkage_registry_version": _tag_linkage_registry_version,
 		"passive_effects": passive_effects,
 		"equipment_effects": equipment_effects,
 		"triggers": triggers,
-		"poll_triggers": poll_triggers
+		"poll_triggers": poll_triggers,
+		"state_poll_triggers": state_poll_triggers,
+		"passive_aura_triggers": passive_aura_triggers,
+		"passive_aura_dirty": not passive_aura_triggers.is_empty(),
+		"passive_aura_dirty_radius_cells": _resolve_passive_aura_dirty_radius_cells(
+			passive_aura_triggers
+		),
+		"passive_aura_battle_cell": _resolve_initial_battle_cell(unit),
+		"next_passive_aura_dirty_poll_time": 0.0 if not passive_aura_triggers.is_empty() else INF,
+		"next_passive_aura_refresh_time": 0.0 if not passive_aura_triggers.is_empty() else INF,
+		"timed_poll_triggers": timed_poll_triggers,
+		"next_timed_poll_time": _resolve_next_timed_poll_time(timed_poll_triggers)
 	}
+	_refresh_poll_state_metadata(iid, _unit_states[iid])
 
 	if not defer_apply:
 		apply_state_to_unit(iid, false)
@@ -225,7 +436,16 @@ func remove_unit_augment(unit: Node) -> void:
 	state["equipment_effects"] = []
 	state["triggers"] = []
 	state["poll_triggers"] = []
+	state["state_poll_triggers"] = []
+	state["passive_aura_triggers"] = []
+	state["passive_aura_dirty"] = false
+	state["passive_aura_dirty_radius_cells"] = 0.0
+	state["next_passive_aura_dirty_poll_time"] = INF
+	state["next_passive_aura_refresh_time"] = INF
+	state["timed_poll_triggers"] = []
+	state["next_timed_poll_time"] = INF
 	_unit_states[iid] = state
+	_refresh_poll_state_metadata(iid, state)
 	apply_state_to_unit(iid, true)
 
 # 功法装配必须严格校验槽位类型，避免一类功法占错槽。
@@ -346,7 +566,7 @@ func apply_state_to_unit(unit_id: int, preserve_health_ratio: bool) -> void:
 	unit.set("runtime_equipped_gongfa_ids", state.get("equipped_gongfa_ids", []))
 	unit.set("runtime_equipped_equip_ids", state.get("equipped_equip_ids", []))
 
-	var combat: Node = unit.get_node_or_null("Components/UnitCombat")
+	var combat: Node = _get_combat_component(unit)
 	if combat != null:
 		if combat.has_method("refresh_runtime_stats"):
 			combat.refresh_runtime_stats(runtime_stats, preserve_health_ratio)
@@ -355,7 +575,7 @@ func apply_state_to_unit(unit_id: int, preserve_health_ratio: bool) -> void:
 		if combat.has_method("set_external_modifiers"):
 			combat.set_external_modifiers(modifiers)
 
-	var movement: Node = unit.get_node_or_null("Components/UnitMovement")
+	var movement: Node = _get_movement_component(unit)
 	if movement != null:
 		if movement.has_method("refresh_runtime_stats"):
 			movement.refresh_runtime_stats(runtime_stats)
@@ -367,7 +587,7 @@ func apply_state_to_unit(unit_id: int, preserve_health_ratio: bool) -> void:
 # `key` 对应 UnitCombat 上的公开字段名，例如 current_hp、max_hp、current_mp。
 # 缺少 Combat 组件时统一回 0，避免条件服务再到处判空。
 func get_combat_value(unit: Node, key: String) -> float:
-	var combat: Node = unit.get_node_or_null("Components/UnitCombat")
+	var combat: Node = _get_combat_component(unit)
 	if combat == null:
 		return 0.0
 	return float(combat.get(key))
@@ -379,10 +599,384 @@ func get_combat_value(unit: Node, key: String) -> float:
 func is_unit_alive(unit: Node) -> bool:
 	if unit == null or not is_instance_valid(unit):
 		return false
-	var combat: Node = unit.get_node_or_null("Components/UnitCombat")
+	var combat: Node = _get_combat_component(unit)
 	if combat == null:
 		return false
 	return bool(combat.get("is_alive"))
+
+
+func _cache_components_for_unit(unit: Node) -> void:
+	if unit == null or not is_instance_valid(unit):
+		return
+	var iid: int = unit.get_instance_id()
+	_combat_lookup[iid] = unit.get_node_or_null("Components/UnitCombat")
+	_movement_lookup[iid] = unit.get_node_or_null("Components/UnitMovement")
+
+
+func _get_combat_component(unit: Node) -> Node:
+	if unit == null or not is_instance_valid(unit):
+		return null
+	var iid: int = unit.get_instance_id()
+	if not _combat_lookup.has(iid) or not is_instance_valid(_combat_lookup[iid]):
+		_combat_lookup[iid] = unit.get_node_or_null("Components/UnitCombat")
+	return _combat_lookup[iid] as Node
+
+
+func _get_movement_component(unit: Node) -> Node:
+	if unit == null or not is_instance_valid(unit):
+		return null
+	var iid: int = unit.get_instance_id()
+	if not _movement_lookup.has(iid) or not is_instance_valid(_movement_lookup[iid]):
+		_movement_lookup[iid] = unit.get_node_or_null("Components/UnitMovement")
+	return _movement_lookup[iid] as Node
+
+
+func refresh_timed_poll_state(unit_id: int) -> void:
+	if not _unit_states.has(unit_id):
+		return
+	var state: Dictionary = _unit_states[unit_id]
+	state["next_timed_poll_time"] = _resolve_next_timed_poll_time(
+		state.get("timed_poll_triggers", [])
+	)
+	_unit_states[unit_id] = state
+
+
+func _refresh_poll_state_metadata(unit_id: int, state: Dictionary) -> void:
+	var poll_triggers_value: Variant = state.get("poll_triggers", [])
+	var state_poll_triggers_value: Variant = state.get("state_poll_triggers", [])
+	var passive_aura_triggers_value: Variant = state.get("passive_aura_triggers", [])
+	var timed_poll_triggers_value: Variant = state.get("timed_poll_triggers", [])
+	_sync_unit_membership_array(
+		_poll_trigger_unit_ids,
+		unit_id,
+		_variant_array_has_entries(poll_triggers_value)
+	)
+	_sync_unit_membership_array(
+		_state_poll_trigger_unit_ids,
+		unit_id,
+		_variant_array_has_entries(state_poll_triggers_value)
+	)
+	_sync_unit_membership_array(
+		_passive_aura_trigger_unit_ids,
+		unit_id,
+		_variant_array_has_entries(passive_aura_triggers_value)
+	)
+	_sync_unit_membership_array(
+		_timed_poll_trigger_unit_ids,
+		unit_id,
+		_variant_array_has_entries(timed_poll_triggers_value)
+	)
+	_refresh_passive_aura_source_index(unit_id, state)
+
+
+func _refresh_passive_aura_source_index(unit_id: int, state: Dictionary) -> void:
+	var passive_aura_triggers_value: Variant = state.get("passive_aura_triggers", [])
+	if not _variant_array_has_entries(passive_aura_triggers_value):
+		_set_passive_aura_dirty_margin(unit_id, 0)
+		_remove_passive_aura_source_from_cell_index(unit_id)
+		return
+
+	var source_cell: Vector2i = _read_state_battle_cell(state)
+	var dirty_radius_cells: float = maxf(float(state.get("passive_aura_dirty_radius_cells", 0.0)), 0.0)
+	var dirty_margin_cells: int = int(ceili(dirty_radius_cells)) + 1 if dirty_radius_cells > 0.0 else 0
+	_set_passive_aura_dirty_margin(unit_id, dirty_margin_cells)
+	if source_cell.x < 0 or source_cell.y < 0:
+		_remove_passive_aura_source_from_cell_index(unit_id)
+		return
+	_move_passive_aura_source_in_cell_index(unit_id, source_cell)
+
+
+func _set_passive_aura_dirty_margin(unit_id: int, dirty_margin_cells: int) -> void:
+	var previous_margin: int = int(_passive_aura_dirty_margin_by_unit.get(unit_id, 0))
+	if dirty_margin_cells <= 0:
+		_passive_aura_dirty_margin_by_unit.erase(unit_id)
+		if previous_margin == _passive_aura_max_dirty_margin_cells:
+			_recalculate_passive_aura_max_dirty_margin_cells()
+		return
+
+	_passive_aura_dirty_margin_by_unit[unit_id] = dirty_margin_cells
+	if dirty_margin_cells > _passive_aura_max_dirty_margin_cells:
+		_passive_aura_max_dirty_margin_cells = dirty_margin_cells
+	elif previous_margin == _passive_aura_max_dirty_margin_cells and dirty_margin_cells < previous_margin:
+		_recalculate_passive_aura_max_dirty_margin_cells()
+
+
+func _recalculate_passive_aura_max_dirty_margin_cells() -> void:
+	_passive_aura_max_dirty_margin_cells = 0
+	for margin_value in _passive_aura_dirty_margin_by_unit.values():
+		_passive_aura_max_dirty_margin_cells = max(
+			_passive_aura_max_dirty_margin_cells,
+			int(margin_value)
+		)
+
+
+func _move_passive_aura_source_in_cell_index(unit_id: int, cell: Vector2i) -> void:
+	if cell.x < 0 or cell.y < 0:
+		_remove_passive_aura_source_from_cell_index(unit_id)
+		return
+	var current_cell: Vector2i = _read_indexed_passive_aura_source_cell(unit_id)
+	if current_cell == cell:
+		return
+	_remove_passive_aura_source_from_cell_index(unit_id)
+	var cell_key: String = _cell_key(cell)
+	var slot: Dictionary = _passive_aura_source_ids_by_cell.get(cell_key, {})
+	slot[unit_id] = true
+	_passive_aura_source_ids_by_cell[cell_key] = slot
+	_passive_aura_source_cell_by_unit[unit_id] = cell
+
+
+func _remove_passive_aura_source_from_cell_index(unit_id: int) -> void:
+	if not _passive_aura_source_cell_by_unit.has(unit_id):
+		return
+	var current_cell_value: Variant = _passive_aura_source_cell_by_unit[unit_id]
+	if current_cell_value is Vector2i:
+		var cell_key: String = _cell_key(current_cell_value as Vector2i)
+		if _passive_aura_source_ids_by_cell.has(cell_key):
+			var slot: Dictionary = _passive_aura_source_ids_by_cell[cell_key]
+			slot.erase(unit_id)
+			if slot.is_empty():
+				_passive_aura_source_ids_by_cell.erase(cell_key)
+			else:
+				_passive_aura_source_ids_by_cell[cell_key] = slot
+	_passive_aura_source_cell_by_unit.erase(unit_id)
+
+
+func _collect_passive_aura_source_candidates(
+	changed_unit: Node,
+	from_cell: Vector2i,
+	to_cell: Vector2i
+) -> Array[int]:
+	var out: Array[int] = []
+	var seen: Dictionary = {}
+	if changed_unit != null and is_instance_valid(changed_unit):
+		var changed_unit_id: int = changed_unit.get_instance_id()
+		if _passive_aura_trigger_unit_ids.has(changed_unit_id):
+			seen[changed_unit_id] = true
+			out.append(changed_unit_id)
+
+	if _passive_aura_max_dirty_margin_cells <= 0:
+		return out
+	_append_passive_aura_candidates_from_cell(from_cell, out, seen)
+	if to_cell != from_cell:
+		_append_passive_aura_candidates_from_cell(to_cell, out, seen)
+	return out
+
+
+func _append_passive_aura_candidates_from_cell(
+	center_cell: Vector2i,
+	output: Array[int],
+	seen: Dictionary
+) -> void:
+	if center_cell.x < 0 or center_cell.y < 0:
+		return
+	for offset in _get_hex_radius_offsets(_passive_aura_max_dirty_margin_cells):
+		var scan_cell: Vector2i = center_cell + offset
+		var cell_key: String = _cell_key(scan_cell)
+		if not _passive_aura_source_ids_by_cell.has(cell_key):
+			continue
+		var slot: Dictionary = _passive_aura_source_ids_by_cell[cell_key]
+		for source_unit_id in slot.keys():
+			var unit_id: int = int(source_unit_id)
+			if seen.has(unit_id):
+				continue
+			seen[unit_id] = true
+			output.append(unit_id)
+
+
+func _get_hex_radius_offsets(radius_cells: int) -> Array[Vector2i]:
+	if radius_cells <= 0:
+		return [Vector2i.ZERO]
+	if _hex_radius_offsets_cache.has(radius_cells):
+		var cached_value: Variant = _hex_radius_offsets_cache[radius_cells]
+		if cached_value is Array:
+			return cached_value
+
+	var offsets: Array[Vector2i] = []
+	for dq in range(-radius_cells, radius_cells + 1):
+		var min_dr: int = maxi(-radius_cells, -dq - radius_cells)
+		var max_dr: int = mini(radius_cells, -dq + radius_cells)
+		for dr in range(min_dr, max_dr + 1):
+			offsets.append(Vector2i(dq, dr))
+	_hex_radius_offsets_cache[radius_cells] = offsets
+	return offsets
+
+
+func _sync_unit_membership_array(target_ids: Array[int], unit_id: int, should_exist: bool) -> void:
+	if should_exist:
+		if not target_ids.has(unit_id):
+			target_ids.append(unit_id)
+		return
+	target_ids.erase(unit_id)
+
+
+func _variant_array_has_entries(value: Variant) -> bool:
+	return value is Array and not (value as Array).is_empty()
+
+
+func _resolve_next_timed_poll_time(timed_poll_triggers_value: Variant) -> float:
+	if not (timed_poll_triggers_value is Array):
+		return INF
+
+	var next_due_time: float = INF
+	for entry_value in (timed_poll_triggers_value as Array):
+		if not (entry_value is Dictionary):
+			continue
+		var entry: Dictionary = entry_value as Dictionary
+		var trigger_name: String = str(entry.get("trigger", "")).strip_edges().to_lower()
+		var next_ready_time: float = float(entry.get("next_ready_time", 0.0))
+		var max_trigger_count: int = int(entry.get("max_trigger_count", 0))
+		if max_trigger_count > 0 and int(entry.get("trigger_count", 0)) >= max_trigger_count:
+			continue
+
+		var candidate_time: float = INF
+		match trigger_name:
+			"periodic_seconds", "periodic":
+				var trigger_params: Dictionary = {}
+				var trigger_params_value: Variant = entry.get("trigger_params", {})
+				if trigger_params_value is Dictionary:
+					trigger_params = trigger_params_value as Dictionary
+				var skill_data: Dictionary = {}
+				var skill_data_value: Variant = entry.get("skill_data", {})
+				if skill_data_value is Dictionary:
+					skill_data = skill_data_value as Dictionary
+				var interval: float = maxf(
+					float(trigger_params.get("interval", skill_data.get("interval", 0.0))),
+					0.05
+				)
+				candidate_time = float(entry.get("next_periodic_time", interval))
+				if candidate_time <= 0.0:
+					candidate_time = interval
+			"on_time_elapsed":
+				if bool(entry.get("time_elapsed_fired", false)):
+					continue
+				var trigger_params: Dictionary = {}
+				var trigger_params_value: Variant = entry.get("trigger_params", {})
+				if trigger_params_value is Dictionary:
+					trigger_params = trigger_params_value as Dictionary
+				var skill_data: Dictionary = {}
+				var skill_data_value: Variant = entry.get("skill_data", {})
+				if skill_data_value is Dictionary:
+					skill_data = skill_data_value as Dictionary
+				candidate_time = maxf(
+					float(trigger_params.get("at_seconds", skill_data.get("at_seconds", INF))),
+					0.0
+				)
+			_:
+				continue
+
+		candidate_time = maxf(candidate_time, next_ready_time)
+		if candidate_time < next_due_time:
+			next_due_time = candidate_time
+	return next_due_time
+
+
+func _resolve_passive_aura_dirty_radius_cells(passive_aura_triggers_value: Variant) -> float:
+	if not (passive_aura_triggers_value is Array):
+		return 0.0
+
+	var max_radius_cells: float = 0.0
+	for entry_value in (passive_aura_triggers_value as Array):
+		if not (entry_value is Dictionary):
+			continue
+		var entry: Dictionary = entry_value as Dictionary
+		var skill_data_value: Variant = entry.get("skill_data", {})
+		if not (skill_data_value is Dictionary):
+			continue
+		var skill_data: Dictionary = skill_data_value as Dictionary
+		var effects_value: Variant = skill_data.get("effects", [])
+		if not (effects_value is Array):
+			continue
+		for effect_value in (effects_value as Array):
+			if not (effect_value is Dictionary):
+				continue
+			var effect: Dictionary = effect_value as Dictionary
+			max_radius_cells = maxf(
+				max_radius_cells,
+				float(effect.get("radius", effect.get("range", 0.0)))
+			)
+		max_radius_cells = maxf(max_radius_cells, float(skill_data.get("range", 0.0)))
+	return max_radius_cells
+
+
+func _resolve_initial_battle_cell(unit: Node) -> Vector2i:
+	if unit == null or not is_instance_valid(unit):
+		return Vector2i(-1, -1)
+	var deployed_cell_value: Variant = unit.get("deployed_cell")
+	if deployed_cell_value is Vector2i:
+		return deployed_cell_value as Vector2i
+	return Vector2i(-1, -1)
+
+
+func _mark_passive_aura_dirty_by_id(unit_id: int) -> void:
+	if not _unit_states.has(unit_id):
+		return
+	var state: Dictionary = _unit_states[unit_id] as Dictionary
+	_mark_passive_aura_dirty_state(state)
+	_unit_states[unit_id] = state
+
+
+func _mark_passive_aura_dirty_state(state: Dictionary) -> void:
+	state["passive_aura_dirty"] = true
+
+
+func _resolve_passive_aura_dirty_poll_interval(state: Dictionary) -> float:
+	var passive_aura_triggers_value: Variant = state.get("passive_aura_triggers", [])
+	var interval: float = 0.25
+	if passive_aura_triggers_value is Array:
+		for entry_value in (passive_aura_triggers_value as Array):
+			if not (entry_value is Dictionary):
+				continue
+			var entry: Dictionary = entry_value as Dictionary
+			var cooldown: float = maxf(float(entry.get("cooldown", 0.0)), 0.0)
+			if cooldown <= 0.0:
+				continue
+			interval = minf(interval, cooldown)
+	return clampf(interval, 0.18, 0.35)
+
+
+func _resolve_passive_aura_repair_interval(_state: Dictionary) -> float:
+	var source_count: int = _passive_aura_trigger_unit_ids.size()
+	var base_interval: float = 0.5
+	var bucket_count: int = 1
+	# dirty 更新仍由 cell_change/death/spawn 事件即时驱动；
+	# 这里仅放慢“无脏标记时的兜底修复”，用于高密度战斗下降低全量 aura 自检频率。
+	if source_count >= 160:
+		base_interval = 0.75
+		bucket_count = 6
+	elif source_count >= 80:
+		base_interval = 0.65
+		bucket_count = 5
+	elif source_count >= 32:
+		base_interval = 0.55
+		bucket_count = 3
+	return base_interval * float(bucket_count)
+
+
+func _read_state_battle_cell(state: Dictionary) -> Vector2i:
+	var cell_value: Variant = state.get("passive_aura_battle_cell", Vector2i(-1, -1))
+	if cell_value is Vector2i:
+		return cell_value as Vector2i
+	return Vector2i(-1, -1)
+
+
+func _read_indexed_passive_aura_source_cell(unit_id: int) -> Vector2i:
+	if not _passive_aura_source_cell_by_unit.has(unit_id):
+		return Vector2i(-1, -1)
+	var cell_value: Variant = _passive_aura_source_cell_by_unit[unit_id]
+	if cell_value is Vector2i:
+		return cell_value as Vector2i
+	return Vector2i(-1, -1)
+
+
+func _hex_distance(a: Vector2i, b: Vector2i) -> int:
+	var dq: int = a.x - b.x
+	var dr: int = a.y - b.y
+	var ds: int = (-a.x - a.y) - (-b.x - b.y)
+	return int((absi(dq) + absi(dr) + absi(ds)) / 2)
+
+
+func _cell_key(cell: Vector2i) -> String:
+	return "%d,%d" % [cell.x, cell.y]
 
 
 # `skill_data` 和被动效果条目默认只读，因此这里统一做浅拷贝，避免无谓复制。
@@ -489,6 +1083,86 @@ func _resolve_equipped_equip_ids(unit: Node) -> Array[String]:
 		if ids.size() >= max_count:
 			break
 	return ids
+
+
+func _build_tag_linkage_provider_entries(
+	unit: Node,
+	unit_traits: Array[Dictionary],
+	equipped_ids: Array[String],
+	equipped_equip_ids: Array[String]
+) -> Array[Dictionary]:
+	var entries: Array[Dictionary] = []
+	if unit == null or not is_instance_valid(unit):
+		return entries
+
+	var unit_iid: int = unit.get_instance_id()
+	var unit_tags: Array[String] = _normalize_tag_array(_node_prop(unit, "tags", []))
+	if not unit_tags.is_empty():
+		entries.append({
+			"key": "unit:%d" % unit_iid,
+			"source_type": "unit",
+			"tags": unit_tags,
+			"tag_mask": _build_tag_linkage_mask(unit_tags)
+		})
+
+	for trait_idx in range(unit_traits.size()):
+		var trait_data: Dictionary = unit_traits[trait_idx]
+		var trait_tags: Array[String] = _normalize_tag_array(trait_data.get("tags", []))
+		if trait_tags.is_empty():
+			continue
+		var trait_id: String = str(trait_data.get("id", "trait_%d" % trait_idx)).strip_edges()
+		if trait_id.is_empty():
+			trait_id = "trait_%d" % trait_idx
+		entries.append({
+			"key": "trait:%d:%s:%d" % [unit_iid, trait_id, trait_idx],
+			"source_type": "trait",
+			"tags": trait_tags,
+			"tag_mask": _build_tag_linkage_mask(trait_tags)
+		})
+
+	for gongfa_id in equipped_ids:
+		var gongfa_tags: Array[String] = get_gongfa_tags(gongfa_id)
+		if gongfa_tags.is_empty():
+			continue
+		entries.append({
+			"key": "gongfa:%d:%s" % [unit_iid, gongfa_id],
+			"source_type": "gongfa",
+			"tags": gongfa_tags,
+			"tag_mask": _build_tag_linkage_mask(gongfa_tags)
+		})
+
+	for equip_id in equipped_equip_ids:
+		var equip_tags: Array[String] = get_equipment_tags(equip_id)
+		if equip_tags.is_empty():
+			continue
+		entries.append({
+			"key": "equipment:%d:%s" % [unit_iid, equip_id],
+			"source_type": "equipment",
+			"tags": equip_tags,
+			"tag_mask": _build_tag_linkage_mask(equip_tags)
+		})
+	return entries
+
+
+func _build_tag_linkage_mask(tags: Array[String]) -> PackedInt64Array:
+	var mask: PackedInt64Array = PackedInt64Array()
+	if _tag_linkage_mask_word_count <= 0:
+		return mask
+	mask.resize(_tag_linkage_mask_word_count)
+	for idx in range(_tag_linkage_mask_word_count):
+		mask[idx] = 0
+	for tag in tags:
+		if not _tag_linkage_tag_to_index.has(tag):
+			continue
+		var index: int = int(_tag_linkage_tag_to_index[tag])
+		if index < 0:
+			continue
+		var word: int = index >> 6
+		var bit: int = index & 63
+		if word < 0 or word >= mask.size():
+			continue
+		mask[word] = int(mask[word]) | (1 << bit)
+	return mask
 
 
 # runtime stats 不能出现负值，`hp` 和 `rng` 额外要求正数。
@@ -679,5 +1353,11 @@ func _is_poll_trigger_name(trigger_name: String) -> bool:
 		or trigger_name == "passive_aura" \
 		or trigger_name == "on_hp_below" \
 		or trigger_name == "on_time_elapsed" \
+		or trigger_name == "periodic_seconds" \
+		or trigger_name == "periodic"
+
+
+func _is_timed_poll_trigger_name(trigger_name: String) -> bool:
+	return trigger_name == "on_time_elapsed" \
 		or trigger_name == "periodic_seconds" \
 		or trigger_name == "periodic"

@@ -65,16 +65,20 @@ func update_team_focus(
 func pick_target_for_unit(
 	runtime_port: Node,
 	unit: Node,
+	allow_target_refresh: bool,
 	prioritize_targets_in_attack_range: bool,
 	group_focus_target_id: Dictionary,
 	unit_by_id: Dictionary,
 	spatial_hash,
 	team_alive_cache: Dictionary,
+	attack_range_target_memory: Dictionary,
+	attack_range_target_frame: Dictionary,
 	target_memory: Dictionary,
 	target_refresh_frame: Dictionary,
 	logic_frame: int,
 	target_rescan_interval_frames: int,
-	target_query_radius: float
+	target_query_radius: float,
+	target_query_scratch: Array[int]
 ) -> Node:
 	var self_team: int = int(unit.get("team_id"))
 	var enemy_team: int = 2 if self_team == 1 else 1
@@ -93,6 +97,8 @@ func pick_target_for_unit(
 		target_refresh_frame
 	)
 	if cached_target != null:
+		if not allow_target_refresh:
+			return cached_target
 		# 旧目标仍有效时先沿用，只有窗口到点才允许为“更优目标”付出一次完整重扫成本。
 		if not _should_refresh_target(
 			unit,
@@ -110,12 +116,15 @@ func pick_target_for_unit(
 			enemy_team,
 			spatial_hash,
 			unit_by_id,
+			attack_range_target_memory,
+			attack_range_target_frame,
 			target_memory,
 			target_refresh_frame,
 			logic_frame,
 			target_rescan_interval_frames,
 			target_query_radius,
-			0.0
+			0.0,
+			target_query_scratch
 		)
 		if in_range_target != null:
 			return in_range_target
@@ -138,7 +147,8 @@ func pick_target_for_unit(
 		enemy_team,
 		spatial_hash,
 		unit_by_id,
-		target_query_radius
+		target_query_radius,
+		target_query_scratch
 	)
 	if best_target == null:
 		best_target = _pick_nearest_target_from_team_cache(
@@ -166,13 +176,32 @@ func pick_target_in_attack_range(
 	enemy_team: int,
 	spatial_hash,
 	unit_by_id: Dictionary,
+	attack_range_target_memory: Dictionary,
+	attack_range_target_frame: Dictionary,
 	target_memory: Dictionary,
 	target_refresh_frame: Dictionary,
 	logic_frame: int,
 	target_rescan_interval_frames: int,
 	target_query_radius: float,
-	hex_size: float
+	hex_size: float,
+	target_query_scratch: Array[int]
 ) -> Node:
+	var cached_in_range_target: Node = _resolve_attack_range_cached_target(
+		runtime_port,
+		unit,
+		enemy_team,
+		unit_by_id,
+		attack_range_target_memory,
+		attack_range_target_frame,
+		logic_frame
+	)
+	if cached_in_range_target != null or _has_attack_range_cached_result(
+		unit,
+		attack_range_target_frame,
+		logic_frame
+	):
+		return cached_in_range_target
+
 	var cached_target: Node = _resolve_persisted_target(
 		runtime_port,
 		unit,
@@ -183,6 +212,13 @@ func pick_target_in_attack_range(
 	)
 	# 已缓存目标若仍在射程内，就直接复用，不再重复扫邻格或空间索引。
 	if cached_target != null and is_target_in_attack_range(runtime_port, unit, cached_target):
+		_store_attack_range_cached_result(
+			unit,
+			cached_target,
+			attack_range_target_memory,
+			attack_range_target_frame,
+			logic_frame
+		)
 		return cached_target
 	if (
 		cached_target != null
@@ -213,8 +249,53 @@ func pick_target_in_attack_range(
 				unit_by_id
 			)
 			if occupant != null and int(occupant.get("team_id")) == enemy_team:
+				_store_attack_range_cached_result(
+					unit,
+					occupant,
+					attack_range_target_memory,
+					attack_range_target_frame,
+					logic_frame
+				)
 				_remember_target(unit, occupant, target_memory, target_refresh_frame, logic_frame)
 				return occupant
+		_store_attack_range_cached_result(
+			unit,
+			null,
+			attack_range_target_memory,
+			attack_range_target_frame,
+			logic_frame
+		)
+		_mark_target_refresh(unit, target_refresh_frame, logic_frame)
+		return null
+
+	var cell_occupancy_value: Variant = runtime_port.get("_cell_occupancy")
+	if range_cells <= 4 and cell_occupancy_value is Dictionary:
+		var occupancy_target: Node = _pick_target_in_attack_range_from_occupancy(
+			runtime_port,
+			unit,
+			enemy_team,
+			self_cell,
+			range_cells,
+			cell_occupancy_value as Dictionary,
+			unit_by_id
+		)
+		if occupancy_target != null:
+			_store_attack_range_cached_result(
+				unit,
+				occupancy_target,
+				attack_range_target_memory,
+				attack_range_target_frame,
+				logic_frame
+			)
+			_remember_target(unit, occupancy_target, target_memory, target_refresh_frame, logic_frame)
+			return occupancy_target
+		_store_attack_range_cached_result(
+			unit,
+			null,
+			attack_range_target_memory,
+			attack_range_target_frame,
+			logic_frame
+		)
 		_mark_target_refresh(unit, target_refresh_frame, logic_frame)
 		return null
 
@@ -225,7 +306,13 @@ func pick_target_in_attack_range(
 	var best_target: Node = null
 	var best_hex_dist: int = 1 << 30
 	var best_world_dist_sq: float = INF
-	for candidate_id in spatial_hash.query_radius(unit.position, query_radius):
+	var candidate_ids: Array[int] = _query_radius_ids(
+		spatial_hash,
+		unit.position,
+		query_radius,
+		target_query_scratch
+	)
+	for candidate_id in candidate_ids:
 		if not unit_by_id.has(candidate_id):
 			continue
 		var candidate: Node = unit_by_id[candidate_id]
@@ -247,10 +334,68 @@ func pick_target_in_attack_range(
 			best_world_dist_sq = world_dist_sq
 			best_target = candidate
 	if best_target != null:
+		_store_attack_range_cached_result(
+			unit,
+			best_target,
+			attack_range_target_memory,
+			attack_range_target_frame,
+			logic_frame
+		)
 		_remember_target(unit, best_target, target_memory, target_refresh_frame, logic_frame)
 		return best_target
+	_store_attack_range_cached_result(
+		unit,
+		null,
+		attack_range_target_memory,
+		attack_range_target_frame,
+		logic_frame
+	)
 	_mark_target_refresh(unit, target_refresh_frame, logic_frame)
 	return null
+
+
+func _pick_target_in_attack_range_from_occupancy(
+	runtime_port: Node,
+	unit: Node,
+	enemy_team: int,
+	self_cell: Vector2i,
+	range_cells: int,
+	cell_occupancy: Dictionary,
+	unit_by_id: Dictionary
+) -> Node:
+	var best_target: Node = null
+	var best_cell_dist: int = 1 << 30
+	var best_world_dist_sq: float = INF
+	for dq in range(-range_cells, range_cells + 1):
+		var min_dr: int = maxi(-range_cells, -dq - range_cells)
+		var max_dr: int = mini(range_cells, -dq + range_cells)
+		for dr in range(min_dr, max_dr + 1):
+			if dq == 0 and dr == 0:
+				continue
+			var candidate_cell: Vector2i = Vector2i(self_cell.x + dq, self_cell.y + dr)
+			var occupant: Node = get_occupant_unit_at_cell(
+				runtime_port,
+				candidate_cell,
+				cell_occupancy,
+				unit_by_id
+			)
+			if occupant == null or int(occupant.get("team_id")) != enemy_team:
+				continue
+			var cell_dist: int = _hex_cell_distance(self_cell, candidate_cell)
+			if cell_dist > range_cells:
+				continue
+			var world_dist_sq: float = unit.position.distance_squared_to(occupant.position)
+			if cell_dist < best_cell_dist or (cell_dist == best_cell_dist and world_dist_sq < best_world_dist_sq):
+				best_cell_dist = cell_dist
+				best_world_dist_sq = world_dist_sq
+				best_target = occupant
+	return best_target
+
+
+func _hex_cell_distance(a: Vector2i, b: Vector2i) -> int:
+	var dq: int = b.x - a.x
+	var dr: int = b.y - a.y
+	return (absi(dq) + absi(dq + dr) + absi(dr)) / 2
 
 
 # 解析当前队伍的集火目标；只有目标仍存活且阵营正确时才允许沿用。
@@ -281,11 +426,18 @@ func _pick_nearest_target_from_spatial_hash(
 	enemy_team: int,
 	spatial_hash,
 	unit_by_id: Dictionary,
-	target_query_radius: float
+	target_query_radius: float,
+	target_query_scratch: Array[int]
 ) -> Node:
 	var best_target: Node = null
 	var best_dist_sq: float = INF
-	for candidate_id in spatial_hash.query_radius(unit.position, target_query_radius):
+	var candidate_ids: Array[int] = _query_radius_ids(
+		spatial_hash,
+		unit.position,
+		target_query_radius,
+		target_query_scratch
+	)
+	for candidate_id in candidate_ids:
 		if not unit_by_id.has(candidate_id):
 			continue
 		var candidate: Node = unit_by_id[candidate_id]
@@ -300,6 +452,16 @@ func _pick_nearest_target_from_spatial_hash(
 			best_dist_sq = dist_sq
 			best_target = candidate
 	return best_target
+
+
+func _query_radius_ids(
+	spatial_hash,
+	center: Vector2,
+	radius: float,
+	output: Array[int]
+) -> Array[int]:
+	spatial_hash.query_radius_into(center, radius, output)
+	return output
 
 
 # 整队兜底只负责在极端情况下给出一个仍然有效的最近敌人。
@@ -411,6 +573,67 @@ func _clear_persisted_target(
 	var unit_id: int = unit.get_instance_id()
 	target_memory.erase(unit_id)
 	target_refresh_frame.erase(unit_id)
+
+
+func _resolve_attack_range_cached_target(
+	runtime_port: Node,
+	unit: Node,
+	enemy_team: int,
+	unit_by_id: Dictionary,
+	attack_range_target_memory: Dictionary,
+	attack_range_target_frame: Dictionary,
+	logic_frame: int
+) -> Node:
+	if unit == null or not is_instance_valid(unit):
+		return null
+	var unit_id: int = unit.get_instance_id()
+	if int(attack_range_target_frame.get(unit_id, -1)) != logic_frame:
+		return null
+	var target_id: int = int(attack_range_target_memory.get(unit_id, 0))
+	if target_id <= 0:
+		return null
+	if not unit_by_id.has(target_id):
+		attack_range_target_memory[unit_id] = 0
+		return null
+	var target: Node = unit_by_id[target_id]
+	if not runtime_port._is_live_unit(target):
+		attack_range_target_memory[unit_id] = 0
+		return null
+	if not runtime_port._is_unit_alive(target):
+		attack_range_target_memory[unit_id] = 0
+		return null
+	if int(target.get("team_id")) != enemy_team:
+		attack_range_target_memory[unit_id] = 0
+		return null
+	return target
+
+
+func _has_attack_range_cached_result(
+	unit: Node,
+	attack_range_target_frame: Dictionary,
+	logic_frame: int
+) -> bool:
+	if unit == null or not is_instance_valid(unit):
+		return false
+	return int(attack_range_target_frame.get(unit.get_instance_id(), -1)) == logic_frame
+
+
+func _store_attack_range_cached_result(
+	unit: Node,
+	target: Node,
+	attack_range_target_memory: Dictionary,
+	attack_range_target_frame: Dictionary,
+	logic_frame: int
+) -> void:
+	if unit == null or not is_instance_valid(unit):
+		return
+	var unit_id: int = unit.get_instance_id()
+	attack_range_target_frame[unit_id] = logic_frame
+	attack_range_target_memory[unit_id] = (
+		target.get_instance_id()
+		if target != null and is_instance_valid(target)
+		else 0
+	)
 
 
 # 占格表反查单位时，会同步过滤失效节点和死亡单位。

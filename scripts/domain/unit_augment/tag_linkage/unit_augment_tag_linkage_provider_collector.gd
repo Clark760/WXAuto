@@ -2,6 +2,8 @@ extends RefCounted
 class_name UnitAugmentTagLinkageProviderCollector
 
 var _query_compiler
+var _candidate_units_scratch: Array[Node] = []
+var _scan_cells_cache: Dictionary = {}
 
 
 # provider collector 依赖 query compiler 的 tag 归一化和 mask 构建能力。
@@ -17,12 +19,21 @@ func collect(
 	context: Dictionary,
 	range_cells: int,
 	include_self: bool,
-	global_source_types: Array[String]
+	global_source_types: Array[String],
+	required_unit_team_scope: String = "all"
 ) -> Dictionary:
 	var scan_context: Dictionary = _build_scan_context(owner, context, range_cells)
 	var providers: Array[Dictionary] = []
 	providers.append_array(
-		_collect_unit_providers(owner, context, range_cells, include_self, global_source_types)
+		_collect_unit_providers(
+			owner,
+			context,
+			scan_context,
+			range_cells,
+			include_self,
+			global_source_types,
+			required_unit_team_scope
+		)
 	)
 	providers.append_array(
 		_collect_terrain_providers(scan_context, context, global_source_types)
@@ -39,16 +50,16 @@ func collect(
 func _collect_unit_providers(
 	owner: Node,
 	context: Dictionary,
+	scan_context: Dictionary,
 	range_cells: int,
 	include_self: bool,
-	global_source_types: Array[String]
+	global_source_types: Array[String],
+	required_unit_team_scope: String
 ) -> Array[Dictionary]:
 	var providers: Array[Dictionary] = []
-	# candidates 既可能来自 battle runtime，也可能来自测试直接塞的 mock。
-	# 入口先统一成 Node 数组，后续 live/range/relation 过滤才能保持单一路径。
-	var candidates: Array[Node] = _extract_units(context.get("all_units", []))
-	if include_self and not candidates.has(owner):
-		candidates.append(owner)
+	if required_unit_team_scope == "none":
+		return providers
+	var candidates: Array[Node] = _collect_unit_candidates(owner, context, scan_context, include_self)
 
 	for unit in candidates:
 		if unit == null or not is_instance_valid(unit):
@@ -67,7 +78,29 @@ func _collect_unit_providers(
 			continue
 
 		var relation: String = _resolve_team_relation(owner, unit)
+		if not _unit_team_scope_accepts(required_unit_team_scope, relation):
+			continue
 		var unit_iid: int = unit.get_instance_id()
+		var provider_cache: Dictionary = _get_tag_linkage_provider_cache(context, unit)
+		if bool(provider_cache.get("available", false)):
+			for cached_entry_value in provider_cache.get("entries", []):
+				if not (cached_entry_value is Dictionary):
+					continue
+				var cached_entry: Dictionary = cached_entry_value as Dictionary
+				var source_type: String = str(cached_entry.get("source_type", "")).strip_edges()
+				if not global_source_types.has(source_type):
+					continue
+				providers.append({
+					"key": str(cached_entry.get("key", "")).strip_edges(),
+					"source_type": source_type,
+					"tags": cached_entry.get("tags", []),
+					"tag_mask": cached_entry.get("tag_mask", PackedInt64Array()),
+					"unit_id": unit_iid,
+					"is_self": is_self,
+					"is_self_cell": false,
+					"team_relation": relation
+				})
+			continue
 
 		# 四类单位侧 provider 都统一写入 unit_id/is_self/team_relation。
 		# evaluator 之后只看这些归一化字段，不再回头读 live unit 节点。
@@ -137,6 +170,38 @@ func _collect_unit_providers(
 	return providers
 
 
+func _collect_unit_candidates(
+	owner: Node,
+	context: Dictionary,
+	scan_context: Dictionary,
+	include_self: bool
+) -> Array[Node]:
+	_candidate_units_scratch.clear()
+	if not _append_combat_units_from_scan_cells(context, scan_context, _candidate_units_scratch):
+		_candidate_units_scratch.append_array(_extract_units(context.get("all_units", [])))
+	if include_self and owner != null and is_instance_valid(owner) and not _candidate_units_scratch.has(owner):
+		_candidate_units_scratch.append(owner)
+	return _candidate_units_scratch
+
+
+func _append_combat_units_from_scan_cells(
+	context: Dictionary,
+	scan_context: Dictionary,
+	output: Array[Node]
+) -> bool:
+	var combat_manager: Variant = context.get("combat_manager", null)
+	if combat_manager == null or not is_instance_valid(combat_manager):
+		return false
+	if not combat_manager.has_method("collect_alive_units_in_cells"):
+		return false
+
+	var cells: Array[Vector2i] = scan_context.get("cells", [])
+	if cells.is_empty():
+		return false
+	combat_manager.collect_alive_units_in_cells(cells, output)
+	return true
+
+
 # terrain provider 只依赖扫描出的格子和 combat manager 给出的标签。
 # 这里不读旧系统级 manager 回退口径，只认当前 `unit_augment_manager` 上下文。
 func _collect_terrain_providers(
@@ -192,7 +257,7 @@ func _build_scan_context(owner: Node, context: Dictionary, range_cells: int) -> 
 	var hex_grid: Variant = context.get("hex_grid", null)
 	# range>0 时优先从 hex grid 收集整圈格子。
 	# 如果 grid helper 缺席，后面会退回 origin_cell 兜底，保证 self/self_cell 仍可评估。
-	cells = _collect_cells_in_radius(hex_grid, origin_cell, range_cells)
+	cells = _collect_cells_in_radius_cached(hex_grid, origin_cell, range_cells)
 	if cells.is_empty():
 		cells.append(origin_cell)
 	return {"origin_cell": origin_cell, "cells": cells}
@@ -261,6 +326,38 @@ func _collect_cells_in_radius(hex_grid: Variant, center_cell: Vector2i, radius_c
 	return out
 
 
+func _collect_cells_in_radius_cached(
+	hex_grid: Variant,
+	center_cell: Vector2i,
+	radius_cells: int
+) -> Array[Vector2i]:
+	var cache_key: String = _build_scan_cells_cache_key(hex_grid, center_cell, radius_cells)
+	if not cache_key.is_empty() and _scan_cells_cache.has(cache_key):
+		var cached_value: Variant = _scan_cells_cache[cache_key]
+		if cached_value is Array:
+			return cached_value
+
+	var cells: Array[Vector2i] = _collect_cells_in_radius(hex_grid, center_cell, radius_cells)
+	if not cache_key.is_empty():
+		_scan_cells_cache[cache_key] = cells
+	return cells
+
+
+func _build_scan_cells_cache_key(
+	hex_grid: Variant,
+	center_cell: Vector2i,
+	radius_cells: int
+) -> String:
+	if hex_grid == null or not is_instance_valid(hex_grid):
+		return ""
+	return "%d|%d,%d|%d" % [
+		hex_grid.get_instance_id(),
+		center_cell.x,
+		center_cell.y,
+		radius_cells
+	]
+
+
 # range 命中优先按格子距离判断。
 # 只有当 grid 信息缺失时，才退回到 world position 的近似距离。
 func _is_unit_within_range(owner: Node, unit: Node, context: Dictionary, range_cells: int) -> bool:
@@ -301,6 +398,14 @@ func _resolve_team_relation(owner: Node, unit: Node) -> String:
 	if owner_team == unit_team:
 		return "ally"
 	return "enemy"
+
+
+func _unit_team_scope_accepts(scope: String, relation: String) -> bool:
+	if scope == "all":
+		return relation == "ally" or relation == "enemy"
+	if scope == "enemy":
+		return relation == "enemy"
+	return relation == "ally"
 
 
 # trait provider 读取单位 trait 列表中的 tags 字段。
@@ -415,6 +520,18 @@ func _normalize_ids(value: Variant) -> Array[String]:
 
 # live unit 判定继续以 UnitCombat.is_alive 为准。
 # 没有战斗组件的 mock 单位允许参与 provider 收集，避免纯规则测试被 runtime 组件绑死。
+func _get_tag_linkage_provider_cache(context: Dictionary, unit: Node) -> Dictionary:
+	var manager: Variant = context.get("unit_augment_manager", null)
+	if manager == null or not is_instance_valid(manager):
+		return {"available": false, "entries": []}
+	if not manager.has_method("get_tag_linkage_provider_cache"):
+		return {"available": false, "entries": []}
+	var cache_value: Variant = manager.get_tag_linkage_provider_cache(unit)
+	if cache_value is Dictionary:
+		return cache_value as Dictionary
+	return {"available": false, "entries": []}
+
+
 func _is_live_unit(unit: Node) -> bool:
 	if unit == null or not is_instance_valid(unit):
 		return false

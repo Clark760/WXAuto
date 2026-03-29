@@ -10,6 +10,7 @@ const PROBE_SCOPE_UNIT_AUGMENT_MANAGER_PROCESS: String = "unit_augment_manager_p
 
 @export var trigger_poll_interval: float = 0.12
 @export var tag_linkage_stagger_buckets: int = 8
+@export var deep_runtime_probe_enabled: bool = false
 
 const DEFAULT_SKILL_CAST_RANGE_CELLS: float = 2.0
 
@@ -80,6 +81,10 @@ func reload_from_data() -> Dictionary:
 		_registry,
 		data_manager,
 		_state_service.get_battle_units()
+	)
+	_state_service.configure_tag_linkage_registry(
+		tag_snapshot.get("tag_to_index", {}),
+		int(tag_snapshot.get("version", 1))
 	)
 	_tag_linkage_resolver.configure_tag_registry(tag_snapshot.get("tag_to_index", {}), int(tag_snapshot.get("version", 1)))
 	_tag_linkage_scheduler.mark_all_dirty("tag_registry_reloaded")
@@ -165,6 +170,10 @@ func get_unit_runtime_gongfa_ids(unit: Node) -> Array[String]:
 # 装备 runtime ids 也是统一运行时视图的一部分。
 func get_unit_runtime_equip_ids(unit: Node) -> Array[String]:
 	return _state_service.get_unit_runtime_equip_ids(unit)
+
+
+func get_tag_linkage_provider_cache(unit: Node) -> Dictionary:
+	return _state_service.get_tag_linkage_provider_cache(unit)
 
 
 # 兼容入口：旧测试仍通过私有方法名 `_resolve_equipped_equip_ids` 读取装备结果。

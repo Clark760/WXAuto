@@ -56,7 +56,7 @@ const PROBE_SCOPE_COMBAT_MANAGER_PROCESS: String = "combat_manager_process"
 @export var allow_equal_cost_side_step: bool = true
 @export var allow_uphill_escape_step: bool = true
 @export var prioritize_targets_in_attack_range: bool = true
-@export var target_rescan_interval_frames: int = 4
+@export var target_rescan_interval_frames: int = 6
 @export var loop_animation_reduce_unit_threshold: int = 180
 
 var _hex_grid: Node = null
@@ -104,7 +104,13 @@ var _combat_cache: Dictionary = {} # instance_id -> UnitCombat 组件
 var _movement_cache: Dictionary = {} # instance_id -> UnitMovement 组件
 var _target_memory: Dictionary = {} # attacker_iid -> retained target_iid
 var _target_refresh_frame: Dictionary = {} # attacker_iid -> last reselection logic_frame
+var _attack_range_target_memory: Dictionary = {} # attacker_iid -> same-frame in-range target iid or 0
+var _attack_range_target_frame: Dictionary = {} # attacker_iid -> logic_frame of in-range query result
+var _follow_anchor_by_unit_id: Dictionary = {} # unit_iid -> cached follow-anchor ally iid
+var _move_replan_cooldown_frame: Dictionary = {} # unit_iid -> logic_frame until which move replanning is skipped
+var _target_query_ids_scratch: Array[int] = []
 var _loop_animation_reduced: bool = false
+var _skip_runtime_cache_refresh_once: bool = false
 
 # 压测指标：用于定位高密度战斗下的瓶颈与卡格热点。
 var _metric_tick_units: int = 0
@@ -260,6 +266,30 @@ func get_alive_units(team_id: int = 0) -> Array[Node]:
 # 暴露单位占格查询，供地形与外部系统复用。
 func get_unit_cell_of(unit: Node) -> Vector2i:
 	return _get_unit_cell(unit)
+
+
+# 按扫描格收集当前仍存活的单位，供局部机制避免回退到整场单位遍历。
+# 输出数组由调用方复用，接口内部只负责清空并回填结果。
+func collect_alive_units_in_cells(cells: Array[Vector2i], output: Array[Node]) -> void:
+	output.clear()
+	if cells.is_empty():
+		return
+
+	var seen_units: Dictionary = {}
+	for cell in cells:
+		var cell_key: int = _cell_key_int(cell)
+		if not _cell_occupancy.has(cell_key):
+			continue
+		var unit_iid: int = int(_cell_occupancy[cell_key])
+		if unit_iid <= 0 or seen_units.has(unit_iid):
+			continue
+		if not _unit_by_instance_id.has(unit_iid):
+			continue
+		var unit: Node = _unit_by_instance_id[unit_iid]
+		if not _is_live_unit(unit) or not _is_unit_alive(unit):
+			continue
+		seen_units[unit_iid] = true
+		output.append(unit)
 
 # 临时地形入口继续由 terrain service 承接。
 func add_temporary_terrain(config: Dictionary, source: Node = null) -> bool:
@@ -441,6 +471,28 @@ func _get_effective_flow_refresh_interval() -> int:
 		return interval * 2
 	return interval
 
+
+func _get_effective_target_rescan_interval() -> int:
+	var interval: int = maxi(target_rescan_interval_frames, 1)
+	var alive_total: int = int(_alive_by_team.get(TEAM_ALLY, 0))
+	alive_total += int(_alive_by_team.get(TEAM_ENEMY, 0))
+	if alive_total >= 320:
+		return interval * 3
+	if alive_total >= 220:
+		return interval * 2
+	return interval
+
+
+func _get_effective_move_replan_cooldown_frames() -> int:
+	var alive_total: int = int(_alive_by_team.get(TEAM_ALLY, 0))
+	alive_total += int(_alive_by_team.get(TEAM_ENEMY, 0))
+	var split_phase_factor: int = 2 if split_attack_move_phase else 1
+	if alive_total >= 320:
+		return 2 * split_phase_factor
+	if alive_total >= 220:
+		return split_phase_factor
+	return 0
+
 # 注册一批单位并写入阵营与占格缓存。
 func _register_units(units: Array[Node], team_id: int) -> void:
 	_unit_registry_service.register_units(self, units, team_id)
@@ -472,8 +524,8 @@ func _run_unit_logic(unit: Node, delta: float, allow_attack: bool = true, allow_
 	_movement_service.run_unit_logic(self, unit, delta, allow_attack, allow_move)
 
 # 为单位选择一个当前帧目标。
-func _pick_target_for_unit(unit: Node) -> Node:
-	return _targeting.pick_target_for_unit(self, unit)
+func _pick_target_for_unit(unit: Node, allow_refresh_target: bool = true) -> Node:
+	return _targeting.pick_target_for_unit(self, unit, allow_refresh_target)
 
 # 在攻击范围内优先挑选目标。
 func _pick_target_in_attack_range(unit: Node, enemy_team: int) -> Node:
@@ -588,8 +640,17 @@ func _build_blocked_cells_for_team(self_team: int) -> Dictionary:
 	return _pathfinding.build_blocked_cells_for_team(self, self_team)
 
 # 从邻接格里挑一个当前最优落脚点。
-func _pick_best_adjacent_cell(unit: Node, current_cell: Vector2i) -> Vector2i:
-	return _pathfinding.pick_best_adjacent_cell(self, unit, current_cell)
+func _pick_best_adjacent_cell(
+	unit: Node,
+	current_cell: Vector2i,
+	attack_range_target: Node = null
+) -> Vector2i:
+	return _pathfinding.pick_best_adjacent_cell(
+		self,
+		unit,
+		current_cell,
+		attack_range_target
+	)
 
 # 从起点开始寻找最近可用空格。
 func _find_nearest_free_cell(start_cell: Vector2i) -> Vector2i:
@@ -705,3 +766,7 @@ func _try_execute_attack(unit: Node, combat: Node, target: Node) -> bool:
 # 统一补齐 damage 事件的 Combat 侧字段。
 func _build_damage_event(source: Node, target: Node, event_dict: Dictionary) -> Dictionary:
 	return _attack_service.build_damage_event(self, source, target, event_dict)
+
+
+func _rebuild_follow_anchor_cache() -> void:
+	_follow_anchor_by_unit_id = _pathfinding.rebuild_follow_anchor_cache(self)

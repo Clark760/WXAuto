@@ -86,7 +86,13 @@ func update(object_id: int, new_world_position: Vector2) -> void:
 
 
 func query_radius(center: Vector2, radius: float) -> Array[int]:
-	var result_map: Dictionary = {}
+	var output: Array[int] = []
+	query_radius_into(center, radius, output)
+	return output
+
+
+func query_radius_into(center: Vector2, radius: float, output: Array[int]) -> void:
+	output.clear()
 	var min_cell: Vector2i = _to_cell(center - Vector2(radius, radius))
 	var max_cell: Vector2i = _to_cell(center + Vector2(radius, radius))
 	var radius_sq: float = radius * radius
@@ -98,17 +104,19 @@ func query_radius(center: Vector2, radius: float) -> Array[int]:
 				continue
 			var bucket: Array = _buckets[cell]
 			for object_id in bucket:
-				if result_map.has(object_id):
-					continue
 				var pos: Vector2 = _object_positions.get(object_id, Vector2.ZERO)
 				if pos.distance_squared_to(center) <= radius_sq:
-					result_map[object_id] = true
-
-	return _dict_keys_to_int_array(result_map)
+					output.append(int(object_id))
 
 
 func query_aabb(rect: Rect2) -> Array[int]:
-	var result_map: Dictionary = {}
+	var output: Array[int] = []
+	query_aabb_into(rect, output)
+	return output
+
+
+func query_aabb_into(rect: Rect2, output: Array[int]) -> void:
+	output.clear()
 	var min_cell: Vector2i = _to_cell(rect.position)
 	var max_cell: Vector2i = _to_cell(rect.position + rect.size)
 
@@ -119,13 +127,9 @@ func query_aabb(rect: Rect2) -> Array[int]:
 				continue
 			var bucket: Array = _buckets[cell]
 			for object_id in bucket:
-				if result_map.has(object_id):
-					continue
 				var pos: Vector2 = _object_positions.get(object_id, Vector2.ZERO)
 				if rect.has_point(pos):
-					result_map[object_id] = true
-
-	return _dict_keys_to_int_array(result_map)
+					output.append(int(object_id))
 
 
 func get_bucket_count() -> int:
@@ -141,11 +145,3 @@ func _to_cell(world_position: Vector2) -> Vector2i:
 		int(floor(world_position.x / cell_size)),
 		int(floor(world_position.y / cell_size))
 	)
-
-
-func _dict_keys_to_int_array(dict: Dictionary) -> Array[int]:
-	var output: Array[int] = []
-	for key in dict.keys():
-		output.append(int(key))
-	return output
-

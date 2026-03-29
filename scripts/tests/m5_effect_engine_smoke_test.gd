@@ -686,6 +686,9 @@ class MockSpatialHash:
 	func query_radius(_center: Vector2, _radius: float) -> Array[int]:
 		return []
 
+	func query_radius_into(_center: Vector2, _radius: float, output: Array[int]) -> void:
+		output.clear()
+
 
 class MockTargetingOwner:
 	extends Node

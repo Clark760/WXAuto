@@ -33,20 +33,24 @@ func update_team_focus(owner: Node, self_team: int, enemy_team: int) -> void:
 
 
 # 旧路径继续按 owner + unit 调用，但内部已切到 domain 规则。
-func pick_target_for_unit(owner: Node, unit: Node) -> Node:
+func pick_target_for_unit(owner: Node, unit: Node, allow_refresh_target: bool = true) -> Node:
 	return _rules.pick_target_for_unit(
 		owner,
 		unit,
+		allow_refresh_target,
 		bool(owner.get("prioritize_targets_in_attack_range")),
 		owner.get("_group_focus_target_id"),
 		owner.get("_unit_by_instance_id"),
 		owner.get("_spatial_hash"),
 		owner.get("_team_alive_cache"),
+		_get_attack_range_target_memory(owner),
+		_get_attack_range_target_frame(owner),
 		_get_target_memory(owner),
 		_get_target_refresh_frame(owner),
 		_get_logic_frame(owner),
 		_get_target_rescan_interval(owner),
-		_get_target_query_radius(owner)
+		_get_target_query_radius(owner),
+		_get_target_query_scratch(owner)
 	)
 
 
@@ -58,12 +62,15 @@ func pick_target_in_attack_range(owner: Node, unit: Node, enemy_team: int) -> No
 		enemy_team,
 		owner.get("_spatial_hash"),
 		owner.get("_unit_by_instance_id"),
+		_get_attack_range_target_memory(owner),
+		_get_attack_range_target_frame(owner),
 		_get_target_memory(owner),
 		_get_target_refresh_frame(owner),
 		_get_logic_frame(owner),
 		_get_target_rescan_interval(owner),
 		_get_target_query_radius(owner),
-		_get_hex_size_from_owner(owner)
+		_get_hex_size_from_owner(owner),
+		_get_target_query_scratch(owner)
 	)
 
 
@@ -102,6 +109,16 @@ func _get_target_refresh_frame(owner: Node) -> Dictionary:
 	return value if value is Dictionary else {}
 
 
+func _get_attack_range_target_memory(owner: Node) -> Dictionary:
+	var value: Variant = owner.get("_attack_range_target_memory")
+	return value if value is Dictionary else {}
+
+
+func _get_attack_range_target_frame(owner: Node) -> Dictionary:
+	var value: Variant = owner.get("_attack_range_target_frame")
+	return value if value is Dictionary else {}
+
+
 # 某些 smoke test 不会提供运行时逻辑帧；字段缺失时按 0 处理即可。
 func _get_logic_frame(owner: Node) -> int:
 	var value: Variant = owner.get("_logic_frame")
@@ -114,6 +131,8 @@ func _get_logic_frame(owner: Node) -> int:
 
 # 重扫间隔保持固定倍率，避免高密度战斗把目标切换频率放大到不可接受。
 func _get_target_rescan_interval(owner: Node) -> int:
+	if owner != null and owner.has_method("_get_effective_target_rescan_interval"):
+		return maxi(int(owner.call("_get_effective_target_rescan_interval")), 1)
 	var interval_value: Variant = owner.get("target_rescan_interval_frames")
 	if interval_value is float or interval_value is int:
 		return maxi(int(interval_value), 1)
@@ -129,3 +148,11 @@ func _get_hex_size_from_owner(owner: Node) -> float:
 	if hex_size_value is float or hex_size_value is int:
 		return hex_size_value
 	return 0.0
+
+
+func _get_target_query_scratch(owner: Node) -> Array[int]:
+	var value: Variant = owner.get("_target_query_ids_scratch")
+	var scratch: Array[int] = []
+	if value is Array:
+		scratch = value
+	return scratch

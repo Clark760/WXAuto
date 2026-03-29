@@ -1,6 +1,8 @@
 extends RefCounted
 class_name UnitAugmentSkillTargetService
 
+var _spatial_query_ids_scratch: Array[int] = []
+
 
 # 这里统一把“技能选敌”和“技能射程”约束从 trigger runtime 中拆出来。
 # `battle_units` 是当前战斗视图，`state_service` 负责提供统一的存活判定口径。
@@ -40,7 +42,8 @@ func pick_nearest_enemy_in_range(
 	source: Node,
 	range_cells: float,
 	hex_grid: Node,
-	state_service: Variant
+	state_service: Variant,
+	combat_manager: Node = null
 ) -> Node:
 	if source == null or not is_instance_valid(source):
 		return null
@@ -48,6 +51,17 @@ func pick_nearest_enemy_in_range(
 	var source_team: int = int(source.get("team_id"))
 	var max_world: float = cells_to_world_distance(range_cells, hex_grid)
 	var max_d2: float = max_world * max_world
+	var spatial_target: Node = _pick_nearest_enemy_from_combat_spatial_hash(
+		source,
+		source_pos,
+		source_team,
+		max_world,
+		max_d2,
+		state_service,
+		combat_manager
+	)
+	if spatial_target != null:
+		return spatial_target
 	var best: Node = null
 	var best_d2: float = INF
 
@@ -67,6 +81,50 @@ func pick_nearest_enemy_in_range(
 			best_d2 = d2
 			best = unit
 
+	return best
+
+
+func _pick_nearest_enemy_from_combat_spatial_hash(
+	source: Node,
+	source_pos: Vector2,
+	source_team: int,
+	max_world: float,
+	max_d2: float,
+	state_service: Variant,
+	combat_manager: Node
+) -> Node:
+	if combat_manager == null or not is_instance_valid(combat_manager):
+		return null
+	var spatial_hash = combat_manager.get("_spatial_hash")
+	var unit_by_id_value: Variant = combat_manager.get("_unit_by_instance_id")
+	if spatial_hash == null or not is_instance_valid(spatial_hash):
+		return null
+	if not (unit_by_id_value is Dictionary):
+		return null
+
+	var unit_by_id: Dictionary = unit_by_id_value as Dictionary
+	spatial_hash.query_radius_into(source_pos, max_world, _spatial_query_ids_scratch)
+
+	var best: Node = null
+	var best_d2: float = INF
+	for candidate_id in _spatial_query_ids_scratch:
+		if not unit_by_id.has(candidate_id):
+			continue
+		var unit: Node = unit_by_id[candidate_id]
+		if unit == null or not is_instance_valid(unit):
+			continue
+		if unit == source:
+			continue
+		if int(unit.get("team_id")) == source_team:
+			continue
+		if not state_service.is_unit_alive(unit):
+			continue
+		var d2: float = source_pos.distance_squared_to((unit as Node2D).position)
+		if d2 > max_d2:
+			continue
+		if d2 < best_d2:
+			best_d2 = d2
+			best = unit
 	return best
 
 

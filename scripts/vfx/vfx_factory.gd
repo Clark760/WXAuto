@@ -1,6 +1,8 @@
 extends Node2D
 class_name VfxFactory
 
+const LIGHTWEIGHT_CANVAS_TEXT_SCRIPT: Script = preload("res://scripts/ui/lightweight_canvas_text.gd")
+
 # ===========================
 # 程序化特效工厂
 # ===========================
@@ -13,6 +15,7 @@ const PROBE_SCOPE_VFX_FACTORY_PROCESS: String = "vfx_factory_process"
 
 const DAMAGE_TEXT_POOL_KEY: String = "vfx:damage_text"
 const PARTICLE_POOL_PREFIX: String = "vfx:particles:"
+const DAMAGE_TEXT_DRAW_SIZE: Vector2 = Vector2(72.0, 24.0)
 
 @export var damage_text_lifetime: float = 0.36
 @export var damage_text_rise_distance: float = 26.0
@@ -151,7 +154,7 @@ func spawn_damage_text(world_position: Vector2, amount: float, is_crit: bool = f
 		return
 
 	var node_value: Variant = object_pool.call("acquire", DAMAGE_TEXT_POOL_KEY, self)
-	var label: Label = node_value as Label
+	var label = node_value
 	if label == null:
 		return
 
@@ -159,7 +162,10 @@ func spawn_damage_text(world_position: Vector2, amount: float, is_crit: bool = f
 	label.modulate = Color(1, 1, 1, 1)
 	label.scale = Vector2.ONE
 	label.z_index = 200
-	label.position = world_position + Vector2(_rng.randf_range(-damage_text_jitter_x, damage_text_jitter_x), -18.0)
+	label.position = world_position + Vector2(
+		_rng.randf_range(-damage_text_jitter_x, damage_text_jitter_x) - DAMAGE_TEXT_DRAW_SIZE.x * 0.5,
+		-18.0
+	)
 
 	if is_dodge:
 		label.text = "闪避"
@@ -189,7 +195,7 @@ func _update_damage_texts(delta: float) -> void:
 	var i: int = _active_texts.size() - 1
 	while i >= 0:
 		var entry: Dictionary = _active_texts[i]
-		var label: Label = entry.get("label", null) as Label
+		var label = entry.get("label", null)
 		if label == null or not is_instance_valid(label):
 			_active_texts.remove_at(i)
 			i -= 1
@@ -277,12 +283,12 @@ func _register_particle_pool_if_needed(vfx_id: String, pool_key: String) -> void
 
 # 构建 create damage text instance
 func _create_damage_text_instance() -> Node:
-	var label := Label.new()
+	var label = LIGHTWEIGHT_CANVAS_TEXT_SCRIPT.new()
 	label.text = "-0"
+	label.draw_size = DAMAGE_TEXT_DRAW_SIZE
+	label.font_size = 18
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", 18)
-	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	label.visible = false
 	return label
 

@@ -18,12 +18,16 @@ const AXIAL_DIRS: Array[Vector2i] = [
 
 var _cost_map: Dictionary = {}
 var _direction_map: Dictionary = {}
+var _direction_map_dirty: bool = false
+var _direction_grid_port: Node = null
 
 
 # 清空旧的代价图与方向图，供下一次完整重建复用。
 func clear() -> void:
 	_cost_map.clear()
 	_direction_map.clear()
+	_direction_map_dirty = false
+	_direction_grid_port = null
 
 
 # 目标格和阻挡格由调用方显式给出，流场本体只负责 BFS 展开与方向回填。
@@ -31,6 +35,7 @@ func build(grid_port: Node, target_cells: Array[Vector2i], blocked_cells: Dictio
 	clear()
 	if grid_port == null or target_cells.is_empty():
 		return
+	_direction_grid_port = grid_port
 
 	var queue: Array[Vector2i] = []
 	for cell in target_cells:
@@ -57,11 +62,14 @@ func build(grid_port: Node, target_cells: Array[Vector2i], blocked_cells: Dictio
 			_cost_map[next_key] = current_cost + 1
 			queue.append(next_cell)
 
-	_rebuild_direction_map(grid_port)
+	_direction_map_dirty = true
 
 
 # 查询某格朝向目标的单位方向；不可达格返回零向量。
 func sample_direction(cell: Vector2i) -> Vector2:
+	if _direction_map_dirty and _direction_grid_port != null and is_instance_valid(_direction_grid_port):
+		_rebuild_direction_map(_direction_grid_port)
+		_direction_map_dirty = false
 	return _direction_map.get(_cell_key_int(cell), Vector2.ZERO)
 
 
