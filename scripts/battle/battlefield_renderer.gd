@@ -1,4 +1,4 @@
-﻿extends Node
+extends Node
 
 # 战场渲染协作者
 # 说明：

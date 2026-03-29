@@ -200,7 +200,7 @@ func _spawn_bench_unit(
 ) -> void:
 	if bench_ui == null or unit_factory == null:
 		return
-	var unit: Node = unit_factory.acquire_unit(unit_id, -1, unit_layer)
+	var unit: Node = unit_factory.acquire_unit(unit_id, unit_layer)
 	if unit == null:
 		return
 	unit.set_team(1)

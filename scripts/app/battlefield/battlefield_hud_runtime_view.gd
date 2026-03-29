@@ -1,4 +1,4 @@
-﻿extends RefCounted
+extends RefCounted
 
 # HUD 运行时视图
 # 说明：
@@ -292,10 +292,6 @@ func set_drag_preview_unit(unit: Node) -> void:
 		return
 	if _refs.drag_preview_name != null:
 		_refs.drag_preview_name.text = str(unit.get("unit_name"))
-	if _refs.drag_preview_star != null:
-		var star: int = int(unit.get("star_level"))
-		_refs.drag_preview_star.text = "★".repeat(clampi(star, 1, 3))
-		_refs.drag_preview_star.modulate = _drag_preview_star_color(star)
 	if _refs.drag_preview_icon != null:
 		_refs.drag_preview_icon.color = _support.quality_color(str(unit.get("quality")))
 
@@ -313,19 +309,6 @@ func sync_world_debug_status(snapshot: Dictionary) -> void:
 		int(snapshot.get("ally_count", 0)),
 		int(snapshot.get("enemy_count", 0))
 	])
-
-
-# 星级颜色只服务拖拽预览，不把这组表现规则散回 world controller。
-func _drag_preview_star_color(star: int) -> Color:
-	match star:
-		1:
-			return Color(0.94, 0.94, 0.94, 1.0)
-		2:
-			return Color(1.0, 0.86, 0.35, 1.0)
-		3:
-			return Color(1.0, 0.42, 0.2, 1.0)
-		_:
-			return Color(1, 1, 1, 1)
 
 
 # 统一读取 CombatManager，避免顶栏按钮重复写 refs 判空。

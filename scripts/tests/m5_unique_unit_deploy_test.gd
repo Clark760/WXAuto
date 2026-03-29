@@ -96,11 +96,11 @@ func _init() -> void:
 
 
 func _run() -> void:
-	await _test_duplicate_id_blocked_on_board()
-	await _test_auto_deploy_skips_duplicate_ids()
+	await _test_duplicate_id_allowed_on_board()
+	await _test_auto_deploy_allows_duplicate_ids()
 
 
-func _test_duplicate_id_blocked_on_board() -> void:
+func _test_duplicate_id_allowed_on_board() -> void:
 	var owner: MockOwner = MockOwner.new()
 	root.add_child(owner)
 	var manager: Node = UNIT_DEPLOY_MANAGER_SCRIPT.new()
@@ -116,11 +116,11 @@ func _test_duplicate_id_blocked_on_board() -> void:
 
 	manager.call("deploy_ally_unit_to_cell", first, Vector2i(0, 0))
 	var can_place_duplicate: bool = bool(manager.call("can_deploy_ally_to_cell", duplicate, Vector2i(0, 1)))
-	_assert_true(not can_place_duplicate, "same unit_id should not be deployable twice")
+	_assert_true(can_place_duplicate, "same unit_id should be deployable more than once")
 
 	manager.call("deploy_ally_unit_to_cell", duplicate, Vector2i(0, 1))
-	_assert_true(_count_ally_units(owner) == 1, "forced deploy call should still be blocked by unique-id guard")
-	_assert_true(_count_ally_units_by_id(owner, "unit_hero_a") == 1, "only one same-id ally should stay on board")
+	_assert_true(_count_ally_units(owner) == 2, "duplicate deploy should place a second same-id unit")
+	_assert_true(_count_ally_units_by_id(owner, "unit_hero_a") == 2, "two same-id allies should stay on board")
 
 	var can_place_other: bool = bool(manager.call("can_deploy_ally_to_cell", other, Vector2i(1, 0)))
 	_assert_true(can_place_other, "different unit_id should remain deployable")
@@ -129,7 +129,7 @@ func _test_duplicate_id_blocked_on_board() -> void:
 	await process_frame
 
 
-func _test_auto_deploy_skips_duplicate_ids() -> void:
+func _test_auto_deploy_allows_duplicate_ids() -> void:
 	var owner: MockOwner = MockOwner.new()
 	root.add_child(owner)
 	var manager: Node = UNIT_DEPLOY_MANAGER_SCRIPT.new()
@@ -149,9 +149,9 @@ func _test_auto_deploy_skips_duplicate_ids() -> void:
 
 	manager.call("auto_deploy_from_bench", 2)
 
-	_assert_true(_count_ally_units_by_id(owner, "unit_hero_a") == 1, "auto deploy must not add second same-id unit")
-	_assert_true(_count_ally_units_by_id(owner, "unit_hero_b") == 1, "auto deploy should still place deployable non-duplicate unit")
-	_assert_true(owner.bench_ui.units.has(bench_duplicate), "duplicate unit should remain on bench")
+	_assert_true(_count_ally_units_by_id(owner, "unit_hero_a") == 2, "auto deploy should add second same-id unit")
+	_assert_true(_count_ally_units_by_id(owner, "unit_hero_b") == 1, "auto deploy should still place other unit")
+	_assert_true(not owner.bench_ui.units.has(bench_duplicate), "duplicate unit should be removed from bench after deploy")
 
 	owner.queue_free()
 	await process_frame

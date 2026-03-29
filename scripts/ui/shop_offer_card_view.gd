@@ -3,7 +3,7 @@ class_name ShopOfferCardView
 
 # 商店卡片子场景视图
 # 说明：
-# 1. 只负责商店单卡显示和购买按钮点击转发。
+# 1. 只负责商店单卡显示和点击购买转发。
 # 2. 不做商店库存结算，业务仍由 coordinator 处理。
 
 signal buy_requested(tab_id: String, index: int)
@@ -15,13 +15,18 @@ var _color_bar: ColorRect = null
 var _name_label: Label = null
 var _type_label: Label = null
 var _price_label: Label = null
-var _buy_button: Button = null
+var _action_label: Label = null
+
+var _pressing_left: bool = false
+var _press_pos: Vector2 = Vector2.ZERO
+const CLICK_DRIFT_THRESHOLD: float = 6.0
 
 
 # 节点就绪后完成节点绑定、信号连接与首帧渲染。
 func _ready() -> void:
 	_bind_nodes()
-	_bind_internal_signals()
+	_set_children_mouse_filter_ignore()
+	mouse_filter = Control.MOUSE_FILTER_STOP
 	_apply_view_model()
 
 
@@ -34,7 +39,7 @@ func setup(view_model: Variant) -> void:
 	refresh(_view_model)
 
 
-# scene-first 统一入口：按当前 view_model 刷新卡片文案和按钮态。
+# scene-first 统一入口：按当前 view_model 刷新卡片文案和可点击态。
 func refresh(view_model: Variant) -> void:
 	if view_model is Dictionary:
 		_view_model = (view_model as Dictionary).duplicate(true)
@@ -55,44 +60,89 @@ func _bind_nodes() -> void:
 	_name_label = get_node_or_null("Root/NameLabel") as Label
 	_type_label = get_node_or_null("Root/TypeLabel") as Label
 	_price_label = get_node_or_null("Root/PriceLabel") as Label
-	_buy_button = get_node_or_null("Root/BuyButton") as Button
-
-
-# 仅绑定一次购买按钮事件，防止重刷时重复回调。
-func _bind_internal_signals() -> void:
-	if _buy_button == null:
-		return
-	var callback: Callable = Callable(self, "_on_buy_button_pressed")
-	if _buy_button.is_connected("pressed", callback):
-		return
-	_buy_button.connect("pressed", callback)
+	_action_label = get_node_or_null("Root/ActionLabel") as Label
 
 
 # 将 view_model 投影到节点树，保持空位卡也有稳定骨架。
 func _apply_view_model() -> void:
 	if _color_bar == null or _name_label == null or _type_label == null:
 		return
-	if _price_label == null or _buy_button == null:
+	if _price_label == null or _action_label == null:
 		return
 	var is_empty: bool = bool(_view_model.get("is_empty", true))
+	var buy_disabled: bool = bool(_view_model.get("buy_disabled", true))
 	_color_bar.color = _view_model.get("quality_color", Color(0.65, 0.65, 0.65, 1.0))
 	if is_empty:
 		_name_label.text = "空位"
 		_type_label.text = "暂无商品"
 		_price_label.text = ""
-		_buy_button.text = "—"
-		_buy_button.disabled = true
+		_action_label.text = "—"
+		_action_label.modulate = Color(0.7, 0.7, 0.7, 1.0)
+		mouse_default_cursor_shape = Control.CURSOR_ARROW
 		return
 	_name_label.text = str(_view_model.get("name", "未知"))
 	_type_label.text = str(_view_model.get("type_text", ""))
 	_price_label.text = str(_view_model.get("price_text", ""))
-	_buy_button.text = str(_view_model.get("buy_text", "购买"))
-	_buy_button.disabled = bool(_view_model.get("buy_disabled", true))
+	_action_label.text = str(_view_model.get("buy_text", "点击购买"))
+	_action_label.modulate = (
+		Color(0.95, 0.95, 0.95, 1.0)
+		if not buy_disabled
+		else Color(0.72, 0.72, 0.72, 1.0)
+	)
+	mouse_default_cursor_shape = (
+		Control.CURSOR_POINTING_HAND
+		if not buy_disabled
+		else Control.CURSOR_ARROW
+	)
 
 
-# 购买按钮只发出视图事件，不在 view 层直接访问 coordinator。
-func _on_buy_button_pressed() -> void:
+# 点击卡片发出购买事件，不在 view 层直接访问 coordinator。
+func _gui_input(event: InputEvent) -> void:
+	if not (event is InputEventMouseButton):
+		return
+	var mouse_event: InputEventMouseButton = event as InputEventMouseButton
+	if mouse_event.button_index != MOUSE_BUTTON_LEFT:
+		return
+	if mouse_event.pressed:
+		if not _is_buy_available():
+			_pressing_left = false
+			return
+		_pressing_left = true
+		_press_pos = mouse_event.position
+		return
+	if not _pressing_left:
+		return
+	_pressing_left = false
+	if mouse_event.position.distance_to(_press_pos) > CLICK_DRIFT_THRESHOLD:
+		return
+	if not _is_buy_available():
+		return
+	_emit_buy_requested()
+
+
+func _is_buy_available() -> bool:
+	if bool(_view_model.get("is_empty", true)):
+		return false
+	return not bool(_view_model.get("buy_disabled", true))
+
+
+func _emit_buy_requested() -> void:
 	buy_requested.emit(
 		str(_view_model.get("tab_id", "")),
 		int(_view_model.get("index", -1))
 	)
+
+
+func _set_children_mouse_filter_ignore() -> void:
+	var root: Node = get_node_or_null("Root")
+	if root == null:
+		return
+	_set_tree_mouse_filter_ignore(root)
+
+
+func _set_tree_mouse_filter_ignore(node: Node) -> void:
+	for child in node.get_children():
+		if child is Control:
+			var control_child: Control = child as Control
+			control_child.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_set_tree_mouse_filter_ignore(child)

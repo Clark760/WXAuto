@@ -6,6 +6,8 @@ var _view_model: Dictionary = {}
 var _actions: Dictionary = {}
 
 var _link: LinkButton = null
+var _prefix_label: Label = null
+var _detail_label: Label = null
 
 
 # 节点就绪后绑定子节点并应用默认文案。
@@ -45,14 +47,22 @@ func get_link_button() -> LinkButton:
 
 # 绑定场景内 NameLink 节点。
 func _bind_nodes() -> void:
-	_link = get_node_or_null("Row/NameLink") as LinkButton
+	_prefix_label = get_node_or_null("RootVBox/HeadRow/PrefixLabel") as Label
+	_link = get_node_or_null("RootVBox/HeadRow/NameLink") as LinkButton
+	_detail_label = get_node_or_null("RootVBox/DetailLabel") as Label
 
 
 # 将 view_model 映射到 link 文案与 item_data。
 func _apply_view_model() -> void:
+	if _prefix_label != null:
+		_prefix_label.text = str(_view_model.get("prefix_text", "·"))
 	if _link != null:
 		_link.text = str(_view_model.get("text", "-"))
 		_link.disabled = bool(_view_model.get("disabled", false))
+	if _detail_label != null:
+		var detail_text: String = str(_view_model.get("detail_text", "")).strip_edges()
+		_detail_label.visible = not detail_text.is_empty()
+		_detail_label.text = detail_text
 	var payload: Variant = _view_model.get("item_payload", {})
 	if payload is Dictionary:
 		set_meta("item_data", (payload as Dictionary).duplicate(true))

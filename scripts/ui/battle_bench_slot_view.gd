@@ -8,7 +8,6 @@ class_name BattleBenchSlotView
 
 var _icon_rect: ColorRect = null
 var _name_label: Label = null
-var _star_label: Label = null
 var _content_box: VBoxContainer = null
 
 
@@ -44,21 +43,15 @@ func apply_empty_state() -> void:
 		_icon_rect.color = Color(0.16, 0.19, 0.23, 0.65)
 	if _name_label != null:
 		_name_label.text = "空"
-	if _star_label != null:
-		_star_label.text = ""
-		_star_label.modulate = Color(1, 1, 1, 1)
 
 
-# 有单位时只投影名称、星级和品质色，不承接备战席规则判断。
-func apply_unit_state(unit_name: String, star: int, quality_color: Color, star_color: Color) -> void:
+# 有单位时只投影名称和品质色，不承接备战席规则判断。
+func apply_unit_state(unit_name: String, quality_color: Color) -> void:
 	_bind_nodes()
 	if _icon_rect != null:
 		_icon_rect.color = quality_color
 	if _name_label != null:
 		_name_label.text = unit_name
-	if _star_label != null:
-		_star_label.text = "★".repeat(clampi(star, 1, 3))
-		_star_label.modulate = star_color
 
 
 # 固定节点路径只在这里维护，BattleBenchUI 不再知道内部结构细节。
@@ -69,5 +62,3 @@ func _bind_nodes() -> void:
 		_icon_rect = get_node_or_null("Content/IconRect") as ColorRect
 	if _name_label == null:
 		_name_label = get_node_or_null("Content/NameLabel") as Label
-	if _star_label == null:
-		_star_label = get_node_or_null("Content/StarLabel") as Label

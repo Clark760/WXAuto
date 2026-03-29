@@ -22,12 +22,12 @@ func _init() -> void:
 
 
 func _run() -> void:
-	_test_mp_not_scaled_by_star()
+	_test_stats_keep_base_values()
 	_test_crit_rate_cap_100_percent()
 	_test_attack_speed_cap_applies()
 
 
-func _test_mp_not_scaled_by_star() -> void:
+func _test_stats_keep_base_values() -> void:
 	var base_stats: Dictionary = {
 		"hp": 100.0,
 		"mp": 80.0,
@@ -39,9 +39,10 @@ func _test_mp_not_scaled_by_star() -> void:
 		"rng": 2.0,
 		"wis": 60.0
 	}
-	var runtime_star3: Dictionary = UNIT_DATA_SCRIPT.call("build_runtime_stats", base_stats, 3)
-	_assert_true(is_equal_approx(float(runtime_star3.get("mp", -1.0)), 80.0), "mp should not scale with star level")
-	_assert_true(is_equal_approx(float(runtime_star3.get("hp", -1.0)), 300.0), "hp should still scale with star level")
+	var runtime_stats: Dictionary = UNIT_DATA_SCRIPT.call("build_runtime_stats", base_stats)
+	_assert_true(is_equal_approx(float(runtime_stats.get("mp", -1.0)), 80.0), "mp should remain unchanged")
+	_assert_true(is_equal_approx(float(runtime_stats.get("hp", -1.0)), 100.0), "hp should remain unchanged")
+	_assert_true(is_equal_approx(float(runtime_stats.get("atk", -1.0)), 50.0), "atk should remain unchanged")
 
 
 func _test_crit_rate_cap_100_percent() -> void:

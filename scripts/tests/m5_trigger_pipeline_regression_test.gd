@@ -1,4 +1,4 @@
-﻿extends SceneTree
+extends SceneTree
 
 const UNIT_AUGMENT_MANAGER_SCRIPT: Script = preload("res://scripts/unit_augment/unit_augment_manager.gd")
 

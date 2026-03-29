@@ -1,4 +1,4 @@
-﻿extends RefCounted
+extends RefCounted
 class_name StageData
 
 # ===========================
@@ -148,7 +148,7 @@ func _normalize_grid(raw_grid: Variant) -> Dictionary:
 
 
 # 规范化敌军行，过滤无效 id、数量和非法部署区类型。
-# 运行时只需要 unit_id、数量、星级和部署信息，不保留内联构建字段。
+# 运行时只需要 unit_id、数量和部署信息，不保留内联构建字段。
 # fixed_cells 会统一复用格子解析逻辑，兼容数组、字典和 Vector2i。
 # 返回数组里的每一项都可以直接交给敌军生成逻辑消费。
 func _normalize_enemies(raw_enemies: Variant) -> Array[Dictionary]:
@@ -172,7 +172,6 @@ func _normalize_enemies(raw_enemies: Variant) -> Array[Dictionary]:
 		enemies.append({
 			"unit_id": unit_id,
 			"count": count,
-			"star": clampi(int(entry.get("star", 1)), 1, 3),
 			"deploy_zone": deploy_zone,
 			"fixed_cells": fixed_cells,
 			"stat_scale": maxf(float(entry.get("stat_scale", 1.0)), 0.01)
@@ -286,8 +285,7 @@ func _normalize_rewards(raw_rewards: Variant) -> Dictionary:
 				"type": drop_type,
 				"pool": pool,
 				"count": maxi(int(drop.get("count", 1)), 0),
-				"chance": clampf(float(drop.get("chance", 1.0)), 0.0, 1.0),
-				"star": clampi(int(drop.get("star", 1)), 1, 3)
+				"chance": clampf(float(drop.get("chance", 1.0)), 0.0, 1.0)
 			})
 	rewards["drops"] = drops_out
 	return rewards
@@ -348,7 +346,6 @@ func _parse_cells(value: Variant) -> Array[Vector2i]:
 			var d: Dictionary = item
 			cells.append(Vector2i(int(d.get("x", 0)), int(d.get("y", 0))))
 	return cells
-
 
 
 

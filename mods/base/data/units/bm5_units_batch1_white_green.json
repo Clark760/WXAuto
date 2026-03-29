@@ -5,8 +5,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 845,
       "mp": 71,
@@ -67,8 +65,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 697,
       "mp": 67,
@@ -129,8 +125,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 723,
       "mp": 64,
@@ -191,8 +185,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 741,
       "mp": 93,
@@ -253,8 +245,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 785,
       "mp": 102,
@@ -330,8 +320,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 879,
       "mp": 85,
@@ -393,8 +381,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 942,
       "mp": 69,
@@ -456,8 +442,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 842,
       "mp": 65,
@@ -518,8 +502,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 706,
       "mp": 75,
@@ -580,8 +562,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 724,
       "mp": 69,
@@ -642,8 +622,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 736,
       "mp": 104,
@@ -704,8 +682,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 787,
       "mp": 101,
@@ -781,8 +757,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 883,
       "mp": 80,
@@ -844,8 +818,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 946,
       "mp": 80,
@@ -907,8 +879,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 846,
       "mp": 71,
@@ -969,8 +939,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 696,
       "mp": 71,
@@ -1031,8 +999,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 714,
       "mp": 66,
@@ -1093,8 +1059,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 734,
       "mp": 100,
@@ -1155,8 +1119,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 780,
       "mp": 103,
@@ -1232,8 +1194,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 886,
       "mp": 74,
@@ -1295,8 +1255,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 932,
       "mp": 71,
@@ -1358,8 +1316,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 833,
       "mp": 72,
@@ -1420,8 +1376,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 698,
       "mp": 64,
@@ -1482,8 +1436,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 727,
       "mp": 71,
@@ -1544,8 +1496,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 742,
       "mp": 103,
@@ -1606,8 +1556,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 783,
       "mp": 108,
@@ -1683,8 +1631,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 884,
       "mp": 76,
@@ -1746,8 +1692,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 934,
       "mp": 77,
@@ -1809,8 +1753,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 848,
       "mp": 74,
@@ -1871,8 +1813,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 703,
       "mp": 71,
@@ -1933,8 +1873,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 715,
       "mp": 64,
@@ -1995,8 +1933,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 741,
       "mp": 91,
@@ -2057,8 +1993,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 784,
       "mp": 97,
@@ -2134,8 +2068,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 881,
       "mp": 75,
@@ -2197,8 +2129,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 932,
       "mp": 75,
@@ -2260,8 +2190,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 839,
       "mp": 71,
@@ -2322,8 +2250,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 708,
       "mp": 78,
@@ -2384,8 +2310,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 715,
       "mp": 68,
@@ -2446,8 +2370,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 736,
       "mp": 103,
@@ -2508,8 +2430,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 783,
       "mp": 94,
@@ -2585,8 +2505,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 881,
       "mp": 79,
@@ -2648,8 +2566,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 944,
       "mp": 73,
@@ -2711,8 +2627,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 833,
       "mp": 68,
@@ -2773,8 +2687,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 696,
       "mp": 70,
@@ -2835,8 +2747,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 712,
       "mp": 67,
@@ -2897,8 +2807,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 740,
       "mp": 97,
@@ -2959,8 +2867,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 781,
       "mp": 98,
@@ -3036,8 +2942,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 876,
       "mp": 75,
@@ -3099,8 +3003,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 940,
       "mp": 72,
@@ -3162,8 +3064,6 @@
     "quality": "white",
     "cost": 1,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 840,
       "mp": 78,
@@ -3224,8 +3124,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 872,
       "mp": 80,
@@ -3286,8 +3184,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 901,
       "mp": 107,
@@ -3348,8 +3244,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 937,
       "mp": 114,
@@ -3425,8 +3319,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 1036,
       "mp": 90,
@@ -3488,8 +3380,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 1108,
       "mp": 82,
@@ -3551,8 +3441,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 993,
       "mp": 92,
@@ -3613,8 +3501,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 864,
       "mp": 77,
@@ -3675,8 +3561,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 880,
       "mp": 78,
@@ -3737,8 +3621,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 907,
       "mp": 101,
@@ -3799,8 +3681,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 936,
       "mp": 116,
@@ -3876,8 +3756,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 1048,
       "mp": 90,
@@ -3939,8 +3817,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 1094,
       "mp": 77,
@@ -4002,8 +3878,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 997,
       "mp": 83,
@@ -4064,8 +3938,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 854,
       "mp": 86,
@@ -4126,8 +3998,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 876,
       "mp": 76,
@@ -4188,8 +4058,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 894,
       "mp": 116,
@@ -4250,8 +4118,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 945,
       "mp": 116,
@@ -4327,8 +4193,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 1035,
       "mp": 93,
@@ -4390,8 +4254,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 1104,
       "mp": 83,
@@ -4453,8 +4315,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 993,
       "mp": 83,
@@ -4515,8 +4375,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 867,
       "mp": 85,
@@ -4577,8 +4435,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 884,
       "mp": 85,
@@ -4639,8 +4495,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 894,
       "mp": 106,
@@ -4701,8 +4555,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 946,
       "mp": 115,
@@ -4778,8 +4630,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 1048,
       "mp": 87,
@@ -4841,8 +4691,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 1104,
       "mp": 76,
@@ -4904,8 +4752,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 996,
       "mp": 82,
@@ -4966,8 +4812,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 864,
       "mp": 84,
@@ -5028,8 +4872,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 873,
       "mp": 91,
@@ -5090,8 +4932,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 897,
       "mp": 102,
@@ -5152,8 +4992,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 944,
       "mp": 118,
@@ -5229,8 +5067,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 1035,
       "mp": 97,
@@ -5292,8 +5128,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 1098,
       "mp": 87,
@@ -5355,8 +5189,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 992,
       "mp": 79,
@@ -5417,8 +5249,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 854,
       "mp": 80,
@@ -5479,8 +5309,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 886,
       "mp": 76,
@@ -5541,8 +5369,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 899,
       "mp": 107,
@@ -5603,8 +5429,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 937,
       "mp": 112,
@@ -5680,8 +5504,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 1045,
       "mp": 88,
@@ -5743,8 +5565,6 @@
     "quality": "green",
     "cost": 2,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 1092,
       "mp": 92,

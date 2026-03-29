@@ -5,8 +5,6 @@
     "quality": "orange",
     "cost": 5,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 1976,
       "mp": 187,
@@ -69,8 +67,6 @@
     "quality": "orange",
     "cost": 5,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 2012,
       "mp": 196,
@@ -133,8 +129,6 @@
     "quality": "orange",
     "cost": 5,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 1948,
       "mp": 185,
@@ -196,8 +190,6 @@
     "quality": "orange",
     "cost": 5,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 1764,
       "mp": 241,
@@ -259,8 +251,6 @@
     "quality": "orange",
     "cost": 5,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 1620,
       "mp": 205,
@@ -322,8 +312,6 @@
     "quality": "orange",
     "cost": 5,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 1686,
       "mp": 159,
@@ -385,8 +373,6 @@
     "quality": "orange",
     "cost": 5,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 2192,
       "mp": 154,
@@ -448,8 +434,6 @@
     "quality": "orange",
     "cost": 5,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 1948,
       "mp": 185,
@@ -511,8 +495,6 @@
     "quality": "orange",
     "cost": 5,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 1794,
       "mp": 186,
@@ -574,8 +556,6 @@
     "quality": "orange",
     "cost": 5,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 1720,
       "mp": 220,
@@ -637,8 +617,6 @@
     "quality": "orange",
     "cost": 6,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 2325,
       "mp": 219,
@@ -701,8 +679,6 @@
     "quality": "orange",
     "cost": 6,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 1983,
       "mp": 259,
@@ -764,8 +740,6 @@
     "quality": "orange",
     "cost": 6,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 2137,
       "mp": 286,
@@ -827,8 +801,6 @@
     "quality": "orange",
     "cost": 6,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 2645,
       "mp": 196,
@@ -890,8 +862,6 @@
     "quality": "orange",
     "cost": 6,
     "shop_visible": true,
-    "base_star": 1,
-    "max_star": 3,
     "base_stats": {
       "hp": 2171,
       "mp": 186,

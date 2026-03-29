@@ -12,6 +12,8 @@ extends RefCounted
 const STAGE_PREPARATION: int = 0 # 备战期允许详情拖拽和装备调整。
 const STAGE_COMBAT: int = 1 # 交锋期详情只读。
 const STAGE_RESULT: int = 2 # 结算期优先让位给结果统计。
+const DETAIL_TAB_OVERVIEW: String = "overview"
+const DETAIL_TAB_LINKAGE: String = "linkage"
 
 const DETAIL_REFRESH_INTERVAL_PREP: float = 0.20 # 备战期详情刷新节奏。
 const DETAIL_REFRESH_INTERVAL_COMBAT: float = 0.05 # 战斗期详情刷新节奏。
@@ -35,6 +37,8 @@ func initialize(owner, scene_root, refs, state, support) -> void:
 	_support = support # 记录共享支撑。
 	_row_support = DETAIL_ROW_SUPPORT_SCRIPT.new()
 	_row_support.initialize(_refs, _state, _support, self)
+	_ensure_detail_tab_state()
+	_apply_detail_tab_visibility()
 
 
 # 释放 detail 协作者持有的运行时引用和行缓存。
@@ -133,6 +137,7 @@ func open_detail_panel(unit: Node) -> void:
 		return
 	if not _support.is_valid_unit(unit):
 		return
+	_ensure_detail_tab_state()
 	_state.detail_unit = unit
 	_state.detail_visible = true
 	_state.detail_refresh_accum = 0.0
@@ -174,13 +179,13 @@ func clear_detail_if_invalid() -> void:
 func update_detail_panel(unit: Node) -> void:
 	if not _support.is_valid_unit(unit):
 		return
+	_ensure_detail_tab_state()
 	var unit_name: String = str(unit.get("unit_name"))
-	var star: int = clampi(int(unit.get("star_level")), 1, 3)
 	var quality: String = str(unit.get("quality"))
 	if _refs.detail_title != null:
 		_refs.detail_title.text = "角色详情 - %s" % unit_name
 	if _refs.detail_name_label != null:
-		_refs.detail_name_label.text = "%s %s" % [unit_name, "★".repeat(star)]
+		_refs.detail_name_label.text = unit_name
 	if _refs.detail_quality_label != null:
 		_refs.detail_quality_label.text = "品质：%s" % _support.quality_to_cn(quality)
 	if _refs.detail_portrait_color != null:
@@ -203,6 +208,8 @@ func update_detail_panel(unit: Node) -> void:
 		_refs.detail_bonus_value_label.text = "无" if bonus_lines.is_empty() else "\n".join(bonus_lines)
 	_row_support.rebuild_detail_slot_rows(unit)
 	_row_support.rebuild_equip_slot_rows(unit)
+	_refresh_detail_linkage_content(unit)
+	_apply_detail_tab_visibility()
 
 
 # 渲染单位 tooltip 头部、属性、技能与 Buff。
@@ -212,9 +219,8 @@ func show_tooltip_for_unit(unit: Node, screen_pos: Vector2) -> void:
 	if not _support.is_valid_unit(unit):
 		return
 	var unit_name: String = str(unit.get("unit_name"))
-	var star: int = clampi(int(unit.get("star_level")), 1, 3)
 	if _refs.tooltip_header_name != null:
-		_refs.tooltip_header_name.text = "%s %s" % [unit_name, "★".repeat(star)]
+		_refs.tooltip_header_name.text = unit_name
 	if _refs.tooltip_quality_badge != null:
 		_refs.tooltip_quality_badge.color = _support.quality_color(str(unit.get("quality")))
 	var combat: Node = unit.get_node_or_null("Components/UnitCombat")
@@ -461,6 +467,22 @@ func calc_bridge_rect(source: Control, tooltip: Control, padding: float) -> Rect
 func on_detail_close_pressed() -> void:
 	force_close_detail_panel(true)
 
+
+# 详情页签：属性与装备。
+func on_detail_tab_overview_pressed() -> void:
+	_state.detail_current_tab = DETAIL_TAB_OVERVIEW
+	_apply_detail_tab_visibility()
+	if _support.is_valid_unit(_state.detail_unit):
+		update_detail_panel(_state.detail_unit)
+
+
+# 详情页签：联动与特效实时状态。
+func on_detail_tab_linkage_pressed() -> void:
+	_state.detail_current_tab = DETAIL_TAB_LINKAGE
+	_apply_detail_tab_visibility()
+	if _support.is_valid_unit(_state.detail_unit):
+		update_detail_panel(_state.detail_unit)
+
 # 处理详情面板拖拽句柄输入。
 func on_detail_drag_handle_gui_input(event: InputEvent) -> void:
 	if not _state.detail_visible:
@@ -493,3 +515,61 @@ func _get_unit_augment_manager():
 	if _refs == null:
 		return null
 	return _refs.unit_augment_manager
+
+
+func _ensure_detail_tab_state() -> void:
+	var tab_name: String = str(_state.detail_current_tab).strip_edges().to_lower()
+	if tab_name == DETAIL_TAB_OVERVIEW or tab_name == DETAIL_TAB_LINKAGE:
+		return
+	_state.detail_current_tab = DETAIL_TAB_OVERVIEW
+
+
+func _apply_detail_tab_visibility() -> void:
+	var active_tab: String = str(_state.detail_current_tab).strip_edges().to_lower()
+	var is_overview_tab: bool = active_tab != DETAIL_TAB_LINKAGE
+	if _refs.detail_tab_overview_button != null:
+		_refs.detail_tab_overview_button.button_pressed = is_overview_tab
+	if _refs.detail_tab_linkage_button != null:
+		_refs.detail_tab_linkage_button.button_pressed = not is_overview_tab
+	if _refs.detail_overview_content != null:
+		_refs.detail_overview_content.visible = is_overview_tab
+	if _refs.detail_linkage_content != null:
+		_refs.detail_linkage_content.visible = not is_overview_tab
+
+
+func _refresh_detail_linkage_content(unit: Node) -> void:
+	if _refs.detail_linkage_text == null:
+		return
+	var snapshot: Dictionary = _support.build_unit_runtime_snapshot(unit)
+	var linkage_lines: Array[String] = _variant_to_string_lines(
+		snapshot.get("linkage_lines", [])
+	)
+	var effect_lines: Array[String] = _variant_to_string_lines(
+		snapshot.get("effect_lines", [])
+	)
+	var text_lines: Array[String] = []
+	_append_detail_section(text_lines, "联动（实时）", linkage_lines)
+	text_lines.append("")
+	_append_detail_section(text_lines, "特效（实时）", effect_lines)
+	_refs.detail_linkage_text.text = "\n".join(text_lines)
+
+
+func _append_detail_section(target: Array[String], title: String, lines: Array[String]) -> void:
+	target.append(title)
+	if lines.is_empty():
+		target.append("· 无")
+		return
+	for line in lines:
+		target.append("· %s" % line)
+
+
+func _variant_to_string_lines(value: Variant) -> Array[String]:
+	var output: Array[String] = []
+	if not (value is Array):
+		return output
+	for line_value in (value as Array):
+		var line_text: String = str(line_value).strip_edges()
+		if line_text.is_empty():
+			continue
+		output.append(line_text)
+	return output

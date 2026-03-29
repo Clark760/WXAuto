@@ -144,10 +144,9 @@ func _update_instances() -> void:
 		mm.set_instance_color(i, instance_color)
 
 
- # 单位标记颜色只从品质和星级推导，保持规则集中。
+ # 单位标记颜色只从品质推导，保持规则集中。
 func _build_color_for_unit(unit: Node) -> Color:
 	var quality: String = str(unit.get("quality"))
-	var star_level: int = int(unit.get("star_level"))
 
 	var base_color: Color = Color(1, 1, 1, marker_alpha)
 	match quality:
@@ -164,11 +163,5 @@ func _build_color_for_unit(unit: Node) -> Color:
 		_:
 			base_color = Color(1, 1, 1, marker_alpha)
 
-	# 星级越高亮度越高，便于观察升星链路。
-	var boost: float = 1.0 + float(star_level - 1) * 0.15
-	return Color(
-		clampf(base_color.r * boost, 0.0, 1.0),
-		clampf(base_color.g * boost, 0.0, 1.0),
-		clampf(base_color.b * boost, 0.0, 1.0),
-		base_color.a
-	)
+	return base_color
+

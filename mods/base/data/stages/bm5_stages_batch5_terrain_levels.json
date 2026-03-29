@@ -18,8 +18,8 @@
       }
     },
     "enemies": [
-      { "unit_id": "bm5_u_white_006", "count": 4, "star": 1, "deploy_zone": "front" },
-      { "unit_id": "bm5_u_green_008", "count": 3, "star": 1, "deploy_zone": "center" }
+      { "unit_id": "bm5_u_white_006", "count": 4, "deploy_zone": "front" },
+      { "unit_id": "bm5_u_green_008", "count": 3, "deploy_zone": "center" }
     ],
     "terrains": [
       {
@@ -56,8 +56,8 @@
       }
     },
     "enemies": [
-      { "unit_id": "bm5_u_blue_006", "count": 3, "star": 1, "deploy_zone": "front" },
-      { "unit_id": "bm5_u_green_015", "count": 4, "star": 1, "deploy_zone": "back" }
+      { "unit_id": "bm5_u_blue_006", "count": 3, "deploy_zone": "front" },
+      { "unit_id": "bm5_u_green_015", "count": 4, "deploy_zone": "back" }
     ],
     "terrains": [
       {
@@ -94,8 +94,8 @@
       }
     },
     "enemies": [
-      { "unit_id": "bm5_u_purple_004", "count": 1, "star": 2, "deploy_zone": "center" },
-      { "unit_id": "bm5_u_blue_014", "count": 2, "star": 1, "deploy_zone": "back" }
+      { "unit_id": "bm5_u_purple_004", "count": 1, "deploy_zone": "center" },
+      { "unit_id": "bm5_u_blue_014", "count": 2, "deploy_zone": "back" }
     ],
     "terrains": [
       {

@@ -109,18 +109,6 @@
       "type": "object",
       "additionalProperties": true
     },
-    "base_star": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 3,
-      "default": 1
-    },
-    "max_star": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 3,
-      "default": 3
-    },
     "tags": {
       "type": "array",
       "items": {

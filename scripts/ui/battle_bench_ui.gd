@@ -10,11 +10,10 @@ const BATTLE_BENCH_SLOT_SCENE: PackedScene = preload(
 # ===========================
 # 设计目标：
 # 1. 备战席完全处于 UI 坐标空间，不参与战场缩放与平移。
-# 2. 负责 50 格槽位管理、显示与 3 合 1 升星逻辑。
+# 2. 负责 50 格槽位管理与显示。
 # 3. 只管理“角色节点引用 + UI 显示”，不直接决定战场部署规则。
 # 4. 槽位可见结构统一来自子场景，不再由代码硬拼控件树。
 signal bench_changed()
-signal unit_star_upgraded(result_unit: Node, consumed_units: Array[Node], new_star: int)
 
 @export var max_slots: int = 50
 @export var slots_per_row: int = 10
@@ -79,7 +78,7 @@ func add_unit(unit: Node) -> bool:
 	return add_unit_to_slot(unit, slot_index, false)
 
 
-# 只允许把单位放进空槽位，放入后统一刷新和尝试升星。
+# 只允许把单位放进空槽位，放入后统一刷新。
 func add_unit_to_slot(unit: Node, slot_index: int, _compact_after_add: bool = false) -> bool:
 	if unit == null or not is_instance_valid(unit):
 		return false
@@ -91,7 +90,6 @@ func add_unit_to_slot(unit: Node, slot_index: int, _compact_after_add: bool = fa
 	_slots[slot_index] = unit
 	_prepare_unit_for_bench(unit, slot_index)
 	_refresh_single_slot_ui(slot_index, unit)
-	_try_star_upgrade_loop()
 	emit_signal("bench_changed")
 	return true
 
@@ -313,7 +311,7 @@ func _refresh_all_slot_ui() -> void:
 		_refresh_single_slot_ui(i, _slots[i])
 
 
-# 单槽位刷新只把颜色、名称和星级投影到槽位子场景。
+# 单槽位刷新只把颜色和名称投影到槽位子场景。
 func _refresh_single_slot_ui(index: int, unit: Node) -> void:
 	if index < 0 or index >= _slot_views.size():
 		return
@@ -325,12 +323,9 @@ func _refresh_single_slot_ui(index: int, unit: Node) -> void:
 		slot_view.apply_empty_state()
 		return
 
-	var star: int = int(unit.get("star_level"))
 	slot_view.apply_unit_state(
 		str(unit.get("unit_name")),
-		star,
-		_quality_to_color(str(unit.get("quality"))),
-		_star_to_color(star)
+		_quality_to_color(str(unit.get("quality")))
 	)
 
 
@@ -359,63 +354,6 @@ func _compact_slots() -> void:
 	return
 
 
-# 升星循环一直执行到当前已无新合成为止。
-func _try_star_upgrade_loop() -> bool:
-	var merged_any: bool = false
-	while true:
-		if not _try_star_merge_once():
-			break
-		merged_any = true
-	return merged_any
-
-
-# 只按槽位顺序做 3 合 1：保留最前一个，消耗后两个，不做整表重排。
-func _try_star_merge_once() -> bool:
-	var grouped_slot_indices: Dictionary = {}
-	for slot_index in range(_slots.size()):
-		var unit: Node = _slots[slot_index]
-		if unit == null or not is_instance_valid(unit):
-			continue
-		var star: int = int(unit.get("star_level"))
-		if star >= 3:
-			continue
-		var key: String = "%s:%d" % [str(unit.get("unit_id")), star]
-		if not grouped_slot_indices.has(key):
-			grouped_slot_indices[key] = []
-		(grouped_slot_indices[key] as Array).append(slot_index)
-
-	for key in grouped_slot_indices.keys():
-		var slot_group: Array = grouped_slot_indices[key]
-		if slot_group.size() < 3:
-			continue
-
-		var result_slot: int = int(slot_group[0])
-		var consume_slot_a: int = int(slot_group[1])
-		var consume_slot_b: int = int(slot_group[2])
-		var result_unit: Node = _slots[result_slot]
-		var consume_a: Node = _slots[consume_slot_a]
-		var consume_b: Node = _slots[consume_slot_b]
-		if result_unit == null or consume_a == null or consume_b == null:
-			continue
-
-		var consumed: Array[Node] = [consume_a, consume_b]
-		_slots[consume_slot_a] = null
-		_slots[consume_slot_b] = null
-		for consumed_unit in consumed:
-			if consumed_unit is CanvasItem:
-				(consumed_unit as CanvasItem).visible = false
-
-		result_unit.call("set_star_level", int(result_unit.get("star_level")) + 1)
-		_prepare_unit_for_bench(result_unit, result_slot)
-		_refresh_single_slot_ui(result_slot, result_unit)
-		_refresh_single_slot_ui(consume_slot_a, null)
-		_refresh_single_slot_ui(consume_slot_b, null)
-		emit_signal("unit_star_upgraded", result_unit, consumed, int(result_unit.get("star_level")))
-		return true
-
-	return false
-
-
 # 品质色统一收口，避免槽位视图自己维护颜色表。
 func _quality_to_color(quality: String) -> Color:
 	match quality:
@@ -431,16 +369,3 @@ func _quality_to_color(quality: String) -> Color:
 			return Color(0.76, 0.48, 0.2, 0.95)
 		_:
 			return Color(0.5, 0.5, 0.5, 0.95)
-
-
-# 星级颜色统一收口，保证备战席和其他投影口径一致。
-func _star_to_color(star: int) -> Color:
-	match star:
-		1:
-			return Color(0.94, 0.94, 0.94, 1.0)
-		2:
-			return Color(1.0, 0.86, 0.35, 1.0)
-		3:
-			return Color(1.0, 0.42, 0.2, 1.0)
-		_:
-			return Color(1, 1, 1, 1)

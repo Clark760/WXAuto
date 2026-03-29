@@ -197,18 +197,15 @@ func rebuild_inventory_items() -> void:
 	var filtered: Array[Dictionary] = _filter_inventory_records(items, search_text)
 	_ensure_inventory_cards(filtered.size())
 	var total_owned: int = 0
-	var total_equipped: int = 0
 	for index in range(filtered.size()):
 		var item_data: Dictionary = filtered[index]
 		total_owned += int(item_data.get("_owned_count", 0))
-		total_equipped += int(item_data.get("_equipped_count", 0))
 		_refresh_inventory_card(_inventory_cards[index], item_data)
 		_inventory_cards[index].visible = true
 	_hide_extra_inventory_cards(filtered.size())
 	if _refs.inventory_summary != null:
-		_refs.inventory_summary.text = "库存 %d 件 | 已装备 %d 件 | 条目 %d" % [
+		_refs.inventory_summary.text = "库存 %d 件 | 条目 %d" % [
 			total_owned,
-			total_equipped,
 			filtered.size()
 		]
 	_probe_commit_timing(PROBE_SCOPE_INVENTORY_ITEMS_REBUILD, begin_us)
@@ -222,27 +219,6 @@ func _collect_inventory_item_ids(stock_map: Dictionary) -> Dictionary:
 			continue
 		if int(stock_map.get(item_id, 0)) > 0:
 			id_set[item_id] = true
-	for unit in _support.collect_player_units():
-		if not _support.is_valid_unit(unit):
-			continue
-		if _state.inventory_mode == "gongfa":
-			var slots: Dictionary = _support.normalize_unit_slots(unit.get("gongfa_slots"))
-			for slot in _support.SLOT_ORDER:
-				var gongfa_id: String = str(slots.get(slot, "")).strip_edges()
-				if not gongfa_id.is_empty():
-					id_set[gongfa_id] = true
-			continue
-		var equip_slots: Dictionary = _support.normalize_equip_slots(
-			_support.get_unit_equip_slots(unit)
-		)
-		var equip_order: Array[String] = _support.get_sorted_equip_slot_keys(
-			equip_slots,
-			_support.get_unit_max_equip_count(unit, equip_slots)
-		)
-		for equip_slot in equip_order:
-			var equip_id: String = str(equip_slots.get(equip_slot, "")).strip_edges()
-			if not equip_id.is_empty():
-				id_set[equip_id] = true
 	return id_set
 
 
@@ -251,7 +227,6 @@ func _build_inventory_records(id_set: Dictionary, stock_map: Dictionary) -> Arra
 	var unit_augment_manager = _get_unit_augment_manager()
 	if unit_augment_manager == null:
 		return items
-	var equipped_count_map: Dictionary = _support.build_equipped_count_map(_state.inventory_mode)
 	for key in id_set.keys():
 		var lookup_id: String = str(key).strip_edges()
 		if lookup_id.is_empty():
@@ -265,7 +240,6 @@ func _build_inventory_records(id_set: Dictionary, stock_map: Dictionary) -> Arra
 			continue
 		var packed: Dictionary = item_data.duplicate(true)
 		packed["_owned_count"] = int(stock_map.get(lookup_id, 0))
-		packed["_equipped_count"] = int(equipped_count_map.get(lookup_id, 0))
 		items.append(packed)
 	return items
 
@@ -574,6 +548,7 @@ func _refresh_shop_offer_card(
 	var price: int = int(offer.get("price", 0))
 	var sold: bool = bool(offer.get("sold", false))
 	var can_afford: bool = false
+	var tooltip_payload: Dictionary = {}
 	var economy_manager = _get_runtime_economy_manager()
 	if economy_manager != null:
 		can_afford = int(economy_manager.get_silver()) >= price
@@ -583,8 +558,16 @@ func _refresh_shop_offer_card(
 		else:
 			var slot_label: String = _support.slot_or_equip_cn(tab_id, str(offer.get("slot_type", "")))
 			type_text = "[%s] %s" % [_support.quality_to_cn(quality), slot_label]
+			if not item_id.is_empty():
+				if tab_id == SHOP_TAB_GONGFA:
+					tooltip_payload = _support.build_gongfa_item_tooltip_data(item_id)
+				elif tab_id == SHOP_TAB_EQUIPMENT:
+					tooltip_payload = _support.build_equip_item_tooltip_data(item_id)
+				var brief_text: String = _support.build_payload_brief_text(tooltip_payload)
+				if not brief_text.is_empty():
+					type_text += "\n%s" % brief_text
 		price_text = "💰 %d" % price if price > 0 else ""
-		buy_text = "已售罄" if sold else "购买"
+		buy_text = "已售罄" if sold else "点击购买"
 		buy_disabled = sold or int(_state.stage) != STAGE_PREPARATION or not can_afford
 	if card is ShopOfferCardView:
 		var shop_card: ShopOfferCardView = card as ShopOfferCardView
@@ -601,12 +584,8 @@ func _refresh_shop_offer_card(
 				"index": index
 			}
 		)
-	var tooltip_payload: Dictionary = {}
-	if not sold and not item_id.is_empty() and tab_id != SHOP_TAB_RECRUIT and _detail_view != null:
-		if tab_id == SHOP_TAB_GONGFA:
-			tooltip_payload = _support.build_gongfa_item_tooltip_data(item_id)
-		else:
-			tooltip_payload = _support.build_equip_item_tooltip_data(item_id)
+	if sold or _detail_view == null:
+		tooltip_payload = {}
 	card.set_meta(CARD_META_TOOLTIP_PAYLOAD, tooltip_payload)
 
 
@@ -717,10 +696,17 @@ func _refresh_inventory_card(card: PanelContainer, item_data: Dictionary) -> voi
 		]
 	var item_id: String = str(item_data.get("id", "")).strip_edges()
 	var owned_count: int = int(item_data.get("_owned_count", 0))
-	var equipped_count: int = int(item_data.get("_equipped_count", 0))
-	var status_text: String = "库存 x%d | 已装备 x%d" % [owned_count, equipped_count]
-	if owned_count <= 0 and equipped_count <= 0:
+	var status_text: String = "库存 x%d" % owned_count
+	if owned_count <= 0:
 		status_text = "无库存"
+	var tooltip_payload: Dictionary = {}
+	if _state.inventory_mode == "gongfa":
+		tooltip_payload = _support.build_gongfa_item_tooltip_data(item_id)
+	else:
+		tooltip_payload = _support.build_equip_item_tooltip_data(item_id)
+	var brief_text: String = _support.build_payload_brief_text(tooltip_payload)
+	if not brief_text.is_empty():
+		type_text += "\n%s" % brief_text
 	if card is InventoryItemCardView:
 		var inventory_card: InventoryItemCardView = card as InventoryItemCardView
 		inventory_card.refresh(
@@ -732,11 +718,6 @@ func _refresh_inventory_card(card: PanelContainer, item_data: Dictionary) -> voi
 				"status_text": status_text
 			}
 		)
-	var tooltip_payload: Dictionary = {}
-	if _state.inventory_mode == "gongfa":
-		tooltip_payload = _support.build_gongfa_item_tooltip_data(item_id)
-	else:
-		tooltip_payload = _support.build_equip_item_tooltip_data(item_id)
 	card.set_meta(CARD_META_TOOLTIP_PAYLOAD, tooltip_payload)
 	var can_drag: bool = owned_count > 0 and _state.inventory_drag_enabled
 	var drag_payload: Dictionary = {

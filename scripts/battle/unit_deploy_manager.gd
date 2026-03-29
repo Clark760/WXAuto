@@ -1,4 +1,4 @@
-﻿extends Node
+extends Node
 
 # 战场部署协作者
 # 说明：
@@ -15,7 +15,7 @@
 # 4. 所有单位有效性一律走 delegate._is_valid_unit。
 # 5. 所有映射缓存写入/清理都必须走 delegate。
 # 6. 单位落位后必须同步 team、bench、combat 和动画状态。
-# 7. 己方部署校验要拦截同 unit_id 的重复上场。
+# 7. 己方部署校验只负责区域与占格合法性，不做同名限制。
 # 8. 协作者内部允许兼容旧 runtime 的下划线字段名。
 # 9. 这种兼容只服务 Phase 2 迁移，不代表恢复 host 注入模式。
 # 10. 新入口和旧入口都必须走 initialize(refs, state, delegate)。
@@ -110,9 +110,6 @@ func can_deploy_ally_to_cell(unit: Node, cell: Vector2i) -> bool:
 		return false
 
 	var ally_deployed: Dictionary = _read_state("ally_deployed", {})
-	var unit_id: String = _get_unit_id(unit)
-	if not unit_id.is_empty() and _has_other_unit_with_id(ally_deployed, unit_id, unit):
-		return false
 
 	var key: String = _delegate._cell_key(cell)
 	if not ally_deployed.has(key):
@@ -240,7 +237,7 @@ func spawn_enemy_wave_from_plan(
 		var unit_id: String = str(entry.get("unit_id", "")).strip_edges()
 		if unit_id.is_empty():
 			continue
-		var unit_node: Node = unit_factory.acquire_unit(unit_id, -1, unit_layer)
+		var unit_node: Node = unit_factory.acquire_unit(unit_id, unit_layer)
 		if unit_node == null:
 			continue
 		deploy_enemy_unit_to_cell(unit_node, cell_value as Vector2i)
@@ -447,25 +444,6 @@ func _sanitize_deploy_rect(source: Dictionary, fallback: Dictionary) -> Dictiona
 		"y_min": y_min,
 		"y_max": y_max
 	}
-
-
-# 统一读取 unit_id，避免空格和空值让“同名单位不可重复上场”规则失效。
-func _get_unit_id(unit: Node) -> String:
-	if unit == null:
-		return ""
-	return str(unit.get("unit_id")).strip_edges()
-
-
-# 检查映射中是否已有同 unit_id 的其他单位，防止拖拽复制态。
-func _has_other_unit_with_id(target_map: Dictionary, unit_id: String, except_unit: Node) -> bool:
-	if unit_id.is_empty():
-		return false
-	for other in target_map.values():
-		if other == null or other == except_unit:
-			continue
-		if _get_unit_id(other) == unit_id:
-			return true
-	return false
 
 
 # ===========================

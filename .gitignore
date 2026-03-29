@@ -1,3 +1,7 @@
 .vscode/
 .godot/
 /android/
+
+tools/mod_data_editor/__pycache__
+tools/mod_data_editor/dist
+tools/mod_data_editor/build

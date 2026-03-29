@@ -1,4 +1,4 @@
-﻿extends SceneTree
+extends SceneTree
 
 const UNIT_DATA_SCRIPT: Script = preload("res://scripts/domain/unit/unit_data.gd")
 const UNIT_BASE_SCENE: PackedScene = preload("res://scenes/units/unit_base.tscn")
@@ -51,7 +51,7 @@ func _test_unit_trait_tags_support() -> void:
 	var unit_node: Node = UNIT_BASE_SCENE.instantiate()
 	root.add_child(unit_node)
 	await process_frame
-	unit_node.call("setup_from_unit_record", normalized, -1)
+	unit_node.call("setup_from_unit_record", normalized)
 
 	_assert_true(bool(unit_node.call("has_trait_tag", "support")), "unit should support trait tag lookup")
 	_assert_true(bool(unit_node.call("has_trait_tag", "HEAL")), "trait tag lookup should be case-insensitive")

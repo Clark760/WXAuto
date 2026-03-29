@@ -8,7 +8,7 @@ class_name UnitData
 # 3. 这里产出的结构会被 UnitFactory、UnitBase 和测试共同复用。
 # 4. 新增字段时先在这里确定默认口径，再放给运行时读取。
 # 5. 目标是把坏输入裁掉，把缺省值补齐，把结构固定下来。
-# 6. 角色星级成长、槽位展开和标签去重都在这里统一定标。
+# 6. 槽位展开和标签去重都在这里统一定标。
 
 const DEFAULT_BASE_STATS := {
 	"hp": 500.0,
@@ -87,8 +87,6 @@ static func normalize_unit_record(raw_record: Dictionary) -> Dictionary:
 		animation_overrides = (animation_value as Dictionary).duplicate(true)
 	result["animation_overrides"] = animation_overrides
 
-	result["base_star"] = clampi(int(raw_record.get("base_star", 1)), 1, 3)
-	result["max_star"] = clampi(int(raw_record.get("max_star", 3)), 1, 3)
 	result["tags"] = _normalize_tags(raw_record.get("tags", []))
 
 	if raw_record.has("_meta_source_file"):
@@ -99,25 +97,12 @@ static func normalize_unit_record(raw_record: Dictionary) -> Dictionary:
 	return result
 
 
-# 按星级倍率构建运行时属性，并保持非战斗向字段不被放大。
-static func build_runtime_stats(base_stats: Dictionary, star_level: int) -> Dictionary:
-	var multiplier: float = 1.0
-	match star_level:
-		2:
-			multiplier = 1.8
-		3:
-			multiplier = 3.0
-		_:
-			multiplier = 1.0
-
-	var scaled_keys: Array[String] = ["hp", "atk", "iat", "def", "idr"]
+# 构建运行时属性，并保持非战斗向字段不被放大。
+static func build_runtime_stats(base_stats: Dictionary) -> Dictionary:
 	var runtime_stats: Dictionary = {}
 	for stat_key in base_stats.keys():
 		var value: float = float(base_stats.get(stat_key, 0.0))
-		if scaled_keys.has(stat_key):
-			runtime_stats[stat_key] = value * multiplier
-		else:
-			runtime_stats[stat_key] = value
+		runtime_stats[stat_key] = value
 
 	runtime_stats["rng"] = maxf(float(runtime_stats.get("rng", 1.0)), 1.0)
 	runtime_stats["spd"] = maxf(float(runtime_stats.get("spd", 0.0)), 0.0)

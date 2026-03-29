@@ -113,8 +113,10 @@ func _count_queries(
 		var query_source_types: Array[String] = query.get("source_types", global_source_types)
 		var query_team_scope: String = str(query.get("team_scope", global_team_scope))
 		var origin_scope: String = str(query.get("origin_scope", "all")).strip_edges().to_lower()
+		var unique_source_name: bool = bool(query.get("unique_source_name", false))
 		var provider_seen: Dictionary = {}
 		var unit_seen: Dictionary = {}
+		var source_name_seen: Dictionary = {}
 		var count: int = 0
 		for provider in providers:
 			# provider 过滤顺序固定为：
@@ -138,6 +140,12 @@ func _count_queries(
 
 			if not _provider_matches_query(provider, query):
 				continue
+			if unique_source_name:
+				var source_name: String = str(provider.get("source_name", "")).strip_edges()
+				if not source_name.is_empty():
+					if source_name_seen.has(source_name):
+						continue
+					source_name_seen[source_name] = true
 
 			# count_mode 只决定“同一个命中集如何计数”，不改变命中集合本身。
 			# provider / unit / occurrence 三种模式都建立在同一条过滤链上。

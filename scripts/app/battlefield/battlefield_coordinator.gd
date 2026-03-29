@@ -1,4 +1,4 @@
-﻿extends Node
+extends Node
 class_name BattlefieldCoordinator
 
 enum Stage { PREPARATION, COMBAT, RESULT } # 局内阶段只允许在三态之间流转。
@@ -322,8 +322,8 @@ func grant_stage_reward_item(item_type: String, item_id: String, count: int = 1)
 
 
  # 关卡奖励角色的发放入口继续保留在 coordinator，具体落位交给 economy support。
-func grant_stage_reward_unit(unit_id: String, star: int = 1) -> Dictionary:
-	return _economy_support.grant_stage_reward_unit(unit_id, star)
+func grant_stage_reward_unit(unit_id: String) -> Dictionary:
+	return _economy_support.grant_stage_reward_unit(unit_id)
 
 
  # 运行时服务初始化只做依赖注入，不在这里推进关卡或战斗。

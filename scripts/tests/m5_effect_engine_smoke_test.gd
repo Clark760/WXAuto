@@ -10,7 +10,6 @@ class MockUnit:
 	var team_id: int = 1
 	var unit_id: String = ""
 	var unit_name: String = ""
-	var star_level: int = 1
 	var is_in_combat: bool = true
 	var runtime_stats: Dictionary = {}
 
@@ -715,7 +714,6 @@ func _make_test_unit(team_id: int, unit_id: String = "") -> MockUnit:
 	unit.team_id = team_id
 	unit.unit_id = unit_id if not unit_id.is_empty() else "mock_unit_%d" % team_id
 	unit.unit_name = unit.unit_id
-	unit.star_level = 1
 	unit.runtime_stats = {
 		"hp": 1200.0,
 		"mp": 300.0,

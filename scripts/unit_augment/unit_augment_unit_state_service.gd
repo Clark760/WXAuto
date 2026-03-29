@@ -991,12 +991,10 @@ func _collect_passive_effects(output: Array[Dictionary], effects_value: Variant)
 
 
 # baseline 必须从单位基础属性重新构建，不能在旧 runtime_stats 上累加。
-# `star_level` 仍由原有 UnitData 构建脚本决定，不在 UnitAugment 里重复实现成长逻辑。
 # 这一步的产物会作为所有被动与装备修正的起点。
 func _build_unit_baseline_stats(unit: Node) -> Dictionary:
 	var base_stats: Dictionary = (_node_prop(unit, "base_stats", {}) as Dictionary).duplicate(true)
-	var star_level: int = int(_node_prop(unit, "star_level", 1))
-	return _unit_data_script.build_runtime_stats(base_stats, star_level)
+	return _unit_data_script.build_runtime_stats(base_stats)
 
 
 # 技能列表既来自功法条目，也来自 trait 和装备 trigger，因此这里统一做结构提取。
@@ -1096,13 +1094,17 @@ func _build_tag_linkage_provider_entries(
 		return entries
 
 	var unit_iid: int = unit.get_instance_id()
+	var source_name: String = str(_node_prop(unit, "unit_name", "")).strip_edges()
+	if source_name.is_empty():
+		source_name = str(_node_prop(unit, "unit_id", "")).strip_edges()
 	var unit_tags: Array[String] = _normalize_tag_array(_node_prop(unit, "tags", []))
 	if not unit_tags.is_empty():
 		entries.append({
 			"key": "unit:%d" % unit_iid,
 			"source_type": "unit",
 			"tags": unit_tags,
-			"tag_mask": _build_tag_linkage_mask(unit_tags)
+			"tag_mask": _build_tag_linkage_mask(unit_tags),
+			"source_name": source_name
 		})
 
 	for trait_idx in range(unit_traits.size()):
@@ -1117,7 +1119,8 @@ func _build_tag_linkage_provider_entries(
 			"key": "trait:%d:%s:%d" % [unit_iid, trait_id, trait_idx],
 			"source_type": "trait",
 			"tags": trait_tags,
-			"tag_mask": _build_tag_linkage_mask(trait_tags)
+			"tag_mask": _build_tag_linkage_mask(trait_tags),
+			"source_name": source_name
 		})
 
 	for gongfa_id in equipped_ids:
@@ -1128,7 +1131,8 @@ func _build_tag_linkage_provider_entries(
 			"key": "gongfa:%d:%s" % [unit_iid, gongfa_id],
 			"source_type": "gongfa",
 			"tags": gongfa_tags,
-			"tag_mask": _build_tag_linkage_mask(gongfa_tags)
+			"tag_mask": _build_tag_linkage_mask(gongfa_tags),
+			"source_name": source_name
 		})
 
 	for equip_id in equipped_equip_ids:
@@ -1139,7 +1143,8 @@ func _build_tag_linkage_provider_entries(
 			"key": "equipment:%d:%s" % [unit_iid, equip_id],
 			"source_type": "equipment",
 			"tags": equip_tags,
-			"tag_mask": _build_tag_linkage_mask(equip_tags)
+			"tag_mask": _build_tag_linkage_mask(equip_tags),
+			"source_name": source_name
 		})
 	return entries
 

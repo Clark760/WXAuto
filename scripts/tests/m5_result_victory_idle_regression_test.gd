@@ -77,7 +77,7 @@ func _test_result_style_labels_visible_after_leave_combat() -> void:
 	_assert_true(not bool(visual_root.get("labels_visible")), "compact mode should hide labels after combat")
 
 	unit.call("set_compact_visual_mode", false)
-	_assert_true(bool(visual_root.get("labels_visible")), "result presentation should show name/star labels")
+	_assert_true(bool(visual_root.get("labels_visible")), "result presentation should show unit labels")
 
 	unit.queue_free()
 	await process_frame

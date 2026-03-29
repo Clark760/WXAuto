@@ -328,7 +328,6 @@ func execute_summon_units_op(source: Node, effect: Dictionary, context: Dictiona
 		return 0
 
 	var source_unit_id: String = str(source.get("unit_id")) if source != null and is_instance_valid(source) else ""
-	var source_star: int = int(source.get("star_level")) if source != null and is_instance_valid(source) else 1
 	var deploy_mode: String = str(effect.get("deploy", "around_self")).strip_edges().to_lower()
 	var radius_cells: int = maxi(int(effect.get("radius", 2)), 0)
 	var hex_grid: Variant = context.get("hex_grid", null)
@@ -339,14 +338,12 @@ func execute_summon_units_op(source: Node, effect: Dictionary, context: Dictiona
 			continue
 
 		var row: Dictionary = (row_value as Dictionary).duplicate(true)
-		# `clone_source = self` 时，把当前 source 的 unit_id / star 显式抄进召唤行配置。
+		# `clone_source = self` 时，把当前 source 的 unit_id 显式抄进召唤行配置。
 		var clone_source: String = str(row.get("clone_source", "")).strip_edges().to_lower()
 		if clone_source == "self":
 			if source_unit_id.is_empty():
 				continue
 			row["unit_id"] = source_unit_id
-			if not row.has("star"):
-				row["star"] = source_star
 
 		var unit_id: String = str(row.get("unit_id", "")).strip_edges()
 		var count: int = maxi(int(row.get("count", 1)), 0)

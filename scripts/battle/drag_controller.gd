@@ -1,4 +1,4 @@
-﻿extends Node
+extends Node
 
 # 战场拖拽协作者
 # 说明：

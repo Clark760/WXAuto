@@ -2,15 +2,10 @@ extends Node2D
 
 const NAME_DRAW_ORIGIN: Vector2 = Vector2(-34.0, -34.0)
 const NAME_DRAW_SIZE: Vector2 = Vector2(68.0, 20.0)
-const STAR_DRAW_ORIGIN: Vector2 = Vector2(-34.0, 16.0)
-const STAR_DRAW_SIZE: Vector2 = Vector2(68.0, 20.0)
 const NAME_FONT_SIZE: int = 12
-const STAR_FONT_SIZE: int = 13
 
 var _name_line: TextLine = TextLine.new()
-var _star_line: TextLine = TextLine.new()
 var _name_line_dirty: bool = true
-var _star_line_dirty: bool = true
 
 @export var sprite_texture: Texture2D = null:
 	set(value):
@@ -27,26 +22,11 @@ var _star_line_dirty: bool = true
 		_name_line_dirty = true
 		queue_redraw()
 
-@export var star_text: String = "":
-	set(value):
-		if star_text == value:
-			return
-		star_text = value
-		_star_line_dirty = true
-		queue_redraw()
-
 @export var name_color: Color = Color(1.0, 1.0, 1.0, 1.0):
 	set(value):
 		if name_color == value:
 			return
 		name_color = value
-		queue_redraw()
-
-@export var star_color: Color = Color(1.0, 1.0, 1.0, 1.0):
-	set(value):
-		if star_color == value:
-			return
-		star_color = value
 		queue_redraw()
 
 @export var labels_visible: bool = true:
@@ -73,15 +53,6 @@ func _draw() -> void:
 		NAME_DRAW_SIZE,
 		NAME_FONT_SIZE,
 		name_color
-	)
-	_draw_cached_text_line(
-		_star_line,
-		"_star_line_dirty",
-		star_text,
-		STAR_DRAW_ORIGIN,
-		STAR_DRAW_SIZE,
-		STAR_FONT_SIZE,
-		star_color
 	)
 
 

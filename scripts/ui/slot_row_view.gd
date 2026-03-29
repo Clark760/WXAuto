@@ -10,6 +10,7 @@ var _actions: Dictionary = {}
 var _icon_label: Label = null
 var _name_button: LinkButton = null
 var _unequip_button: Button = null
+var _detail_label: Label = null
 
 
 # 节点就绪后绑定子节点并投影默认视图模型。
@@ -64,9 +65,10 @@ func get_unequip_button() -> Button:
 
 # 绑定场景内子节点引用。
 func _bind_nodes() -> void:
-	_icon_label = get_node_or_null("Row/IconLabel") as Label
-	_name_button = get_node_or_null("Row/NameButton") as LinkButton
-	_unequip_button = get_node_or_null("Row/UnequipButton") as Button
+	_icon_label = get_node_or_null("RootVBox/Row/IconLabel") as Label
+	_name_button = get_node_or_null("RootVBox/Row/NameButton") as LinkButton
+	_unequip_button = get_node_or_null("RootVBox/Row/UnequipButton") as Button
+	_detail_label = get_node_or_null("RootVBox/DetailLabel") as Label
 
 
 # 确保内部按钮信号只连接一次，避免重复触发。
@@ -89,6 +91,10 @@ func _apply_view_model() -> void:
 	if _unequip_button != null:
 		_unequip_button.text = str(_view_model.get("unequip_text", "—"))
 		_unequip_button.disabled = bool(_view_model.get("unequip_disabled", true))
+	if _detail_label != null:
+		var detail_text: String = str(_view_model.get("detail_text", "")).strip_edges()
+		_detail_label.visible = not detail_text.is_empty()
+		_detail_label.text = detail_text
 	var payload: Variant = _view_model.get("item_payload", {})
 	if payload is Dictionary:
 		set_meta("item_data", (payload as Dictionary).duplicate(true))

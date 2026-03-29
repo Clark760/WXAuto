@@ -1,4 +1,4 @@
-﻿extends SceneTree
+extends SceneTree
 
 const BATTLEFIELD_SCENE: PackedScene = preload("res://scenes/battle/battlefield_scene.tscn")
 const EVENT_BUS_SCRIPT: Script = preload("res://scripts/core/event_bus.gd")

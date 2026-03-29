@@ -42,7 +42,6 @@ class MockUnit:
 	var unit_id: String = "mock_unit"
 	var team_id: int = 1
 	var base_stats: Dictionary = {"hp": 100.0, "rng": 1.0, "spd": 1.0, "wis": 1.0}
-	var star_level: int = 1
 	var traits: Array = []
 	var gongfa_slots: Dictionary = {"neigong": "", "waigong": "", "qinggong": "", "zhenfa": ""}
 	var equip_slots: Dictionary = {"slot_1": "", "slot_2": ""}

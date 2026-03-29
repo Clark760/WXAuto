@@ -89,6 +89,7 @@ func rebuild_detail_slot_rows(unit: Node) -> void:
 			"name_disabled": gongfa_id.is_empty(),
 			"unequip_text": "卸下" if not gongfa_id.is_empty() else "—",
 			"unequip_disabled": gongfa_id.is_empty() or int(_state.stage) != STAGE_PREPARATION,
+			"detail_text": _support.build_payload_brief_text(payload),
 			"drop_enabled": int(_state.stage) == STAGE_PREPARATION,
 			"item_payload": payload
 		})
@@ -124,6 +125,7 @@ func rebuild_equip_slot_rows(unit: Node) -> void:
 			"name_disabled": equip_id.is_empty(),
 			"unequip_text": "卸下" if not equip_id.is_empty() else "—",
 			"unequip_disabled": equip_id.is_empty() or int(_state.stage) != STAGE_PREPARATION,
+			"detail_text": _support.build_payload_brief_text(payload),
 			"drop_enabled": int(_state.stage) == STAGE_PREPARATION,
 			"item_payload": payload
 		})
@@ -139,9 +141,12 @@ func refresh_tooltip_gongfa_list(unit: Node) -> void:
 			if not (trait_value is Dictionary):
 				continue
 			var trait_data: Dictionary = trait_value as Dictionary
+			var trait_payload: Dictionary = _support.build_trait_item_tooltip_data(trait_data)
 			entries.append({
-				"text": "特性·%s" % str(trait_data.get("name", trait_data.get("id", "未命名特性"))),
-				"payload": _support.build_trait_item_tooltip_data(trait_data)
+				"prefix_text": "特性",
+				"text": str(trait_data.get("name", trait_data.get("id", "未命名特性"))),
+				"detail_text": _support.build_payload_brief_text(trait_payload),
+				"payload": trait_payload
 			})
 	var runtime_ids: Array = unit.get("runtime_equipped_gongfa_ids")
 	var unit_augment_manager = _get_unit_augment_manager()
@@ -152,14 +157,13 @@ func refresh_tooltip_gongfa_list(unit: Node) -> void:
 			data = unit_augment_manager.get_gongfa_data(gongfa_id)
 		var entry_text: String = gongfa_id
 		if not data.is_empty():
-			entry_text = "%s（%s/%s）" % [
-				str(data.get("name", gongfa_id)),
-				_support.slot_to_cn(str(data.get("type", ""))),
-				_support.element_to_cn(str(data.get("element", "none")))
-			]
+			entry_text = str(data.get("name", gongfa_id))
+		var gongfa_payload: Dictionary = _support.build_gongfa_item_tooltip_data(gongfa_id)
 		entries.append({
+			"prefix_text": "功法",
 			"text": entry_text,
-			"payload": _support.build_gongfa_item_tooltip_data(gongfa_id)
+			"detail_text": _support.build_payload_brief_text(gongfa_payload),
+			"payload": gongfa_payload
 		})
 	_ensure_tooltip_gongfa_rows_created(entries.size())
 	if entries.is_empty():
@@ -174,7 +178,9 @@ func refresh_tooltip_gongfa_list(unit: Node) -> void:
 			continue
 		var row_view: Variant = row_panel
 		row_view.refresh({
+			"prefix_text": str(entries[index].get("prefix_text", "·")),
 			"text": str(entries[index].get("text", "-")),
+			"detail_text": str(entries[index].get("detail_text", "")),
 			"disabled": false,
 			"item_payload": entries[index].get("payload", {})
 		})
@@ -299,7 +305,13 @@ func _ensure_tooltip_gongfa_rows_created(required_count: int) -> void:
 				row_node.queue_free()
 			break
 		var row_view: Variant = row_panel
-		row_view.setup({"text": "-", "disabled": true, "item_payload": {}})
+		row_view.setup({
+			"prefix_text": "·",
+			"text": "-",
+			"detail_text": "",
+			"disabled": true,
+			"item_payload": {}
+		})
 		_refs.tooltip_gongfa_list.add_child(row_panel)
 		_tooltip_gongfa_rows.append(row_panel)
 		_connect_tooltip_row_hover(row_panel, row_view)
@@ -315,7 +327,13 @@ func _show_empty_tooltip_gongfa_row() -> void:
 		return
 	first_row.visible = true
 	var first_row_view: Variant = first_row
-	first_row_view.refresh({"text": "功法/特性: 无", "disabled": true, "item_payload": {}})
+	first_row_view.refresh({
+		"prefix_text": "·",
+		"text": "功法/特性: 无",
+		"detail_text": "",
+		"disabled": true,
+		"item_payload": {}
+	})
 	for index in range(1, _tooltip_gongfa_rows.size()):
 		_tooltip_gongfa_rows[index].visible = false
 

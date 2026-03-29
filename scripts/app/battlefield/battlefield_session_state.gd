@@ -70,6 +70,7 @@ var shop_open_in_preparation: bool = true
 # detail / tooltip 的局部悬停状态同样纳入 session state，避免散回 presenter 私有字段。
 var detail_unit: Node = null
 var detail_refresh_accum: float = 0.0
+var detail_current_tab: String = "overview"
 var is_dragging_detail_panel: bool = false
 var detail_drag_offset: Vector2 = Vector2.ZERO
 

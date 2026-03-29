@@ -1,4 +1,4 @@
-﻿extends Node
+extends Node
 class_name BattlefieldHudPresenter
 
 # 战场 HUD facade
@@ -392,6 +392,14 @@ func _connect_ui_signals() -> void:
 	if _signals_connected or _refs == null:
 		return
 	_connect_pressed(_refs.detail_close_button, Callable(_detail_view, "on_detail_close_pressed"))
+	_connect_pressed(
+		_refs.detail_tab_overview_button,
+		Callable(_detail_view, "on_detail_tab_overview_pressed")
+	)
+	_connect_pressed(
+		_refs.detail_tab_linkage_button,
+		Callable(_detail_view, "on_detail_tab_linkage_pressed")
+	)
 	if _refs.detail_drag_handle != null:
 		var drag_cb: Callable = Callable(_detail_view, "on_detail_drag_handle_gui_input")
 		if not _refs.detail_drag_handle.is_connected("gui_input", drag_cb):

@@ -1,53 +1,4 @@
-extends "res://scripts/app/battlefield/battlefield_hud_catalog_support.gd"
-
-const DISPLAY_TEXT_CATEGORY: String = "ui_texts"
-const DISPLAY_TEXT_CONFIG_ID: String = "battlefield_hud_display"
-
-var _display_text_config: Dictionary = {}
-
-# HUD 文案与 payload 支撑
-# 说明：
-# 1. 集中承接 detail / tooltip / inventory 共用的文本翻译和 payload 组装逻辑。
-# 2. 目录查询、槽位规范化和缓存逻辑已经下沉到 catalog support。
-# 3. 外部协作者继续只依赖 battlefield_hud_support 这一个入口。
-# 文案口径：
-# 1. tooltip payload 统一由这里生成，避免多处拼接文案漂移。
-# 2. 效果翻译、品质文案、图标和颜色都必须走统一出口。
-# 3. 这里只做展示投影，不推断新的业务状态。
-
-
-# 绑定 HUD support 需要的引用表和会话状态。
-# `scene_root` 参数保留给既有装配入口，但本文件不再主动依赖场景树根。
-func initialize(_scene_root, refs, state) -> void:
-	_refs = refs
-	_state = state
-
-
-# 释放 HUD 支撑缓存，避免场景重进时沿用旧索引。
-# support 不持有 UI 生命周期，只清理由自己维护的缓存和引用。
-func shutdown() -> void:
-	_refs = null
-	_state = null
-	_gongfa_by_type.clear()
-	_buff_data_map.clear()
-	_display_text_config.clear()
-
-
-# DataManager reload 后同步刷新显示配置，保证文案/图标能走统一 data 覆盖链。
-func reload_external_item_data() -> void:
-	super.reload_external_item_data()
-	_display_text_config.clear()
-	var data_manager: Node = _get_data_repository()
-	if data_manager == null or not data_manager.has_method("get_record"):
-		return
-	var config_record: Dictionary = data_manager.get_record(
-		DISPLAY_TEXT_CATEGORY,
-		DISPLAY_TEXT_CONFIG_ID
-	)
-	if config_record.is_empty():
-		return
-	_display_text_config = config_record.duplicate(true)
-
+extends "res://scripts/app/battlefield/battlefield_hud_effect_formatter_support.gd"
 
 # 把运行时生效的功法与装备效果整理成详情面板的 bonus 列表。
 # 这里故意读取 runtime_*_ids，而不是静态已装备槽，确保展示的是实际生效效果。
@@ -132,6 +83,7 @@ func build_gongfa_item_tooltip_data(gongfa_id: String) -> Dictionary:
 		for effect_value in passive_effects:
 			if effect_value is Dictionary:
 				effect_lines.append(format_effect_op(effect_value as Dictionary))
+	var skill_payload: Dictionary = _build_skill_tooltip_payload(_extract_gongfa_skill_entries(data))
 	return {
 		"name": "%s [%s]" % [
 			str(data.get("name", gongfa_id)),
@@ -143,9 +95,9 @@ func build_gongfa_item_tooltip_data(gongfa_id: String) -> Dictionary:
 		],
 		"desc": str(data.get("description", "无描述")),
 		"effects": effect_lines,
-		"has_skill": false,
-		"skill_trigger": "",
-		"skill_effects": []
+		"has_skill": bool(skill_payload.get("has_skill", false)),
+		"skill_trigger": str(skill_payload.get("skill_trigger", "")),
+		"skill_effects": skill_payload.get("skill_effects", [])
 	}
 
 
@@ -180,6 +132,7 @@ func build_equip_item_tooltip_data(equip_id: String) -> Dictionary:
 		for effect_value in effects:
 			if effect_value is Dictionary:
 				effect_lines.append(format_effect_op(effect_value as Dictionary))
+	var skill_payload: Dictionary = _build_skill_tooltip_payload(_extract_equip_skill_entries(data))
 	return {
 		"name": "%s [%s]" % [
 			str(data.get("name", equip_id)),
@@ -191,9 +144,9 @@ func build_equip_item_tooltip_data(equip_id: String) -> Dictionary:
 		],
 		"desc": str(data.get("description", "江湖器物")),
 		"effects": effect_lines,
-		"has_skill": false,
-		"skill_trigger": "",
-		"skill_effects": []
+		"has_skill": bool(skill_payload.get("has_skill", false)),
+		"skill_trigger": str(skill_payload.get("skill_trigger", "")),
+		"skill_effects": skill_payload.get("skill_effects", [])
 	}
 
 
@@ -205,401 +158,403 @@ func equip_name_or_empty(equip_id: String) -> String:
 	return str(build_equip_item_tooltip_data(equip_id).get("name", equip_id))
 
 
-# 把效果配置翻译成玩家可读文本，供 detail / tooltip / log 共用。
-# 所有效果说明统一经过这里，后续改文案时只需要维护一个出口。
-func format_effect_op(effect: Dictionary) -> String:
-	var op: String = str(effect.get("op", ""))
-	match op:
-		"stat_add":
-			return "%s %+d" % [
-				stat_key_to_cn(str(effect.get("stat", ""))),
-				int(round(float(effect.get("value", 0.0))))
-			]
-		"stat_percent":
-			return "%s %+d%%" % [
-				stat_key_to_cn(str(effect.get("stat", ""))),
-				int(round(float(effect.get("value", 0.0)) * 100.0))
-			]
-		"mp_regen_add":
-			return "内力回复 +%s/秒" % str(effect.get("value", 0))
-		"range_add":
-			return "射程 +%s" % str(effect.get("value", 0))
-		"damage_target":
-			return "对目标造成 %d 点%s伤害" % [
-				int(round(float(effect.get("value", 0.0)))),
-				damage_type_to_cn(str(effect.get("damage_type", "external")))
-			]
-		"heal_self":
-			return "回复生命 %d" % int(round(float(effect.get("value", 0.0))))
-		"shield_self":
-			return "获得护盾 %d（%.1f秒）" % [
-				int(round(float(effect.get("value", 0.0)))),
-				float(effect.get("duration", 0.0))
-			]
-		"buff_self":
-			return "获得「%s」(%.1f秒)" % [
-				buff_name_from_id(str(effect.get("buff_id", ""))),
-				float(effect.get("duration", 0.0))
-			]
-		"debuff_target":
-			return "施加减益「%s」(%.1f秒)" % [
-				buff_name_from_id(str(effect.get("buff_id", ""))),
-				float(effect.get("duration", 0.0))
-			]
-		_:
-			return "%s %s" % [op, str(effect)]
-
-
-# 根据商店页签把类型字段翻译成功法槽名或装备类型名。
-# 商店卡片只关心当前 tab 下该怎么解释 slot_type，不自己判断模式细节。
-func slot_or_equip_cn(tab_id: String, slot_type: String) -> String:
-	return slot_to_cn(slot_type) if tab_id == "gongfa" else equip_type_to_cn(slot_type)
-
-
-# 把配置组里的显示文本安全读成字符串，缺项时回退到代码默认值。
-func _read_display_text(group_key: String, item_key: String, fallback: String) -> String:
-	var group_value: Variant = _display_text_config.get(group_key, {})
-	if not (group_value is Dictionary):
+# 把 tooltip payload 压成一行短说明，供特性/功法/装备列表行复用。
+func build_payload_brief_text(payload: Dictionary, fallback: String = "") -> String:
+	if payload.is_empty():
 		return fallback
-	var entry_value: Variant = (group_value as Dictionary).get(item_key, null)
-	if entry_value is Dictionary:
-		var entry_text: String = str((entry_value as Dictionary).get("text", fallback)).strip_edges()
-		return fallback if entry_text.is_empty() else entry_text
-	if entry_value == null:
-		return fallback
-	var text_value: String = str(entry_value).strip_edges()
-	return fallback if text_value.is_empty() else text_value
+	var type_line: String = str(payload.get("type_line", "")).strip_edges()
+	var effect_line: String = ""
+	var effects_value: Variant = payload.get("effects", [])
+	if effects_value is Array:
+		for line_value in (effects_value as Array):
+			effect_line = str(line_value).strip_edges()
+			if not effect_line.is_empty():
+				break
+	if effect_line.is_empty():
+		effect_line = fallback.strip_edges()
+	if type_line.is_empty():
+		return effect_line
+	if effect_line.is_empty():
+		return type_line
+	return "%s｜%s" % [type_line, effect_line]
 
 
-# 图标配置只接受带 icon 字段的映射对象，避免把普通文本误当图标。
-func _read_display_icon(group_key: String, item_key: String, fallback: String) -> String:
-	var group_value: Variant = _display_text_config.get(group_key, {})
-	if not (group_value is Dictionary):
-		return fallback
-	var entry_value: Variant = (group_value as Dictionary).get(item_key, null)
-	if not (entry_value is Dictionary):
-		return fallback
-	var icon_text: String = str((entry_value as Dictionary).get("icon", fallback)).strip_edges()
-	return fallback if icon_text.is_empty() else icon_text
+# 构建单位详情页“联动与特效”分页所需的实时快照。
+func build_unit_runtime_snapshot(unit: Node) -> Dictionary:
+	var empty_snapshot: Dictionary = {
+		"linkage_lines": [],
+		"effect_lines": []
+	}
+	if not is_valid_unit(unit):
+		return empty_snapshot
+	var manager = _get_unit_augment_manager()
+	if manager == null:
+		return empty_snapshot
+	var state_snapshot: Dictionary = _get_unit_state_snapshot(unit, manager)
+	var linkage_lines: Array[String] = _build_runtime_linkage_lines(unit, manager, state_snapshot)
+	var effect_lines: Array[String] = _build_runtime_effect_lines(unit, manager, state_snapshot)
+	return {
+		"linkage_lines": _trim_lines(linkage_lines, 18, "联动"),
+		"effect_lines": _trim_lines(effect_lines, 24, "特效")
+	}
 
 
-# 颜色配置统一从 data 组读取，再交给底层颜色解析器做格式兼容。
-func _read_display_color(group_key: String, item_key: String, fallback: Color) -> Color:
-	var group_value: Variant = _display_text_config.get(group_key, {})
-	if not (group_value is Dictionary):
-		return fallback
-	return _variant_to_color((group_value as Dictionary).get(item_key, null), fallback)
+func _build_runtime_linkage_lines(
+	unit: Node,
+	manager,
+	state_snapshot: Dictionary
+) -> Array[String]:
+	var lines: Array[String] = []
+	var entries: Array[Dictionary] = _collect_linkage_effect_entries(state_snapshot)
+	if entries.is_empty():
+		return lines
+	var trait_owner_labels: Dictionary = _build_trait_owner_label_map(unit)
+	var context: Dictionary = _build_linkage_eval_context(unit, manager)
+	for entry in entries:
+		var effect: Dictionary = entry.get("effect", {})
+		if effect.is_empty():
+			continue
+		var linkage_id: String = str(effect.get("linkage_id", "未命名联动")).strip_edges()
+		if linkage_id.is_empty():
+			linkage_id = "未命名联动"
+		var owner_id: String = str(entry.get("owner_id", "")).strip_edges()
+		var owner_label: String = _resolve_owner_label(owner_id, manager, trait_owner_labels)
+		var trigger_name: String = str(entry.get("trigger", "")).strip_edges().to_lower()
+		var trigger_suffix: String = ""
+		if not trigger_name.is_empty():
+			trigger_suffix = "，%s" % trigger_to_cn(trigger_name)
+		var result: Dictionary = {}
+		if manager.has_method("evaluate_tag_linkage_branch"):
+			var result_value: Variant = manager.evaluate_tag_linkage_branch(unit, effect, context)
+			if result_value is Dictionary:
+				result = result_value as Dictionary
+		var matched_case_ids: Array[String] = []
+		var matched_case_value: Variant = result.get("matched_case_ids", [])
+		if matched_case_value is Array:
+			for case_value in (matched_case_value as Array):
+				var case_id: String = str(case_value).strip_edges()
+				if not case_id.is_empty():
+					matched_case_ids.append(case_id)
+		var matched_text: String = "未命中"
+		if not matched_case_ids.is_empty():
+			matched_text = "命中=%s" % "/".join(matched_case_ids)
+		var active_case: String = ""
+		if manager.has_method("get_tag_linkage_state"):
+			var linkage_state_value: Variant = manager.get_tag_linkage_state(unit, effect)
+			if linkage_state_value is Dictionary:
+				active_case = str(
+					(linkage_state_value as Dictionary).get("last_case_id", "")
+				).strip_edges()
+		var active_text: String = ""
+		if not active_case.is_empty():
+			active_text = "，当前档位=%s" % active_case
+		var query_counts_text: String = _format_query_counts(result.get("query_counts", {}))
+		lines.append("%s｜%s%s：%s%s%s" % [
+			linkage_id,
+			owner_label,
+			trigger_suffix,
+			matched_text,
+			active_text,
+			query_counts_text
+		])
+	return lines
 
 
-# 支持数组、字典和字符串三种颜色格式，保证 JSON 配置足够宽容。
-func _variant_to_color(value: Variant, fallback: Color) -> Color:
-	if value is Array:
-		var channels: Array = value as Array
-		if channels.size() == 3:
-			return Color(
-				float(channels[0]),
-				float(channels[1]),
-				float(channels[2]),
-				1.0
+func _build_runtime_effect_lines(
+	unit: Node,
+	manager,
+	state_snapshot: Dictionary
+) -> Array[String]:
+	var lines: Array[String] = []
+	var trait_values: Variant = safe_node_prop(unit, "traits", [])
+	if trait_values is Array:
+		for trait_value in (trait_values as Array):
+			if not (trait_value is Dictionary):
+				continue
+			var trait_data: Dictionary = trait_value as Dictionary
+			_append_source_effect_lines(
+				lines,
+				"特性·%s" % str(trait_data.get("name", trait_data.get("id", "未命名特性"))),
+				trait_data.get("effects", [])
 			)
-		if channels.size() >= 4:
-			return Color(
-				float(channels[0]),
-				float(channels[1]),
-				float(channels[2]),
-				float(channels[3])
-			)
-	if value is Dictionary:
-		var color_data: Dictionary = value as Dictionary
-		return Color(
-			float(color_data.get("r", fallback.r)),
-			float(color_data.get("g", fallback.g)),
-			float(color_data.get("b", fallback.b)),
-			float(color_data.get("a", fallback.a))
+	var runtime_gongfa_ids: Array = unit.get("runtime_equipped_gongfa_ids")
+	for gongfa_id_value in runtime_gongfa_ids:
+		var gongfa_id: String = str(gongfa_id_value).strip_edges()
+		if gongfa_id.is_empty():
+			continue
+		var gongfa_data: Dictionary = manager.get_gongfa_data(gongfa_id)
+		if gongfa_data.is_empty():
+			continue
+		_append_source_effect_lines(
+			lines,
+			"功法·%s" % str(gongfa_data.get("name", gongfa_id)),
+			gongfa_data.get("passive_effects", [])
 		)
-	if value is String:
-		var color_text: String = str(value).strip_edges()
-		if color_text.is_empty():
-			return fallback
-		return Color.from_string(color_text, fallback)
-	return fallback
+	var runtime_equip_ids: Array = unit.get("runtime_equipped_equip_ids")
+	for equip_id_value in runtime_equip_ids:
+		var equip_id: String = str(equip_id_value).strip_edges()
+		if equip_id.is_empty():
+			continue
+		var equip_data: Dictionary = manager.get_equipment_data(equip_id)
+		if equip_data.is_empty():
+			continue
+		_append_source_effect_lines(
+			lines,
+			"装备·%s" % str(equip_data.get("name", equip_id)),
+			equip_data.get("effects", [])
+		)
+	_append_trigger_effect_lines(lines, state_snapshot, manager, unit)
+	if manager.has_method("get_unit_buff_ids"):
+		var buff_ids: Array[String] = manager.get_unit_buff_ids(unit)
+		if not buff_ids.is_empty():
+			var buff_names: Array[String] = []
+			for buff_id in buff_ids:
+				buff_names.append(buff_name_from_id(buff_id))
+			lines.append("当前 Buff：%s" % " / ".join(buff_names))
+	return lines
 
 
-# 槽位默认文案保留在代码里，防止坏配置把 HUD 退化成原始 key。
-func _fallback_slot_label(slot: String) -> String:
-	match slot:
-		"neigong":
-			return "内功"
-		"waigong":
-			return "外功"
-		"qinggong":
-			return "身法"
-		"zhenfa":
-			return "阵法"
-		_:
-			return slot
+func _append_source_effect_lines(lines: Array[String], source_label: String, effects_value: Variant) -> void:
+	if not (effects_value is Array):
+		return
+	for effect_value in (effects_value as Array):
+		if not (effect_value is Dictionary):
+			continue
+		var effect_data: Dictionary = effect_value as Dictionary
+		if str(effect_data.get("op", "")).strip_edges().to_lower() == "tag_linkage_branch":
+			continue
+		lines.append("%s：%s" % [source_label, format_effect_op(effect_data)])
 
 
-# 槽位默认图标维持旧视觉口径，配置缺失时不改变玩家认知。
-func _fallback_slot_icon(slot: String) -> String:
-	match slot:
-		"neigong":
-			return "☯"
-		"waigong":
-			return "⚔"
-		"qinggong":
-			return "🜂"
-		"zhenfa":
-			return "🧭"
-		_:
-			return "•"
+func _append_trigger_effect_lines(
+	lines: Array[String],
+	state_snapshot: Dictionary,
+	manager,
+	unit: Node
+) -> void:
+	var triggers_value: Variant = state_snapshot.get("triggers", [])
+	if not (triggers_value is Array):
+		return
+	var trait_owner_labels: Dictionary = _build_trait_owner_label_map(unit)
+	for trigger_value in (triggers_value as Array):
+		if not (trigger_value is Dictionary):
+			continue
+		var trigger_entry: Dictionary = trigger_value as Dictionary
+		var trigger_count: int = int(trigger_entry.get("trigger_count", 0))
+		var time_elapsed_fired: bool = bool(trigger_entry.get("time_elapsed_fired", false))
+		if trigger_count <= 0 and not time_elapsed_fired:
+			continue
+		var skill_data_value: Variant = trigger_entry.get("skill_data", {})
+		if not (skill_data_value is Dictionary):
+			continue
+		var skill_data: Dictionary = skill_data_value as Dictionary
+		var effect_texts: Array[String] = []
+		var effect_items_value: Variant = skill_data.get("effects", [])
+		if effect_items_value is Array:
+			for effect_value in (effect_items_value as Array):
+				if not (effect_value is Dictionary):
+					continue
+				var effect_data: Dictionary = effect_value as Dictionary
+				if str(effect_data.get("op", "")).strip_edges().to_lower() == "tag_linkage_branch":
+					continue
+				effect_texts.append(format_effect_op(effect_data))
+		if effect_texts.is_empty():
+			continue
+		var owner_id: String = str(trigger_entry.get("gongfa_id", "")).strip_edges()
+		var owner_label: String = _resolve_owner_label(owner_id, manager, trait_owner_labels)
+		var trigger_label: String = trigger_to_cn(
+			str(trigger_entry.get("trigger", "")).strip_edges().to_lower()
+		)
+		var count_label: String = "已触发"
+		if trigger_count > 0:
+			count_label += " x%d" % trigger_count
+		var next_ready: float = float(trigger_entry.get("next_ready_time", 0.0))
+		var remain_cooldown: float = 0.0
+		if _state != null:
+			remain_cooldown = maxf(next_ready - float(_state.combat_elapsed), 0.0)
+		if remain_cooldown > 0.05:
+			count_label += "（冷却%.1fs）" % remain_cooldown
+		var summary: String = effect_texts[0]
+		if effect_texts.size() > 1:
+			summary += "；等%d项" % effect_texts.size()
+		lines.append("%s｜%s：%s，%s" % [owner_label, trigger_label, count_label, summary])
 
 
-# 装备类型默认文案只服务展示，不参与任何装备业务判断。
-func _fallback_equip_type_label(equip_type: String) -> String:
-	match equip_type:
-		"weapon":
-			return "兵器"
-		"armor":
-			return "护甲"
-		"accessory":
-			return "饰品"
-		_:
-			return equip_type
-
-
-# 装备类型默认图标继续供 detail / inventory / shop 共用。
-func _fallback_equip_icon(equip_type: String) -> String:
-	match equip_type:
-		"weapon":
-			return "🗡"
-		"armor":
-			return "🛡"
-		"accessory":
-			return "📿"
-		_:
-			return "•"
-
-
-# 属性中文名默认值留在代码里，避免效果描述在坏数据下完全失真。
-func _fallback_stat_label(stat_key: String) -> String:
-	match stat_key:
-		"hp":
-			return "生命"
-		"mp":
-			return "内力"
-		"atk":
-			return "外功"
-		"def":
-			return "外防"
-		"iat":
-			return "内功"
-		"idr":
-			return "内防"
-		"spd":
-			return "速度"
-		"rng":
-			return "射程"
-		_:
-			return stat_key
-
-
-# 品质简称默认值维持旧口径，方便数据迁移阶段逐步切换。
-func _fallback_quality_label(quality: String) -> String:
-	match quality:
-		"orange":
-			return "橙"
-		"purple":
-			return "紫"
-		"blue":
-			return "蓝"
-		"green":
-			return "绿"
-		"white":
-			return "白"
-		_:
-			return quality
-
-
-# 品质颜色默认值保留旧配色，避免配置缺失时界面跳色。
-func _fallback_quality_color(quality: String) -> Color:
-	match quality:
-		"white":
-			return Color(0.78, 0.80, 0.82, 0.95)
-		"green":
-			return Color(0.42, 0.68, 0.42, 0.95)
-		"blue":
-			return Color(0.32, 0.52, 0.80, 0.95)
-		"purple":
-			return Color(0.54, 0.38, 0.72, 0.95)
-		"orange":
-			return Color(0.76, 0.48, 0.20, 0.95)
-		_:
-			return Color(0.50, 0.50, 0.50, 0.95)
-
-
-# 伤害类型默认文案只解决 HUD 展示，不改变战斗分类语义。
-func _fallback_damage_type_label(damage_type: String) -> String:
-	match damage_type:
-		"internal":
-			return "内功"
-		"external":
-			return "外功"
-		"reflect":
-			return "反伤"
-		_:
-			return damage_type
-
-
-# 把功法槽 key 翻译成中文显示名。
-# 这里返回的是 UI 文案，不参与任何玩法逻辑判断。
-# 功法槽中文名优先读配置，缺失时回退旧硬编码。
-func slot_to_cn(slot: String) -> String:
-	return _read_display_text("slot_labels", slot, _fallback_slot_label(slot))
-
-
-# 为功法槽提供稳定的视觉前缀，避免详情和库存各用各的图标。
-# 图标统一后，玩家更容易把 tooltip、详情和 inventory 的同类条目对上。
-# 功法槽图标优先读配置，保证 mod 可以统一替换视觉符号。
-func slot_icon(slot: String) -> String:
-	return _read_display_icon("slot_labels", slot, _fallback_slot_icon(slot))
-
-
-# 把装备类型 key 翻译成中文显示名。
-# 非标准类型原样返回，保证扩展数据至少还能被看懂。
-# 装备类型中文名优先读配置，保留原有方法签名给调用方复用。
-func equip_type_to_cn(equip_type: String) -> String:
-	return _read_display_text(
-		"equip_type_labels",
-		equip_type,
-		_fallback_equip_type_label(equip_type)
-	)
-
-
-# 为装备类型提供统一图标，供 inventory / detail 行复用。
-# 这里只负责符号选择，不负责颜色和品质表现。
-# 装备类型图标优先读配置，避免 detail / inventory 各自写死。
-func equip_icon(equip_type: String) -> String:
-	return _read_display_icon("equip_type_labels", equip_type, _fallback_equip_icon(equip_type))
-
-
-# 把五行属性 key 翻译成中文显示名。
-# element 文案贯穿商店、inventory 和 tooltip，需要统一出口。
-func element_to_cn(element: String) -> String:
-	match element:
-		"metal":
-			return "金"
-		"wood":
-			return "木"
-		"water":
-			return "水"
-		"fire":
-			return "火"
-		"earth":
-			return "土"
-		"none":
-			return "无属性"
-		_:
-			return element
-
-
-# 把属性字段名翻译成战斗面板文案。
-# 这里优先服务 HUD 展示，不做数值计算。
-# 属性中文名优先读配置，效果描述和面板字段共享同一出口。
-func stat_key_to_cn(stat_key: String) -> String:
-	return _read_display_text("stat_labels", stat_key, _fallback_stat_label(stat_key))
-
-
-# 把品质 key 翻译成中文简称，供商店/库存/详情共用。
-# 简称和颜色保持解耦，避免不同位置对品质视觉有不同需求时相互牵连。
-# 品质简称优先读配置，方便不同数据包切换展示文案。
-func quality_to_cn(quality: String) -> String:
-	return _read_display_text("quality_labels", quality, _fallback_quality_label(quality))
-
-
-# 返回品质主色，供商店条、头像底色和 tooltip 徽章复用。
-# 颜色常量统一后，玩家能快速把品质和视觉颜色建立稳定映射。
-# 品质颜色优先读配置，同时维持返回 Color 的既有契约。
-func quality_color(quality: String) -> Color:
-	return _read_display_color("quality_colors", quality, _fallback_quality_color(quality))
-
-
-# 用缓存把 Buff id 翻译成名称，避免 tooltip 直接展示原始 id。
-# DataManager reload 后会整体重建缓存，避免这里自己做局部热更新。
-func buff_name_from_id(buff_id: String) -> String:
-	if _buff_data_map.has(buff_id):
-		return str((_buff_data_map[buff_id] as Dictionary).get("name", buff_id))
-	return buff_id
-
-
-# 把伤害类型 key 翻译成中文，供效果描述和日志统一。
-# 这里只有展示映射，不涉及 combat 侧真实伤害分类逻辑。
-# 伤害类型文案优先读配置，缺失时回退旧口径。
-func damage_type_to_cn(damage_type: String) -> String:
-	return _read_display_text(
-		"damage_type_labels",
-		damage_type,
-		_fallback_damage_type_label(damage_type)
-	)
-
-
-# 把角色当前运行态翻译成 tooltip 状态文案。
-# 这里按死亡 > 战斗中 > 备战席 > 待命的优先级收敛状态文案。
-func resolve_unit_status(unit: Node) -> String:
-	var combat: Node = unit.get_node_or_null("Components/UnitCombat")
-	if combat != null and not bool(combat.get("is_alive")):
-		return "已阵亡"
-	if bool(unit.get("is_in_combat")):
-		return "战斗中"
-	if bool(unit.get("is_on_bench")):
-		return "备战席"
-	return "待命"
-
-
-# 格式化单项属性的基础值与增益值，供详情和 tooltip 共用。
-# 差值接近 0 时直接收敛成单值文本，避免出现视觉噪声很大的 +0。
-func format_stat_pair(
-	cn_name: String,
-	runtime_stats: Dictionary,
-	base_stats: Dictionary,
-	key: String
-) -> String:
-	var runtime_value: float = float(runtime_stats.get(key, 0.0))
-	var base_value: float = float(base_stats.get(key, 0.0))
-	var bonus: float = runtime_value - base_value
-	if absf(bonus) <= 0.001:
-		return "%s %d" % [cn_name, int(round(runtime_value))]
-	var prefix: String = "+" if bonus > 0.0 else ""
-	return "%s %d (%s%d)" % [
-		cn_name,
-		int(round(runtime_value)),
-		prefix,
-		int(round(bonus))
+func _collect_linkage_effect_entries(state_snapshot: Dictionary) -> Array[Dictionary]:
+	var entries: Array[Dictionary] = []
+	var seen: Dictionary = {}
+	var grouped_effect_sets: Array[Dictionary] = [
+		{"owner_id": "", "trigger": "", "effects": state_snapshot.get("passive_effects", [])},
+		{"owner_id": "", "trigger": "", "effects": state_snapshot.get("equipment_effects", [])}
 	]
+	for group in grouped_effect_sets:
+		var effects_value: Variant = group.get("effects", [])
+		if not (effects_value is Array):
+			continue
+		for effect_value in (effects_value as Array):
+			if not (effect_value is Dictionary):
+				continue
+			var effect_data: Dictionary = effect_value as Dictionary
+			if str(effect_data.get("op", "")).strip_edges().to_lower() != "tag_linkage_branch":
+				continue
+			var key: String = "%s|%s|%s" % [
+				str(group.get("owner_id", "")),
+				str(group.get("trigger", "")),
+				var_to_str(effect_data)
+			]
+			if seen.has(key):
+				continue
+			seen[key] = true
+			entries.append({
+				"owner_id": str(group.get("owner_id", "")),
+				"trigger": str(group.get("trigger", "")),
+				"effect": effect_data.duplicate(true)
+			})
+	var triggers_value: Variant = state_snapshot.get("triggers", [])
+	if not (triggers_value is Array):
+		return entries
+	for trigger_value in (triggers_value as Array):
+		if not (trigger_value is Dictionary):
+			continue
+		var trigger_entry: Dictionary = trigger_value as Dictionary
+		var owner_id: String = str(trigger_entry.get("gongfa_id", "")).strip_edges()
+		var trigger_name: String = str(trigger_entry.get("trigger", "")).strip_edges().to_lower()
+		var skill_data_value: Variant = trigger_entry.get("skill_data", {})
+		if not (skill_data_value is Dictionary):
+			continue
+		var effects_value: Variant = (skill_data_value as Dictionary).get("effects", [])
+		if not (effects_value is Array):
+			continue
+		for effect_value in (effects_value as Array):
+			if not (effect_value is Dictionary):
+				continue
+			var effect_data: Dictionary = effect_value as Dictionary
+			if str(effect_data.get("op", "")).strip_edges().to_lower() != "tag_linkage_branch":
+				continue
+			var key: String = "%s|%s|%s" % [owner_id, trigger_name, var_to_str(effect_data)]
+			if seen.has(key):
+				continue
+			seen[key] = true
+			entries.append({
+				"owner_id": owner_id,
+				"trigger": trigger_name,
+				"effect": effect_data.duplicate(true)
+			})
+	return entries
 
 
-# 统一战斗日志颜色口径，避免不同事件类型各自定义颜色。
-# 颜色只输出 hex 字符串，具体 RichText 标签由 runtime_view 拼接。
-func battle_log_color_hex(event_type: String) -> String:
-	match event_type:
-		"damage":
-			return "#FFC38A"
-		"skill":
-			return "#87D7FF"
-		"buff":
-			return "#7DE3C0"
-		"death":
-			return "#FF8A8A"
-		"system":
-			return "#B0F0B0"
-		_:
-			return "#D6D6D6"
+func _get_unit_state_snapshot(unit: Node, manager) -> Dictionary:
+	if manager == null or not manager.has_method("get_state_service"):
+		return {}
+	var state_service: Variant = manager.get_state_service()
+	if state_service == null or not state_service.has_method("get_state_for_unit"):
+		return {}
+	var state_value: Variant = state_service.get_state_for_unit(unit)
+	if state_value is Dictionary:
+		return state_value as Dictionary
+	return {}
 
 
-# 安全读取单位属性，避免悬空节点或 null 属性把 HUD 渲染打断。
-# 这里是 HUD 侧的兜底，不替代领域对象自身的数据校验。
-func safe_node_prop(node: Node, key: String, fallback: Variant) -> Variant:
-	if not is_valid_unit(node):
-		return fallback
-	var value: Variant = node.get(key)
-	return fallback if value == null else value
+func _build_linkage_eval_context(unit: Node, manager) -> Dictionary:
+	var context: Dictionary = {
+		"all_units": _collect_board_units(unit),
+		"combat_manager": _refs.combat_manager if _refs != null else null,
+		"hex_grid": _refs.hex_grid if _refs != null else null
+	}
+	if _refs != null and _refs.hex_grid != null:
+		context["hex_size"] = float(_refs.hex_grid.get("hex_size"))
+	if manager != null and is_instance_valid(manager):
+		context["tag_linkage_stagger_buckets"] = int(manager.get("tag_linkage_stagger_buckets"))
+	return context
+
+
+func _collect_board_units(unit: Node) -> Array[Node]:
+	var output: Array[Node] = []
+	var seen: Dictionary = {}
+	if _state != null:
+		for unit_value in _state.ally_deployed.values():
+			if not is_valid_unit(unit_value):
+				continue
+			var ally_unit: Node = unit_value as Node
+			var ally_id: int = ally_unit.get_instance_id()
+			if seen.has(ally_id):
+				continue
+			seen[ally_id] = true
+			output.append(ally_unit)
+		for unit_value in _state.enemy_deployed.values():
+			if not is_valid_unit(unit_value):
+				continue
+			var enemy_unit: Node = unit_value as Node
+			var enemy_id: int = enemy_unit.get_instance_id()
+			if seen.has(enemy_id):
+				continue
+			seen[enemy_id] = true
+			output.append(enemy_unit)
+	if is_valid_unit(unit):
+		var self_id: int = unit.get_instance_id()
+		if not seen.has(self_id):
+			output.append(unit)
+	return output
+
+
+func _resolve_owner_label(owner_id: String, manager, trait_owner_labels: Dictionary) -> String:
+	if owner_id.is_empty():
+		return "单位特效"
+	if trait_owner_labels.has(owner_id):
+		return str(trait_owner_labels.get(owner_id, owner_id))
+	var gongfa_data: Dictionary = manager.get_gongfa_data(owner_id)
+	if not gongfa_data.is_empty():
+		return "功法·%s" % str(gongfa_data.get("name", owner_id))
+	var equip_data: Dictionary = manager.get_equipment_data(owner_id)
+	if not equip_data.is_empty():
+		return "装备·%s" % str(equip_data.get("name", owner_id))
+	return owner_id
+
+
+func _build_trait_owner_label_map(unit: Node) -> Dictionary:
+	var labels: Dictionary = {}
+	var unit_id: String = str(safe_node_prop(unit, "unit_id", "unit")).strip_edges()
+	if unit_id.is_empty():
+		unit_id = "unit"
+	var trait_values: Variant = safe_node_prop(unit, "traits", [])
+	if not (trait_values is Array):
+		return labels
+	for trait_index in range((trait_values as Array).size()):
+		var trait_value: Variant = (trait_values as Array)[trait_index]
+		if not (trait_value is Dictionary):
+			continue
+		var trait_data: Dictionary = trait_value as Dictionary
+		var trait_id: String = str(trait_data.get("id", "trait_%d" % trait_index)).strip_edges()
+		if trait_id.is_empty():
+			trait_id = "trait_%d" % trait_index
+		var trait_name: String = str(trait_data.get("name", trait_id)).strip_edges()
+		var label: String = "特性·%s" % trait_name
+		labels["trait_%s_%s" % [unit_id, trait_id]] = label
+		labels[trait_id] = label
+	return labels
+
+
+func _format_query_counts(query_counts_value: Variant) -> String:
+	if not (query_counts_value is Dictionary):
+		return ""
+	var query_counts: Dictionary = query_counts_value as Dictionary
+	if query_counts.is_empty():
+		return ""
+	var keys: Array[String] = []
+	for key_value in query_counts.keys():
+		keys.append(str(key_value))
+	keys.sort()
+	var parts: Array[String] = []
+	for key in keys:
+		parts.append("%s=%d" % [key, int(query_counts.get(key, 0))])
+	return "，计数[%s]" % " / ".join(parts)
+
+
+func _trim_lines(lines: Array[String], max_lines: int, section_name: String) -> Array[String]:
+	if lines.size() <= max_lines:
+		return lines
+	var output: Array[String] = []
+	for index in range(max_lines):
+		output.append(lines[index])
+	output.append("……其余%d条%s已折叠" % [lines.size() - max_lines, section_name])
+	return output

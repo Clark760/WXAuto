@@ -1,4 +1,4 @@
-﻿extends SceneTree
+extends SceneTree
 
 const BATTLEFIELD_SCENE: PackedScene = preload("res://scenes/battle/battlefield_scene.tscn")
 const EVENT_BUS_SCRIPT: Script = preload("res://scripts/core/event_bus.gd")
@@ -17,7 +17,6 @@ class StubBattleUnit:
 	var reset_visual_called: bool = false
 	var unit_name: String = "ResultStub"
 	var quality: String = "white"
-	var star_level: int = 1
 
 	func _init() -> void:
 		var components := Node.new()

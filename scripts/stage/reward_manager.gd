@@ -1,4 +1,4 @@
-﻿extends RefCounted
+extends RefCounted
 class_name RewardManager
 
 # ===========================
@@ -75,8 +75,7 @@ func apply_stage_rewards(
 					})
 			"unit":
 				# 角色掉落会区分授予成功和丢弃结果。
-				var unit_star: int = clampi(int(drop.get("star", 1)), 1, 3)
-				var grant_info: Dictionary = _grant_unit_drop(picked_id, unit_star, battlefield)
+				var grant_info: Dictionary = _grant_unit_drop(picked_id, battlefield)
 				if bool(grant_info.get("granted", false)):
 					(result["granted_units"] as Array).append(grant_info)
 				else:
@@ -99,25 +98,22 @@ func _grant_item_drop(battlefield: Node, item_type: String, item_id: String) -> 
 # 入口缺失时回退到 bench + unit_factory 的通用落位流程。
 func _grant_unit_drop(
 	unit_id: String,
-	star: int,
 	battlefield: Node
 ) -> Dictionary:
 	if battlefield == null or not is_instance_valid(battlefield):
 		return {
 			"type": "unit",
 			"id": unit_id,
-			"star": star,
 			"granted": false,
 			"placement": "discarded"
 		}
 
-	var direct_result: Variant = battlefield.grant_stage_reward_unit(unit_id, star)
+	var direct_result: Variant = battlefield.grant_stage_reward_unit(unit_id)
 	if direct_result is Dictionary:
 		return direct_result
 	return {
 		"type": "unit",
 		"id": unit_id,
-		"star": star,
 		"granted": false,
 		"placement": "discarded"
 	}

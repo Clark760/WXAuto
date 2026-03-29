@@ -1,4 +1,4 @@
-﻿extends RefCounted
+extends RefCounted
 class_name StageRuntimeRules
 
 # 关卡运行时规则

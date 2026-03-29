@@ -41,7 +41,6 @@
         "properties": {
           "unit_id": { "type": "string", "minLength": 1 },
           "count": { "type": "integer", "minimum": 1 },
-          "star": { "type": "integer", "minimum": 1, "maximum": 3 },
           "deploy_zone": {
             "type": "string",
             "enum": ["front", "back", "center", "random", "fixed"]
@@ -147,8 +146,7 @@
                 "minItems": 1
               },
               "count": { "type": "integer", "minimum": 1 },
-              "chance": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
-              "star": { "type": "integer", "minimum": 1, "maximum": 3 }
+              "chance": { "type": "number", "minimum": 0.0, "maximum": 1.0 }
             }
           }
         }

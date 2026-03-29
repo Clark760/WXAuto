@@ -1,4 +1,4 @@
-﻿extends Node
+extends Node
 class_name BattlefieldSceneRefs
 
 # Phase 3 scene-first 子场景库（Batch 1）
@@ -65,7 +65,6 @@ var toggle_button: Button = null # 底栏展开/收起按钮。
 var drag_preview: PanelContainer = null # 世界拖拽预览卡容器。
 var drag_preview_icon: ColorRect = null # 预览卡品质色块。
 var drag_preview_name: Label = null # 预览卡名称文案。
-var drag_preview_star: Label = null # 预览卡星级文案。
 var debug_label: Label = null # 战场最小调试状态输出。
 var recycle_drop_zone: PanelContainer = null # 回收区运行时挂载点。
 
@@ -103,6 +102,11 @@ var unit_detail_panel: PanelContainer = null # 角色详情主面板。
 var detail_drag_handle: HBoxContainer = null # 详情面板拖拽把手。
 var detail_close_button: Button = null # 详情面板关闭按钮。
 var detail_title: Label = null # 详情面板标题。
+var detail_tab_overview_button: Button = null # 详情-属性装备页签按钮。
+var detail_tab_linkage_button: Button = null # 详情-联动特效页签按钮。
+var detail_overview_content: HBoxContainer = null # 详情-属性装备内容区。
+var detail_linkage_content: VBoxContainer = null # 详情-联动特效内容区。
+var detail_linkage_text: RichTextLabel = null # 详情-联动特效实时文本。
 var detail_portrait_color: ColorRect = null # 详情立绘色块占位。
 var detail_name_label: Label = null # 详情角色名。
 var detail_quality_label: Label = null # 详情品质标签。
@@ -236,9 +240,6 @@ func _bind_bottom_refs(scene_root_value: Node) -> void:
 	drag_preview_name = scene_root_value.get_node_or_null(
 		"BottomLayer/DragPreview/PreviewVBox/Name"
 	) as Label
-	drag_preview_star = scene_root_value.get_node_or_null(
-		"BottomLayer/DragPreview/PreviewVBox/Star"
-	) as Label
 	debug_label = scene_root_value.get_node_or_null("DebugLayer/DebugLabel") as Label
 
 
@@ -319,6 +320,21 @@ func _bind_detail_refs(scene_root_value: Node) -> void:
 	detail_title = scene_root_value.get_node_or_null(
 		"DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/HeaderRow/DetailTitle"
 	) as Label
+	detail_tab_overview_button = scene_root_value.get_node_or_null(
+		"DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/DetailTabRow/DetailTabOverviewButton"
+	) as Button
+	detail_tab_linkage_button = scene_root_value.get_node_or_null(
+		"DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/DetailTabRow/DetailTabLinkageButton"
+	) as Button
+	detail_overview_content = scene_root_value.get_node_or_null(
+		"DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow"
+	) as HBoxContainer
+	detail_linkage_content = scene_root_value.get_node_or_null(
+		"DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/DetailLinkageContent"
+	) as VBoxContainer
+	detail_linkage_text = scene_root_value.get_node_or_null(
+		"DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/DetailLinkageContent/DetailLinkageText"
+	) as RichTextLabel
 	detail_portrait_color = scene_root_value.get_node_or_null(
 		"DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/PortraitSection/PortraitColor"
 	) as ColorRect
@@ -367,27 +383,27 @@ func _bind_detail_refs(scene_root_value: Node) -> void:
 
 # 仓库节点在这里单独采集，避免 inventory helper 继续碰路径常量。
 func _bind_inventory_refs(scene_root_value: Node) -> void:
-	inventory_panel = scene_root_value.get_node_or_null("DetailLayer/InventoryPanel") as PanelContainer
+	inventory_panel = scene_root_value.get_node_or_null("InventoryLayer/InventoryPanel") as PanelContainer
 	inventory_title = scene_root_value.get_node_or_null(
-		"DetailLayer/InventoryPanel/InventoryMargin/InventoryRoot/HeaderRow/InventoryTitle"
+		"InventoryLayer/InventoryPanel/InventoryMargin/InventoryRoot/HeaderRow/InventoryTitle"
 	) as Label
 	inventory_filter_row = scene_root_value.get_node_or_null(
-		"DetailLayer/InventoryPanel/InventoryMargin/InventoryRoot/FilterRow"
+		"InventoryLayer/InventoryPanel/InventoryMargin/InventoryRoot/FilterRow"
 	) as HBoxContainer
 	inventory_search = scene_root_value.get_node_or_null(
-		"DetailLayer/InventoryPanel/InventoryMargin/InventoryRoot/SearchInput"
+		"InventoryLayer/InventoryPanel/InventoryMargin/InventoryRoot/SearchInput"
 	) as LineEdit
 	inventory_grid = scene_root_value.get_node_or_null(
-		"DetailLayer/InventoryPanel/InventoryMargin/InventoryRoot/InventoryScroll/InventoryGrid"
+		"InventoryLayer/InventoryPanel/InventoryMargin/InventoryRoot/InventoryScroll/InventoryGrid"
 	) as VBoxContainer
 	inventory_summary = scene_root_value.get_node_or_null(
-		"DetailLayer/InventoryPanel/InventoryMargin/InventoryRoot/FooterRow/InventorySummary"
+		"InventoryLayer/InventoryPanel/InventoryMargin/InventoryRoot/FooterRow/InventorySummary"
 	) as Label
 	inventory_tab_gongfa_button = scene_root_value.get_node_or_null(
-		"DetailLayer/InventoryPanel/InventoryMargin/InventoryRoot/HeaderRow/InventoryTabGongfaButton"
+		"InventoryLayer/InventoryPanel/InventoryMargin/InventoryRoot/HeaderRow/InventoryTabGongfaButton"
 	) as Button
 	inventory_tab_equip_button = scene_root_value.get_node_or_null(
-		"DetailLayer/InventoryPanel/InventoryMargin/InventoryRoot/HeaderRow/InventoryTabEquipButton"
+		"InventoryLayer/InventoryPanel/InventoryMargin/InventoryRoot/HeaderRow/InventoryTabEquipButton"
 	) as Button
 
 
@@ -478,7 +494,6 @@ func has_required_scene_nodes() -> bool:
 		and drag_preview != null
 		and drag_preview_icon != null
 		and drag_preview_name != null
-		and drag_preview_star != null
 		and debug_label != null
 	)
 

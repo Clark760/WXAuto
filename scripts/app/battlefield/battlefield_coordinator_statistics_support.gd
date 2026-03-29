@@ -1,4 +1,4 @@
-﻿extends RefCounted
+extends RefCounted
 
 # coordinator 统计支撑
 # 说明：

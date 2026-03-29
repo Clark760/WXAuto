@@ -80,7 +80,7 @@ func get_unit_record(unit_id: String) -> Dictionary:
 
 
 # 借出单位实例
-func acquire_unit(unit_id: String, forced_star: int = -1, parent_override: Node = null) -> Node:
+func acquire_unit(unit_id: String, parent_override: Node = null) -> Node:
 	var object_pool: Variant = _get_object_pool()
 	if object_pool == null:
 		push_error("UnitFactory: ObjectPool 未就绪，无法获取角色实例。")
@@ -100,7 +100,7 @@ func acquire_unit(unit_id: String, forced_star: int = -1, parent_override: Node 
 		_probe_commit_timing(PROBE_SCOPE_UNIT_FACTORY_ACQUIRE, acquire_begin_us)
 		return null
 
-	_configure_unit_node(unit_node, unit_id, forced_star, pool_key)
+	_configure_unit_node(unit_node, unit_id, pool_key)
 	_probe_commit_timing(PROBE_SCOPE_UNIT_FACTORY_ACQUIRE, acquire_begin_us)
 	return unit_node as Node
 
@@ -192,7 +192,7 @@ func prewarm_unit_instances_by_count(
 			continue
 
 		for _index in range(missing_count):
-			var unit_node: Node = acquire_unit(unit_id, -1, parent_override)
+			var unit_node: Node = acquire_unit(unit_id, parent_override)
 			if unit_node == null:
 				break
 			if release_unit(unit_node):
@@ -231,19 +231,19 @@ func _create_unit_instance(unit_id: String) -> Node:
 		return null
 
 	if _unit_records.has(unit_id):
-		_configure_unit_node(unit_node, unit_id, -1, _pool_key_of(unit_id))
+		_configure_unit_node(unit_node, unit_id, _pool_key_of(unit_id))
 	return unit_node as Node
 
 
 # 写入运行时状态
-func _configure_unit_node(unit_node: Variant, unit_id: String, forced_star: int, pool_key: String) -> void:
+func _configure_unit_node(unit_node: Variant, unit_id: String, pool_key: String) -> void:
 	if unit_node == null:
 		return
 	var configure_begin_us: int = _probe_begin_timing()
 	if unit_node.has_method("bind_runtime_services"):
 		unit_node.bind_runtime_services(_services)
 	unit_node.set("pool_key", pool_key)
-	unit_node.setup_from_unit_record(_unit_records[unit_id], forced_star)
+	unit_node.setup_from_unit_record(_unit_records[unit_id])
 
 	var sprite_path: String = str(unit_node.get("sprite_path"))
 	var quality: String = str(unit_node.get("quality"))

@@ -237,6 +237,7 @@ func _compile_single_query(
 	var origin_scope: String = str(query.get("origin_scope", "all")).strip_edges().to_lower()
 	if origin_scope != "self" and origin_scope != "nearby":
 		origin_scope = "all"
+	var unique_source_name: bool = bool(query.get("unique_source_name", false))
 
 	# 已注册标签走 bit mask，未注册标签保留到 fallback 文本匹配。
 	# 这两组都要留下来，否则 registry 未覆盖的标签会在运行时被静默吃掉。
@@ -273,7 +274,8 @@ func _compile_single_query(
 		"exclude_match": query_exclude_match,
 		"source_types": query_source_types,
 		"team_scope": query_team_scope,
-		"origin_scope": origin_scope
+		"origin_scope": origin_scope,
+		"unique_source_name": unique_source_name
 	}
 
 

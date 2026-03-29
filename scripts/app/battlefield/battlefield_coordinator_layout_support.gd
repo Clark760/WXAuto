@@ -1,4 +1,4 @@
-﻿extends RefCounted
+extends RefCounted
 
 # coordinator 布局支撑
 # 说明：

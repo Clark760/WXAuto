@@ -35,7 +35,7 @@ func _run() -> void:
 		await _cleanup_battlefield(ctx)
 		return
 
-	var recruit_unit: Node = unit_factory.acquire_unit(str(unit_ids[0]), -1, refs.unit_layer)
+	var recruit_unit: Node = unit_factory.acquire_unit(str(unit_ids[0]), refs.unit_layer)
 	_assert_true(recruit_unit != null, "acquire recruit unit for async start smoke")
 	if recruit_unit != null:
 		recruit_unit.set_team(1)

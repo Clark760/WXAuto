@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WXAuto 模组数据编辑器</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="title-wrap">
+        <h1>WXAuto 模组数据编辑器</h1>
+        <p id="statusText">准备就绪。</p>
+      </div>
+      <div class="topbar-actions">
+        <button id="reloadBtn" type="button">重新加载</button>
+        <button id="saveBtn" type="button" class="primary">保存数据</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="sidebar">
+        <section class="panel">
+          <h2>编辑目标</h2>
+          <label>
+            Mod
+            <select id="modSelect"></select>
+          </label>
+          <label>
+            分类
+            <select id="categorySelect"></select>
+          </label>
+          <label>
+            文件
+            <div class="row">
+              <select id="fileSelect"></select>
+              <button id="newFileBtn" type="button">新建</button>
+            </div>
+          </label>
+          <p id="schemaInfo" class="hint"></p>
+        </section>
+
+        <section class="panel">
+          <h2>Mod 信息</h2>
+          <label>
+            ID
+            <input id="manifestIdInput" type="text" />
+          </label>
+          <label>
+            名称
+            <input id="manifestNameInput" type="text" />
+          </label>
+          <label>
+            作者
+            <input id="manifestAuthorInput" type="text" />
+          </label>
+          <label>
+            版本
+            <input id="manifestVersionInput" type="text" />
+          </label>
+          <label>
+            最低游戏版本
+            <input id="manifestGameVersionInput" type="text" />
+          </label>
+          <label>
+            加载顺序（load_order）
+            <input id="manifestLoadOrderInput" type="number" step="1" />
+          </label>
+          <label>
+            描述
+            <textarea id="manifestDescInput"></textarea>
+          </label>
+          <div class="row">
+            <button id="reloadManifestBtn" type="button">重载 Mod 信息</button>
+            <button id="saveManifestBtn" type="button" class="primary">保存 Mod 信息</button>
+          </div>
+        </section>
+
+        <section class="panel" id="arrayPanel" hidden>
+          <h2>数组条目</h2>
+          <div class="row">
+            <button id="addItemBtn" type="button">新增条目</button>
+            <button id="cloneItemBtn" type="button">克隆当前</button>
+            <button id="removeItemBtn" type="button" class="danger">删除当前</button>
+          </div>
+          <div id="itemList" class="item-list"></div>
+        </section>
+      </aside>
+
+      <section class="editor">
+        <div class="tabs">
+          <button id="formTabBtn" type="button" class="tab active">表单模式</button>
+          <button id="rawTabBtn" type="button" class="tab">JSON 模式</button>
+        </div>
+
+        <section id="formTab" class="panel editor-panel"></section>
+
+        <section id="rawTab" class="panel editor-panel" hidden>
+          <div class="row">
+            <button id="formatRawBtn" type="button">格式化 JSON</button>
+            <button id="applyRawBtn" type="button">应用到表单</button>
+          </div>
+          <textarea id="rawEditor" spellcheck="false"></textarea>
+        </section>
+      </section>
+    </main>
+
+    <div id="refPickerMask" class="modal-mask" hidden>
+      <div class="modal">
+        <div class="modal-header">
+          <h3 id="refPickerTitle">引用选择</h3>
+          <button id="refPickerCloseBtn" type="button">关闭</button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <input id="refSearchInput" type="text" placeholder="输入关键字搜索 id / 名称 / mod / 文件" />
+            <button id="refSearchBtn" type="button">搜索</button>
+          </div>
+          <div id="refList" class="ref-list"></div>
+        </div>
+        <div class="modal-footer">
+          <button id="refPrevBtn" type="button">上一页</button>
+          <span id="refPageText" class="muted"></span>
+          <button id="refNextBtn" type="button">下一页</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
+

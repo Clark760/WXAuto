@@ -1,4 +1,4 @@
-﻿extends RefCounted
+extends RefCounted
 class_name RecyclePricing
 
 # 回收定价规则

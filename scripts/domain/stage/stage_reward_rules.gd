@@ -1,4 +1,4 @@
-﻿extends RefCounted
+extends RefCounted
 class_name StageRewardRules
 
 # 关卡奖励纯规则
@@ -61,8 +61,7 @@ static func build_reward_plan(rewards_config: Dictionary, rng: RandomNumberGener
 				continue
 			drop_plan.append({
 				"type": str(drop_rule.get("type", "")),
-				"id": picked_id,
-				"star": int(drop_rule.get("star", 1))
+				"id": picked_id
 			})
 	plan["drops"] = drop_plan
 	return plan
@@ -70,7 +69,7 @@ static func build_reward_plan(rewards_config: Dictionary, rng: RandomNumberGener
 
 # 把掉落行规整成可执行规则，非法配置直接返回空字典。
 # 这一层只做字段合法化，不做任何抽样。
-# 规范化后 count/chance/star 都会落到安全范围。
+# 规范化后 count/chance 都会落到安全范围。
 static func _normalize_drop_rule(raw_drop: Dictionary) -> Dictionary:
 	var drop_type: String = str(raw_drop.get("type", "")).strip_edges().to_lower()
 	if not DROP_TYPES.has(drop_type):
@@ -91,8 +90,7 @@ static func _normalize_drop_rule(raw_drop: Dictionary) -> Dictionary:
 		"type": drop_type,
 		"pool": pool,
 		"count": maxi(int(raw_drop.get("count", 1)), 0),
-		"chance": clampf(float(raw_drop.get("chance", 1.0)), 0.0, 1.0),
-		"star": clampi(int(raw_drop.get("star", 1)), 1, 3)
+		"chance": clampf(float(raw_drop.get("chance", 1.0)), 0.0, 1.0)
 	}
 
 

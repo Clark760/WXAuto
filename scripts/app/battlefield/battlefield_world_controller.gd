@@ -1,4 +1,4 @@
-﻿extends Node
+extends Node
 class_name BattlefieldWorldController
 
 const WORLD_VIEW_SUPPORT_SCRIPT: Script = preload(

@@ -19,7 +19,7 @@ var _max_hex_size: float = 24.0
 var _bottom_reserved_preparation: float = 250.0
 var _bottom_tween: Tween = null
 
-const COMBAT_COMPACT_VISUAL_UNIT_THRESHOLD: int = 120 # 高密度战斗隐藏名称/星级标签。
+const COMBAT_COMPACT_VISUAL_UNIT_THRESHOLD: int = 120 # 高密度战斗隐藏单位标签。
 
 
 # 绑定 world controller、场景引用表和会话状态，后续所有视图态都只走这里。

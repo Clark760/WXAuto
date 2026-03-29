@@ -3,22 +3,35 @@
 [ext_resource type="Script" path="res://scripts/ui/unit_tooltip_gongfa_row_view.gd" id="1_view"]
 
 [node name="UnitTooltipGongfaRow" type="PanelContainer"]
-custom_minimum_size = Vector2(0, 24)
+custom_minimum_size = Vector2(0, 40)
 size_flags_horizontal = 3
 mouse_filter = 0
 script = ExtResource("1_view")
 
-[node name="Row" type="HBoxContainer" parent="."]
+[node name="RootVBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="HeadRow" type="HBoxContainer" parent="RootVBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 4
 
-[node name="PrefixLabel" type="Label" parent="Row"]
+[node name="PrefixLabel" type="Label" parent="RootVBox/HeadRow"]
 layout_mode = 2
-text = "•"
+text = "·"
 
-[node name="NameLink" type="LinkButton" parent="Row"]
+[node name="NameLink" type="LinkButton" parent="RootVBox/HeadRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "-"
 disabled = true
+
+[node name="DetailLabel" type="Label" parent="RootVBox"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 12
+text = "-"
+autowrap_mode = 2

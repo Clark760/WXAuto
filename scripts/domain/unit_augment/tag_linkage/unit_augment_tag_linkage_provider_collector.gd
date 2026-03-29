@@ -81,6 +81,7 @@ func _collect_unit_providers(
 		if not _unit_team_scope_accepts(required_unit_team_scope, relation):
 			continue
 		var unit_iid: int = unit.get_instance_id()
+		var unit_source_name: String = _resolve_provider_source_name(unit)
 		var provider_cache: Dictionary = _get_tag_linkage_provider_cache(context, unit)
 		if bool(provider_cache.get("available", false)):
 			for cached_entry_value in provider_cache.get("entries", []):
@@ -90,11 +91,15 @@ func _collect_unit_providers(
 				var source_type: String = str(cached_entry.get("source_type", "")).strip_edges()
 				if not global_source_types.has(source_type):
 					continue
+				var source_name: String = str(cached_entry.get("source_name", "")).strip_edges()
+				if source_name.is_empty():
+					source_name = unit_source_name
 				providers.append({
 					"key": str(cached_entry.get("key", "")).strip_edges(),
 					"source_type": source_type,
 					"tags": cached_entry.get("tags", []),
 					"tag_mask": cached_entry.get("tag_mask", PackedInt64Array()),
+					"source_name": source_name,
 					"unit_id": unit_iid,
 					"is_self": is_self,
 					"is_self_cell": false,
@@ -112,6 +117,7 @@ func _collect_unit_providers(
 					"source_type": "unit",
 					"tags": unit_tags,
 					"tag_mask": _query_compiler.build_mask_from_tags(unit_tags),
+					"source_name": unit_source_name,
 					"unit_id": unit_iid,
 					"is_self": is_self,
 					"is_self_cell": false,
@@ -130,6 +136,7 @@ func _collect_unit_providers(
 					"source_type": "trait",
 					"tags": trait_tags,
 					"tag_mask": _query_compiler.build_mask_from_tags(trait_tags),
+					"source_name": unit_source_name,
 					"unit_id": unit_iid,
 					"is_self": is_self,
 					"is_self_cell": false,
@@ -146,6 +153,7 @@ func _collect_unit_providers(
 					"source_type": "gongfa",
 					"tags": gongfa_tags,
 					"tag_mask": _query_compiler.build_mask_from_tags(gongfa_tags),
+					"source_name": unit_source_name,
 					"unit_id": unit_iid,
 					"is_self": is_self,
 					"is_self_cell": false,
@@ -162,6 +170,7 @@ func _collect_unit_providers(
 					"source_type": "equipment",
 					"tags": equip_tags,
 					"tag_mask": _query_compiler.build_mask_from_tags(equip_tags),
+					"source_name": unit_source_name,
 					"unit_id": unit_iid,
 					"is_self": is_self,
 					"is_self_cell": false,
@@ -530,6 +539,18 @@ func _get_tag_linkage_provider_cache(context: Dictionary, unit: Node) -> Diction
 	if cache_value is Dictionary:
 		return cache_value as Dictionary
 	return {"available": false, "entries": []}
+
+
+func _resolve_provider_source_name(unit: Node) -> String:
+	if unit == null or not is_instance_valid(unit):
+		return ""
+	var unit_name: String = str(_node_prop(unit, "unit_name", "")).strip_edges()
+	if not unit_name.is_empty():
+		return unit_name
+	var unit_id: String = str(_node_prop(unit, "unit_id", "")).strip_edges()
+	if not unit_id.is_empty():
+		return unit_id
+	return ""
 
 
 func _is_live_unit(unit: Node) -> bool:

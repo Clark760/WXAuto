@@ -271,6 +271,7 @@ func _run() -> void:
 	_test_range_zero_only_self_and_ground()
 	_test_range_and_tag_match_any_all()
 	_test_tier_case_order_3_5_7()
+	_test_unique_source_name_query_option()
 	_test_provider_count_not_multiplied_by_tag_count()
 	_test_static_and_dynamic_terrain_tags()
 	_test_wandu_ground_poison_fire_else()
@@ -429,6 +430,35 @@ func _test_tier_case_order_3_5_7() -> void:
 	_assert_true(not _array_has_str(result.get("matched_case_ids", []), "tier_3"), "stop_after_first_case should prevent lower tier match")
 	var effects: Array = result.get("effects", [])
 	_assert_true(effects.size() == 1 and is_equal_approx(float((effects[0] as Dictionary).get("value", 0.0)), 50.0), "tier_5 should return 50 mp effect")
+
+	_free_bundle(bundle, units)
+
+
+func _test_unique_source_name_query_option() -> void:
+	var bundle: Dictionary = _build_context_bundle()
+	var units: Array = []
+	for i in range(5):
+		var unit: MockUnit = _make_unit("same_name_%d" % i, 1, ["array.zhenwu"], [], [], [])
+		unit.unit_name = "same_source_name"
+		units.append(unit)
+		bundle.combat_manager.register_unit_cell(unit, Vector2i(i, 0))
+	var owner: MockUnit = units[0]
+
+	var config: Dictionary = {
+		"range": 5,
+		"include_self": true,
+		"team_scope": "ally",
+		"source_types": ["unit"],
+		"queries": [
+			{"id": "q_normal", "tags": ["array.zhenwu"], "tag_match": "any", "source_types": ["unit"]},
+			{"id": "q_unique_name", "tags": ["array.zhenwu"], "tag_match": "any", "source_types": ["unit"], "unique_source_name": true}
+		]
+	}
+
+	var result: Dictionary = bundle.manager.evaluate_tag_linkage_branch(owner, config, _build_effect_context(bundle, units))
+	var query_counts: Dictionary = result.get("query_counts", {})
+	_assert_true(int(query_counts.get("q_normal", 0)) == 5, "default query should keep counting same-name providers")
+	_assert_true(int(query_counts.get("q_unique_name", 0)) == 1, "unique_source_name should count same-name sources only once")
 
 	_free_bundle(bundle, units)
 

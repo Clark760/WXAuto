@@ -1,4 +1,4 @@
-﻿extends RefCounted
+extends RefCounted
 
 # coordinator 经济与奖励支撑
 # 说明：
@@ -197,17 +197,16 @@ func grant_stage_reward_item(item_type: String, item_id: String, count: int = 1)
 
 # 发放角色奖励时优先上备战席，放不下再尝试落到棋盘。
 # “discarded” 结果会留给调用方记录日志，避免奖励静默消失。
-func grant_stage_reward_unit(unit_id: String, star: int = 1) -> Dictionary:
+func grant_stage_reward_unit(unit_id: String) -> Dictionary:
 	var result: Dictionary = {
 		"type": "unit",
 		"id": unit_id,
-		"star": clampi(star, 1, 3),
 		"granted": false,
 		"placement": "discarded"
 	}
 	if unit_id.strip_edges().is_empty() or _refs.unit_factory == null:
 		return result
-	var unit_node: Node = _refs.unit_factory.acquire_unit(unit_id, clampi(star, 1, 3), _refs.unit_layer)
+	var unit_node: Node = _refs.unit_factory.acquire_unit(unit_id, _refs.unit_layer)
 	if unit_node == null:
 		return result
 	unit_node.set_team(1)
@@ -305,7 +304,7 @@ func _grant_recruit_unit(unit_id: String) -> bool:
 		if _refs.debug_label != null:
 			_refs.debug_label.text = "备战区已满，无法招募。"
 		return false
-	var unit_node: Node = _refs.unit_factory.acquire_unit(unit_id, -1, _refs.unit_layer)
+	var unit_node: Node = _refs.unit_factory.acquire_unit(unit_id, _refs.unit_layer)
 	if unit_node == null:
 		if _refs.debug_label != null:
 			_refs.debug_label.text = "招募失败：无法创建角色 %s" % unit_id

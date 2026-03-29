@@ -89,7 +89,7 @@ func _spawn_vfx(
 
 
 # 克隆本质上只是构造一条 `summon_units` 配置。
-# `effect` 里出现的 `unit_id/star/hp_ratio/atk_ratio` 都会被整理成单条 summon row。
+# `effect` 里出现的 `unit_id/hp_ratio/atk_ratio` 都会被整理成单条 summon row。
 func _summon_clone(
 	runtime_gateway: Variant,
 	source: Node,
@@ -102,12 +102,10 @@ func _summon_clone(
 		return
 
 	var clone_count: int = maxi(int(effect.get("count", 1)), 1)
-	var clone_star: int = clampi(int(effect.get("star", int(source.get("star_level")))), 1, 3)
 	# clone_row 会被翻译成普通召唤行，因此这里先把克隆语义收敛到统一字段集。
 	var clone_row: Dictionary = {
 		"clone_source": "self",
-		"count": clone_count,
-		"star": clone_star
+		"count": clone_count
 	}
 
 	if effect.has("unit_id"):
