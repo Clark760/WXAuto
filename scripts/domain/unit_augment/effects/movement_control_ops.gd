@@ -55,7 +55,7 @@ func _pull_target(
 
 	# 拉拽目标按 source 当前逻辑格前进，避免世界坐标位置与格子占位不同步。
 	var source_cell: Vector2i = combat_manager.get_unit_cell_of(source)
-	var pull_distance: int = maxi(int(effect.get("distance", 1)), 1)
+	var pull_distance: int = _resolve_distance_steps(effect)
 	# 旧接口会自己处理途中阻挡与停靠，因此这里不再手写路径搜索。
 	combat_manager.move_unit_steps_towards(target, source_cell, pull_distance)
 
@@ -75,7 +75,7 @@ func _knockback_aoe(
 		return
 
 	var radius_world: float = _query_service.cells_to_world_distance(float(effect.get("radius", 2.0)), context)
-	var distance_steps: int = maxi(int(effect.get("distance", 1)), 1)
+	var distance_steps: int = _resolve_distance_steps(effect)
 	var center_cell: Vector2i = combat_manager.get_unit_cell_of(source)
 	# AOE 击退先统一取命中敌军，再逐个沿远离中心格的方向推开。
 	for enemy in _query_service.collect_enemy_units_in_radius(
@@ -237,7 +237,7 @@ func _teleport_behind(
 	if target == null or not is_instance_valid(target):
 		return
 
-	var distance_steps: int = maxi(int(effect.get("distance", 1)), 1)
+	var distance_steps: int = _resolve_distance_steps(effect)
 	var combat_manager: Variant = context.get("combat_manager", null)
 	var hex_grid: Variant = context.get("hex_grid", null)
 	var has_grid_movement: bool = combat_manager != null \
@@ -290,7 +290,7 @@ func _dash_forward(
 	if target == null or not is_instance_valid(target):
 		return
 
-	var distance_steps: int = maxi(int(effect.get("distance", 1)), 1)
+	var distance_steps: int = _resolve_distance_steps(effect)
 	var combat_manager: Variant = context.get("combat_manager", null)
 	var has_grid_movement: bool = combat_manager != null \
 		and combat_manager.has_method("get_unit_cell_of") \
@@ -335,7 +335,7 @@ func _knockback_target(
 	if target == null or not is_instance_valid(target):
 		return
 
-	var distance_steps: int = maxi(int(effect.get("distance", 1)), 1)
+	var distance_steps: int = _resolve_distance_steps(effect)
 	var combat_manager: Variant = context.get("combat_manager", null)
 	var has_grid_movement: bool = combat_manager != null \
 		and combat_manager.has_method("get_unit_cell_of") \
@@ -425,3 +425,16 @@ func _apply_control_buff(
 
 	summary["debuff_applied"] = int(summary.get("debuff_applied", 0)) + 1
 	_summary_collector.append_buff_event(summary, source, target, buff_id, duration, op)
+
+
+# 手册示例常用 `cells` / `distance_cells`，运行时统一折算成位移步数。
+func _resolve_distance_steps(effect: Dictionary) -> int:
+	return maxi(
+		int(
+			effect.get(
+				"distance",
+				effect.get("cells", effect.get("distance_cells", 1))
+			)
+		),
+		1
+	)

@@ -450,6 +450,33 @@ func _test_team_alive_condition_variants() -> void:
 	})
 	_assert_true(not bool(manager.get_trigger_runtime().can_trigger_entry(manager, owner, entry_all_max_fail, {})), "all max should fail for (2+3-1)=4")
 
+	var entry_doc_alias_ok: Dictionary = _build_entry(manager, "gf_doc_alias_ok", {
+		"trigger": "manual",
+		"trigger_params": {
+			"team_scope": "enemy",
+			"team_alive_count_min": 3
+		},
+		"effects": [{"op": "buff_self", "buff_id": "buff_test", "duration": 1.0}]
+	})
+	_assert_true(
+		bool(manager.get_trigger_runtime().can_trigger_entry(manager, owner, entry_doc_alias_ok, {})),
+		"team_alive_count_min alias should pass when enemy_alive=3"
+	)
+
+	var entry_doc_alias_fail: Dictionary = _build_entry(manager, "gf_doc_alias_fail", {
+		"trigger": "manual",
+		"trigger_params": {
+			"team_scope": "both",
+			"exclude_self": true,
+			"team_alive_count_max": 3
+		},
+		"effects": [{"op": "buff_self", "buff_id": "buff_test", "duration": 1.0}]
+	})
+	_assert_true(
+		not bool(manager.get_trigger_runtime().can_trigger_entry(manager, owner, entry_doc_alias_fail, {})),
+		"team_alive_count_max alias should fail for (2+3-1)=4"
+	)
+
 
 func _test_last_ally_stun_enemy_5s() -> void:
 	var manager: Node = _build_manager_with_buff_defs()

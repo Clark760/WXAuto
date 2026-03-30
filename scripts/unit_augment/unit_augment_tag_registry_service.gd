@@ -24,7 +24,7 @@ func get_version() -> int:
 	return _version
 
 
-# 这里统一收集功法、装备、单位和地形的 tags，避免 tag registry 口径分裂。
+# 这里统一收集功法、装备、Buff、单位和地形的 tags，避免 tag registry 口径分裂。
 # `registry` 提供条目快照，`data_manager` 补全配表层 tags，`battle_units` 补全运行时单位和 trait tags。
 # rebuild 结束后必须一次性替换整份注册表，不能边收集边写回旧表。
 # 版本号只会在整份替换成功后递增，保证 resolver 缓存失效时机稳定。
@@ -38,6 +38,7 @@ func rebuild(
 
 	_collect_tags_from_rows(registry.get_all_gongfa(), next_tag_to_index, next_index_to_tag)
 	_collect_tags_from_rows(registry.get_all_equipment(), next_tag_to_index, next_index_to_tag)
+	_collect_tags_from_rows(registry.get_all_buffs(), next_tag_to_index, next_index_to_tag)
 
 	if data_manager != null and is_instance_valid(data_manager) and data_manager.has_method("get_all_records"):
 		var unit_rows: Array[Dictionary] = data_manager.get_all_records("units")

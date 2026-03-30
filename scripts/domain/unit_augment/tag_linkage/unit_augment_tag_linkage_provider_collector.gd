@@ -45,7 +45,7 @@ func collect(
 	}
 
 
-# unit provider 同时覆盖 unit/trait/gongfa/equipment 四种来源。
+# unit provider 同时覆盖 unit/trait/gongfa/equipment/buff 五种来源。
 # 这些 provider 最终都统一成 tags + tag_mask + team_relation 的评估结构。
 func _collect_unit_providers(
 	owner: Node,
@@ -105,6 +105,16 @@ func _collect_unit_providers(
 					"is_self_cell": false,
 					"team_relation": relation
 				})
+			if global_source_types.has("buff"):
+				_append_buff_providers_for_unit(
+					providers,
+					context,
+					unit,
+					unit_iid,
+					unit_source_name,
+					is_self,
+					relation
+				)
 			continue
 
 		# 四类单位侧 provider 都统一写入 unit_id/is_self/team_relation。
@@ -176,7 +186,45 @@ func _collect_unit_providers(
 					"is_self_cell": false,
 					"team_relation": relation
 				})
+		if global_source_types.has("buff"):
+			_append_buff_providers_for_unit(
+				providers,
+				context,
+				unit,
+				unit_iid,
+				unit_source_name,
+				is_self,
+				relation
+			)
 	return providers
+
+
+# buff provider 读取单位当前生效 buff_id，并映射到 buff 定义上的 tags。
+# 这层把 buff 也归一到统一 provider 结构，后续 evaluator 不需要感知“运行时状态”细节。
+func _append_buff_providers_for_unit(
+	providers: Array[Dictionary],
+	context: Dictionary,
+	unit: Node,
+	unit_iid: int,
+	unit_source_name: String,
+	is_self: bool,
+	relation: String
+) -> void:
+	for buff_id in _get_unit_active_buff_ids(context, unit):
+		var buff_tags: Array[String] = _get_buff_tags(context, buff_id)
+		if buff_tags.is_empty():
+			continue
+		providers.append({
+			"key": "buff:%d:%s" % [unit_iid, buff_id],
+			"source_type": "buff",
+			"tags": buff_tags,
+			"tag_mask": _query_compiler.build_mask_from_tags(buff_tags),
+			"source_name": unit_source_name,
+			"unit_id": unit_iid,
+			"is_self": is_self,
+			"is_self_cell": false,
+			"team_relation": relation
+		})
 
 
 func _collect_unit_candidates(
@@ -467,6 +515,19 @@ func _get_unit_runtime_equip_ids(context: Dictionary, unit: Node) -> Array[Strin
 	return _normalize_ids(unit.get("runtime_equipped_equip_ids"))
 
 
+# buff runtime ids 优先走 manager 暴露的统一口径。
+# manager 不可用时退回单位 meta/属性，保证纯规则测试依然可注入 active buff 列表。
+func _get_unit_active_buff_ids(context: Dictionary, unit: Node) -> Array[String]:
+	if unit == null or not is_instance_valid(unit):
+		return []
+	var manager: Variant = context.get("unit_augment_manager", null)
+	if manager != null and is_instance_valid(manager) and manager.has_method("get_unit_buff_ids"):
+		return _normalize_ids(manager.get_unit_buff_ids(unit))
+	if unit.has_meta("active_buff_ids"):
+		return _normalize_ids(unit.get_meta("active_buff_ids"))
+	return _normalize_ids(unit.get("runtime_active_buff_ids"))
+
+
 # tag 定义应由当前 manager 暴露。
 # manager 缺失时返回空数组，而不是偷偷回退到旧系统路径。
 func _get_gongfa_tags(context: Dictionary, gongfa_id: String) -> Array[String]:
@@ -492,6 +553,21 @@ func _get_equipment_tags(context: Dictionary, equip_id: String) -> Array[String]
 		return _query_compiler.normalize_tags(manager.get_equipment_tags(equip_id))
 	if manager.has_method("get_equipment_data"):
 		var data_value: Variant = manager.get_equipment_data(equip_id)
+		if data_value is Dictionary:
+			return _query_compiler.normalize_tags((data_value as Dictionary).get("tags", []))
+	return []
+
+
+# buff tags 只认 manager 暴露的定义口径。
+# 缺失时再回退 `get_buff_data().tags`，保证老 mock 也能跑到同一语义。
+func _get_buff_tags(context: Dictionary, buff_id: String) -> Array[String]:
+	var manager: Variant = context.get("unit_augment_manager", null)
+	if manager == null or not is_instance_valid(manager):
+		return []
+	if manager.has_method("get_buff_tags"):
+		return _query_compiler.normalize_tags(manager.get_buff_tags(buff_id))
+	if manager.has_method("get_buff_data"):
+		var data_value: Variant = manager.get_buff_data(buff_id)
 		if data_value is Dictionary:
 			return _query_compiler.normalize_tags((data_value as Dictionary).get("tags", []))
 	return []

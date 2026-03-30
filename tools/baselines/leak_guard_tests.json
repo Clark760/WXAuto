@@ -12,6 +12,8 @@
     "scripts/tests/m5_effect_engine_smoke_test.gd",
     "scripts/tests/m5_equip_slot_refactor_test.gd",
     "scripts/tests/m5_source_bound_aura_test.gd",
+    "scripts/tests/m5_mod_test_buff_tag_linkage_test.gd",
+    "scripts/tests/m5_mod_trigger_manual_spec_test.gd",
     "scripts/tests/m5_tag_linkage_effect_test.gd",
     "scripts/tests/m5_tag_linkage_scheduler_test.gd",
     "scripts/tests/m5_terrain_effect_rework_test.gd",

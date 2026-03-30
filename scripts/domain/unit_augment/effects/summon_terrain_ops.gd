@@ -113,10 +113,15 @@ func _summon_clone(
 		if not unit_id.is_empty():
 			clone_row["unit_id"] = unit_id
 
+	var inherit_ratio: float = maxf(float(effect.get("inherit_ratio", -1.0)), -1.0)
 	if effect.has("hp_ratio"):
 		clone_row["hp_ratio"] = maxf(float(effect.get("hp_ratio", 1.0)), 0.01)
+	elif inherit_ratio >= 0.0:
+		clone_row["hp_ratio"] = maxf(inherit_ratio, 0.01)
 	if effect.has("atk_ratio"):
 		clone_row["atk_ratio"] = maxf(float(effect.get("atk_ratio", 1.0)), 0.01)
+	elif inherit_ratio >= 0.0:
+		clone_row["atk_ratio"] = maxf(inherit_ratio, 0.01)
 
 	var summon_effect: Dictionary = {
 		"units": [clone_row],
@@ -166,7 +171,11 @@ func _revive_random_ally(
 
 	var max_hp: float = maxf(float(revived_combat.get("max_hp")), 1.0)
 	var revive_value: float = maxf(float(effect.get("value", 0.0)), 0.0)
-	var revive_percent: float = clampf(float(effect.get("hp_percent", 0.35)), 0.01, 1.0)
+	var revive_percent: float = clampf(
+		float(effect.get("hp_percent", effect.get("hp_ratio", 0.35))),
+		0.01,
+		1.0
+	)
 	# 固定治疗量优先级高于百分比，便于配表明确覆盖默认复活比例。
 	var restore_amount: float = revive_value if revive_value > 0.0 else max_hp * revive_percent
 	var healed: float = runtime_gateway.heal_unit(revived_unit, restore_amount, source)
@@ -205,7 +214,11 @@ func _resurrect_self(
 		return
 
 	# 自复活直接修改自身 combat 状态，保留旧“保命被动不进主动结算摘要”的语义。
-	var hp_percent: float = clampf(float(effect.get("hp_percent", 0.3)), 0.01, 1.0)
+	var hp_percent: float = clampf(
+		float(effect.get("hp_percent", effect.get("hp_ratio", 0.3))),
+		0.01,
+		1.0
+	)
 	var max_hp: float = maxf(float(source_combat.get("max_hp")), 1.0)
 	# 自复活只恢复生命并打标记，不在这里补额外事件，以免污染主动治疗日志。
 	source_combat.restore_hp(max_hp * hp_percent)

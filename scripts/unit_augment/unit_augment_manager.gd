@@ -162,6 +162,19 @@ func get_equipment_tags(equip_id: String) -> Array[String]:
 	return _state_service.get_equipment_tags(equip_id)
 
 
+# buff 定义仍由 registry 持有，这里只做只读透传。
+func get_buff_data(buff_id: String) -> Dictionary:
+	return _registry.get_buff(buff_id)
+
+
+# buff tags 统一做小写去重，和其它来源的 tag 口径保持一致。
+func get_buff_tags(buff_id: String) -> Array[String]:
+	var data: Dictionary = _registry.get_buff(buff_id)
+	if data.is_empty():
+		return []
+	return _normalize_tag_array(data.get("tags", []))
+
+
 # runtime ids 会被 tag linkage resolver 和 UI 同时读取。
 func get_unit_runtime_gongfa_ids(unit: Node) -> Array[String]:
 	return _state_service.get_unit_runtime_gongfa_ids(unit)
@@ -439,6 +452,19 @@ func _get_data_manager() -> Node:
 	if _services == null:
 		return null
 	return _services.data_repository
+
+
+func _normalize_tag_array(raw: Variant) -> Array[String]:
+	var out: Array[String] = []
+	var seen: Dictionary = {}
+	if raw is Array:
+		for item in (raw as Array):
+			var text: String = str(item).strip_edges().to_lower()
+			if text.is_empty() or seen.has(text):
+				continue
+			seen[text] = true
+			out.append(text)
+	return out
 
 
 # manager 自己的 _process scope 也统一写回 RuntimeProbe，便于和 Combat 主循环拆开看。

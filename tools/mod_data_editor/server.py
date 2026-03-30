@@ -361,6 +361,25 @@ def _extract_id_name_items_from_document(
     return rows
 
 
+def _strip_deprecated_tag_field(value: Any) -> Any:
+    if isinstance(value, list):
+        return [_strip_deprecated_tag_field(item) for item in value]
+    if isinstance(value, dict):
+        cleaned: Dict[str, Any] = {}
+        for key, child in value.items():
+            if key == "tag":
+                continue
+            cleaned[key] = _strip_deprecated_tag_field(child)
+        return cleaned
+    return value
+
+
+def _sanitize_document_for_category(category: str, document: Any) -> Any:
+    if str(category).strip().lower() != "tags":
+        return document
+    return _strip_deprecated_tag_field(document)
+
+
 def _walk_effect_ops(value: Any, out: set[str], labels: Optional[Dict[str, str]] = None) -> None:
     if isinstance(value, dict):
         for key, child in value.items():
@@ -727,6 +746,7 @@ class ModDataEditorHandler(BaseHTTPRequestHandler):
                     self._send_error(f"Document not found: {doc_path}", status=HTTPStatus.NOT_FOUND)
                     return
                 document = _read_json(doc_path)
+                document = _sanitize_document_for_category(category, document)
                 self._send_json(
                     {
                         "ok": True,
@@ -830,6 +850,7 @@ class ModDataEditorHandler(BaseHTTPRequestHandler):
                 category = str(payload.get("category", ""))
                 file_name = str(payload.get("file", ""))
                 document = payload.get("document", None)
+                document = _sanitize_document_for_category(category, document)
                 path = _safe_document_path(mod, category, file_name)
                 _write_json(path, document)
                 self._send_json(
@@ -852,6 +873,25 @@ class ModDataEditorHandler(BaseHTTPRequestHandler):
                     {
                         "ok": True,
                         "saved": True,
+                        "path": str(path.relative_to(_must_context().project_root)).replace("\\", "/"),
+                    }
+                )
+                return
+
+            if route == "/api/document_delete":
+                mod = str(payload.get("mod", ""))
+                category = str(payload.get("category", ""))
+                file_name = str(payload.get("file", ""))
+                path = _safe_document_path(mod, category, file_name)
+                if not path.exists():
+                    raise FileNotFoundError(f"Document not found: {path}")
+                if not path.is_file():
+                    raise ValueError(f"Document is not a file: {path}")
+                path.unlink()
+                self._send_json(
+                    {
+                        "ok": True,
+                        "deleted": True,
                         "path": str(path.relative_to(_must_context().project_root)).replace("\\", "/"),
                     }
                 )

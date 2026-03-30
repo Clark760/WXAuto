@@ -18,6 +18,7 @@ class MockUnit:
 	var traits: Array = []
 	var runtime_equipped_gongfa_ids: Array = []
 	var runtime_equipped_equip_ids: Array = []
+	var runtime_active_buff_ids: Array = []
 
 
 class MockUnitCombat:
@@ -185,10 +186,16 @@ class MockUnitAugmentManager:
 	var resolver = TAG_LINKAGE_RESOLVER_SCRIPT.new()
 	var gongfa_tag_map: Dictionary = {}
 	var equipment_tag_map: Dictionary = {}
+	var buff_tag_map: Dictionary = {}
 
-	func set_tag_maps(gongfa_map: Dictionary, equipment_map: Dictionary) -> void:
+	func set_tag_maps(
+		gongfa_map: Dictionary,
+		equipment_map: Dictionary,
+		buff_map: Dictionary = {}
+	) -> void:
 		gongfa_tag_map = gongfa_map.duplicate(true)
 		equipment_tag_map = equipment_map.duplicate(true)
+		buff_tag_map = buff_map.duplicate(true)
 		var tag_to_index: Dictionary = {}
 		var next_index: int = 0
 		for tags_value in gongfa_tag_map.values():
@@ -203,6 +210,12 @@ class MockUnitAugmentManager:
 					continue
 				tag_to_index[tag] = next_index
 				next_index += 1
+		for tags_value in buff_tag_map.values():
+			for tag in _normalize_tags(tags_value):
+				if tag_to_index.has(tag):
+					continue
+				tag_to_index[tag] = next_index
+				next_index += 1
 		resolver.configure_tag_registry(tag_to_index, 1)
 
 	func get_gongfa_tags(gongfa_id: String) -> Array[String]:
@@ -210,6 +223,9 @@ class MockUnitAugmentManager:
 
 	func get_equipment_tags(equip_id: String) -> Array[String]:
 		return _normalize_tags(equipment_tag_map.get(equip_id, []))
+
+	func get_buff_tags(buff_id: String) -> Array[String]:
+		return _normalize_tags(buff_tag_map.get(buff_id, []))
 
 	func get_unit_runtime_gongfa_ids(unit: Node) -> Array[String]:
 		if unit == null:
@@ -220,6 +236,11 @@ class MockUnitAugmentManager:
 		if unit == null:
 			return []
 		return _normalize_ids(unit.get("runtime_equipped_equip_ids"))
+
+	func get_unit_buff_ids(unit: Node) -> Array[String]:
+		if unit == null:
+			return []
+		return _normalize_ids(unit.get("runtime_active_buff_ids"))
 
 	func evaluate_tag_linkage_branch(owner: Node, config: Dictionary, context: Dictionary) -> Dictionary:
 		var eval_context: Dictionary = context.duplicate(false)
@@ -254,6 +275,7 @@ class MockUnitAugmentManager:
 var _failed: int = 0
 var _gongfa_tags: Dictionary = {}
 var _equipment_tags: Dictionary = {}
+var _buff_tags: Dictionary = {}
 
 
 func _init() -> void:
@@ -273,6 +295,7 @@ func _run() -> void:
 	_test_tier_case_order_3_5_7()
 	_test_unique_source_name_query_option()
 	_test_provider_count_not_multiplied_by_tag_count()
+	_test_buff_source_type_tag_query()
 	_test_static_and_dynamic_terrain_tags()
 	_test_wandu_ground_poison_fire_else()
 	_test_forbid_tags_absence_and_violation()
@@ -309,6 +332,12 @@ func _build_test_tag_maps() -> void:
 		if rid.is_empty():
 			continue
 		_equipment_tags[rid] = _normalize_tags(row.get("tags", []))
+
+	_buff_tags = {
+		"buff_tag_linkage_poison": ["state.poison", "buff.poison"],
+		"buff_tag_linkage_haste": ["state.haste", "buff.speed"],
+		"debuff_tag_linkage_burn": ["state.burn", "debuff.fire"]
+	}
 
 
 func _test_range_zero_only_self_and_ground() -> void:
@@ -484,6 +513,43 @@ func _test_provider_count_not_multiplied_by_tag_count() -> void:
 	_assert_true(int(query_counts.get("q_dual_tag", 0)) == 1, "single provider should count once for multi-tag any query")
 
 	_free_bundle(bundle, [owner])
+
+
+func _test_buff_source_type_tag_query() -> void:
+	var bundle: Dictionary = _build_context_bundle()
+	var owner: MockUnit = _make_unit("buff_owner", 1, [], [], [], [])
+	var ally: MockUnit = _make_unit("buff_ally", 1, [], [], [], [])
+	var enemy: MockUnit = _make_unit("buff_enemy", 2, [], [], [], [])
+	owner.runtime_active_buff_ids = ["buff_tag_linkage_haste"]
+	ally.runtime_active_buff_ids = ["buff_tag_linkage_poison"]
+	enemy.runtime_active_buff_ids = ["debuff_tag_linkage_burn"]
+	bundle.combat_manager.register_unit_cell(owner, Vector2i(0, 0))
+	bundle.combat_manager.register_unit_cell(ally, Vector2i(1, 0))
+	bundle.combat_manager.register_unit_cell(enemy, Vector2i(1, -1))
+
+	var config: Dictionary = {
+		"range": 2,
+		"include_self": true,
+		"team_scope": "ally",
+		"source_types": ["buff"],
+		"queries": [
+			{"id": "q_poison_buff_ally", "tags": ["state.poison"], "tag_match": "any", "source_types": ["buff"], "team_scope": "ally"},
+			{"id": "q_burn_buff_enemy", "tags": ["state.burn"], "tag_match": "any", "source_types": ["buff"], "team_scope": "enemy"},
+			{"id": "q_any_buff_all", "tags": ["buff.speed", "state.poison", "state.burn"], "tag_match": "any", "source_types": ["buff"], "team_scope": "all"}
+		]
+	}
+
+	var result: Dictionary = bundle.manager.evaluate_tag_linkage_branch(
+		owner,
+		config,
+		_build_effect_context(bundle, [owner, ally, enemy])
+	)
+	var query_counts: Dictionary = result.get("query_counts", {})
+	_assert_true(int(query_counts.get("q_poison_buff_ally", 0)) == 1, "ally buff tags should be queryable by source_types=buff")
+	_assert_true(int(query_counts.get("q_burn_buff_enemy", 0)) == 1, "enemy buff tags should be queryable by source_types=buff")
+	_assert_true(int(query_counts.get("q_any_buff_all", 0)) == 3, "all buff providers in range should be countable")
+
+	_free_bundle(bundle, [owner, ally, enemy])
 
 
 func _test_static_and_dynamic_terrain_tags() -> void:
@@ -698,7 +764,7 @@ func _build_context_bundle() -> Dictionary:
 	var combat_manager: MockCombatManager = MockCombatManager.new()
 	combat_manager.setup(grid)
 	var manager: MockUnitAugmentManager = MockUnitAugmentManager.new()
-	manager.set_tag_maps(_gongfa_tags, _equipment_tags)
+	manager.set_tag_maps(_gongfa_tags, _equipment_tags, _buff_tags)
 	return {
 		"hex_grid": grid,
 		"combat_manager": combat_manager,
@@ -732,6 +798,7 @@ func _make_unit(
 	unit.traits = traits.duplicate(true)
 	unit.runtime_equipped_gongfa_ids = runtime_gongfa_ids.duplicate(true)
 	unit.runtime_equipped_equip_ids = runtime_equip_ids.duplicate(true)
+	unit.runtime_active_buff_ids = []
 
 	var components: Node = Node.new()
 	components.name = "Components"

@@ -323,14 +323,17 @@ func execute_summon_units_op(source: Node, effect: Dictionary, context: Dictiona
 	if not battlefield.has_method("spawn_enemy_wave"):
 		return 0
 
-	var units_value: Variant = effect.get("units", [])
-	if not (units_value is Array):
-		return 0
+	var units_value: Variant = effect.get("units", null)
+	if not (units_value is Array) or (units_value as Array).is_empty():
+		units_value = _build_summon_units_rows_from_shorthand(effect)
+		if not (units_value is Array) or (units_value as Array).is_empty():
+			return 0
 
 	var source_unit_id: String = str(source.get("unit_id")) if source != null and is_instance_valid(source) else ""
 	var deploy_mode: String = str(effect.get("deploy", "around_self")).strip_edges().to_lower()
 	var radius_cells: int = maxi(int(effect.get("radius", 2)), 0)
 	var hex_grid: Variant = context.get("hex_grid", null)
+	var fixed_cells_from_effect: Array[Vector2i] = _parse_vector2i_cells(effect.get("cells", []))
 	var rows: Array[Dictionary] = []
 
 	for row_value in (units_value as Array):
@@ -350,7 +353,10 @@ func execute_summon_units_op(source: Node, effect: Dictionary, context: Dictiona
 		if unit_id.is_empty() or count <= 0:
 			continue
 
-		if deploy_mode == "around_self" and source != null and is_instance_valid(source):
+		if not fixed_cells_from_effect.is_empty():
+			row["deploy_zone"] = "fixed"
+			row["fixed_cells"] = fixed_cells_from_effect
+		elif deploy_mode == "around_self" and source != null and is_instance_valid(source):
 			# 环绕召唤优先转成固定格列表，只有拿不到可用格时才回退到 back 部署区。
 			var center_cell: Vector2i = Vector2i(-1, -1)
 			if hex_grid != null and is_instance_valid(hex_grid) and hex_grid.has_method("world_to_axial"):
@@ -401,14 +407,12 @@ func execute_hazard_zone_op(source: Node, effect: Dictionary, context: Dictionar
 	var duration: float = maxf(float(effect.get("duration", 6.0)), 0.1)
 	var warning_seconds: float = maxf(float(effect.get("warning_seconds", 0.0)), 0.0)
 	var tick_interval: float = maxf(float(effect.get("tick_interval", 0.5)), 0.05)
-	var dps: float = maxf(float(effect.get("value", 0.0)), 0.0)
-	if dps <= 0.0:
+	var tick_effect: Dictionary = _resolve_hazard_tick_effect(effect, tick_interval)
+	if tick_effect.is_empty():
 		return 0
 
-	var damage_per_tick: float = dps * tick_interval
 	var center_mode: String = str(effect.get("target_mode", "random_position")).strip_edges().to_lower()
 	var affect_mode: String = str(effect.get("affect_mode", "enemies")).strip_edges().to_lower()
-	var damage_type: String = str(effect.get("damage_type", "internal")).strip_edges().to_lower()
 	var source_team: int = int(source.get("team_id")) if source != null and is_instance_valid(source) else 0
 	var created: int = 0
 	var source_cell: Vector2i = Vector2i(-1, -1)
@@ -450,11 +454,7 @@ func execute_hazard_zone_op(source: Node, effect: Dictionary, context: Dictionar
 			"warning_seconds": warning_seconds,
 			"tick_interval": tick_interval,
 			"source_team": source_team,
-			"tick_effects": [{
-				"op": "damage_target",
-				"value": damage_per_tick,
-				"damage_type": damage_type
-			}]
+			"tick_effects": [tick_effect]
 		}
 		# tick_effects 继续沿用普通 effect 配置格式，方便旧 BuffManager 直接复用主动效果链。
 		# battlefield_effect 自身只负责区域生命周期，不在这里预先结算任何一跳伤害。
@@ -528,6 +528,71 @@ func apply_create_terrain_op(source: Node, target: Node, effect: Dictionary, con
 		terrain_config["effects_on_expire"] = effect.get("effects_on_expire", [])
 
 	return bool(combat_manager.add_temporary_terrain(terrain_config, source))
+
+
+# 兼容手册里的 summon_units 简写：`unit_ids + count(+star/team)`。
+func _build_summon_units_rows_from_shorthand(effect: Dictionary) -> Array[Dictionary]:
+	var rows: Array[Dictionary] = []
+	var unit_ids_value: Variant = effect.get("unit_ids", [])
+	if not (unit_ids_value is Array):
+		return rows
+
+	var default_count: int = maxi(int(effect.get("count", 1)), 1)
+	var has_star: bool = effect.has("star")
+	var has_team: bool = effect.has("team")
+	for unit_id_value in (unit_ids_value as Array):
+		var unit_id: String = str(unit_id_value).strip_edges()
+		if unit_id.is_empty():
+			continue
+		var row: Dictionary = {
+			"unit_id": unit_id,
+			"count": default_count
+		}
+		if has_star:
+			row["star"] = int(effect.get("star", 1))
+		if has_team:
+			row["team"] = int(effect.get("team", 0))
+		rows.append(row)
+	return rows
+
+
+# `cells` 允许写成 `[[x,y], ...]` 或 `[{x,y}, ...]`，统一转为 `Array[Vector2i]`。
+func _parse_vector2i_cells(raw: Variant) -> Array[Vector2i]:
+	var cells: Array[Vector2i] = []
+	if not (raw is Array):
+		return cells
+	for cell_value in (raw as Array):
+		if cell_value is Array and (cell_value as Array).size() >= 2:
+			cells.append(Vector2i(int((cell_value as Array)[0]), int((cell_value as Array)[1])))
+		elif cell_value is Dictionary:
+			var cell_dict: Dictionary = cell_value as Dictionary
+			if not cell_dict.has("x") or not cell_dict.has("y"):
+				continue
+			cells.append(Vector2i(int(cell_dict.get("x", 0)), int(cell_dict.get("y", 0))))
+	return cells
+
+
+# hazard_zone 兼容两种写法：
+# 1) `value` 视作 DPS（旧写法）；
+# 2) `effects_on_tick` 直接提供每跳效果（手册写法）。
+func _resolve_hazard_tick_effect(effect: Dictionary, tick_interval: float) -> Dictionary:
+	var effects_on_tick_value: Variant = effect.get("effects_on_tick", [])
+	if effects_on_tick_value is Array and not (effects_on_tick_value as Array).is_empty():
+		var first_effect: Variant = (effects_on_tick_value as Array)[0]
+		if first_effect is Dictionary:
+			var tick_effect: Dictionary = (first_effect as Dictionary).duplicate(true)
+			if str(tick_effect.get("op", "")).strip_edges().is_empty():
+				tick_effect["op"] = "damage_target"
+			return tick_effect
+
+	var dps: float = maxf(float(effect.get("value", 0.0)), 0.0)
+	if dps <= 0.0:
+		return {}
+	return {
+		"op": "damage_target",
+		"value": dps * tick_interval,
+		"damage_type": str(effect.get("damage_type", "internal")).strip_edges().to_lower()
+	}
 
 
 func _is_unit_in_combat(unit: Node) -> bool:

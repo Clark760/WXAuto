@@ -447,10 +447,16 @@ func _passes_trigger_team_alive_conditions(
 	unit: Node,
 	trigger_params: Dictionary
 ) -> bool:
-	var has_min_alive: bool = trigger_params.has("team_alive_at_least")
-	var has_max_alive: bool = trigger_params.has("team_alive_at_most")
-	var min_alive: int = int(trigger_params.get("team_alive_at_least", 0))
-	var max_alive: int = int(trigger_params.get("team_alive_at_most", 0))
+	var has_min_alive: bool = trigger_params.has("team_alive_at_least") \
+		or trigger_params.has("team_alive_count_min")
+	var has_max_alive: bool = trigger_params.has("team_alive_at_most") \
+		or trigger_params.has("team_alive_count_max")
+	var min_alive: int = int(
+		trigger_params.get("team_alive_at_least", trigger_params.get("team_alive_count_min", 0))
+	)
+	var max_alive: int = int(
+		trigger_params.get("team_alive_at_most", trigger_params.get("team_alive_count_max", 0))
+	)
 	# `team_alive_at_most = 0` 是“除自己外一个队友都不能活着”的合法配置。
 	# 这里必须按“字段是否显式出现”判断条件是否启用，不能再把 0 当成“未配置”。
 	if not has_min_alive and not has_max_alive:

@@ -1,127 +1,106 @@
 [
   {
     "id": "bm5_tag_4001",
-    "tag": "bm5.batch.four",
     "name": "bm5.batch.four",
     "description": "BaseMod M5 batch4 tag: bm5.batch.four"
   },
   {
     "id": "bm5_tag_4002",
-    "tag": "bm5.quality.orange",
     "name": "bm5.quality.orange",
     "description": "BaseMod M5 batch4 tag: bm5.quality.orange"
   },
   {
     "id": "bm5_tag_4003",
-    "tag": "bm5.quality.red",
     "name": "bm5.quality.red",
     "description": "BaseMod M5 batch4 tag: bm5.quality.red"
   },
   {
     "id": "bm5_tag_4004",
-    "tag": "bm5.source.ancient_legend",
     "name": "bm5.source.ancient_legend",
     "description": "BaseMod M5 batch4 tag: bm5.source.ancient_legend"
   },
   {
     "id": "bm5_tag_4005",
-    "tag": "bm5.trait.orange",
     "name": "bm5.trait.orange",
     "description": "BaseMod M5 batch4 tag: bm5.trait.orange"
   },
   {
     "id": "bm5_tag_4006",
-    "tag": "bm5.trait.red",
     "name": "bm5.trait.red",
     "description": "BaseMod M5 batch4 tag: bm5.trait.red"
   },
   {
     "id": "bm5_tag_4007",
-    "tag": "bm5.unit.orange.001",
     "name": "bm5.unit.orange.001",
     "description": "BaseMod M5 batch4 tag: bm5.unit.orange.001"
   },
   {
     "id": "bm5_tag_4008",
-    "tag": "bm5.unit.orange.002",
     "name": "bm5.unit.orange.002",
     "description": "BaseMod M5 batch4 tag: bm5.unit.orange.002"
   },
   {
     "id": "bm5_tag_4009",
-    "tag": "bm5.unit.orange.003",
     "name": "bm5.unit.orange.003",
     "description": "BaseMod M5 batch4 tag: bm5.unit.orange.003"
   },
   {
     "id": "bm5_tag_4010",
-    "tag": "bm5.unit.orange.004",
     "name": "bm5.unit.orange.004",
     "description": "BaseMod M5 batch4 tag: bm5.unit.orange.004"
   },
   {
     "id": "bm5_tag_4011",
-    "tag": "bm5.unit.orange.005",
     "name": "bm5.unit.orange.005",
     "description": "BaseMod M5 batch4 tag: bm5.unit.orange.005"
   },
   {
     "id": "bm5_tag_4012",
-    "tag": "bm5.unit.orange.006",
     "name": "bm5.unit.orange.006",
     "description": "BaseMod M5 batch4 tag: bm5.unit.orange.006"
   },
   {
     "id": "bm5_tag_4013",
-    "tag": "bm5.unit.orange.007",
     "name": "bm5.unit.orange.007",
     "description": "BaseMod M5 batch4 tag: bm5.unit.orange.007"
   },
   {
     "id": "bm5_tag_4014",
-    "tag": "bm5.unit.orange.008",
     "name": "bm5.unit.orange.008",
     "description": "BaseMod M5 batch4 tag: bm5.unit.orange.008"
   },
   {
     "id": "bm5_tag_4015",
-    "tag": "bm5.unit.orange.009",
     "name": "bm5.unit.orange.009",
     "description": "BaseMod M5 batch4 tag: bm5.unit.orange.009"
   },
   {
     "id": "bm5_tag_4016",
-    "tag": "bm5.unit.orange.010",
     "name": "bm5.unit.orange.010",
     "description": "BaseMod M5 batch4 tag: bm5.unit.orange.010"
   },
   {
     "id": "bm5_tag_4017",
-    "tag": "bm5.unit.red.011",
     "name": "bm5.unit.red.011",
     "description": "BaseMod M5 batch4 tag: bm5.unit.red.011"
   },
   {
     "id": "bm5_tag_4018",
-    "tag": "bm5.unit.red.012",
     "name": "bm5.unit.red.012",
     "description": "BaseMod M5 batch4 tag: bm5.unit.red.012"
   },
   {
     "id": "bm5_tag_4019",
-    "tag": "bm5.unit.red.013",
     "name": "bm5.unit.red.013",
     "description": "BaseMod M5 batch4 tag: bm5.unit.red.013"
   },
   {
     "id": "bm5_tag_4020",
-    "tag": "bm5.unit.red.014",
     "name": "bm5.unit.red.014",
     "description": "BaseMod M5 batch4 tag: bm5.unit.red.014"
   },
   {
     "id": "bm5_tag_4021",
-    "tag": "bm5.unit.red.015",
     "name": "bm5.unit.red.015",
     "description": "BaseMod M5 batch4 tag: bm5.unit.red.015"
   }

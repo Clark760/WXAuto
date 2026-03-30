@@ -1,9 +1,9 @@
 {
-  "id": "base_mod_m5",
-  "name": "Base Mod M5",
-  "author": "AI+Design",
-  "version": "0.1.1",
-  "description": "M5 base mod batch1 (white/green) original data pack.",
+  "id": "base",
+  "name": "基础数据包",
+  "author": "Mingo",
+  "version": "0.0.1",
+  "description": "游戏本体数据包",
   "game_version_min": "1.0.0",
   "load_order": 0
 }

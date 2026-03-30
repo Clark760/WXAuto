@@ -213,6 +213,17 @@ func _run_smoke_tests() -> void:
 	_test_create_terrain_all_types()
 	_test_create_terrain_requires_combat_anchor()
 	_test_hazard_zone_requires_combat_source()
+	_test_damage_chain_doc_alias()
+	_test_damage_cone_doc_alias()
+	_test_heal_percent_missing_hp_doc_alias()
+	_test_execute_target_doc_alias()
+	_test_aoe_percent_hp_damage_doc_alias()
+	_test_movement_distance_doc_alias()
+	_test_summon_units_doc_shorthand()
+	_test_hazard_zone_effects_on_tick_doc_alias()
+	_test_summon_clone_inherit_ratio_doc_alias()
+	_test_revive_random_ally_hp_ratio_doc_alias()
+	_test_resurrect_self_hp_ratio_doc_alias()
 	_test_teleport_behind_op()
 	_test_dash_forward_op()
 	_test_knockback_target_op()
@@ -519,6 +530,265 @@ func _test_hazard_zone_requires_combat_source() -> void:
 	source.free()
 	combat_manager.free()
 	hex_grid.free()
+
+
+func _test_damage_chain_doc_alias() -> void:
+	var engine = EFFECT_ENGINE_SCRIPT.new()
+	var source: MockUnit = _make_test_unit(1, "unit_test_chain_source")
+	var enemy_a: MockUnit = _make_test_unit(2, "unit_test_chain_enemy_a")
+	var enemy_b: MockUnit = _make_test_unit(2, "unit_test_chain_enemy_b")
+	source.position = Vector2(0, 0)
+	enemy_a.position = Vector2(20, 0)
+	enemy_b.position = Vector2(35, 0)
+	var summary: Dictionary = engine.call("execute_active_effects", source, enemy_a, [{
+		"op": "damage_chain",
+		"value": 50.0,
+		"jumps": 1,
+		"radius": 2.0
+	}], {
+		"all_units": [source, enemy_a, enemy_b],
+		"hex_size": 26.0
+	})
+	_assert_true(is_equal_approx(float(summary.get("damage_total", 0.0)), 100.0), "damage_chain doc alias jumps/radius")
+	source.free()
+	enemy_a.free()
+	enemy_b.free()
+
+
+func _test_damage_cone_doc_alias() -> void:
+	var engine = EFFECT_ENGINE_SCRIPT.new()
+	var source: MockUnit = _make_test_unit(1, "unit_test_cone_source")
+	var target: MockUnit = _make_test_unit(2, "unit_test_cone_target")
+	var enemy_hit: MockUnit = _make_test_unit(2, "unit_test_cone_hit")
+	var enemy_miss: MockUnit = _make_test_unit(2, "unit_test_cone_miss")
+	source.position = Vector2(0, 0)
+	target.position = Vector2(20, 0)
+	enemy_hit.position = Vector2(42, 1)
+	enemy_miss.position = Vector2(-15, 35)
+	var miss_before: float = float((enemy_miss.get_node("Components/UnitCombat") as MockUnitCombat).current_hp)
+	engine.call("execute_active_effects", source, target, [{
+		"op": "damage_cone",
+		"value": 60.0,
+		"radius": 2.0,
+		"angle_deg": 60.0
+	}], {
+		"all_units": [source, target, enemy_hit, enemy_miss],
+		"hex_size": 26.0
+	})
+	var hit_after: float = float((enemy_hit.get_node("Components/UnitCombat") as MockUnitCombat).current_hp)
+	var miss_after: float = float((enemy_miss.get_node("Components/UnitCombat") as MockUnitCombat).current_hp)
+	_assert_true(is_equal_approx(hit_after, 1140.0), "damage_cone doc alias angle_deg/radius hit")
+	_assert_true(is_equal_approx(miss_after, miss_before), "damage_cone doc alias should not hit outside cone")
+	source.free()
+	target.free()
+	enemy_hit.free()
+	enemy_miss.free()
+
+
+func _test_heal_percent_missing_hp_doc_alias() -> void:
+	var engine = EFFECT_ENGINE_SCRIPT.new()
+	var source: MockUnit = _make_test_unit(1, "unit_test_heal_missing_source")
+	var source_combat: MockUnitCombat = source.get_node("Components/UnitCombat") as MockUnitCombat
+	source_combat.current_hp = 500.0
+	var summary: Dictionary = engine.call("execute_active_effects", source, null, [{
+		"op": "heal_percent_missing_hp",
+		"ratio": 0.5
+	}], {})
+	_assert_true(is_equal_approx(float(summary.get("heal_total", 0.0)), 350.0), "heal_percent_missing_hp ratio alias")
+	_assert_true(is_equal_approx(source_combat.current_hp, 850.0), "heal_percent_missing_hp ratio alias hp")
+	source.free()
+
+
+func _test_execute_target_doc_alias() -> void:
+	var engine = EFFECT_ENGINE_SCRIPT.new()
+	var source: MockUnit = _make_test_unit(1, "unit_test_execute_source")
+	var target: MockUnit = _make_test_unit(2, "unit_test_execute_target")
+	var target_combat: MockUnitCombat = target.get_node("Components/UnitCombat") as MockUnitCombat
+	target_combat.max_hp = 1000.0
+	target_combat.current_hp = 100.0
+	var summary: Dictionary = engine.call("execute_active_effects", source, target, [{
+		"op": "execute_target",
+		"threshold": 0.2,
+		"damage": 300.0
+	}], {})
+	_assert_true(is_equal_approx(float(summary.get("damage_total", 0.0)), 300.0), "execute_target threshold/damage alias")
+	source.free()
+	target.free()
+
+
+func _test_aoe_percent_hp_damage_doc_alias() -> void:
+	var engine = EFFECT_ENGINE_SCRIPT.new()
+	var source: MockUnit = _make_test_unit(1, "unit_test_aoe_percent_source")
+	var enemy_a: MockUnit = _make_test_unit(2, "unit_test_aoe_percent_enemy_a")
+	var enemy_b: MockUnit = _make_test_unit(2, "unit_test_aoe_percent_enemy_b")
+	source.position = Vector2(0, 0)
+	enemy_a.position = Vector2(10, 0)
+	enemy_b.position = Vector2(-12, 0)
+	var summary: Dictionary = engine.call("execute_active_effects", source, null, [{
+		"op": "aoe_percent_hp_damage",
+		"ratio": 0.5,
+		"radius": 2.0,
+		"cap": 120.0
+	}], {
+		"all_units": [source, enemy_a, enemy_b],
+		"hex_size": 26.0
+	})
+	_assert_true(is_equal_approx(float(summary.get("damage_total", 0.0)), 240.0), "aoe_percent_hp_damage ratio/cap alias")
+	source.free()
+	enemy_a.free()
+	enemy_b.free()
+
+
+func _test_movement_distance_doc_alias() -> void:
+	var engine = EFFECT_ENGINE_SCRIPT.new()
+	var source_dash: MockUnit = _make_test_unit(1, "unit_test_dash_alias_source")
+	var target_dash: MockUnit = _make_test_unit(2, "unit_test_dash_alias_target")
+	var combat_manager_dash: MockCombatManager = MockCombatManager.new()
+	combat_manager_dash.register_unit_cell(source_dash, Vector2i(1, 1))
+	combat_manager_dash.register_unit_cell(target_dash, Vector2i(5, 1))
+	engine.call("execute_active_effects", source_dash, target_dash, [{
+		"op": "dash_forward",
+		"distance_cells": 2
+	}], {
+		"combat_manager": combat_manager_dash
+	})
+	var dashed_cell: Vector2i = combat_manager_dash.get_unit_cell_of(source_dash)
+	_assert_true(dashed_cell.x >= 3, "dash_forward distance_cells alias")
+
+	var source_knock: MockUnit = _make_test_unit(1, "unit_test_knock_alias_source")
+	var target_knock: MockUnit = _make_test_unit(2, "unit_test_knock_alias_target")
+	var combat_manager_knock: MockCombatManager = MockCombatManager.new()
+	combat_manager_knock.register_unit_cell(source_knock, Vector2i(3, 3))
+	combat_manager_knock.register_unit_cell(target_knock, Vector2i(4, 3))
+	engine.call("execute_active_effects", source_knock, target_knock, [{
+		"op": "knockback_target",
+		"cells": 2
+	}], {
+		"combat_manager": combat_manager_knock
+	})
+	var knocked_cell: Vector2i = combat_manager_knock.get_unit_cell_of(target_knock)
+	_assert_true(knocked_cell.x >= 6, "knockback_target cells alias")
+	source_dash.free()
+	target_dash.free()
+	source_knock.free()
+	target_knock.free()
+	combat_manager_dash.free()
+	combat_manager_knock.free()
+
+
+func _test_summon_units_doc_shorthand() -> void:
+	var engine = EFFECT_ENGINE_SCRIPT.new()
+	var source: MockUnit = _make_test_unit(1, "unit_test_summon_source")
+	var battlefield: MockBattlefield = MockBattlefield.new()
+	var hex_grid: MockHexGrid = MockHexGrid.new()
+	var summary: Dictionary = engine.call("execute_active_effects", source, null, [{
+		"op": "summon_units",
+		"unit_ids": ["unit_x", "unit_y"],
+		"count": 2,
+		"deploy": "back"
+	}], {
+		"battlefield": battlefield,
+		"hex_grid": hex_grid
+	})
+	_assert_true(int(summary.get("summon_total", 0)) == 4, "summon_units unit_ids/count shorthand")
+	_assert_true(battlefield.spawned_rows.size() == 2, "summon_units shorthand should create two rows")
+	source.free()
+	battlefield.free()
+	hex_grid.free()
+
+
+func _test_hazard_zone_effects_on_tick_doc_alias() -> void:
+	var engine = EFFECT_ENGINE_SCRIPT.new()
+	var buff_manager = _make_test_buff_manager()
+	var source: MockUnit = _make_test_unit(1, "unit_test_hazard_doc_source")
+	var combat_manager: MockCombatManager = MockCombatManager.new()
+	var hex_grid: MockHexGrid = MockHexGrid.new()
+	combat_manager.register_unit_cell(source, Vector2i(2, 2))
+	var summary: Dictionary = engine.call("execute_active_effects", source, null, [{
+		"op": "hazard_zone",
+		"target_mode": "around_self",
+		"radius": 1,
+		"duration": 3.0,
+		"tick_interval": 0.5,
+		"effects_on_tick": [{"op": "damage_target", "value": 40.0}]
+	}], {
+		"buff_manager": buff_manager,
+		"combat_manager": combat_manager,
+		"hex_grid": hex_grid
+	})
+	var battlefield_effects: Array = buff_manager.get("_battlefield_effects")
+	_assert_true(int(summary.get("hazard_total", 0)) >= 1, "hazard_zone effects_on_tick shorthand should create zone")
+	_assert_true(
+		battlefield_effects.size() >= 1
+		and battlefield_effects[0] is Dictionary
+		and ((battlefield_effects[0] as Dictionary).get("tick_effects", []) as Array).size() >= 1
+		and is_equal_approx(float((((battlefield_effects[0] as Dictionary).get("tick_effects", []) as Array)[0] as Dictionary).get("value", 0.0)), 40.0),
+		"hazard_zone should keep doc tick value without dps conversion"
+	)
+	source.free()
+	combat_manager.free()
+	hex_grid.free()
+
+
+func _test_summon_clone_inherit_ratio_doc_alias() -> void:
+	var engine = EFFECT_ENGINE_SCRIPT.new()
+	var source: MockUnit = _make_test_unit(1, "unit_test_clone_doc_source")
+	var battlefield: MockBattlefield = MockBattlefield.new()
+	var hex_grid: MockHexGrid = MockHexGrid.new()
+	engine.call("execute_active_effects", source, null, [{
+		"op": "summon_clone",
+		"count": 1,
+		"inherit_ratio": 0.6,
+		"deploy": "back"
+	}], {
+		"battlefield": battlefield,
+		"hex_grid": hex_grid
+	})
+	_assert_true(battlefield.spawned_rows.size() == 1, "summon_clone inherit_ratio row")
+	if battlefield.spawned_rows.size() == 1 and battlefield.spawned_rows[0] is Dictionary:
+		var row: Dictionary = battlefield.spawned_rows[0]
+		_assert_true(is_equal_approx(float(row.get("hp_ratio", 0.0)), 0.6), "summon_clone inherit_ratio -> hp_ratio")
+		_assert_true(is_equal_approx(float(row.get("atk_ratio", 0.0)), 0.6), "summon_clone inherit_ratio -> atk_ratio")
+	source.free()
+	battlefield.free()
+	hex_grid.free()
+
+
+func _test_revive_random_ally_hp_ratio_doc_alias() -> void:
+	var engine = EFFECT_ENGINE_SCRIPT.new()
+	var source: MockUnit = _make_test_unit(1, "unit_test_revive_ratio_source")
+	var dead_ally: MockUnit = _make_test_unit(1, "unit_test_revive_ratio_dead")
+	var enemy: MockUnit = _make_test_unit(2, "unit_test_revive_ratio_enemy")
+	var dead_combat: MockUnitCombat = dead_ally.get_node("Components/UnitCombat") as MockUnitCombat
+	dead_combat.current_hp = 0.0
+	dead_combat.is_alive = false
+	var summary: Dictionary = engine.call("execute_active_effects", source, enemy, [{
+		"op": "revive_random_ally",
+		"hp_ratio": 0.25
+	}], {
+		"all_units": [source, dead_ally, enemy]
+	})
+	_assert_true(bool(dead_combat.is_alive), "revive_random_ally hp_ratio alias should revive")
+	_assert_true(float(summary.get("heal_total", 0.0)) > 0.0, "revive_random_ally hp_ratio alias heal")
+	source.free()
+	dead_ally.free()
+	enemy.free()
+
+
+func _test_resurrect_self_hp_ratio_doc_alias() -> void:
+	var engine = EFFECT_ENGINE_SCRIPT.new()
+	var source: MockUnit = _make_test_unit(1, "unit_test_resurrect_ratio_source")
+	var source_combat: MockUnitCombat = source.get_node("Components/UnitCombat") as MockUnitCombat
+	source_combat.current_hp = 0.0
+	source_combat.is_alive = false
+	engine.call("execute_active_effects", source, source, [{
+		"op": "resurrect_self",
+		"hp_ratio": 0.4,
+		"resurrect_key": "doc_alias"
+	}], {})
+	_assert_true(bool(source_combat.is_alive), "resurrect_self hp_ratio alias should revive source")
+	_assert_true(is_equal_approx(source_combat.current_hp, 480.0), "resurrect_self hp_ratio alias hp")
+	source.free()
 
 
 func _test_teleport_behind_op() -> void:

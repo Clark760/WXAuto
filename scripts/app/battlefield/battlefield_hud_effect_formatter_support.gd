@@ -462,8 +462,10 @@ func _append_trigger_condition_details(
 
 
 func _append_team_alive_filter_details(details: Array[String], trigger_params: Dictionary) -> void:
-	var has_min_alive: bool = trigger_params.has("team_alive_at_least")
-	var has_max_alive: bool = trigger_params.has("team_alive_at_most")
+	var has_min_alive: bool = trigger_params.has("team_alive_at_least") \
+		or trigger_params.has("team_alive_count_min")
+	var has_max_alive: bool = trigger_params.has("team_alive_at_most") \
+		or trigger_params.has("team_alive_count_max")
 	if not has_min_alive and not has_max_alive:
 		return
 	var scope_key: String = str(
@@ -475,9 +477,17 @@ func _append_team_alive_filter_details(details: Array[String], trigger_params: D
 		scope_text += "（不含自身）"
 	details.append(scope_text)
 	if has_min_alive:
-		details.append("存活>= %d" % int(trigger_params.get("team_alive_at_least", 0)))
+		details.append(
+			"存活>= %d" % int(
+				trigger_params.get("team_alive_at_least", trigger_params.get("team_alive_count_min", 0))
+			)
+		)
 	if has_max_alive:
-		details.append("存活<= %d" % int(trigger_params.get("team_alive_at_most", 0)))
+		details.append(
+			"存活<= %d" % int(
+				trigger_params.get("team_alive_at_most", trigger_params.get("team_alive_count_max", 0))
+			)
+		)
 
 
 func _format_tag_linkage_branch_op(op_label: String, effect: Dictionary) -> String:

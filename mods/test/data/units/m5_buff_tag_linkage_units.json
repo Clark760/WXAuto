@@ -1,0 +1,149 @@
+[
+  {
+    "id": "unit_test_buff_link_owner",
+    "name": "Test Buff Link Owner",
+    "quality": "blue",
+    "cost": 2,
+    "shop_visible": false,
+    "base_stats": {
+      "hp": 900,
+      "mp": 100,
+      "atk": 80,
+      "iat": 80,
+      "def": 40,
+      "idr": 30,
+      "spd": 80,
+      "rng": 2,
+      "wis": 60
+    },
+    "initial_gongfa": [
+      "gongfa_test_buff_linkage_poison_bonus",
+      "gongfa_test_buff_linkage_no_enemy_fire"
+    ],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": ""
+    },
+    "equip_slots": {
+      "slot_1": "",
+      "slot_2": ""
+    },
+    "max_equip_count": 2,
+    "sprite_path": "assets/test/m5/unit_test_buff_link_owner.png",
+    "portrait_path": "assets/test/m5/portrait_test_buff_link_owner.png",
+    "tags": ["test.m5", "test.buff_linkage", "test.team.ally"],
+    "test_team_id": 1,
+    "test_cell": [0, 0],
+    "test_active_buff_ids": ["test_buff_linkage_haste"]
+  },
+  {
+    "id": "unit_test_buff_link_ally_dot",
+    "name": "Test Buff Link Ally Dot",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": false,
+    "base_stats": {
+      "hp": 860,
+      "mp": 90,
+      "atk": 72,
+      "iat": 72,
+      "def": 38,
+      "idr": 28,
+      "spd": 78,
+      "rng": 1,
+      "wis": 54
+    },
+    "initial_gongfa": [],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": ""
+    },
+    "equip_slots": {
+      "slot_1": "",
+      "slot_2": ""
+    },
+    "max_equip_count": 2,
+    "sprite_path": "assets/test/m5/unit_test_buff_link_ally_dot.png",
+    "portrait_path": "assets/test/m5/portrait_test_buff_link_ally_dot.png",
+    "tags": ["test.m5", "test.buff_linkage", "test.team.ally"],
+    "test_team_id": 1,
+    "test_cell": [1, 0],
+    "test_active_buff_ids": ["test_debuff_linkage_poison"]
+  },
+  {
+    "id": "unit_test_buff_link_ally_shield",
+    "name": "Test Buff Link Ally Shield",
+    "quality": "green",
+    "cost": 2,
+    "shop_visible": false,
+    "base_stats": {
+      "hp": 910,
+      "mp": 88,
+      "atk": 70,
+      "iat": 70,
+      "def": 44,
+      "idr": 32,
+      "spd": 74,
+      "rng": 1,
+      "wis": 50
+    },
+    "initial_gongfa": [],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": ""
+    },
+    "equip_slots": {
+      "slot_1": "",
+      "slot_2": ""
+    },
+    "max_equip_count": 2,
+    "sprite_path": "assets/test/m5/unit_test_buff_link_ally_shield.png",
+    "portrait_path": "assets/test/m5/portrait_test_buff_link_ally_shield.png",
+    "tags": ["test.m5", "test.buff_linkage", "test.team.ally"],
+    "test_team_id": 1,
+    "test_cell": [1, -1],
+    "test_active_buff_ids": ["test_buff_linkage_shield"]
+  },
+  {
+    "id": "unit_test_buff_link_enemy_fire",
+    "name": "Test Buff Link Enemy Fire",
+    "quality": "blue",
+    "cost": 2,
+    "shop_visible": false,
+    "base_stats": {
+      "hp": 920,
+      "mp": 96,
+      "atk": 78,
+      "iat": 76,
+      "def": 40,
+      "idr": 30,
+      "spd": 76,
+      "rng": 2,
+      "wis": 58
+    },
+    "initial_gongfa": [],
+    "gongfa_slots": {
+      "neigong": "",
+      "waigong": "",
+      "qinggong": "",
+      "zhenfa": ""
+    },
+    "equip_slots": {
+      "slot_1": "",
+      "slot_2": ""
+    },
+    "max_equip_count": 2,
+    "sprite_path": "assets/test/m5/unit_test_buff_link_enemy_fire.png",
+    "portrait_path": "assets/test/m5/portrait_test_buff_link_enemy_fire.png",
+    "tags": ["test.m5", "test.buff_linkage", "test.team.enemy"],
+    "test_team_id": 2,
+    "test_cell": [2, 0],
+    "test_active_buff_ids": ["test_debuff_linkage_burn"]
+  }
+]

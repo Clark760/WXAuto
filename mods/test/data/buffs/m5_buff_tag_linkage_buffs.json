@@ -1,0 +1,72 @@
+[
+  {
+    "id": "test_buff_linkage_haste",
+    "name": "Test Haste",
+    "type": "buff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 4.0,
+    "tags": ["test.group.speed", "test.buff.haste"],
+    "effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.1
+      }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0
+  },
+  {
+    "id": "test_buff_linkage_shield",
+    "name": "Test Shield",
+    "type": "buff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 4.0,
+    "tags": ["test.group.defense", "test.buff.shield"],
+    "effects": [
+      {
+        "op": "damage_reduce_percent",
+        "value": 0.08
+      }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0
+  },
+  {
+    "id": "test_debuff_linkage_poison",
+    "name": "Test Poison",
+    "type": "debuff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 4.0,
+    "tags": ["test.group.dot", "test.dot.poison"],
+    "effects": [],
+    "tick_effects": [
+      {
+        "op": "damage_target",
+        "value": 6.0,
+        "damage_type": "internal"
+      }
+    ],
+    "tick_interval": 1.0
+  },
+  {
+    "id": "test_debuff_linkage_burn",
+    "name": "Test Burn",
+    "type": "debuff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 4.0,
+    "tags": ["test.group.dot", "test.group.fire", "test.dot.burn"],
+    "effects": [],
+    "tick_effects": [
+      {
+        "op": "damage_target",
+        "value": 7.0,
+        "damage_type": "external"
+      }
+    ],
+    "tick_interval": 1.0
+  }
+]

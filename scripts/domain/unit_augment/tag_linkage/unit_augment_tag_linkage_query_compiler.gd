@@ -1,7 +1,7 @@
 extends RefCounted
 class_name UnitAugmentTagLinkageQueryCompiler
 
-const DEFAULT_SOURCE_TYPES: Array[String] = ["trait", "gongfa", "equipment", "terrain", "unit"]
+const DEFAULT_SOURCE_TYPES: Array[String] = ["trait", "gongfa", "equipment", "terrain", "unit", "buff"]
 const COMPILE_CACHE_MAX: int = 256
 
 var _tag_to_index: Dictionary = {}
@@ -117,7 +117,14 @@ func normalize_source_types(value: Variant) -> Array[String]:
 			var key: String = str(item).strip_edges().to_lower()
 			if key.is_empty():
 				continue
-			if key != "trait" and key != "gongfa" and key != "equipment" and key != "terrain" and key != "unit":
+			if (
+				key != "trait"
+				and key != "gongfa"
+				and key != "equipment"
+				and key != "terrain"
+				and key != "unit"
+				and key != "buff"
+			):
 				continue
 			if seen.has(key):
 				continue
@@ -310,7 +317,13 @@ func _query_uses_unit_providers(query: Dictionary) -> bool:
 		return false
 	for source_type_value in (source_types_value as Array):
 		var source_type: String = str(source_type_value).strip_edges().to_lower()
-		if source_type == "unit" or source_type == "trait" or source_type == "gongfa" or source_type == "equipment":
+		if (
+			source_type == "unit"
+			or source_type == "trait"
+			or source_type == "gongfa"
+			or source_type == "equipment"
+			or source_type == "buff"
+		):
 			return true
 	return false
 

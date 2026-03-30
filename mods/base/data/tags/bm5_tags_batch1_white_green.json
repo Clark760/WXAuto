@@ -1,655 +1,546 @@
 [
   {
     "id": "bm5_tag_0001",
-    "tag": "bm5.batch.one",
     "name": "bm5.batch.one",
     "description": "BaseMod M5 tag: bm5.batch.one"
   },
   {
     "id": "bm5_tag_0002",
-    "tag": "bm5.equipment",
     "name": "bm5.equipment",
     "description": "BaseMod M5 tag: bm5.equipment"
   },
   {
     "id": "bm5_tag_0003",
-    "tag": "bm5.equipment.accessory",
     "name": "bm5.equipment.accessory",
     "description": "BaseMod M5 tag: bm5.equipment.accessory"
   },
   {
     "id": "bm5_tag_0004",
-    "tag": "bm5.equipment.armor",
     "name": "bm5.equipment.armor",
     "description": "BaseMod M5 tag: bm5.equipment.armor"
   },
   {
     "id": "bm5_tag_0005",
-    "tag": "bm5.equipment.weapon",
     "name": "bm5.equipment.weapon",
     "description": "BaseMod M5 tag: bm5.equipment.weapon"
   },
   {
     "id": "bm5_tag_0006",
-    "tag": "bm5.gongfa",
     "name": "bm5.gongfa",
     "description": "BaseMod M5 tag: bm5.gongfa"
   },
   {
     "id": "bm5_tag_0007",
-    "tag": "bm5.gongfa.neigong",
     "name": "bm5.gongfa.neigong",
     "description": "BaseMod M5 tag: bm5.gongfa.neigong"
   },
   {
     "id": "bm5_tag_0008",
-    "tag": "bm5.gongfa.qinggong",
     "name": "bm5.gongfa.qinggong",
     "description": "BaseMod M5 tag: bm5.gongfa.qinggong"
   },
   {
     "id": "bm5_tag_0010",
-    "tag": "bm5.gongfa.waigong",
     "name": "bm5.gongfa.waigong",
     "description": "BaseMod M5 tag: bm5.gongfa.waigong"
   },
   {
     "id": "bm5_tag_0011",
-    "tag": "bm5.gongfa.zhenfa",
     "name": "bm5.gongfa.zhenfa",
     "description": "BaseMod M5 tag: bm5.gongfa.zhenfa"
   },
   {
     "id": "bm5_tag_0012",
-    "tag": "bm5.quality.green",
     "name": "bm5.quality.green",
     "description": "BaseMod M5 tag: bm5.quality.green"
   },
   {
     "id": "bm5_tag_0013",
-    "tag": "bm5.quality.white",
     "name": "bm5.quality.white",
     "description": "BaseMod M5 tag: bm5.quality.white"
   },
   {
     "id": "bm5_tag_0021",
-    "tag": "bm5.shop.buyable",
     "name": "bm5.shop.buyable",
     "description": "BaseMod M5 tag: bm5.shop.buyable"
   },
   {
     "id": "bm5_tag_0022",
-    "tag": "bm5.skill.heal",
     "name": "bm5.skill.heal",
     "description": "BaseMod M5 tag: bm5.skill.heal"
   },
   {
     "id": "bm5_tag_0023",
-    "tag": "bm5.source.gulong",
     "name": "bm5.source.gulong",
     "description": "BaseMod M5 tag: bm5.source.gulong"
   },
   {
     "id": "bm5_tag_0024",
-    "tag": "bm5.source.jinyong",
     "name": "bm5.source.jinyong",
     "description": "BaseMod M5 tag: bm5.source.jinyong"
   },
   {
     "id": "bm5_tag_0025",
-    "tag": "bm5.trait.core",
     "name": "bm5.trait.core",
     "description": "BaseMod M5 tag: bm5.trait.core"
   },
   {
     "id": "bm5_tag_0026",
-    "tag": "bm5.trait.green",
     "name": "bm5.trait.green",
     "description": "BaseMod M5 tag: bm5.trait.green"
   },
   {
     "id": "bm5_tag_0027",
-    "tag": "bm5.trait.white",
     "name": "bm5.trait.white",
     "description": "BaseMod M5 tag: bm5.trait.white"
   },
   {
     "id": "bm5_tag_0028",
-    "tag": "bm5.unit.green.001",
     "name": "bm5.unit.green.001",
     "description": "BaseMod M5 tag: bm5.unit.green.001"
   },
   {
     "id": "bm5_tag_0029",
-    "tag": "bm5.unit.green.002",
     "name": "bm5.unit.green.002",
     "description": "BaseMod M5 tag: bm5.unit.green.002"
   },
   {
     "id": "bm5_tag_0030",
-    "tag": "bm5.unit.green.003",
     "name": "bm5.unit.green.003",
     "description": "BaseMod M5 tag: bm5.unit.green.003"
   },
   {
     "id": "bm5_tag_0031",
-    "tag": "bm5.unit.green.004",
     "name": "bm5.unit.green.004",
     "description": "BaseMod M5 tag: bm5.unit.green.004"
   },
   {
     "id": "bm5_tag_0032",
-    "tag": "bm5.unit.green.005",
     "name": "bm5.unit.green.005",
     "description": "BaseMod M5 tag: bm5.unit.green.005"
   },
   {
     "id": "bm5_tag_0033",
-    "tag": "bm5.unit.green.006",
     "name": "bm5.unit.green.006",
     "description": "BaseMod M5 tag: bm5.unit.green.006"
   },
   {
     "id": "bm5_tag_0034",
-    "tag": "bm5.unit.green.007",
     "name": "bm5.unit.green.007",
     "description": "BaseMod M5 tag: bm5.unit.green.007"
   },
   {
     "id": "bm5_tag_0035",
-    "tag": "bm5.unit.green.008",
     "name": "bm5.unit.green.008",
     "description": "BaseMod M5 tag: bm5.unit.green.008"
   },
   {
     "id": "bm5_tag_0036",
-    "tag": "bm5.unit.green.009",
     "name": "bm5.unit.green.009",
     "description": "BaseMod M5 tag: bm5.unit.green.009"
   },
   {
     "id": "bm5_tag_0037",
-    "tag": "bm5.unit.green.010",
     "name": "bm5.unit.green.010",
     "description": "BaseMod M5 tag: bm5.unit.green.010"
   },
   {
     "id": "bm5_tag_0038",
-    "tag": "bm5.unit.green.011",
     "name": "bm5.unit.green.011",
     "description": "BaseMod M5 tag: bm5.unit.green.011"
   },
   {
     "id": "bm5_tag_0039",
-    "tag": "bm5.unit.green.012",
     "name": "bm5.unit.green.012",
     "description": "BaseMod M5 tag: bm5.unit.green.012"
   },
   {
     "id": "bm5_tag_0040",
-    "tag": "bm5.unit.green.013",
     "name": "bm5.unit.green.013",
     "description": "BaseMod M5 tag: bm5.unit.green.013"
   },
   {
     "id": "bm5_tag_0041",
-    "tag": "bm5.unit.green.014",
     "name": "bm5.unit.green.014",
     "description": "BaseMod M5 tag: bm5.unit.green.014"
   },
   {
     "id": "bm5_tag_0042",
-    "tag": "bm5.unit.green.015",
     "name": "bm5.unit.green.015",
     "description": "BaseMod M5 tag: bm5.unit.green.015"
   },
   {
     "id": "bm5_tag_0043",
-    "tag": "bm5.unit.green.016",
     "name": "bm5.unit.green.016",
     "description": "BaseMod M5 tag: bm5.unit.green.016"
   },
   {
     "id": "bm5_tag_0044",
-    "tag": "bm5.unit.green.017",
     "name": "bm5.unit.green.017",
     "description": "BaseMod M5 tag: bm5.unit.green.017"
   },
   {
     "id": "bm5_tag_0045",
-    "tag": "bm5.unit.green.018",
     "name": "bm5.unit.green.018",
     "description": "BaseMod M5 tag: bm5.unit.green.018"
   },
   {
     "id": "bm5_tag_0046",
-    "tag": "bm5.unit.green.019",
     "name": "bm5.unit.green.019",
     "description": "BaseMod M5 tag: bm5.unit.green.019"
   },
   {
     "id": "bm5_tag_0047",
-    "tag": "bm5.unit.green.020",
     "name": "bm5.unit.green.020",
     "description": "BaseMod M5 tag: bm5.unit.green.020"
   },
   {
     "id": "bm5_tag_0048",
-    "tag": "bm5.unit.green.021",
     "name": "bm5.unit.green.021",
     "description": "BaseMod M5 tag: bm5.unit.green.021"
   },
   {
     "id": "bm5_tag_0049",
-    "tag": "bm5.unit.green.022",
     "name": "bm5.unit.green.022",
     "description": "BaseMod M5 tag: bm5.unit.green.022"
   },
   {
     "id": "bm5_tag_0050",
-    "tag": "bm5.unit.green.023",
     "name": "bm5.unit.green.023",
     "description": "BaseMod M5 tag: bm5.unit.green.023"
   },
   {
     "id": "bm5_tag_0051",
-    "tag": "bm5.unit.green.024",
     "name": "bm5.unit.green.024",
     "description": "BaseMod M5 tag: bm5.unit.green.024"
   },
   {
     "id": "bm5_tag_0052",
-    "tag": "bm5.unit.green.025",
     "name": "bm5.unit.green.025",
     "description": "BaseMod M5 tag: bm5.unit.green.025"
   },
   {
     "id": "bm5_tag_0053",
-    "tag": "bm5.unit.green.026",
     "name": "bm5.unit.green.026",
     "description": "BaseMod M5 tag: bm5.unit.green.026"
   },
   {
     "id": "bm5_tag_0054",
-    "tag": "bm5.unit.green.027",
     "name": "bm5.unit.green.027",
     "description": "BaseMod M5 tag: bm5.unit.green.027"
   },
   {
     "id": "bm5_tag_0055",
-    "tag": "bm5.unit.green.028",
     "name": "bm5.unit.green.028",
     "description": "BaseMod M5 tag: bm5.unit.green.028"
   },
   {
     "id": "bm5_tag_0056",
-    "tag": "bm5.unit.green.029",
     "name": "bm5.unit.green.029",
     "description": "BaseMod M5 tag: bm5.unit.green.029"
   },
   {
     "id": "bm5_tag_0057",
-    "tag": "bm5.unit.green.030",
     "name": "bm5.unit.green.030",
     "description": "BaseMod M5 tag: bm5.unit.green.030"
   },
   {
     "id": "bm5_tag_0058",
-    "tag": "bm5.unit.green.031",
     "name": "bm5.unit.green.031",
     "description": "BaseMod M5 tag: bm5.unit.green.031"
   },
   {
     "id": "bm5_tag_0059",
-    "tag": "bm5.unit.green.032",
     "name": "bm5.unit.green.032",
     "description": "BaseMod M5 tag: bm5.unit.green.032"
   },
   {
     "id": "bm5_tag_0060",
-    "tag": "bm5.unit.green.033",
     "name": "bm5.unit.green.033",
     "description": "BaseMod M5 tag: bm5.unit.green.033"
   },
   {
     "id": "bm5_tag_0061",
-    "tag": "bm5.unit.green.034",
     "name": "bm5.unit.green.034",
     "description": "BaseMod M5 tag: bm5.unit.green.034"
   },
   {
     "id": "bm5_tag_0062",
-    "tag": "bm5.unit.green.035",
     "name": "bm5.unit.green.035",
     "description": "BaseMod M5 tag: bm5.unit.green.035"
   },
   {
     "id": "bm5_tag_0063",
-    "tag": "bm5.unit.green.036",
     "name": "bm5.unit.green.036",
     "description": "BaseMod M5 tag: bm5.unit.green.036"
   },
   {
     "id": "bm5_tag_0064",
-    "tag": "bm5.unit.green.037",
     "name": "bm5.unit.green.037",
     "description": "BaseMod M5 tag: bm5.unit.green.037"
   },
   {
     "id": "bm5_tag_0065",
-    "tag": "bm5.unit.green.038",
     "name": "bm5.unit.green.038",
     "description": "BaseMod M5 tag: bm5.unit.green.038"
   },
   {
     "id": "bm5_tag_0066",
-    "tag": "bm5.unit.green.039",
     "name": "bm5.unit.green.039",
     "description": "BaseMod M5 tag: bm5.unit.green.039"
   },
   {
     "id": "bm5_tag_0067",
-    "tag": "bm5.unit.green.040",
     "name": "bm5.unit.green.040",
     "description": "BaseMod M5 tag: bm5.unit.green.040"
   },
   {
     "id": "bm5_tag_0068",
-    "tag": "bm5.unit.white.001",
     "name": "bm5.unit.white.001",
     "description": "BaseMod M5 tag: bm5.unit.white.001"
   },
   {
     "id": "bm5_tag_0069",
-    "tag": "bm5.unit.white.002",
     "name": "bm5.unit.white.002",
     "description": "BaseMod M5 tag: bm5.unit.white.002"
   },
   {
     "id": "bm5_tag_0070",
-    "tag": "bm5.unit.white.003",
     "name": "bm5.unit.white.003",
     "description": "BaseMod M5 tag: bm5.unit.white.003"
   },
   {
     "id": "bm5_tag_0071",
-    "tag": "bm5.unit.white.004",
     "name": "bm5.unit.white.004",
     "description": "BaseMod M5 tag: bm5.unit.white.004"
   },
   {
     "id": "bm5_tag_0072",
-    "tag": "bm5.unit.white.005",
     "name": "bm5.unit.white.005",
     "description": "BaseMod M5 tag: bm5.unit.white.005"
   },
   {
     "id": "bm5_tag_0073",
-    "tag": "bm5.unit.white.006",
     "name": "bm5.unit.white.006",
     "description": "BaseMod M5 tag: bm5.unit.white.006"
   },
   {
     "id": "bm5_tag_0074",
-    "tag": "bm5.unit.white.007",
     "name": "bm5.unit.white.007",
     "description": "BaseMod M5 tag: bm5.unit.white.007"
   },
   {
     "id": "bm5_tag_0075",
-    "tag": "bm5.unit.white.008",
     "name": "bm5.unit.white.008",
     "description": "BaseMod M5 tag: bm5.unit.white.008"
   },
   {
     "id": "bm5_tag_0076",
-    "tag": "bm5.unit.white.009",
     "name": "bm5.unit.white.009",
     "description": "BaseMod M5 tag: bm5.unit.white.009"
   },
   {
     "id": "bm5_tag_0077",
-    "tag": "bm5.unit.white.010",
     "name": "bm5.unit.white.010",
     "description": "BaseMod M5 tag: bm5.unit.white.010"
   },
   {
     "id": "bm5_tag_0078",
-    "tag": "bm5.unit.white.011",
     "name": "bm5.unit.white.011",
     "description": "BaseMod M5 tag: bm5.unit.white.011"
   },
   {
     "id": "bm5_tag_0079",
-    "tag": "bm5.unit.white.012",
     "name": "bm5.unit.white.012",
     "description": "BaseMod M5 tag: bm5.unit.white.012"
   },
   {
     "id": "bm5_tag_0080",
-    "tag": "bm5.unit.white.013",
     "name": "bm5.unit.white.013",
     "description": "BaseMod M5 tag: bm5.unit.white.013"
   },
   {
     "id": "bm5_tag_0081",
-    "tag": "bm5.unit.white.014",
     "name": "bm5.unit.white.014",
     "description": "BaseMod M5 tag: bm5.unit.white.014"
   },
   {
     "id": "bm5_tag_0082",
-    "tag": "bm5.unit.white.015",
     "name": "bm5.unit.white.015",
     "description": "BaseMod M5 tag: bm5.unit.white.015"
   },
   {
     "id": "bm5_tag_0083",
-    "tag": "bm5.unit.white.016",
     "name": "bm5.unit.white.016",
     "description": "BaseMod M5 tag: bm5.unit.white.016"
   },
   {
     "id": "bm5_tag_0084",
-    "tag": "bm5.unit.white.017",
     "name": "bm5.unit.white.017",
     "description": "BaseMod M5 tag: bm5.unit.white.017"
   },
   {
     "id": "bm5_tag_0085",
-    "tag": "bm5.unit.white.018",
     "name": "bm5.unit.white.018",
     "description": "BaseMod M5 tag: bm5.unit.white.018"
   },
   {
     "id": "bm5_tag_0086",
-    "tag": "bm5.unit.white.019",
     "name": "bm5.unit.white.019",
     "description": "BaseMod M5 tag: bm5.unit.white.019"
   },
   {
     "id": "bm5_tag_0087",
-    "tag": "bm5.unit.white.020",
     "name": "bm5.unit.white.020",
     "description": "BaseMod M5 tag: bm5.unit.white.020"
   },
   {
     "id": "bm5_tag_0088",
-    "tag": "bm5.unit.white.021",
     "name": "bm5.unit.white.021",
     "description": "BaseMod M5 tag: bm5.unit.white.021"
   },
   {
     "id": "bm5_tag_0089",
-    "tag": "bm5.unit.white.022",
     "name": "bm5.unit.white.022",
     "description": "BaseMod M5 tag: bm5.unit.white.022"
   },
   {
     "id": "bm5_tag_0090",
-    "tag": "bm5.unit.white.023",
     "name": "bm5.unit.white.023",
     "description": "BaseMod M5 tag: bm5.unit.white.023"
   },
   {
     "id": "bm5_tag_0091",
-    "tag": "bm5.unit.white.024",
     "name": "bm5.unit.white.024",
     "description": "BaseMod M5 tag: bm5.unit.white.024"
   },
   {
     "id": "bm5_tag_0092",
-    "tag": "bm5.unit.white.025",
     "name": "bm5.unit.white.025",
     "description": "BaseMod M5 tag: bm5.unit.white.025"
   },
   {
     "id": "bm5_tag_0093",
-    "tag": "bm5.unit.white.026",
     "name": "bm5.unit.white.026",
     "description": "BaseMod M5 tag: bm5.unit.white.026"
   },
   {
     "id": "bm5_tag_0094",
-    "tag": "bm5.unit.white.027",
     "name": "bm5.unit.white.027",
     "description": "BaseMod M5 tag: bm5.unit.white.027"
   },
   {
     "id": "bm5_tag_0095",
-    "tag": "bm5.unit.white.028",
     "name": "bm5.unit.white.028",
     "description": "BaseMod M5 tag: bm5.unit.white.028"
   },
   {
     "id": "bm5_tag_0096",
-    "tag": "bm5.unit.white.029",
     "name": "bm5.unit.white.029",
     "description": "BaseMod M5 tag: bm5.unit.white.029"
   },
   {
     "id": "bm5_tag_0097",
-    "tag": "bm5.unit.white.030",
     "name": "bm5.unit.white.030",
     "description": "BaseMod M5 tag: bm5.unit.white.030"
   },
   {
     "id": "bm5_tag_0098",
-    "tag": "bm5.unit.white.031",
     "name": "bm5.unit.white.031",
     "description": "BaseMod M5 tag: bm5.unit.white.031"
   },
   {
     "id": "bm5_tag_0099",
-    "tag": "bm5.unit.white.032",
     "name": "bm5.unit.white.032",
     "description": "BaseMod M5 tag: bm5.unit.white.032"
   },
   {
     "id": "bm5_tag_0100",
-    "tag": "bm5.unit.white.033",
     "name": "bm5.unit.white.033",
     "description": "BaseMod M5 tag: bm5.unit.white.033"
   },
   {
     "id": "bm5_tag_0101",
-    "tag": "bm5.unit.white.034",
     "name": "bm5.unit.white.034",
     "description": "BaseMod M5 tag: bm5.unit.white.034"
   },
   {
     "id": "bm5_tag_0102",
-    "tag": "bm5.unit.white.035",
     "name": "bm5.unit.white.035",
     "description": "BaseMod M5 tag: bm5.unit.white.035"
   },
   {
     "id": "bm5_tag_0103",
-    "tag": "bm5.unit.white.036",
     "name": "bm5.unit.white.036",
     "description": "BaseMod M5 tag: bm5.unit.white.036"
   },
   {
     "id": "bm5_tag_0104",
-    "tag": "bm5.unit.white.037",
     "name": "bm5.unit.white.037",
     "description": "BaseMod M5 tag: bm5.unit.white.037"
   },
   {
     "id": "bm5_tag_0105",
-    "tag": "bm5.unit.white.038",
     "name": "bm5.unit.white.038",
     "description": "BaseMod M5 tag: bm5.unit.white.038"
   },
   {
     "id": "bm5_tag_0106",
-    "tag": "bm5.unit.white.039",
     "name": "bm5.unit.white.039",
     "description": "BaseMod M5 tag: bm5.unit.white.039"
   },
   {
     "id": "bm5_tag_0107",
-    "tag": "bm5.unit.white.040",
     "name": "bm5.unit.white.040",
     "description": "BaseMod M5 tag: bm5.unit.white.040"
   },
   {
     "id": "bm5_tag_0108",
-    "tag": "bm5.unit.white.041",
     "name": "bm5.unit.white.041",
     "description": "BaseMod M5 tag: bm5.unit.white.041"
   },
   {
     "id": "bm5_tag_0109",
-    "tag": "bm5.unit.white.042",
     "name": "bm5.unit.white.042",
     "description": "BaseMod M5 tag: bm5.unit.white.042"
   },
   {
     "id": "bm5_tag_0110",
-    "tag": "bm5.unit.white.043",
     "name": "bm5.unit.white.043",
     "description": "BaseMod M5 tag: bm5.unit.white.043"
   },
   {
     "id": "bm5_tag_0111",
-    "tag": "bm5.unit.white.044",
     "name": "bm5.unit.white.044",
     "description": "BaseMod M5 tag: bm5.unit.white.044"
   },
   {
     "id": "bm5_tag_0112",
-    "tag": "bm5.unit.white.045",
     "name": "bm5.unit.white.045",
     "description": "BaseMod M5 tag: bm5.unit.white.045"
   },
   {
     "id": "bm5_tag_0113",
-    "tag": "bm5.unit.white.046",
     "name": "bm5.unit.white.046",
     "description": "BaseMod M5 tag: bm5.unit.white.046"
   },
   {
     "id": "bm5_tag_0114",
-    "tag": "bm5.unit.white.047",
     "name": "bm5.unit.white.047",
     "description": "BaseMod M5 tag: bm5.unit.white.047"
   },
   {
     "id": "bm5_tag_0115",
-    "tag": "bm5.unit.white.048",
     "name": "bm5.unit.white.048",
     "description": "BaseMod M5 tag: bm5.unit.white.048"
   },
   {
     "id": "bm5_tag_0116",
-    "tag": "bm5.unit.white.049",
     "name": "bm5.unit.white.049",
     "description": "BaseMod M5 tag: bm5.unit.white.049"
   },
   {
     "id": "bm5_tag_0117",
-    "tag": "bm5.unit.white.050",
     "name": "bm5.unit.white.050",
     "description": "BaseMod M5 tag: bm5.unit.white.050"
   }

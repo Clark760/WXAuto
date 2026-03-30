@@ -284,7 +284,7 @@ const EFFECT_COMMON_PARAM_HINTS = {
   exclude_tags: "排除标签数组。",
   exclude_match: "排除匹配方式：`any` / `all`。",
   unique_source_name: "同名来源去重，只计一次。",
-  source_types: "来源类型过滤，如 `trait` / `gongfa` / `equipment`。",
+  source_types: "来源类型过滤，如 `trait` / `gongfa` / `equipment` / `buff`。",
   origin_scope: "来源范围过滤，如 `all` / `self` / `nearby`。",
   source_name: "来源名称过滤。",
   queries: "联动查询列表。",
@@ -497,6 +497,7 @@ const FIXED_ARRAY_ITEM_OPTIONS = {
     { value: "trait", label: "特性", desc: "来源类型：特性。" },
     { value: "gongfa", label: "功法", desc: "来源类型：功法。" },
     { value: "equipment", label: "装备", desc: "来源类型：装备。" },
+    { value: "buff", label: "Buff", desc: "来源类型：单位当前生效的 Buff / Debuff。" },
     { value: "terrain", label: "地形", desc: "来源类型：地形。" },
     { value: "unit", label: "单位", desc: "来源类型：单位。" },
   ],
@@ -550,6 +551,7 @@ const el = {
   saveBtn: document.getElementById("saveBtn"),
   reloadBtn: document.getElementById("reloadBtn"),
   newFileBtn: document.getElementById("newFileBtn"),
+  deleteFileBtn: document.getElementById("deleteFileBtn"),
   arrayPanel: document.getElementById("arrayPanel"),
   itemList: document.getElementById("itemList"),
   addItemBtn: document.getElementById("addItemBtn"),
@@ -580,6 +582,12 @@ const el = {
   refPrevBtn: document.getElementById("refPrevBtn"),
   refNextBtn: document.getElementById("refNextBtn"),
   refPageText: document.getElementById("refPageText"),
+  newFileMask: document.getElementById("newFileMask"),
+  newFileNameInput: document.getElementById("newFileNameInput"),
+  newFileRootType: document.getElementById("newFileRootType"),
+  newFileRootHint: document.getElementById("newFileRootHint"),
+  newFileConfirmBtn: document.getElementById("newFileConfirmBtn"),
+  newFileCancelBtn: document.getElementById("newFileCancelBtn"),
 };
 
 function setStatus(message, isError = false) {
@@ -755,6 +763,85 @@ function createNode(tag, className = "", text = "") {
   if (className) node.className = className;
   if (text) node.textContent = text;
   return node;
+}
+
+function encodeFocusSegment(segment) {
+  return encodeURIComponent(String(segment == null ? "" : segment));
+}
+
+function composeFocusKey(focusPath, control = "") {
+  if (!Array.isArray(focusPath) || focusPath.length === 0) return "";
+  const base = focusPath.map(encodeFocusSegment).join("/");
+  if (!control) return base;
+  return `${base}::${encodeFocusSegment(control)}`;
+}
+
+function attachFocusKey(node, focusPath, control = "") {
+  if (!(node instanceof HTMLElement)) return;
+  const key = composeFocusKey(focusPath, control);
+  if (!key) return;
+  node.setAttribute("data-focus-key", key);
+}
+
+function captureEditorFocusSnapshot() {
+  const active = document.activeElement;
+  if (!(active instanceof HTMLElement)) return null;
+  const key = active.getAttribute("data-focus-key");
+  if (!key) return null;
+  const snapshot = {
+    key,
+    selectionStart: null,
+    selectionEnd: null,
+    selectionDirection: "none",
+  };
+  if (active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement) {
+    try {
+      if (typeof active.selectionStart === "number") snapshot.selectionStart = active.selectionStart;
+      if (typeof active.selectionEnd === "number") snapshot.selectionEnd = active.selectionEnd;
+      if (typeof active.selectionDirection === "string") snapshot.selectionDirection = active.selectionDirection;
+    } catch (_err) {
+      snapshot.selectionStart = null;
+      snapshot.selectionEnd = null;
+      snapshot.selectionDirection = "none";
+    }
+  }
+  return snapshot;
+}
+
+function escapeCssAttrValue(value) {
+  if (window.CSS && typeof window.CSS.escape === "function") {
+    return window.CSS.escape(value);
+  }
+  return String(value).replaceAll("\\", "\\\\").replaceAll('"', '\\"');
+}
+
+function restoreEditorFocusSnapshot(snapshot) {
+  if (!snapshot || !snapshot.key) return;
+  const selector = `[data-focus-key="${escapeCssAttrValue(snapshot.key)}"]`;
+  const target = el.formTab.querySelector(selector);
+  if (!(target instanceof HTMLElement)) return;
+
+  target.focus({ preventScroll: true });
+  if (
+    (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) &&
+    typeof snapshot.selectionStart === "number" &&
+    typeof snapshot.selectionEnd === "number"
+  ) {
+    const max = target.value.length;
+    const start = Math.max(0, Math.min(snapshot.selectionStart, max));
+    const end = Math.max(start, Math.min(snapshot.selectionEnd, max));
+    try {
+      target.setSelectionRange(start, end, snapshot.selectionDirection || "none");
+    } catch (_err) {
+      // Ignore controls that do not support selection ranges (for example type=number).
+    }
+  }
+}
+
+function renderPreservingEditorFocus() {
+  const snapshot = captureEditorFocusSnapshot();
+  render();
+  restoreEditorFocusSnapshot(snapshot);
 }
 
 function setTab(tab) {
@@ -1253,6 +1340,9 @@ function renderSelectors() {
       (x) => x.value
     );
   }
+  if (el.deleteFileBtn) {
+    el.deleteFileBtn.disabled = !state.selectedFile;
+  }
   const category = state.categories.find((x) => x.id === state.selectedCategory);
   el.schemaInfo.textContent = category ? `Schema: ${category.schema_file}` : "";
 }
@@ -1379,6 +1469,7 @@ function renderEditorPanel() {
     const field = buildFieldNode({
       keyName: `item[${state.selectedIndex}]`,
       path: ["$root", "[]"],
+      focusPath: ["$root", `[${state.selectedIndex}]`],
       value: item,
       schema: state.schema,
       rootSchema,
@@ -1386,7 +1477,7 @@ function renderEditorPanel() {
       onChange: (next) => {
         state.document[state.selectedIndex] = next;
         updateDirty(true);
-        render();
+        renderPreservingEditorFocus();
       },
     });
     el.formTab.appendChild(field);
@@ -1396,6 +1487,7 @@ function renderEditorPanel() {
   const field = buildFieldNode({
     keyName: "root",
     path: ["$root"],
+    focusPath: ["$root"],
     value: state.document,
     schema: state.schema,
     rootSchema,
@@ -1403,7 +1495,7 @@ function renderEditorPanel() {
     onChange: (next) => {
       state.document = next;
       updateDirty(true);
-      render();
+      renderPreservingEditorFocus();
     },
   });
   el.formTab.appendChild(field);
@@ -1452,6 +1544,40 @@ function closeReferencePicker() {
   state.refPicker.source = "remote";
   state.refPicker.staticItems = [];
   renderReferenceModal();
+}
+
+function normalizeNewFileName(rawName) {
+  let base = String(rawName || "").trim();
+  if (!base) return "";
+  if (base.toLowerCase().endsWith(".json")) {
+    base = base.slice(0, -5).trim();
+  }
+  if (!base) return "";
+  return `${base}.json`;
+}
+
+function openNewFileDialog() {
+  if (!el.newFileMask || !el.newFileNameInput || !el.newFileRootType || !el.newFileRootHint) {
+    setStatus("新建弹窗未初始化。", true);
+    return;
+  }
+  const inherited = state.document != null;
+  const rootType = inherited ? (Array.isArray(state.document) ? "array" : "object") : "array";
+  el.newFileNameInput.value = "";
+  el.newFileRootType.value = rootType;
+  el.newFileRootType.disabled = inherited;
+  el.newFileRootHint.textContent = inherited
+    ? `根类型将沿用当前文件：${rootType}`
+    : "可选择新文件根类型。";
+  el.newFileMask.hidden = false;
+  window.requestAnimationFrame(() => {
+    el.newFileNameInput.focus();
+  });
+}
+
+function closeNewFileDialog() {
+  if (!el.newFileMask) return;
+  el.newFileMask.hidden = true;
 }
 
 function filterStaticPickerRows(rows, query, page, pageSize) {
@@ -1515,7 +1641,7 @@ async function fetchReferencePage() {
   }
 }
 
-function primitiveInput({ value, schema, rootSchema, path, onChange, contextTriggerId = "", contextEffectOp = "" }) {
+function primitiveInput({ value, schema, rootSchema, path, focusPath = [], onChange, contextTriggerId = "", contextEffectOp = "" }) {
   const node = createNode("div");
   const schemaTypeList = schemaTypes(schema);
   const types = schemaTypeList.length > 0 ? schemaTypeList : inferTypesFromValue(value);
@@ -1530,6 +1656,7 @@ function primitiveInput({ value, schema, rootSchema, path, onChange, contextTrig
     const row = createNode("label", "row");
     const cb = document.createElement("input");
     cb.type = "checkbox";
+    attachFocusKey(cb, focusPath, "null_toggle");
     cb.checked = value === null;
     cb.addEventListener("change", () => {
       if (cb.checked) {
@@ -1548,6 +1675,7 @@ function primitiveInput({ value, schema, rootSchema, path, onChange, contextTrig
     const wrap = createNode("div", "inline-ref");
     const options = state.referenceCache[refKind] || [];
     const select = document.createElement("select");
+    attachFocusKey(select, focusPath, "select");
     const currentValue = String(value == null ? "" : value);
     const hasCurrent = options.some((row) => String(row.id || "") === currentValue);
 
@@ -1582,6 +1710,7 @@ function primitiveInput({ value, schema, rootSchema, path, onChange, contextTrig
   if (enumValues && enumValues.length > 0) {
     const wrap = createNode("div", "inline-ref");
     const select = document.createElement("select");
+    attachFocusKey(select, focusPath, "select");
     enumValues.forEach((optionValue) => {
       const op = document.createElement("option");
       op.value = String(optionValue);
@@ -1607,6 +1736,7 @@ function primitiveInput({ value, schema, rootSchema, path, onChange, contextTrig
   if (activeType === "string" && fixedOptions.length > 0) {
     const wrap = createNode("div", "inline-ref");
     const select = document.createElement("select");
+    attachFocusKey(select, focusPath, "select");
     const currentValue = String(value == null ? "" : value);
     const hasCurrent = fixedOptions.some((row) => String(row.value) === currentValue);
 
@@ -1638,6 +1768,7 @@ function primitiveInput({ value, schema, rootSchema, path, onChange, contextTrig
     const row = createNode("label", "row");
     const cb = document.createElement("input");
     cb.type = "checkbox";
+    attachFocusKey(cb, focusPath, "checkbox");
     cb.checked = Boolean(value);
     cb.addEventListener("change", () => onChange(cb.checked));
     row.appendChild(cb);
@@ -1649,6 +1780,7 @@ function primitiveInput({ value, schema, rootSchema, path, onChange, contextTrig
   if (activeType === "integer" || activeType === "number") {
     const input = document.createElement("input");
     input.type = "number";
+    attachFocusKey(input, focusPath, "input");
     input.step = activeType === "integer" ? "1" : "any";
     if (typeof schema.minimum === "number") input.min = String(schema.minimum);
     if (typeof schema.maximum === "number") input.max = String(schema.maximum);
@@ -1669,8 +1801,27 @@ function primitiveInput({ value, schema, rootSchema, path, onChange, contextTrig
   const wrap = createNode("div", "inline-ref");
   const input = document.createElement("input");
   input.type = "text";
+  attachFocusKey(input, focusPath, "input");
   input.value = value == null ? "" : String(value);
-  input.addEventListener("input", () => onChange(input.value));
+  let composing = false;
+  let lastEmittedValue = input.value;
+  const emitIfChanged = () => {
+    const nextValue = input.value;
+    if (nextValue === lastEmittedValue) return;
+    lastEmittedValue = nextValue;
+    onChange(nextValue);
+  };
+  input.addEventListener("compositionstart", () => {
+    composing = true;
+  });
+  input.addEventListener("compositionend", () => {
+    composing = false;
+    emitIfChanged();
+  });
+  input.addEventListener("input", (ev) => {
+    if (composing || ev.isComposing) return;
+    emitIfChanged();
+  });
   wrap.appendChild(input);
 
   if (refKind && refKind !== "trigger" && refKind !== "effect_op") {
@@ -1688,6 +1839,7 @@ function primitiveInput({ value, schema, rootSchema, path, onChange, contextTrig
 function buildFieldNode({
   keyName,
   path,
+  focusPath = [],
   value,
   schema: rawSchema,
   rootSchema,
@@ -1729,6 +1881,7 @@ function buildFieldNode({
         schema,
         rootSchema,
         path,
+        focusPath,
         onChange,
         parentValue,
         contextTriggerId,
@@ -1745,6 +1898,7 @@ function buildFieldNode({
         schema,
         rootSchema,
         path,
+        focusPath,
         onChange,
         parentValue,
         contextTriggerId,
@@ -1760,6 +1914,7 @@ function buildFieldNode({
       schema,
       rootSchema,
       path,
+      focusPath,
       onChange,
       contextTriggerId,
       contextEffectOp,
@@ -1773,6 +1928,7 @@ function objectEditor({
   schema,
   rootSchema,
   path,
+  focusPath = [],
   onChange,
   parentValue = null,
   contextTriggerId = "",
@@ -1807,6 +1963,7 @@ function objectEditor({
       buildFieldNode({
         keyName: key,
         path: [...path, key],
+        focusPath: [...focusPath, key],
         value: childValue,
         schema: childSchema,
         rootSchema,
@@ -1832,6 +1989,7 @@ function objectEditor({
     const field = buildFieldNode({
       keyName: key,
       path: [...path, key],
+      focusPath: [...focusPath, key],
       value: value[key],
       schema: childSchema,
       rootSchema,
@@ -1963,6 +2121,7 @@ function arrayEditor({
   schema,
   rootSchema,
   path,
+  focusPath = [],
   onChange,
   parentValue = null,
   contextTriggerId = "",
@@ -1982,6 +2141,7 @@ function arrayEditor({
     const field = buildFieldNode({
       keyName: `[${index}]`,
       path: [...path, "[]"],
+      focusPath: [...focusPath, `[${index}]`],
       value: item,
       schema: itemSchema,
       rootSchema,
@@ -2271,38 +2431,67 @@ async function onNewFile() {
     setStatus("请先选择 Mod 和分类。", true);
     return;
   }
-  const fileName = window.prompt("请输入新文件名（*.json）");
-  if (!fileName) return;
-  if (!fileName.toLowerCase().endsWith(".json")) {
-    setStatus("文件名必须以 .json 结尾。", true);
+  openNewFileDialog();
+}
+
+async function onConfirmNewFileDialog() {
+  if (!el.newFileNameInput || !el.newFileRootType) {
+    setStatus("新建弹窗未初始化。", true);
+    return;
+  }
+  const fileName = normalizeNewFileName(el.newFileNameInput.value);
+  if (!fileName) {
+    setStatus("请输入文件名。", true);
+    el.newFileNameInput.focus();
     return;
   }
 
   try {
-    let rootIsArray = true;
-    if (state.document != null) {
-      rootIsArray = Array.isArray(state.document);
-    } else {
-      const choice = window.prompt("新文件根类型输入 array 或 object", "array");
-      if (choice == null) return;
-      rootIsArray = choice.trim().toLowerCase() !== "object";
-    }
+    const rootIsArray = el.newFileRootType.value !== "object";
     const root = rootIsArray
       ? [defaultValueForSchema(state.schema, state.schema)]
       : defaultValueForSchema(state.schema, state.schema);
 
+    setStatus("正在创建文件...");
     await apiPost("/api/document", {
       mod: state.selectedMod,
       category: state.selectedCategory,
       file: fileName,
       document: root,
     });
+    closeNewFileDialog();
     state.selectedFile = fileName;
     await loadFilesForSelection();
     await loadSchemaAndDocument();
     updateDirty(false);
     render();
     setStatus(`已创建文件: ${fileName}`);
+  } catch (err) {
+    setStatus(err.message, true);
+  }
+}
+
+async function onDeleteFile() {
+  if (!state.selectedMod || !state.selectedCategory || !state.selectedFile) {
+    setStatus("请先选择要删除的文件。", true);
+    return;
+  }
+  const fileName = String(state.selectedFile || "");
+  const ok = window.confirm(`确定删除文件 ${fileName} ? 此操作不可恢复。`);
+  if (!ok) return;
+
+  try {
+    setStatus("正在删除文件...");
+    await apiPost("/api/document_delete", {
+      mod: state.selectedMod,
+      category: state.selectedCategory,
+      file: fileName,
+    });
+    await loadFilesForSelection();
+    await loadSchemaAndDocument();
+    updateDirty(false);
+    render();
+    setStatus(`已删除文件: ${fileName}`);
   } catch (err) {
     setStatus(err.message, true);
   }
@@ -2337,6 +2526,30 @@ function bindEvents() {
   el.categorySelect.addEventListener("change", onCategoryChanged);
   el.fileSelect.addEventListener("change", onFileChanged);
   el.newFileBtn.addEventListener("click", onNewFile);
+  if (el.deleteFileBtn) {
+    el.deleteFileBtn.addEventListener("click", onDeleteFile);
+  }
+  if (el.newFileConfirmBtn) {
+    el.newFileConfirmBtn.addEventListener("click", onConfirmNewFileDialog);
+  }
+  if (el.newFileCancelBtn) {
+    el.newFileCancelBtn.addEventListener("click", closeNewFileDialog);
+  }
+  if (el.newFileNameInput) {
+    el.newFileNameInput.addEventListener("keydown", (ev) => {
+      if (ev.key === "Enter") {
+        ev.preventDefault();
+        onConfirmNewFileDialog();
+      } else if (ev.key === "Escape") {
+        closeNewFileDialog();
+      }
+    });
+  }
+  if (el.newFileMask) {
+    el.newFileMask.addEventListener("click", (ev) => {
+      if (ev.target === el.newFileMask) closeNewFileDialog();
+    });
+  }
 
   el.formTabBtn.addEventListener("click", () => setTab("form"));
   el.rawTabBtn.addEventListener("click", () => setTab("raw"));
@@ -2453,6 +2666,3 @@ async function start() {
 }
 
 start();
-
-
-

@@ -238,7 +238,8 @@ func _damage_chain(
 	# 链伤的关键是“命中过的目标不再重复命中”。
 	# `visited` 集合因此必须留在这一层统一维护。
 	var base_damage: float = float(effect.get("value", 0.0))
-	var chain_count: int = maxi(int(effect.get("chain_count", 0)), 0)
+	var chain_count: int = maxi(int(effect.get("chain_count", effect.get("jumps", 0))), 0)
+	var chain_radius_cells: float = float(effect.get("radius", 3.0))
 	var decay_ratio: float = clampf(float(effect.get("decay", 0.0)), 0.0, 0.95)
 	var damage_type: String = str(effect.get("damage_type", "internal"))
 	var visited: Dictionary = {}
@@ -271,7 +272,7 @@ func _damage_chain(
 			source,
 			context,
 			_query_service.node_pos(current_target),
-			_query_service.cells_to_world_distance(3.0, context),
+			_query_service.cells_to_world_distance(chain_radius_cells, context),
 			visited
 		)
 
@@ -288,8 +289,11 @@ func _damage_cone(
 ) -> void:
 	var cone_damage: float = float(effect.get("value", 0.0))
 	var damage_type: String = str(effect.get("damage_type", "internal"))
-	var angle_deg: float = clampf(float(effect.get("angle", 60.0)), 1.0, 180.0)
-	var range_world: float = _query_service.cells_to_world_distance(float(effect.get("range", 2.0)), context)
+	var angle_deg: float = clampf(float(effect.get("angle", effect.get("angle_deg", 60.0))), 1.0, 180.0)
+	var range_world: float = _query_service.cells_to_world_distance(
+		float(effect.get("range", effect.get("radius", 2.0))),
+		context
+	)
 	var origin: Vector2 = _query_service.node_pos(source)
 	var direction: Vector2 = Vector2.RIGHT
 	if target != null and is_instance_valid(target):
@@ -340,7 +344,7 @@ func _heal_percent_missing_hp(
 	summary: Dictionary
 ) -> void:
 	var heal_target: Node = _resolve_target_or_source(source, target)
-	var missing_ratio: float = clampf(float(effect.get("value", 0.0)), 0.0, 5.0)
+	var missing_ratio: float = clampf(float(effect.get("value", effect.get("ratio", 0.0))), 0.0, 5.0)
 	var missing_hp: float = maxf(
 		_query_service.get_combat_value(heal_target, "max_hp") - _query_service.get_combat_value(heal_target, "current_hp"),
 		0.0
@@ -382,7 +386,9 @@ func _shield_allies_aoe(
 		if duration <= 0.0:
 			continue
 
-		var buff_id: String = str(effect.get("shield_buff_id", "buff_qi_shield")).strip_edges()
+		var buff_id: String = str(
+			effect.get("shield_buff_id", effect.get("buff_id", "buff_qi_shield"))
+		).strip_edges()
 		var buff_effect: Dictionary = {
 			"buff_id": buff_id,
 			"duration": duration
@@ -513,12 +519,16 @@ func _execute_target(
 	_context: Dictionary,
 	summary: Dictionary
 ) -> void:
-	var hp_threshold: float = clampf(float(effect.get("hp_threshold", 0.15)), 0.0, 0.95)
+	var hp_threshold: float = clampf(
+		float(effect.get("hp_threshold", effect.get("threshold", 0.15))),
+		0.0,
+		0.95
+	)
 	if _query_service.get_hp_ratio(target) > hp_threshold:
 		return
 
 	# 斩杀入口本质仍是一次普通伤害，只是前面多了一层血线门槛判定。
-	var execute_damage: float = maxf(float(effect.get("value", 0.0)), 0.0)
+	var execute_damage: float = maxf(float(effect.get("value", effect.get("damage", 0.0))), 0.0)
 	var damage_type: String = str(effect.get("damage_type", "external"))
 	var dealt: float = runtime_gateway.deal_damage(source, target, execute_damage, damage_type)
 	_add_damage(summary, source, target, dealt, damage_type, "execute_target", runtime_gateway)
@@ -565,7 +575,8 @@ func _aoe_percent_hp_damage(
 	summary: Dictionary
 ) -> void:
 	var aoe_radius: float = _query_service.cells_to_world_distance(float(effect.get("radius", 2.0)), context)
-	var percent: float = clampf(float(effect.get("percent", 0.05)), 0.0, 1.0)
+	var percent: float = clampf(float(effect.get("percent", effect.get("ratio", 0.05))), 0.0, 1.0)
+	var cap: float = maxf(float(effect.get("cap", -1.0)), -1.0)
 	var damage_type: String = str(effect.get("damage_type", "internal"))
 
 	for enemy in _query_service.collect_enemy_units_in_radius(
@@ -577,6 +588,8 @@ func _aoe_percent_hp_damage(
 		# 百分比生命伤害先取目标最大生命，确保不同血线下伤害基数稳定。
 		var enemy_max_hp: float = _query_service.get_combat_value(enemy, "max_hp")
 		var percent_damage: float = maxf(enemy_max_hp * percent, 0.0)
+		if cap >= 0.0:
+			percent_damage = minf(percent_damage, cap)
 		var dealt: float = runtime_gateway.deal_damage(source, enemy, percent_damage, damage_type)
 		_add_damage(summary, source, enemy, dealt, damage_type, "aoe_percent_hp_damage", runtime_gateway)
 

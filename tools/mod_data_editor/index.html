@@ -35,6 +35,7 @@
             <div class="row">
               <select id="fileSelect"></select>
               <button id="newFileBtn" type="button">新建</button>
+              <button id="deleteFileBtn" type="button" class="danger">删除</button>
             </div>
           </label>
           <p id="schemaInfo" class="hint"></p>
@@ -126,7 +127,35 @@
       </div>
     </div>
 
+    <div id="newFileMask" class="modal-mask" hidden>
+      <div class="modal compact">
+        <div class="modal-header">
+          <h3>新建文件</h3>
+          <button id="newFileCancelBtn" type="button">关闭</button>
+        </div>
+        <div class="modal-body">
+          <label>
+            文件名
+            <div class="file-name-row">
+              <input id="newFileNameInput" type="text" placeholder="例如：门派" />
+              <span class="file-ext">.json</span>
+            </div>
+          </label>
+          <label>
+            根类型
+            <select id="newFileRootType">
+              <option value="array">array（数组）</option>
+              <option value="object">object（对象）</option>
+            </select>
+          </label>
+          <p id="newFileRootHint" class="hint"></p>
+        </div>
+        <div class="modal-footer">
+          <button id="newFileConfirmBtn" type="button" class="primary">确定创建</button>
+        </div>
+      </div>
+    </div>
+
     <script src="./app.js"></script>
   </body>
 </html>
-

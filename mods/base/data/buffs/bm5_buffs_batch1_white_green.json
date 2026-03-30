@@ -5,7 +5,7 @@
     "type": "buff",
     "stackable": false,
     "max_stacks": 1,
-    "default_duration": 3.0,
+    "default_duration": 3,
     "effects": [
       {
         "op": "damage_reduce_percent",
@@ -13,7 +13,8 @@
       }
     ],
     "tick_effects": [],
-    "tick_interval": 0.0
+    "tick_interval": 0,
+    "tags": []
   },
   {
     "id": "bm5_buff_vanguard_stance",
@@ -21,7 +22,7 @@
     "type": "buff",
     "stackable": false,
     "max_stacks": 1,
-    "default_duration": 3.0,
+    "default_duration": 3,
     "effects": [
       {
         "op": "stat_add",
@@ -30,7 +31,7 @@
       }
     ],
     "tick_effects": [],
-    "tick_interval": 0.0
+    "tick_interval": 0
   },
   {
     "id": "bm5_buff_sword_momentum",
@@ -38,7 +39,7 @@
     "type": "buff",
     "stackable": true,
     "max_stacks": 3,
-    "default_duration": 4.0,
+    "default_duration": 4,
     "effects": [
       {
         "op": "attack_speed_bonus",
@@ -46,7 +47,7 @@
       }
     ],
     "tick_effects": [],
-    "tick_interval": 0.0
+    "tick_interval": 0
   },
   {
     "id": "bm5_buff_shadow_edge",
@@ -54,7 +55,7 @@
     "type": "buff",
     "stackable": false,
     "max_stacks": 1,
-    "default_duration": 4.0,
+    "default_duration": 4,
     "effects": [
       {
         "op": "crit_bonus",
@@ -62,7 +63,7 @@
       }
     ],
     "tick_effects": [],
-    "tick_interval": 0.0
+    "tick_interval": 0
   },
   {
     "id": "bm5_buff_arrow_focus",
@@ -70,7 +71,7 @@
     "type": "buff",
     "stackable": false,
     "max_stacks": 1,
-    "default_duration": 4.0,
+    "default_duration": 4,
     "effects": [
       {
         "op": "range_add",
@@ -78,7 +79,7 @@
       }
     ],
     "tick_effects": [],
-    "tick_interval": 0.0
+    "tick_interval": 0
   },
   {
     "id": "bm5_buff_caster_resonance",
@@ -86,7 +87,7 @@
     "type": "buff",
     "stackable": false,
     "max_stacks": 1,
-    "default_duration": 4.0,
+    "default_duration": 4,
     "effects": [
       {
         "op": "damage_amp_percent",
@@ -94,7 +95,7 @@
       }
     ],
     "tick_effects": [],
-    "tick_interval": 0.0
+    "tick_interval": 0
   },
   {
     "id": "bm5_buff_healer_bless",
@@ -102,7 +103,7 @@
     "type": "buff",
     "stackable": false,
     "max_stacks": 1,
-    "default_duration": 4.0,
+    "default_duration": 4,
     "effects": [
       {
         "op": "healing_amp",
@@ -114,7 +115,7 @@
       }
     ],
     "tick_effects": [],
-    "tick_interval": 0.0
+    "tick_interval": 0
   },
   {
     "id": "bm5_buff_leader_aura",
@@ -122,7 +123,7 @@
     "type": "buff",
     "stackable": false,
     "max_stacks": 1,
-    "default_duration": 8.0,
+    "default_duration": 8,
     "effects": [
       {
         "op": "stat_percent",
@@ -131,7 +132,7 @@
       }
     ],
     "tick_effects": [],
-    "tick_interval": 0.0
+    "tick_interval": 0
   },
   {
     "id": "bm5_debuff_slow",
@@ -139,7 +140,7 @@
     "type": "debuff",
     "stackable": false,
     "max_stacks": 1,
-    "default_duration": 3.0,
+    "default_duration": 3,
     "effects": [
       {
         "op": "stat_add",
@@ -148,7 +149,7 @@
       }
     ],
     "tick_effects": [],
-    "tick_interval": 0.0
+    "tick_interval": 0
   },
   {
     "id": "bm5_debuff_bleed",
@@ -156,7 +157,7 @@
     "type": "debuff",
     "stackable": true,
     "max_stacks": 3,
-    "default_duration": 4.0,
+    "default_duration": 4,
     "effects": [],
     "tick_effects": [
       {
@@ -165,7 +166,7 @@
         "damage_type": "external"
       }
     ],
-    "tick_interval": 1.0
+    "tick_interval": 1
   },
   {
     "id": "bm5_debuff_burn",
@@ -173,7 +174,7 @@
     "type": "debuff",
     "stackable": true,
     "max_stacks": 3,
-    "default_duration": 4.0,
+    "default_duration": 4,
     "effects": [],
     "tick_effects": [
       {
@@ -182,6 +183,6 @@
         "damage_type": "internal"
       }
     ],
-    "tick_interval": 1.0
+    "tick_interval": 1
   }
 ]

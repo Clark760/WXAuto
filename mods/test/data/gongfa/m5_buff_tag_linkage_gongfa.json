@@ -1,0 +1,118 @@
+[
+  {
+    "id": "gongfa_test_buff_linkage_poison_bonus",
+    "name": "Test Buff Link Poison Bonus",
+    "type": "neigong",
+    "description": "Test data for buff-tag linkage positive branch.",
+    "quality": "blue",
+    "shop_visible": false,
+    "tags": ["test.m5", "test.m5.buff_linkage", "test.group.dot"],
+    "passive_effects": [],
+    "skills": [
+      {
+        "trigger": "manual",
+        "effects": [
+          {
+            "op": "tag_linkage_branch",
+            "range": 3,
+            "include_self": false,
+            "team_scope": "ally",
+            "source_types": ["buff"],
+            "queries": [
+              {
+                "id": "q_ally_dot_buff",
+                "query_type": "match_tags",
+                "source_types": ["buff"],
+                "team_scope": "ally",
+                "tags": ["test.group.dot"],
+                "tag_match": "any"
+              }
+            ],
+            "cases": [
+              {
+                "id": "dot_ready",
+                "all": [
+                  {
+                    "query_id": "q_ally_dot_buff",
+                    "min_count": 1
+                  }
+                ],
+                "effects": [
+                  {
+                    "op": "mp_regen_add",
+                    "value": 18.0
+                  }
+                ]
+              }
+            ],
+            "else_effects": [
+              {
+                "op": "mp_regen_add",
+                "value": 3.0
+              }
+            ],
+            "stop_after_first_case": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gongfa_test_buff_linkage_no_enemy_fire",
+    "name": "Test Buff Link No Enemy Fire",
+    "type": "zhenfa",
+    "description": "Test data for buff-tag linkage forbid branch.",
+    "quality": "purple",
+    "shop_visible": false,
+    "tags": ["test.m5", "test.m5.buff_linkage", "test.group.fire"],
+    "passive_effects": [],
+    "skills": [
+      {
+        "trigger": "manual",
+        "effects": [
+          {
+            "op": "tag_linkage_branch",
+            "range": 4,
+            "include_self": true,
+            "team_scope": "all",
+            "source_types": ["buff"],
+            "queries": [
+              {
+                "id": "q_enemy_fire_forbid",
+                "query_type": "forbid_tags",
+                "source_types": ["buff"],
+                "team_scope": "enemy",
+                "exclude_tags": ["test.group.fire"],
+                "exclude_match": "any"
+              }
+            ],
+            "cases": [
+              {
+                "id": "safe_window",
+                "all": [
+                  {
+                    "query_id": "q_enemy_fire_forbid",
+                    "max_count": 0
+                  }
+                ],
+                "effects": [
+                  {
+                    "op": "damage_amp_percent",
+                    "value": 0.2
+                  }
+                ]
+              }
+            ],
+            "else_effects": [
+              {
+                "op": "damage_amp_percent",
+                "value": 0.05
+              }
+            ],
+            "stop_after_first_case": true
+          }
+        ]
+      }
+    ]
+  }
+]

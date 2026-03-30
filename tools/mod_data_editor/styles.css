@@ -300,6 +300,12 @@ button.danger {
   overflow: hidden;
 }
 
+.modal.compact {
+  width: min(520px, 100%);
+  height: auto;
+  max-height: min(78vh, 760px);
+}
+
 .modal-header {
   display: flex;
   justify-content: space-between;
@@ -311,6 +317,25 @@ button.danger {
 .modal-header h3 {
   margin: 0;
   font-size: 15px;
+}
+
+.file-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.file-name-row > input {
+  flex: 1 1 auto;
+}
+
+.file-ext {
+  flex: 0 0 auto;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fbff;
+  color: var(--muted);
 }
 
 .modal-body {
