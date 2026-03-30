@@ -1,0 +1,47 @@
+[
+  {
+    "id": "tag_job_iron_bone",
+    "name": "铁骨",
+    "description": "身负硬功、屹立不倒的前排豪杰"
+  },
+  {
+    "id": "tag_job_gallant",
+    "name": "豪侠",
+    "description": "正面搏杀、勇猛无畏的江湖好汉"
+  },
+  {
+    "id": "tag_job_flying_feather",
+    "name": "飞翎",
+    "description": "专精弓弩暗器、百步穿杨的远程高手"
+  },
+  {
+    "id": "tag_job_flying_ranger",
+    "name": "游侠",
+    "description": "行侠仗义、来去如风的江湖人"
+  },
+  {
+    "id": "tag_job_qi_master",
+    "name": "气师",
+    "description": "以内力驾驭气劲、隔空伤人的高手"
+  },
+  {
+    "id": "tag_job_healer",
+    "name": "医者",
+    "description": "兼具疗伤与辅攻的江湖郎中"
+  },
+  {
+    "id": "tag_job_healer",
+    "name": "医者",
+    "description": "兼具疗伤与辅攻的江湖郎中"
+  },
+  {
+    "id": "tag_job_qimen",
+    "name": "奇门",
+    "description": "布阵设伏、机关陷阱、改变地形、施加辅助等杂学异术"
+  },
+  {
+    "id": "tag_job_commander",
+    "name": "统帅",
+    "description": "召唤助战、光环增益、指挥调度、提振士气等领兵之能"
+  }
+]

@@ -1,0 +1,12 @@
+[
+  {
+    "id": "tag_feat_man",
+    "name": "男性",
+    "description": "男性"
+  },
+  {
+    "id": "tag_feat_woman",
+    "name": "女性",
+    "description": "女性"
+  }
+]

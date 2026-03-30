@@ -15,42 +15,37 @@
     "description": "华山派"
   },
   {
-    "id": "base_mp_4",
-    "name": "峨眉",
-    "description": "峨眉派"
-  },
-  {
     "id": "base_mp_5",
     "name": "青城",
     "description": "青城派"
   },
   {
-    "id": "base_mp_6",
+    "id": "base_mp_5",
     "name": "唐门",
     "description": "唐门"
   },
   {
-    "id": "base_mp_7",
+    "id": "base_mp_6",
     "name": "崆峒",
     "description": "崆峒派"
   },
   {
-    "id": "base_mp_8",
-    "name": "六扇门",
+    "id": "base_mp_7",
+    "name": "官府",
     "description": "六扇门"
   },
   {
-    "id": "base_mp_9",
+    "id": "base_mp_8",
     "name": "五毒",
     "description": "五毒教"
   },
   {
-    "id": "base_mp_10",
+    "id": "base_mp_9",
     "name": "丐帮",
     "description": "丐帮"
   },
   {
-    "id": "base_mp_11",
+    "id": "base_mp_10",
     "name": "明教",
     "description": "明教"
   }
