@@ -54,6 +54,8 @@ const PASSIVE_OPS_FROM_DOC: Array[String] = [
 	"stat_add",
 	"stat_percent",
 	"mp_regen_add",
+	"mp_gain_on_attack",
+	"mp_gain_on_hit",
 	"hp_regen_add",
 	"damage_reduce_flat",
 	"damage_reduce_percent",

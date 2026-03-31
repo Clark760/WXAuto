@@ -296,25 +296,6 @@ func _fallback_damage_type_label(damage_type: String) -> String:
 			return damage_type
 
 
-# 属性默认文案与配置解耦，避免配置缺失时直接落回原始 key。
-func _fallback_element_label(element: String) -> String:
-	match element:
-		"metal":
-			return "金"
-		"wood":
-			return "木"
-		"water":
-			return "水"
-		"fire":
-			return "火"
-		"earth":
-			return "土"
-		"none":
-			return "无属性"
-		_:
-			return element
-
-
 # 单位状态文案支持外置覆盖，兜底继续保持旧文案。
 func _fallback_status_label(status_key: String) -> String:
 	match status_key:
@@ -400,12 +381,6 @@ func equip_type_to_cn(equip_type: String) -> String:
 # 装备类型图标优先读配置，避免 detail / inventory 各自写死。
 func equip_icon(equip_type: String) -> String:
 	return _read_display_icon("equip_type_labels", equip_type, _fallback_equip_icon(equip_type))
-
-
-# 把五行属性 key 翻译成中文显示名。
-# element 文案贯穿商店、inventory 和 tooltip，需要统一出口。
-func element_to_cn(element: String) -> String:
-	return _read_display_text("element_labels", element, _fallback_element_label(element))
 
 
 # 把属性字段名翻译成战斗面板文案。

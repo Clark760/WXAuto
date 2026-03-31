@@ -168,6 +168,14 @@ func trim_component_caches(manager, valid_ids: Dictionary) -> void:
 		var iid: int = int(key)
 		if not valid_ids.has(iid):
 			manager._move_replan_cooldown_frame.erase(iid)
+	for key in manager._side_step_cooldown_frame.keys():
+		var iid: int = int(key)
+		if not valid_ids.has(iid):
+			manager._side_step_cooldown_frame.erase(iid)
+	for key in manager._last_move_from_cell.keys():
+		var iid: int = int(key)
+		if not valid_ids.has(iid):
+			manager._last_move_from_cell.erase(iid)
 
 
 # 清掉已经失效的单位级运行时缓存，包括占格、空间索引和位置缓存。
@@ -215,6 +223,8 @@ func remove_runtime_entry_by_id(manager, iid: int) -> void:
 	manager._attack_range_target_frame.erase(iid)
 	manager._follow_anchor_by_unit_id.erase(iid)
 	manager._move_replan_cooldown_frame.erase(iid)
+	manager._side_step_cooldown_frame.erase(iid)
+	manager._last_move_from_cell.erase(iid)
 
 
 # 开战时批量注册同一队伍单位，并完成进入战斗前的组件准备。

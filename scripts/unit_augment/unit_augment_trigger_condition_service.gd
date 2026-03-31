@@ -29,11 +29,13 @@ func can_trigger_entry(
 
 	# 队伍人数过滤先于任何触发细节，避免后面的阈值判断白算。
 	# 队伍人数属于外层环境条件，放在这里提前剪枝能减少后面重复读 HP/事件字段。
-	if not _passes_trigger_team_alive_conditions(manager, unit, trigger_params):
+	if not _passes_trigger_team_alive_conditions(manager, unit, trigger_params, event_context):
 		return false
 
 	# 统一把 skill_data 提前取出来，后续每类 trigger 都按“trigger_params 优先，skill_data 兜底”的口径读值。
 	var skill_data: Dictionary = entry.get("skill_data", {})
+	if not _passes_enemy_nearby_requirement(manager, unit, trigger_params, skill_data, event_context):
+		return false
 	# 下面的分支按 trigger 名逐类路由，每类 helper 都只关心自己那一种条件语义。
 
 	# 资源型自动触发只校验 MP，不依赖事件上下文。
@@ -445,7 +447,8 @@ func _passes_terrain_tag_filters(trigger_params: Dictionary, event_context: Dict
 func _passes_trigger_team_alive_conditions(
 	manager: Node,
 	unit: Node,
-	trigger_params: Dictionary
+	trigger_params: Dictionary,
+	event_context: Dictionary = {}
 ) -> bool:
 	var has_min_alive: bool = trigger_params.has("team_alive_at_least") \
 		or trigger_params.has("team_alive_count_min")
@@ -471,7 +474,8 @@ func _passes_trigger_team_alive_conditions(
 		manager,
 		unit,
 		team_scope,
-		exclude_self
+		exclude_self,
+		event_context
 	)
 	if has_min_alive and alive_count < min_alive:
 		return false
@@ -487,12 +491,24 @@ func _resolve_team_alive_count_for_trigger(
 	manager: Node,
 	unit: Node,
 	team_scope: String,
-	exclude_self: bool
+	exclude_self: bool,
+	event_context: Dictionary = {}
 ) -> int:
 	var state_service: Variant = manager.get_state_service()
 	var team_ids: Array[int] = _resolve_trigger_team_ids(unit, team_scope)
+	if event_context.has("_ua_alive_by_team"):
+		var cached_counts: Variant = event_context.get("_ua_alive_by_team", {})
+		if cached_counts is Dictionary:
+			var alive_count_from_cache: int = 0
+			for team_id in team_ids:
+				alive_count_from_cache += int((cached_counts as Dictionary).get(team_id, 0))
+			if exclude_self and state_service.is_unit_alive(unit) and team_ids.has(int(unit.get("team_id"))):
+				alive_count_from_cache -= 1
+			return maxi(alive_count_from_cache, 0)
 	var alive_count: int = 0
-	for battle_unit in state_service.get_battle_units():
+	var battle_units_value: Variant = event_context.get("_ua_battle_units", state_service.get_battle_units())
+	var battle_units: Array = battle_units_value if battle_units_value is Array else state_service.get_battle_units()
+	for battle_unit in battle_units:
 		# 这里只统计 UnitAugment 已登记的战斗单位，不碰场景树中的其他临时节点。
 		if battle_unit == null or not is_instance_valid(battle_unit):
 			continue
@@ -521,6 +537,47 @@ func _resolve_trigger_team_ids(unit: Node, team_scope: String) -> Array[int]:
 			if team_scope.is_valid_int():
 				return [int(team_scope)]
 			return [source_team]
+
+
+func _passes_enemy_nearby_requirement(
+	manager: Node,
+	unit: Node,
+	trigger_params: Dictionary,
+	skill_data: Dictionary,
+	event_context: Dictionary = {}
+) -> bool:
+	if not bool(trigger_params.get("require_enemy_nearby", false)):
+		return true
+	if unit == null or not is_instance_valid(unit):
+		return false
+
+	var battle_runtime: Variant = manager.get_battle_runtime()
+	var state_service: Variant = manager.get_state_service()
+	var target_service: Variant = manager.get_skill_target_service()
+	var skill_range_cells: float = target_service.resolve_skill_cast_range_cells(
+		unit,
+		skill_data,
+		manager.DEFAULT_SKILL_CAST_RANGE_CELLS
+	)
+	var nearby_cache_value: Variant = event_context.get("_ua_enemy_nearby_cache", {})
+	var range_key: int = int(roundi(skill_range_cells * 1000.0))
+	var cache_key: int = int(unit.get_instance_id()) ^ (range_key << 1)
+	if nearby_cache_value is Dictionary and (nearby_cache_value as Dictionary).has(cache_key):
+		return bool((nearby_cache_value as Dictionary).get(cache_key, false))
+	var battle_units_value: Variant = event_context.get("_ua_battle_units", state_service.get_battle_units())
+	var battle_units: Array = battle_units_value if battle_units_value is Array else state_service.get_battle_units()
+	var nearby_enemy: Node = target_service.pick_nearest_enemy_in_range(
+		battle_units,
+		unit,
+		skill_range_cells,
+		battle_runtime.get_bound_hex_grid(),
+		state_service,
+		battle_runtime.get_bound_combat_manager()
+	)
+	var has_nearby_enemy: bool = nearby_enemy != null
+	if nearby_cache_value is Dictionary:
+		(nearby_cache_value as Dictionary)[cache_key] = has_nearby_enemy
+	return has_nearby_enemy
 
 
 # 当前战斗只有 ally/enemy 两队，因此敌方阵营可以直接二值互换。

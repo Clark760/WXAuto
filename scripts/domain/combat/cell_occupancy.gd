@@ -156,7 +156,13 @@ func resolve_and_register_unit_cell(
 	var resolved_cell: Vector2i = fallback_cell
 	# 注册阶段允许找最近空格，但最终仍要求与视觉格一致才正式落表。
 	if not is_cell_free(runtime_port, hex_grid, cell_occupancy, resolved_cell):
-		resolved_cell = find_nearest_free_cell(runtime_port, hex_grid, cell_occupancy, fallback_cell)
+		resolved_cell = find_nearest_free_cell(
+			runtime_port,
+			hex_grid,
+			cell_occupancy,
+			fallback_cell,
+			{}
+		)
 	if resolved_cell.x < 0 or resolved_cell != fallback_cell:
 		return Vector2i(-1, -1)
 	if not occupy_cell(runtime_port, hex_grid, cell_occupancy, unit_cell, resolved_cell, unit):
@@ -188,7 +194,8 @@ func find_nearest_free_cell(
 	runtime_port: Node,
 	hex_grid: Node,
 	cell_occupancy: Dictionary,
-	start_cell: Vector2i
+	start_cell: Vector2i,
+	neighbor_cache: Dictionary = {}
 ) -> Vector2i:
 	if hex_grid == null or not hex_grid.is_inside_grid(start_cell):
 		return Vector2i(-1, -1)
@@ -202,7 +209,7 @@ func find_nearest_free_cell(
 	while head < queue.size():
 		var current: Vector2i = queue[head]
 		head += 1
-		for neighbor in neighbors_of(hex_grid, current):
+		for neighbor in neighbors_of(hex_grid, current, neighbor_cache):
 			var key: int = cell_key_int(neighbor)
 			if visited.has(key):
 				continue
@@ -214,7 +221,15 @@ func find_nearest_free_cell(
 
 
 # 邻接格优先读 HexGrid 的正式实现；缺失时再回退到 axial 六方向。
-func neighbors_of(hex_grid: Node, cell: Vector2i) -> Array[Vector2i]:
+func neighbors_of(
+	hex_grid: Node,
+	cell: Vector2i,
+	neighbor_cache: Dictionary = {}
+) -> Array[Vector2i]:
+	var key: int = cell_key_int(cell)
+	if neighbor_cache.has(key):
+		var cached_neighbors: Array = neighbor_cache[key]
+		return cached_neighbors
 	if hex_grid != null and hex_grid.has_method("get_neighbor_cells"):
 		var neighbors_value: Variant = hex_grid.get_neighbor_cells(cell)
 		if neighbors_value is Array:
@@ -222,10 +237,12 @@ func neighbors_of(hex_grid: Node, cell: Vector2i) -> Array[Vector2i]:
 			for candidate in (neighbors_value as Array):
 				if candidate is Vector2i:
 					typed_neighbors.append(candidate)
+			neighbor_cache[key] = typed_neighbors
 			return typed_neighbors
 	var fallback: Array[Vector2i] = []
 	for dir in AXIAL_DIRS:
 		var next_cell: Vector2i = cell + dir
 		if hex_grid == null or hex_grid.is_inside_grid(next_cell):
 			fallback.append(next_cell)
+	neighbor_cache[key] = fallback
 	return fallback

@@ -683,16 +683,14 @@ func _refresh_inventory_card(card: PanelContainer, item_data: Dictionary) -> voi
 		icon_text = _support.equip_icon(item_type)
 	var type_text: String = ""
 	if _state.inventory_mode == "gongfa":
-		type_text = "[%s] %s 路 %s" % [
+		type_text = "[%s] %s" % [
 			_support.quality_to_cn(str(item_data.get("quality", "white"))),
-			_support.slot_to_cn(item_type),
-			_support.element_to_cn(str(item_data.get("element", "none")))
+			_support.slot_to_cn(item_type)
 		]
 	else:
-		type_text = "[%s] %s 路 %s" % [
+		type_text = "[%s] %s" % [
 			_support.quality_to_cn(str(item_data.get("quality", "white"))),
-			_support.equip_type_to_cn(item_type),
-			_support.element_to_cn(str(item_data.get("element", "none")))
+			_support.equip_type_to_cn(item_type)
 		]
 	var item_id: String = str(item_data.get("id", "")).strip_edges()
 	var owned_count: int = int(item_data.get("_owned_count", 0))

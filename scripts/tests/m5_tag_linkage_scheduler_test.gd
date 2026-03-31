@@ -29,8 +29,15 @@ class MockUnitCombat:
 	func add_mp(amount: float) -> void:
 		current_mp = clampf(current_mp + amount, 0.0, max_mp)
 
-	func restore_hp(amount: float) -> void:
-		current_hp = clampf(current_hp + maxf(amount, 0.0), 0.0, max_hp)
+	func restore_hp(amount: float, source: Node = null) -> void:
+		var final_amount: float = maxf(amount, 0.0)
+		if source != null and is_instance_valid(source):
+			var source_combat: Node = source.get_node_or_null("Components/UnitCombat")
+			if source_combat != null and source_combat.has_method("get_external_modifiers"):
+				var modifiers_value: Variant = source_combat.get_external_modifiers()
+				if modifiers_value is Dictionary:
+					final_amount *= maxf(1.0 + float((modifiers_value as Dictionary).get("healing_amp", 0.0)), 0.0)
+		current_hp = clampf(current_hp + final_amount, 0.0, max_hp)
 		is_alive = current_hp > 0.0
 
 	func receive_damage(

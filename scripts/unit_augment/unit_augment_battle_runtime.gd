@@ -70,8 +70,20 @@ func prepare_battle(
 	for unit in enemy_units:
 		state_service.register_battle_unit(unit)
 
-	for unit in state_service.get_battle_units():
-		state_service.apply_unit_augment(unit, false)
+	var battle_units: Array = state_service.get_battle_units()
+	var batch_size_value: Variant = 32
+	if manager != null:
+		batch_size_value = manager.get("augment_apply_batch_size")
+		if batch_size_value == null:
+			batch_size_value = 32
+	var batch_size: int = maxi(int(batch_size_value), 1)
+	var frame_tree: SceneTree = _resolve_prepare_battle_tree(combat_manager, hex_grid, vfx_factory, manager)
+	for start_index in range(0, battle_units.size(), batch_size):
+		var end_index: int = mini(start_index + batch_size, battle_units.size())
+		for unit_index in range(start_index, end_index):
+			state_service.apply_unit_augment(battle_units[unit_index], false)
+		if end_index < battle_units.size() and frame_tree != null:
+			await frame_tree.process_frame
 
 
 # 逻辑循环只在 battle_started 之后生效，避免备战期误轮询触发器。
@@ -253,6 +265,22 @@ func get_bound_vfx_factory() -> Node:
 # 这里不暴露更多场景节点，避免 runtime 再长成隐式 locator。
 func get_bound_combat_manager() -> Node:
 	return _bound_combat_manager
+
+
+# 分帧装配优先复用战场树上的节点；manager 可能在测试里不进树。
+func _resolve_prepare_battle_tree(
+	combat_manager: Node,
+	hex_grid: Node,
+	vfx_factory: Node,
+	manager: Node
+) -> SceneTree:
+	for node_candidate in [combat_manager, hex_grid, vfx_factory, manager]:
+		if node_candidate == null:
+			continue
+		var tree: SceneTree = node_candidate.get_tree()
+		if tree != null:
+			return tree
+	return null
 
 
 # UnitAugment runtime 也复用同一份 RuntimeProbe，避免再维护另一套计时器。

@@ -113,10 +113,7 @@ func set_loop_animation_enabled(enabled: bool) -> void:
 	if not _is_loop_state(_state):
 		return
 	if _loop_animation_enabled:
-		_loop_state_active = true
-		_loop_anim_time = 0.0
-		set_process(true)
-		_apply_loop_pose(0.0)
+		_schedule_loop_process_enable()
 		return
 	_loop_state_active = false
 	set_process(false)
@@ -151,9 +148,7 @@ func play_state(state: int, context: Dictionary = {}) -> void:
 			set_process(false)
 			_reset_to_base()
 			return
-		_loop_state_active = true
-		set_process(true)
-		_apply_loop_pose(0.0)
+		_schedule_loop_process_enable()
 		return
 
 	_loop_state_active = false
@@ -176,6 +171,23 @@ func play_state(state: int, context: Dictionary = {}) -> void:
 # 判断某个状态是否属于持续循环播放的轻量动画。
 func _is_loop_state(state: int) -> bool:
 	return state == AnimState.IDLE or state == AnimState.MOVE or state == AnimState.BENCH or state == AnimState.VICTORY
+
+
+# 循环动画延后一帧再挂回处理链，避免开战同帧批量 set_process(true)。
+func _schedule_loop_process_enable() -> void:
+	_loop_state_active = true
+	_loop_anim_time = 0.0
+	set_process(false)
+	call_deferred("_enable_loop_process_if_needed")
+	_apply_loop_pose(0.0)
+
+
+func _enable_loop_process_if_needed() -> void:
+	if not _loop_state_active or not _loop_animation_enabled:
+		return
+	if not _is_loop_state(_state):
+		return
+	set_process(true)
 
 
 # ATTACK/HIT 这类一次性脉冲动作走统一插值逻辑。

@@ -28,6 +28,9 @@ class MockUnitCombat:
 	var max_hp: float = 1000.0
 	var current_mp: float = 50.0
 	var max_mp: float = 300.0
+	var _base_external_modifiers: Dictionary = {"damage_amp_percent": 0.0}
+	var _dynamic_modifier_scopes: Dictionary = {}
+	var _external_modifiers: Dictionary = {"damage_amp_percent": 0.0}
 
 	func receive_damage(
 		amount: float,
@@ -48,15 +51,42 @@ class MockUnitCombat:
 			"immune_absorbed": 0.0
 		}
 
-	func restore_hp(amount: float) -> void:
-		current_hp = clampf(current_hp + maxf(amount, 0.0), 0.0, max_hp)
+	func restore_hp(amount: float, source: Node = null) -> void:
+		var final_amount: float = maxf(amount, 0.0)
+		if source != null and is_instance_valid(source):
+			var source_combat: Node = source.get_node_or_null("Components/UnitCombat")
+			if source_combat != null and source_combat.has_method("get_external_modifiers"):
+				var modifiers_value: Variant = source_combat.get_external_modifiers()
+				if modifiers_value is Dictionary:
+					final_amount *= maxf(1.0 + float((modifiers_value as Dictionary).get("healing_amp", 0.0)), 0.0)
+		current_hp = clampf(current_hp + final_amount, 0.0, max_hp)
 		is_alive = current_hp > 0.0
 
 	func add_mp(amount: float) -> void:
 		current_mp = clampf(current_mp + maxf(amount, 0.0), 0.0, max_mp)
 
 	func get_external_modifiers() -> Dictionary:
-		return {}
+		return _external_modifiers.duplicate(true)
+
+	func set_dynamic_external_modifier_scope(scope_key: String, modifiers: Dictionary) -> void:
+		_dynamic_modifier_scopes[scope_key] = modifiers.duplicate(true)
+		_rebuild_external_modifiers()
+
+	func clear_dynamic_external_modifier_scopes_by_prefix(scope_prefix: String) -> void:
+		for raw_scope_key in _dynamic_modifier_scopes.keys().duplicate():
+			var scope_key: String = str(raw_scope_key)
+			if scope_key.begins_with(scope_prefix):
+				_dynamic_modifier_scopes.erase(scope_key)
+		_rebuild_external_modifiers()
+
+	func _rebuild_external_modifiers() -> void:
+		_external_modifiers = _base_external_modifiers.duplicate(true)
+		for delta_value in _dynamic_modifier_scopes.values():
+			if not (delta_value is Dictionary):
+				continue
+			for raw_key in (delta_value as Dictionary).keys():
+				var key: String = str(raw_key)
+				_external_modifiers[key] = float(_external_modifiers.get(key, 0.0)) + float((delta_value as Dictionary).get(raw_key, 0.0))
 
 
 class MockHexGrid:
@@ -187,6 +217,7 @@ class MockUnitAugmentManager:
 	var gongfa_tag_map: Dictionary = {}
 	var equipment_tag_map: Dictionary = {}
 	var buff_tag_map: Dictionary = {}
+	var forced_tag_linkage_result: Dictionary = {}
 
 	func set_tag_maps(
 		gongfa_map: Dictionary,
@@ -243,6 +274,8 @@ class MockUnitAugmentManager:
 		return _normalize_ids(unit.get("runtime_active_buff_ids"))
 
 	func evaluate_tag_linkage_branch(owner: Node, config: Dictionary, context: Dictionary) -> Dictionary:
+		if not forced_tag_linkage_result.is_empty():
+			return forced_tag_linkage_result.duplicate(true)
 		var eval_context: Dictionary = context.duplicate(false)
 		eval_context["unit_augment_manager"] = self
 		return resolver.evaluate(owner, config, eval_context)
@@ -301,6 +334,7 @@ func _run() -> void:
 	_test_forbid_tags_absence_and_violation()
 	_test_match_tags_with_exclude_tags_provider_filter()
 	_test_effect_engine_dispatch_tag_linkage_branch()
+	_test_effect_engine_dispatch_tag_linkage_damage_amp_percent()
 
 
 func _build_test_tag_maps() -> void:
@@ -754,6 +788,57 @@ func _test_effect_engine_dispatch_tag_linkage_branch() -> void:
 	_assert_true(is_equal_approx(float(summary.get("mp_total", 0.0)), 9.0), "effect engine should execute selected tag linkage branch effect")
 	var mp_events: Array = summary.get("mp_events", [])
 	_assert_true(mp_events.size() == 1, "effect engine should emit one mp event for branch effect")
+
+	engine = null
+	_free_bundle(bundle, [owner])
+
+
+func _test_effect_engine_dispatch_tag_linkage_damage_amp_percent() -> void:
+	var bundle: Dictionary = _build_context_bundle()
+	var owner: MockUnit = _make_unit("engine_damage_amp_owner", 1, [], [], [], [])
+	bundle.combat_manager.register_unit_cell(owner, Vector2i(0, 0))
+
+	var config: Dictionary = {
+		"op": "tag_linkage_branch",
+		"range": 0,
+		"include_self": true,
+		"team_scope": "ally",
+		"source_types": ["unit"],
+		"queries": [],
+		"cases": [
+			{
+				"id": "safe_window",
+				"all": [],
+				"effects": [{"op": "damage_amp_percent", "value": 0.2}]
+			}
+		],
+		"else_effects": [{"op": "damage_amp_percent", "value": 0.05}],
+		"stop_after_first_case": true
+	}
+
+	var engine = EFFECT_ENGINE_SCRIPT.new()
+	bundle.manager.forced_tag_linkage_result = {
+		"matched_case_ids": ["safe_window"],
+		"effects": [{"op": "damage_amp_percent", "value": 0.2}]
+	}
+	engine.call("execute_active_effects", owner, owner, [config], _build_effect_context(bundle, [owner]))
+	var owner_combat: MockUnitCombat = owner.get_node("Components/UnitCombat") as MockUnitCombat
+	var modifiers: Dictionary = owner_combat.get_external_modifiers()
+	_assert_true(
+		is_equal_approx(float(modifiers.get("damage_amp_percent", 0.0)), 0.2),
+		"tag linkage branch should apply the matched damage_amp_percent modifier to owner combat"
+	)
+
+	bundle.manager.forced_tag_linkage_result = {
+		"matched_case_ids": [],
+		"effects": [{"op": "damage_amp_percent", "value": 0.05}]
+	}
+	engine.call("execute_active_effects", owner, owner, [config], _build_effect_context(bundle, [owner]))
+	modifiers = owner_combat.get_external_modifiers()
+	_assert_true(
+		is_equal_approx(float(modifiers.get("damage_amp_percent", 0.0)), 0.05),
+		"tag linkage branch should replace the dynamic damage_amp_percent modifier instead of stacking it"
+	)
 
 	engine = null
 	_free_bundle(bundle, [owner])

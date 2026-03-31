@@ -20,6 +20,7 @@ var _cost_map: Dictionary = {}
 var _direction_map: Dictionary = {}
 var _direction_map_dirty: bool = false
 var _direction_grid_port: Node = null
+var _neighbor_cache: Dictionary = {}
 
 
 # 清空旧的代价图与方向图，供下一次完整重建复用。
@@ -28,16 +29,24 @@ func clear() -> void:
 	_direction_map.clear()
 	_direction_map_dirty = false
 	_direction_grid_port = null
+	_neighbor_cache.clear()
 
 
 # 目标格和阻挡格由调用方显式给出，流场本体只负责 BFS 展开与方向回填。
-func build(grid_port: Node, target_cells: Array[Vector2i], blocked_cells: Dictionary = {}) -> void:
+func build(
+	grid_port: Node,
+	target_cells: Array[Vector2i],
+	blocked_cells: Dictionary = {},
+	weighted_cells: Dictionary = {}
+) -> void:
 	clear()
 	if grid_port == null or target_cells.is_empty():
 		return
 	_direction_grid_port = grid_port
+	_build_neighbor_cache(grid_port)
 
-	var queue: Array[Vector2i] = []
+	var frontier_cells: Array[Vector2i] = []
+	var frontier_costs: Array[int] = []
 	for cell in target_cells:
 		if not _is_walkable(grid_port, cell, blocked_cells):
 			continue
@@ -45,22 +54,32 @@ func build(grid_port: Node, target_cells: Array[Vector2i], blocked_cells: Dictio
 		if _cost_map.has(key):
 			continue
 		_cost_map[key] = 0
-		queue.append(cell)
+		frontier_cells.append(cell)
+		frontier_costs.append(0)
 
-	var head: int = 0
-	while head < queue.size():
-		var current: Vector2i = queue[head]
-		head += 1
+	while not frontier_cells.is_empty():
+		var best_index: int = 0
+		var current_cost: int = frontier_costs[0]
+		for index in range(1, frontier_costs.size()):
+			if frontier_costs[index] < current_cost:
+				best_index = index
+				current_cost = frontier_costs[index]
+		var current: Vector2i = frontier_cells[best_index]
+		frontier_cells.remove_at(best_index)
+		frontier_costs.remove_at(best_index)
 		var current_key: int = _cell_key_int(current)
-		var current_cost: int = int(_cost_map.get(current_key, 0))
+		if current_cost > int(_cost_map.get(current_key, current_cost)):
+			continue
 		for next_cell in _get_neighbors(grid_port, current):
 			if not _is_walkable(grid_port, next_cell, blocked_cells):
 				continue
 			var next_key: int = _cell_key_int(next_cell)
-			if _cost_map.has(next_key):
+			var next_cost: int = current_cost + 1 + int(weighted_cells.get(next_key, 0))
+			if _cost_map.has(next_key) and next_cost >= int(_cost_map[next_key]):
 				continue
-			_cost_map[next_key] = current_cost + 1
-			queue.append(next_cell)
+			_cost_map[next_key] = next_cost
+			frontier_cells.append(next_cell)
+			frontier_costs.append(next_cost)
 
 	_direction_map_dirty = true
 
@@ -119,6 +138,30 @@ func _rebuild_direction_map(grid_port: Node) -> void:
 
 # 邻接格优先走正式棋盘口径；缺失时再回退到 axial 六方向。
 func _get_neighbors(grid_port: Node, cell: Vector2i) -> Array[Vector2i]:
+	var cell_key: int = _cell_key_int(cell)
+	if _neighbor_cache.has(cell_key):
+		return _neighbor_cache[cell_key]
+	return _query_neighbors_uncached(grid_port, cell)
+
+
+func _build_neighbor_cache(grid_port: Node) -> void:
+	_neighbor_cache.clear()
+	var cells: Array[Vector2i] = []
+	if grid_port.has_method("get_all_cells"):
+		var cells_value: Variant = grid_port.get_all_cells()
+		if cells_value is Array:
+			for cell_value in (cells_value as Array):
+				if cell_value is Vector2i:
+					cells.append(cell_value)
+	if cells.is_empty() and "grid_width" in grid_port and "grid_height" in grid_port:
+		for r in range(int(grid_port.grid_height)):
+			for q in range(int(grid_port.grid_width)):
+				cells.append(Vector2i(q, r))
+	for cell in cells:
+		_neighbor_cache[_cell_key_int(cell)] = _query_neighbors_uncached(grid_port, cell)
+
+
+func _query_neighbors_uncached(grid_port: Node, cell: Vector2i) -> Array[Vector2i]:
 	if grid_port.has_method("get_neighbor_cells"):
 		var neighbors_value: Variant = grid_port.get_neighbor_cells(cell)
 		if neighbors_value is Array:

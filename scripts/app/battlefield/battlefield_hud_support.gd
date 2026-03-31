@@ -89,10 +89,7 @@ func build_gongfa_item_tooltip_data(gongfa_id: String) -> Dictionary:
 			str(data.get("name", gongfa_id)),
 			quality_to_cn(str(data.get("quality", "white")))
 		],
-		"type_line": "%s · %s" % [
-			slot_to_cn(str(data.get("type", ""))),
-			element_to_cn(str(data.get("element", "none")))
-		],
+		"type_line": slot_to_cn(str(data.get("type", ""))),
 		"desc": str(data.get("description", "无描述")),
 		"effects": effect_lines,
 		"has_skill": bool(skill_payload.get("has_skill", false)),
@@ -138,10 +135,7 @@ func build_equip_item_tooltip_data(equip_id: String) -> Dictionary:
 			str(data.get("name", equip_id)),
 			quality_to_cn(str(data.get("quality", "white")))
 		],
-		"type_line": "%s · %s" % [
-			equip_type_to_cn(str(data.get("type", "weapon"))),
-			element_to_cn(str(data.get("element", "none")))
-		],
+		"type_line": equip_type_to_cn(str(data.get("type", "weapon"))),
 		"desc": str(data.get("description", "江湖器物")),
 		"effects": effect_lines,
 		"has_skill": bool(skill_payload.get("has_skill", false)),

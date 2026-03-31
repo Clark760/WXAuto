@@ -316,16 +316,28 @@ func _resolve_skill_target(
 	default_range_cells: float
 ) -> Node:
 	var target: Node = event_context.get("target", null)
-	if not target_service.skill_requires_enemy_target(effect_list):
-		if target == null or not is_instance_valid(target):
-			return source
-		return target
-
 	var skill_range_cells: float = target_service.resolve_skill_cast_range_cells(
 		source,
 		skill_data,
 		default_range_cells
 	)
+	if not target_service.skill_requires_enemy_target(effect_list):
+		if target_service.skill_has_battlefield_side_effects(effect_list) \
+		and not bool(skill_data.get("allow_without_enemy", false)):
+			var nearby_enemy: Node = target_service.pick_nearest_enemy_in_range(
+				state_service.get_battle_units(),
+				source,
+				skill_range_cells,
+				battle_runtime.get_bound_hex_grid(),
+				state_service,
+				battle_runtime.get_bound_combat_manager()
+			)
+			if nearby_enemy == null:
+				return null
+		if target == null or not is_instance_valid(target):
+			return source
+		return target
+
 	if not target_service.is_valid_enemy_target(
 		source,
 		target,

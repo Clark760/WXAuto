@@ -10,6 +10,8 @@ class_name UnitAugmentPassiveEffectApplier
 func create_empty_modifier_bundle() -> Dictionary:
 	return {
 		"mp_regen_add": 0.0,
+		"mp_gain_on_attack": 0.0,
+		"mp_gain_on_hit": 0.0,
 		"hp_regen_add": 0.0,
 		"damage_reduce_flat": 0.0,
 		"damage_reduce_percent": 0.0,
@@ -85,6 +87,12 @@ func _apply_passive_op(
 		"mp_regen_add":
 			# 以下 modifier 统一进入 bundle，由战斗组件在结算时消费。
 			_add_modifier(modifier_bundle, "mp_regen_add", float(effect.get("value", 0.0)) * stack_multiplier)
+
+		"mp_gain_on_attack":
+			_add_modifier(modifier_bundle, "mp_gain_on_attack", float(effect.get("value", 0.0)) * stack_multiplier)
+
+		"mp_gain_on_hit":
+			_add_modifier(modifier_bundle, "mp_gain_on_hit", float(effect.get("value", 0.0)) * stack_multiplier)
 
 		"hp_regen_add":
 			_add_modifier(modifier_bundle, "hp_regen_add", float(effect.get("value", 0.0)) * stack_multiplier)

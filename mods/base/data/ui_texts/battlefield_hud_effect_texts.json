@@ -6,6 +6,8 @@
       "stat_percent": "属性·百分比增益",
       "conditional_stat": "属性·条件增益",
       "mp_regen_add": "资源·内力恢复",
+      "mp_gain_on_attack": "资源·普攻回蓝",
+      "mp_gain_on_hit": "资源·受击回蓝",
       "hp_regen_add": "资源·生命恢复",
       "damage_reduce_flat": "防御·固定减伤",
       "damage_reduce_percent": "防御·百分比减伤",

@@ -42,6 +42,7 @@ func register_routes(routes: Dictionary) -> void:
 	routes["execute_target"] = Callable(self, "_execute_target")
 	routes["drain_mp"] = Callable(self, "_drain_mp")
 	routes["aoe_percent_hp_damage"] = Callable(self, "_aoe_percent_hp_damage")
+	routes["damage_amp_percent"] = Callable(self, "_damage_amp_percent")
 
 
 # 单体伤害是最基础的主动效果口径。
@@ -592,6 +593,17 @@ func _aoe_percent_hp_damage(
 			percent_damage = minf(percent_damage, cap)
 		var dealt: float = runtime_gateway.deal_damage(source, enemy, percent_damage, damage_type)
 		_add_damage(summary, source, enemy, dealt, damage_type, "aoe_percent_hp_damage", runtime_gateway)
+
+
+func _damage_amp_percent(
+	runtime_gateway: Variant,
+	source: Node,
+	target: Node,
+	effect: Dictionary,
+	context: Dictionary,
+	_summary: Dictionary
+) -> void:
+	runtime_gateway.apply_damage_amp_percent(source, target, effect, context)
 
 
 # 统一把累计值和事件写入逻辑收口，避免分支里漏字段。

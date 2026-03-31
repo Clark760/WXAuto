@@ -645,5 +645,3 @@ func _probe_commit_timing(scope_name: String, begin_us: int) -> void:
 	if runtime_probe == null or not runtime_probe.has_method("commit_timing"):
 		return
 	runtime_probe.commit_timing(scope_name, begin_us)
-
-

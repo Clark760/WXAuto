@@ -18,6 +18,7 @@ class MockUnitCombat:
 	var max_hp: float = 1000.0
 	var current_mp: float = 300.0
 	var max_mp: float = 300.0
+	var external_modifiers: Dictionary = {}
 
 	func receive_damage(
 		amount: float,
@@ -41,8 +42,15 @@ class MockUnitCombat:
 			"immune_absorbed": 0.0
 		}
 
-	func restore_hp(amount: float) -> void:
-		current_hp = minf(current_hp + maxf(amount, 0.0), max_hp)
+	func restore_hp(amount: float, source: Node = null) -> void:
+		var final_amount: float = maxf(amount, 0.0)
+		if source != null and is_instance_valid(source):
+			var source_combat: Node = source.get_node_or_null("Components/UnitCombat")
+			if source_combat != null and source_combat.has_method("get_external_modifiers"):
+				var modifiers_value: Variant = source_combat.get_external_modifiers()
+				if modifiers_value is Dictionary:
+					final_amount *= maxf(1.0 + float((modifiers_value as Dictionary).get("healing_amp", 0.0)), 0.0)
+		current_hp = minf(current_hp + final_amount, max_hp)
 		is_alive = current_hp > 0.0
 
 	func add_mp(amount: float) -> void:
@@ -52,7 +60,7 @@ class MockUnitCombat:
 		return
 
 	func get_external_modifiers() -> Dictionary:
-		return {}
+		return external_modifiers.duplicate(true)
 
 
 class MockBuffManager:
@@ -182,6 +190,8 @@ func _test_public_surface_bundle_and_summary() -> void:
 	var engine: Variant = EFFECT_ENGINE_SCRIPT.new()
 	var bundle: Dictionary = engine.create_empty_modifier_bundle()
 	_assert_true(bundle.has("mp_regen_add"), "bundle should expose mp_regen_add")
+	_assert_true(bundle.has("mp_gain_on_attack"), "bundle should expose mp_gain_on_attack")
+	_assert_true(bundle.has("mp_gain_on_hit"), "bundle should expose mp_gain_on_hit")
 	_assert_true(bundle.has("damage_amp_percent"), "bundle should expose damage_amp_percent")
 	_assert_true(bundle.has("conditional_stats"), "bundle should expose conditional_stats")
 

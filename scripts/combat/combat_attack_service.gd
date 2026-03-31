@@ -76,7 +76,7 @@ func _is_target_in_attack_range_fast(manager, attacker: Node, target: Node, comb
 	return manager._hex_distance(attacker_cell, target_cell) <= range_cells
 
 
-# 普攻和技能共用同一条命中后处理链，只靠 `is_skill` 区分动画状态。
+# 普攻命中后处理链只服务普通攻击。
 # 伤害数字、受击动画与 VFX 的触发顺序保持原逻辑不变。
 # `event_dict` 必须原样保留，避免改动外部依赖的字段口径。
 func on_attack_resolved(
@@ -175,18 +175,14 @@ func _build_attack_direction(source: Node, target: Node) -> Vector2:
 	return attack_dir
 
 
-# 技能和普攻只在动画状态上区分，不拆成两套命中后流程。
-# `event_dict.is_skill` 为 true 时使用技能施法动作，否则使用普攻动作。
+# 普攻命中统一播放普攻动作，不再在 Combat 基础攻击链里夹带技能施法动画。
 # 动画状态编号继续沿用旧资源约定。
 func _play_attack_animation(
 	source: Node,
-	event_dict: Dictionary,
+	_event_dict: Dictionary,
 	attack_dir: Vector2
 ) -> void:
 	var source_api: Variant = source
-	if bool(event_dict.get("is_skill", false)):
-		source_api.play_anim_state(3, {"direction": attack_dir})
-		return
 	source_api.play_anim_state(2, {"direction": attack_dir})
 
 

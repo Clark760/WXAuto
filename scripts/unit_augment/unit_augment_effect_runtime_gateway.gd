@@ -65,8 +65,26 @@ func deal_damage(source: Node, target: Node, amount: float, damage_type: String)
 	return float(result.get("damage", 0.0))
 
 
-# 治疗放大沿用 `source` 当前外部 modifier，避免口径分叉。
-# `source` 在这里不是治疗目标，而是可能提供 healing_amp 的施加者。
+func apply_damage_amp_percent(source: Node, target: Node, effect: Dictionary, context: Dictionary) -> float:
+	var modifier_target: Node = _resolve_modifier_target_node(source, target, effect)
+	var combat: Node = _resolve_unit_combat(modifier_target)
+	if combat == null or not combat.has_method("set_dynamic_external_modifier_scope"):
+		return 0.0
+	var scope_key: String = _build_dynamic_modifier_scope_key(effect, context, "damage_amp_percent")
+	var amp_value: float = float(effect.get("value", 0.0)) * float(effect.get("multiplier", 1.0))
+	combat.set_dynamic_external_modifier_scope(scope_key, {"damage_amp_percent": amp_value})
+	return amp_value
+
+
+func clear_dynamic_modifier_scope_prefix(target: Node, scope_prefix: String) -> void:
+	var combat: Node = _resolve_unit_combat(target)
+	if combat == null or not combat.has_method("clear_dynamic_external_modifier_scopes_by_prefix"):
+		return
+	combat.clear_dynamic_external_modifier_scopes_by_prefix(scope_prefix)
+
+
+# 治疗放大统一收口到 `UnitCombat.restore_hp()`，避免主动/被动/直接回血各走一套口径。
+# `source` 在这里仍表示施疗者；若为空则 `restore_hp()` 会回退读取目标自身的治疗加成。
 # 返回值固定是目标生命实际增加量，满血溢出部分会被丢弃。
 func heal_unit(target: Node, amount: float, source: Node = null) -> float:
 	if target == null or not is_instance_valid(target):
@@ -76,19 +94,32 @@ func heal_unit(target: Node, amount: float, source: Node = null) -> float:
 	if combat == null:
 		return 0.0
 
-	var final_amount: float = maxf(amount, 0.0)
-	if source != null and is_instance_valid(source):
-		var source_combat = source.get_node_or_null("Components/UnitCombat")
-		if source_combat != null and source_combat.has_method("get_external_modifiers"):
-			var modifiers_value: Variant = source_combat.get_external_modifiers()
-			if modifiers_value is Dictionary:
-				var healing_amp: float = float((modifiers_value as Dictionary).get("healing_amp", 0.0))
-				final_amount *= maxf(1.0 + healing_amp, 0.0)
-
 	var before_hp: float = float(combat.get("current_hp"))
-	combat.restore_hp(final_amount)
+	combat.restore_hp(maxf(amount, 0.0), source)
 	var after_hp: float = float(combat.get("current_hp"))
 	return maxf(after_hp - before_hp, 0.0)
+
+
+func _resolve_modifier_target_node(source: Node, target: Node, effect: Dictionary) -> Node:
+	var apply_to: String = str(effect.get("apply_to", "source")).strip_edges().to_lower()
+	if apply_to == "target" and target != null and is_instance_valid(target):
+		return target
+	if source != null and is_instance_valid(source):
+		return source
+	return target
+
+
+func _resolve_unit_combat(unit: Node) -> Node:
+	if unit == null or not is_instance_valid(unit):
+		return null
+	return unit.get_node_or_null("Components/UnitCombat")
+
+
+func _build_dynamic_modifier_scope_key(effect: Dictionary, context: Dictionary, op_name: String) -> String:
+	var scope_prefix: String = str(context.get("_dynamic_modifier_scope_prefix", "")).strip_edges()
+	if scope_prefix.is_empty():
+		scope_prefix = "active_modifier"
+	return "%s|%s|%s" % [scope_prefix, op_name, var_to_str(effect)]
 
 
 # MP 恢复与治疗一样统一返回“实际变化量”。

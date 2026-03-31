@@ -21,6 +21,7 @@ class MockUnitCombat:
 	var max_hp: float = 1200.0
 	var current_mp: float = 300.0
 	var max_mp: float = 300.0
+	var external_modifiers: Dictionary = {}
 
 	func receive_damage(
 		amount: float,
@@ -45,8 +46,15 @@ class MockUnitCombat:
 			"shield_broken": false
 		}
 
-	func restore_hp(amount: float) -> void:
-		current_hp = minf(current_hp + maxf(amount, 0.0), max_hp)
+	func restore_hp(amount: float, source: Node = null) -> void:
+		var final_amount: float = maxf(amount, 0.0)
+		if source != null and is_instance_valid(source):
+			var source_combat: Node = source.get_node_or_null("Components/UnitCombat")
+			if source_combat != null and source_combat.has_method("get_external_modifiers"):
+				var modifiers_value: Variant = source_combat.get_external_modifiers()
+				if modifiers_value is Dictionary:
+					final_amount *= maxf(1.0 + float((modifiers_value as Dictionary).get("healing_amp", 0.0)), 0.0)
+		current_hp = minf(current_hp + final_amount, max_hp)
 		is_alive = current_hp > 0.0
 
 	func add_mp(amount: float) -> void:
@@ -56,7 +64,7 @@ class MockUnitCombat:
 		return
 
 	func get_external_modifiers() -> Dictionary:
-		return {}
+		return external_modifiers.duplicate(true)
 
 
 class MockCombatManager:
@@ -239,9 +247,13 @@ func _test_passive_modifier_bundle() -> void:
 	var modifiers: Dictionary = engine.call("create_empty_modifier_bundle")
 	engine.call("apply_passive_effects", runtime_stats, modifiers, [
 		{"op": "damage_amp_percent", "value": 0.2},
+		{"op": "mp_gain_on_attack", "value": 5.0},
+		{"op": "mp_gain_on_hit", "value": 4.0},
 		{"op": "conditional_stat", "stat": "atk", "value": 30.0, "condition": "hp_below", "threshold": 0.5}
 	])
 	_assert_true(is_equal_approx(float(modifiers.get("damage_amp_percent", 0.0)), 0.2), "passive damage_amp_percent")
+	_assert_true(is_equal_approx(float(modifiers.get("mp_gain_on_attack", 0.0)), 5.0), "passive mp_gain_on_attack")
+	_assert_true(is_equal_approx(float(modifiers.get("mp_gain_on_hit", 0.0)), 4.0), "passive mp_gain_on_hit")
 	var conditional_list: Variant = modifiers.get("conditional_stats", [])
 	_assert_true(conditional_list is Array and (conditional_list as Array).size() == 1, "passive conditional_stat list")
 

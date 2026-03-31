@@ -13,6 +13,8 @@ const EXPECTED_TERRAIN_COUNT: int = 8
 
 const EXPECTED_PASSIVE_OPS: Array[String] = [
 	"hp_regen_add",
+	"mp_gain_on_attack",
+	"mp_gain_on_hit",
 	"vampire",
 	"damage_amp_percent",
 	"damage_amp_vs_debuffed",

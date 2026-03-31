@@ -101,5 +101,5 @@
       }
     }
   },
-  "additionalProperties": true
+  "additionalProperties": false
 }

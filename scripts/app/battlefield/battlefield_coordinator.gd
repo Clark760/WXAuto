@@ -43,7 +43,7 @@ const STAGE_RUNTIME_RULES_SCRIPT: Script = preload(
 
 @export var enemy_wave_size: int = 200 # 默认敌军波次规模。
 @export var max_auto_deploy: int = 50 # 自动部署兜底上限。
-@export var battle_start_enemy_spawn_batch_size: int = 24 # 开战前敌军分帧生成批大小。
+@export var battle_start_enemy_spawn_batch_size: int = 12 # 开战前敌军分帧生成批大小。
 
 var _scene_root: Node = null # 根场景入口。
 var _refs: Node = null # 场景引用表。
@@ -128,7 +128,7 @@ func request_battle_start() -> void:
 func start_battle_from_session(
 	battle_seed: int = 0,
 	prepare_missing_deployment: bool = false
-) -> bool:
+):
 	if _battle_start_pending and prepare_missing_deployment:
 		return false
 	if _state == null or int(_state.stage) != Stage.PREPARATION:
@@ -166,7 +166,7 @@ func start_battle_from_session(
 	_prepare_for_battle_start()
 	# prepare_battle 必须发生在 start_battle 前，保证附魔和地形上下文齐全。
 	if _refs.unit_augment_manager != null:
-		_refs.unit_augment_manager.prepare_battle(
+		await _refs.unit_augment_manager.prepare_battle(
 			ally_units,
 			enemy_units,
 			_refs.hex_grid,
@@ -181,14 +181,6 @@ func start_battle_from_session(
 		if _refs.debug_label != null:
 			_refs.debug_label.text = "CombatManager 启动失败。"
 		return false
-
-	# 进入战斗态后的视觉切换仍保留在各单位自身，coordinator 只负责顺序编排。
-	for unit in ally_units:
-		if unit != null and is_instance_valid(unit):
-			unit.enter_combat()
-	for unit in enemy_units:
-		if unit != null and is_instance_valid(unit):
-			unit.enter_combat()
 
 	if _refs.runtime_stage_manager != null:
 		_refs.runtime_stage_manager.notify_stage_combat_started()
@@ -217,7 +209,7 @@ func _start_battle_from_session_async(
 	if _refs.combat_manager != null and bool(_refs.combat_manager.is_battle_running()):
 		return false
 	if STAGE_RUNTIME_RULES_SCRIPT.is_non_combat_stage(_state.current_stage_config):
-		return start_battle_from_session(battle_seed, prepare_missing_deployment)
+		return await start_battle_from_session(battle_seed, prepare_missing_deployment)
 
 	if prepare_missing_deployment:
 		var auto_limit: int = max_auto_deploy
@@ -229,7 +221,7 @@ func _start_battle_from_session_async(
 			await _spawn_enemy_wave_in_batches(enemy_wave_size)
 			await get_tree().process_frame
 
-	return start_battle_from_session(battle_seed, false)
+	return await start_battle_from_session(battle_seed, false)
 
 
 func _spawn_enemy_wave_in_batches(enemy_count: int) -> void:
@@ -248,6 +240,7 @@ func _spawn_enemy_wave_in_batches(enemy_count: int) -> void:
 	if spawn_entries.is_empty():
 		return
 
+	_prewarm_spawn_plan_assets(spawn_entries)
 	await _prewarm_spawn_plan_units_async(spawn_entries)
 	await get_tree().process_frame
 
@@ -822,7 +815,7 @@ func _prewarm_spawn_plan_units_async(spawn_plan: Array[Dictionary]) -> void:
 	if count_by_unit_id.is_empty():
 		return
 
-	var batch_budget: int = maxi(battle_start_enemy_spawn_batch_size, 1)
+	var batch_budget: int = maxi(int(battle_start_enemy_spawn_batch_size / 2), 4)
 	while true:
 		var warmed_count: int = int(
 			_refs.unit_factory.prewarm_unit_instances_by_count(
@@ -836,6 +829,22 @@ func _prewarm_spawn_plan_units_async(spawn_plan: Array[Dictionary]) -> void:
 		if _refs.debug_label != null:
 			_refs.debug_label.text = "正在准备战斗…预热单位缓存"
 		await get_tree().process_frame
+
+
+func _prewarm_spawn_plan_assets(spawn_plan: Array[Dictionary]) -> void:
+	if _refs == null or _refs.unit_factory == null:
+		return
+	if not _refs.unit_factory.has_method("prewarm_unit_assets"):
+		return
+
+	var count_by_unit_id: Dictionary = _build_spawn_plan_unit_counts(spawn_plan)
+	if count_by_unit_id.is_empty():
+		return
+	var unit_ids: Array[String] = []
+	for raw_unit_id in count_by_unit_id.keys():
+		unit_ids.append(str(raw_unit_id))
+	unit_ids.sort()
+	_refs.unit_factory.prewarm_unit_assets(unit_ids)
 
 
 func _build_recruit_offer_counts(snapshot: Dictionary) -> Dictionary:

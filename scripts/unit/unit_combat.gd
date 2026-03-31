@@ -5,7 +5,7 @@ extends Node
 # ===========================
 # 设计目标：
 # 1. 将战斗数值与公式集中在组件内，外部管理器只负责调度与目标分配。
-# 2. 同时支持“普攻”和“技能”两条伤害轨道（外功/内功）。
+# 2. 这里只负责普攻战斗轨道；主动技能与效果统一走 effect 系统。
 # 3. 实现总纲要求的闪避/暴击/内力机制，并保持组件接口稳定。
 
 signal attacked(attacker: Node, target: Node, event: Dictionary)
@@ -35,11 +35,9 @@ var _regen_emit_accum: float = 0.0
 const REGEN_HEAL_EMIT_INTERVAL: float = 0.5
 
 var normal_multiplier: float = 1.0
-var skill_multiplier: float = 1.6
-var skill_mp_cost: float = 60.0
 
 var mp_gain_on_attack: float = 15.0
-var mp_gain_on_hit: float = 10.0
+var mp_gain_on_hit: float = 0.0
 var passive_mp_regen: float = 2.0
 # 生命自然回复（基础值），外部修正统一走 external_modifiers["hp_regen_add"]。
 var passive_hp_regen: float = 0.0
@@ -48,6 +46,8 @@ var passive_hp_regen: float = 0.0
 # 由 GongfaManager 注入，避免把功法逻辑耦合进基础战斗流程。
 const DEFAULT_EXTERNAL_MODIFIERS: Dictionary = {
 	"mp_regen_add": 0.0,
+	"mp_gain_on_attack": 0.0,
+	"mp_gain_on_hit": 0.0,
 	"hp_regen_add": 0.0,
 	"damage_reduce_flat": 0.0,
 	"damage_reduce_percent": 0.0,
@@ -69,6 +69,8 @@ const DEFAULT_EXTERNAL_MODIFIERS: Dictionary = {
 	"attack_speed_bonus": 0.0,
 	"range_add": 0.0
 }
+var _base_external_modifiers: Dictionary = DEFAULT_EXTERNAL_MODIFIERS.duplicate(true)
+var _dynamic_external_modifier_scopes: Dictionary = {}
 var _external_modifiers: Dictionary = DEFAULT_EXTERNAL_MODIFIERS.duplicate(true)
 
 
@@ -77,15 +79,14 @@ func bind_unit(unit: Node) -> void:
 
 
 func reset_from_stats(runtime_stats: Dictionary) -> void:
-	_external_modifiers = DEFAULT_EXTERNAL_MODIFIERS.duplicate(true)
+	_base_external_modifiers = DEFAULT_EXTERNAL_MODIFIERS.duplicate(true)
+	_dynamic_external_modifier_scopes.clear()
+	_rebuild_external_modifiers(false)
 	refresh_runtime_stats(runtime_stats, false)
 	_attack_cd = 0.0
 	_regen_heal_pending = 0.0
 	_regen_emit_accum = 0.0
 	clear_shield()
-
-	# 技能蓝耗按最大内力比例估算，保证不同角色可自然触发技能。
-	skill_mp_cost = clampf(max_mp * 0.6, 20.0, 120.0)
 	is_alive = current_hp > 0.0
 
 
@@ -140,14 +141,13 @@ func try_attack_target(target: Node, rng_source: Variant = null) -> Dictionary:
 	if not bool(target_combat.get("is_alive")):
 		return {"performed": false, "reason": "target_dead"}
 
-	var use_skill: bool = current_mp >= skill_mp_cost and max_mp > 0.0 and not _is_silenced()
-	var attack_stats: Dictionary = _select_attack_profile(use_skill)
+	var attack_stats: Dictionary = _select_attack_profile()
 	var offense: float = float(attack_stats.get("offense", 1.0))
 	var damage_type: String = str(attack_stats.get("damage_type", "external"))
 	var defense: float = _get_target_stat(target, "def")
 	if damage_type == "internal":
 		defense = _get_target_stat(target, "idr")
-	var multiplier: float = _get_attack_multiplier(use_skill)
+	var multiplier: float = normal_multiplier
 
 	var attacker_spd: float = _get_owner_stat("spd")
 	var target_spd: float = _get_target_stat(target, "spd")
@@ -193,21 +193,19 @@ func try_attack_target(target: Node, rng_source: Variant = null) -> Dictionary:
 		raw_damage,
 		owner_unit,
 		damage_type,
-		use_skill,
+		false,
 		is_crit,
 		is_dodged
 	)
 
-	# 攻击后的内力变化：
-	# - 技能：消耗内力。
-	# - 普攻命中：回内力。
-	_apply_attack_resource_changes(use_skill, is_dodged)
+	# 普攻命中后只走普攻回蓝，不再在这里夹带自动技能释放逻辑。
+	_apply_attack_resource_changes(is_dodged)
 	var dealt_damage: float = float(receive_result.get("damage", 0.0))
 	if not is_dodged and dealt_damage > 0.0:
-		_apply_vampire_lifesteal(dealt_damage, use_skill)
+		_apply_vampire_lifesteal(dealt_damage)
 
 	_attack_cd = attack_interval
-	var event: Dictionary = _build_attack_event(receive_result, use_skill, is_dodged, is_crit, damage_type)
+	var event: Dictionary = _build_attack_event(receive_result, is_dodged, is_crit, damage_type)
 	attacked.emit(owner_unit, target, event)
 	return event
 
@@ -266,7 +264,7 @@ func receive_damage(
 		var reduce_ratio: float = clampf(float(_external_modifiers.get("damage_reduce_percent", 0.0)), -0.95, 0.95)
 		final_damage *= (1.0 - reduce_ratio)
 		current_hp = maxf(current_hp - final_damage, 0.0)
-		add_mp(mp_gain_on_hit)
+		add_mp(_resolve_mp_gain_on_hit())
 
 		if _can_trigger_thorns and _damage_type == "external" and final_damage > 0.0 and source != null and is_instance_valid(source):
 			_apply_thorns_reflect(source, final_damage)
@@ -296,9 +294,10 @@ func apply_damage(amount: float) -> float:
 	return float(result.get("damage", 0.0))
 
 
-func restore_hp(amount: float) -> float:
+func restore_hp(amount: float, source: Node = null) -> float:
 	var before: float = current_hp
-	current_hp = minf(current_hp + maxf(amount, 0.0), max_hp)
+	var final_amount: float = maxf(amount, 0.0) * _resolve_healing_amp_multiplier(source)
+	current_hp = minf(current_hp + final_amount, max_hp)
 	if current_hp > 0.0:
 		is_alive = true
 	return maxf(current_hp - before, 0.0)
@@ -362,25 +361,91 @@ func refresh_runtime_stats(runtime_stats: Dictionary, preserve_ratio: bool = tru
 	current_mp = clampf(current_mp, 0.0, max_mp)
 
 	_rebuild_attack_interval(runtime_stats)
-	skill_mp_cost = clampf(max_mp * 0.6, 20.0, 120.0)
 	is_alive = current_hp > 0.0
 
 
 func set_external_modifiers(modifiers: Dictionary) -> void:
-	_external_modifiers = DEFAULT_EXTERNAL_MODIFIERS.duplicate(true)
+	_base_external_modifiers = DEFAULT_EXTERNAL_MODIFIERS.duplicate(true)
 	for key in modifiers.keys():
-		_external_modifiers[key] = modifiers[key]
-	if owner_unit != null and is_instance_valid(owner_unit):
-		refresh_runtime_stats(owner_unit.get("runtime_stats"), true)
+		_base_external_modifiers[key] = modifiers[key]
+	_rebuild_external_modifiers(true)
 
 
 func get_external_modifiers() -> Dictionary:
 	return _external_modifiers.duplicate(true)
 
 
+func set_dynamic_external_modifier_scope(scope_key: String, modifiers: Dictionary) -> void:
+	var normalized_scope: String = scope_key.strip_edges()
+	if normalized_scope.is_empty():
+		return
+	if modifiers.is_empty():
+		_dynamic_external_modifier_scopes.erase(normalized_scope)
+	else:
+		_dynamic_external_modifier_scopes[normalized_scope] = modifiers.duplicate(true)
+	_rebuild_external_modifiers(true)
+
+
+func clear_dynamic_external_modifier_scope(scope_key: String) -> void:
+	var normalized_scope: String = scope_key.strip_edges()
+	if normalized_scope.is_empty():
+		return
+	if not _dynamic_external_modifier_scopes.erase(normalized_scope):
+		return
+	_rebuild_external_modifiers(true)
+
+
+func clear_dynamic_external_modifier_scopes_by_prefix(scope_prefix: String) -> void:
+	var normalized_prefix: String = scope_prefix.strip_edges()
+	if normalized_prefix.is_empty():
+		return
+	var removed_any: bool = false
+	for raw_scope_key in _dynamic_external_modifier_scopes.keys().duplicate():
+		var scope_key: String = str(raw_scope_key)
+		if not scope_key.begins_with(normalized_prefix):
+			continue
+		_dynamic_external_modifier_scopes.erase(scope_key)
+		removed_any = true
+	if removed_any:
+		_rebuild_external_modifiers(true)
+
+
+func _rebuild_external_modifiers(refresh_owner_stats: bool) -> void:
+	_external_modifiers = _base_external_modifiers.duplicate(true)
+	for scope_modifiers_value in _dynamic_external_modifier_scopes.values():
+		if scope_modifiers_value is Dictionary:
+			_merge_external_modifier_bundle(_external_modifiers, scope_modifiers_value as Dictionary)
+	if refresh_owner_stats and owner_unit != null and is_instance_valid(owner_unit):
+		refresh_runtime_stats(owner_unit.get("runtime_stats"), true)
+
+
+func _merge_external_modifier_bundle(target_bundle: Dictionary, delta_bundle: Dictionary) -> void:
+	for raw_key in delta_bundle.keys():
+		var key: String = str(raw_key)
+		var delta_value: Variant = delta_bundle[raw_key]
+		var base_value: Variant = target_bundle.get(key, null)
+		if delta_value is Dictionary:
+			var merged_dict: Dictionary = {}
+			if base_value is Dictionary:
+				merged_dict = (base_value as Dictionary).duplicate(true)
+			for nested_raw_key in (delta_value as Dictionary).keys():
+				var nested_key: String = str(nested_raw_key)
+				merged_dict[nested_key] = float(merged_dict.get(nested_key, 0.0)) + float((delta_value as Dictionary).get(nested_raw_key, 0.0))
+			target_bundle[key] = merged_dict
+			continue
+		if delta_value is Array:
+			var merged_array: Array = []
+			if base_value is Array:
+				merged_array = (base_value as Array).duplicate(true)
+			merged_array.append_array((delta_value as Array).duplicate(true))
+			target_bundle[key] = merged_array
+			continue
+		target_bundle[key] = float(target_bundle.get(key, 0.0)) + float(delta_value)
+
+
 func _rebuild_attack_interval(runtime_stats: Dictionary) -> void:
 	var spd: float = maxf(float(runtime_stats.get("spd", 60.0)), 0.0)
-	var base_interval: float = clampf(1.8 - spd / 120.0, 0.24, 2.2)
+	var base_interval: float = clampf(1.8 / (1.0 + spd / 100.0), 0.24, 2.2)
 	var speed_bonus: float = clampf(float(_external_modifiers.get("attack_speed_bonus", 0.0)), -0.8, 0.9)
 	# 攻速加成为“间隔缩短百分比”，例如 0.2 => 间隔 * 0.8。
 	var min_interval_from_cap: float = 1.0 / maxf(max_attack_speed_per_sec, 0.01)
@@ -392,11 +457,6 @@ func _get_target_combat(target: Node) -> Node:
 		return null
 	return target.get_node_or_null("Components/UnitCombat")
 
-
-func _get_attack_multiplier(use_skill: bool) -> float:
-	return skill_multiplier if use_skill else normal_multiplier
-
-
 func _calc_dodge_rate(attacker_spd: float, target_spd: float, target_modifiers: Dictionary) -> float:
 	var dodge_rate: float = 0.0
 	if target_spd > 0.0:
@@ -406,7 +466,7 @@ func _calc_dodge_rate(attacker_spd: float, target_spd: float, target_modifiers: 
 
 func _calc_crit_rate() -> float:
 	return clampf(
-		0.05 + _get_owner_stat("wis") * 0.001 + float(_external_modifiers.get("crit_bonus", 0.0)),
+		0.05 + _get_owner_stat("wis") * 0.002 + float(_external_modifiers.get("crit_bonus", 0.0)),
 		0.05,
 		1.0
 	)
@@ -416,23 +476,28 @@ func _calc_crit_multiplier() -> float:
 	return 1.5 + _get_owner_stat("wis") * 0.0005 + float(_external_modifiers.get("crit_damage_bonus", 0.0))
 
 
-func _apply_attack_resource_changes(use_skill: bool, is_dodged: bool) -> void:
-	if use_skill:
-		add_mp(-skill_mp_cost)
-	elif not is_dodged:
-		add_mp(mp_gain_on_attack)
+func _apply_attack_resource_changes(is_dodged: bool) -> void:
+	if not is_dodged:
+		add_mp(_resolve_mp_gain_on_attack())
+
+
+func _resolve_mp_gain_on_attack() -> float:
+	return mp_gain_on_attack + float(_external_modifiers.get("mp_gain_on_attack", 0.0))
+
+
+func _resolve_mp_gain_on_hit() -> float:
+	return mp_gain_on_hit + float(_external_modifiers.get("mp_gain_on_hit", 0.0))
 
 
 func _build_attack_event(
 	receive_result: Dictionary,
-	use_skill: bool,
 	is_dodged: bool,
 	is_crit: bool,
 	damage_type: String
 ) -> Dictionary:
 	return {
 		"performed": true,
-		"is_skill": use_skill,
+		"is_skill": false,
 		"is_dodged": is_dodged,
 		"is_crit": is_crit,
 		"damage_type": damage_type,
@@ -445,24 +510,11 @@ func _build_attack_event(
 	}
 
 
-func _select_attack_profile(use_skill: bool) -> Dictionary:
+func _select_attack_profile() -> Dictionary:
 	var atk: float = _get_owner_stat("atk")
 	var iat: float = _get_owner_stat("iat")
 
-	# 简化策略：
-	# - 技能优先内功轨道（若内功明显不足，再回退外功）。
-	# - 普攻优先外功轨道（若外功明显不足，再回退内功）。
-	if use_skill:
-		if iat >= atk * 0.6:
-			return {
-				"offense": iat,
-				"damage_type": "internal"
-			}
-		return {
-			"offense": atk,
-			"damage_type": "external"
-		}
-
+	# 普攻只保留一条轨道选择规则：外功占优就走外功，否则回退内功。
 	if atk >= iat * 0.8:
 		return {
 			"offense": atk,
@@ -545,15 +597,28 @@ func _calc_debuff_damage_amp_ratio(target_debuff_ids: Array) -> float:
 	return ratio
 
 
-func _apply_vampire_lifesteal(dealt_damage: float, used_skill: bool) -> void:
-	if used_skill:
-		return
+func _apply_vampire_lifesteal(dealt_damage: float) -> void:
 	var vampire_ratio: float = clampf(float(_external_modifiers.get("vampire", 0.0)), 0.0, 5.0)
 	if vampire_ratio <= 0.0:
 		return
 	var healed: float = restore_hp(dealt_damage * vampire_ratio)
 	if healed > 0.0 and owner_unit != null and is_instance_valid(owner_unit):
 		healing_performed.emit(owner_unit, owner_unit, healed, "vampire")
+
+
+func _resolve_healing_amp_multiplier(source: Node = null) -> float:
+	var modifier_combat: Node = self
+	if source != null and is_instance_valid(source) and source != owner_unit:
+		modifier_combat = _get_target_combat(source)
+		if modifier_combat == null:
+			modifier_combat = self
+	var modifiers_value: Variant = {}
+	if modifier_combat != null and modifier_combat.has_method("get_external_modifiers"):
+		modifiers_value = modifier_combat.get_external_modifiers()
+	if modifiers_value is Dictionary:
+		var healing_amp: float = float((modifiers_value as Dictionary).get("healing_amp", 0.0))
+		return maxf(1.0 + healing_amp, 0.0)
+	return 1.0
 
 
 func _apply_thorns_reflect(source: Node, taken_damage: float) -> void:
@@ -588,21 +653,6 @@ func _apply_thorns_reflect(source: Node, taken_damage: float) -> void:
 		reflect_event["immune_absorbed"] = float((reflect_result_value as Dictionary).get("immune_absorbed", 0.0))
 	if owner_unit != null and is_instance_valid(owner_unit):
 		thorns_damage_dealt.emit(owner_unit, source, reflect_event)
-
-
-func _is_silenced() -> bool:
-	if owner_unit == null or not is_instance_valid(owner_unit):
-		return false
-	if bool(owner_unit.get_meta("status_silenced", false)):
-		return true
-	var until_time: float = float(owner_unit.get_meta("status_silence_until", 0.0))
-	var now_sec: float = float(Time.get_ticks_msec()) * 0.001
-	if until_time > now_sec:
-		return true
-	if until_time > 0.0:
-		owner_unit.remove_meta("status_silence_until")
-	var debuffs: Array = _get_target_debuff_ids(owner_unit)
-	return debuffs.has("debuff_silence")
 
 
 func _is_stunned() -> bool:

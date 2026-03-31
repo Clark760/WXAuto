@@ -77,7 +77,9 @@ class MockManager:
 	var _attack_range_target_memory: Dictionary = {999: 123}
 	var _attack_range_target_frame: Dictionary = {999: 9}
 	var _follow_anchor_by_unit_id: Dictionary = {}
+	var _last_move_from_cell: Dictionary = {}
 	var _move_replan_cooldown_frame: Dictionary = {}
+	var _side_step_cooldown_frame: Dictionary = {}
 	var _target_query_ids_scratch: Array[int] = []
 	var _loop_animation_reduced: bool = false
 	var _group_focus_target_id: Dictionary = {}
@@ -97,6 +99,7 @@ class MockManager:
 	}
 	var _cell_occupancy: Dictionary = {}
 	var _unit_cell: Dictionary = {}
+	var _neighbor_cells_cache: Dictionary = {}
 	var _terrain_blocked_cells: Dictionary = {}
 	var _last_terrain_cells: Dictionary = {}
 
@@ -194,6 +197,11 @@ func _init() -> void:
 
 
 func _run() -> void:
+	_run_spawned_unit_case()
+	_run_unchanged_unit_count_case()
+
+
+func _run_spawned_unit_case() -> void:
 	var runtime_service = COMBAT_RUNTIME_SERVICE_SCRIPT.new()
 	var manager: MockManager = MockManager.new()
 	var ally: MockUnit = MockUnit.new()
@@ -270,6 +278,52 @@ func _run() -> void:
 	ally.free()
 	enemy.free()
 	spawned_ally.free()
+
+
+func _run_unchanged_unit_count_case() -> void:
+	var runtime_service = COMBAT_RUNTIME_SERVICE_SCRIPT.new()
+	var manager: MockManager = MockManager.new()
+	var ally: MockUnit = MockUnit.new()
+	var enemy: MockUnit = MockUnit.new()
+	var ally_units: Array[Node] = [ally]
+	var enemy_units: Array[Node] = [enemy]
+
+	ally.team_id = MockManager.TEAM_ALLY
+	enemy.team_id = MockManager.TEAM_ENEMY
+
+	var started: bool = runtime_service.start_battle(
+		manager,
+		ally_units,
+		enemy_units,
+		20260330
+	)
+	_assert_true(started, "start_battle should succeed when no listeners mutate unit count")
+	_assert_true(
+		manager.pre_tick_scan_calls == 1,
+		"battle start should skip post-warm when battle_started does not add units"
+	)
+	_assert_true(
+		manager.group_focus_calls == 1 and manager.follow_anchor_calls == 1,
+		"group focus and follow-anchor caches should only warm once when unit count is unchanged"
+	)
+	_assert_true(
+		manager.flow_rebuild_calls == 1,
+		"flow fields should only rebuild once when battle_started leaves unit count unchanged"
+	)
+	_assert_true(
+		not manager._skip_runtime_cache_refresh_once,
+		"startup cache skip flag should stay disabled when post-warm is skipped"
+	)
+
+	runtime_service.logic_tick(manager, 0.1)
+	_assert_true(
+		manager.pre_tick_scan_calls == 2,
+		"first attack tick should rebuild runtime caches immediately when no startup cache skip is scheduled"
+	)
+
+	manager.free()
+	ally.free()
+	enemy.free()
 
 
 func _on_battle_started_spawn_unit(

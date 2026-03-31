@@ -32,7 +32,8 @@ func format_effect_op(effect: Dictionary) -> String:
 			return "%s：%s/秒" % [op_label, _format_signed_number(float(effect.get("value", 0.0)))]
 		"hp_regen_add":
 			return "%s：%s/秒" % [op_label, _format_signed_number(float(effect.get("value", 0.0)))]
-		"damage_reduce_flat", "thorns_flat", "shield_on_combat_start", "mp_on_kill", "range_add":
+		"damage_reduce_flat", "thorns_flat", "shield_on_combat_start", "mp_on_kill", "range_add", \
+		"mp_gain_on_attack", "mp_gain_on_hit":
 			return "%s：%s" % [op_label, _format_signed_number(float(effect.get("value", 0.0)))]
 		"damage_reduce_percent", "dodge_bonus", "crit_bonus", "crit_damage_bonus", \
 		"vampire", "damage_amp_percent", "tenacity", "thorns_percent", "execute_threshold", \

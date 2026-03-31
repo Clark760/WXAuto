@@ -54,12 +54,15 @@ func _tag_linkage_branch(
 			gate_allowed = bool((gate_result_value as Dictionary).get("allowed", true))
 
 	if not gate_allowed:
+		_clear_dynamic_modifier_scope_prefix(_runtime_gateway, source, effect_key, context)
 		return
 	if not manager.has_method("evaluate_tag_linkage_branch"):
+		_clear_dynamic_modifier_scope_prefix(_runtime_gateway, source, effect_key, context)
 		return
 
 	var result_value: Variant = manager.evaluate_tag_linkage_branch(source, effect, context)
 	if not (result_value is Dictionary):
+		_clear_dynamic_modifier_scope_prefix(_runtime_gateway, source, effect_key, context)
 		return
 
 	var result: Dictionary = result_value as Dictionary
@@ -68,16 +71,29 @@ func _tag_linkage_branch(
 
 	var branch_effects_value: Variant = result.get("effects", [])
 	if not (branch_effects_value is Array):
+		_clear_dynamic_modifier_scope_prefix(_runtime_gateway, source, effect_key, context)
 		return
 
 	var branch_effects: Array = branch_effects_value as Array
+	var scoped_context: Dictionary = _build_dynamic_modifier_scope_context(context, source, effect_key)
 	var execution_mode: String = str(effect.get("execution_mode", "continuous")).strip_edges().to_lower()
 	if execution_mode != "stateful":
 		# 非 stateful 分支不保留额外状态，直接把当前命中的子效果展开执行。
-		_execute_tag_linkage_child_effects(source, target, branch_effects, context, summary)
+		_clear_dynamic_modifier_scope_prefix(_runtime_gateway, source, effect_key, context)
+		_execute_tag_linkage_child_effects(source, target, branch_effects, scoped_context, summary)
 		return
 
-	_execute_stateful_branch(source, target, effect, result, branch_effects, context, summary, manager, effect_key)
+	_execute_stateful_branch(
+		source,
+		target,
+		effect,
+		result,
+		branch_effects,
+		scoped_context,
+		summary,
+		manager,
+		effect_key
+	)
 
 
 # 子效果执行通过 dispatcher 传入的 callable 递归触发，不反向依赖 dispatcher 类型。
@@ -176,6 +192,32 @@ func _resolve_tag_linkage_case_id(result: Dictionary, branch_effects: Array) -> 
 	if not branch_effects.is_empty():
 		return "__else__"
 	return ""
+
+
+func _build_dynamic_modifier_scope_context(
+	context: Dictionary,
+	source: Node,
+	effect_key: String
+) -> Dictionary:
+	var scoped_context: Dictionary = context.duplicate(false)
+	var source_id: int = source.get_instance_id() if source != null and is_instance_valid(source) else 0
+	scoped_context["_dynamic_modifier_scope_prefix"] = "tag_linkage|%d|%s" % [source_id, effect_key]
+	return scoped_context
+
+
+func _clear_dynamic_modifier_scope_prefix(
+	runtime_gateway: Variant,
+	source: Node,
+	effect_key: String,
+	context: Dictionary
+) -> void:
+	if runtime_gateway == null or not runtime_gateway.has_method("clear_dynamic_modifier_scope_prefix"):
+		return
+	var scoped_context: Dictionary = _build_dynamic_modifier_scope_context(context, source, effect_key)
+	var scope_prefix: String = str(scoped_context.get("_dynamic_modifier_scope_prefix", "")).strip_edges()
+	if scope_prefix.is_empty():
+		return
+	runtime_gateway.clear_dynamic_modifier_scope_prefix(source, scope_prefix)
 
 
 # manager 是 linkage runtime 的唯一状态持有者，这里只读取，不在 effect 层私自缓存。

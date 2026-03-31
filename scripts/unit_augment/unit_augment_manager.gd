@@ -11,6 +11,7 @@ const PROBE_SCOPE_UNIT_AUGMENT_MANAGER_PROCESS: String = "unit_augment_manager_p
 @export var trigger_poll_interval: float = 0.12
 @export var tag_linkage_stagger_buckets: int = 8
 @export var deep_runtime_probe_enabled: bool = false
+@export var augment_apply_batch_size: int = 32
 
 const DEFAULT_SKILL_CAST_RANGE_CELLS: float = 2.0
 
@@ -109,7 +110,14 @@ func prepare_battle(
 	vfx_factory: Node,
 	combat_manager: Node
 ) -> void:
-	_battle_runtime.prepare_battle(self, ally_units, enemy_units, hex_grid, vfx_factory, combat_manager)
+	await _battle_runtime.prepare_battle(
+		self,
+		ally_units,
+		enemy_units,
+		hex_grid,
+		vfx_factory,
+		combat_manager
+	)
 
 
 # 条目级接口名保持不变，但实际入口统一由 UnitAugmentManager 暴露。

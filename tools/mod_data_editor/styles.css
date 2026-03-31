@@ -30,6 +30,12 @@ body {
   padding: 12px 16px;
 }
 
+.topbar-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
 .title-wrap h1 {
   margin: 0;
   font-size: 20px;
@@ -207,9 +213,15 @@ button.danger {
   margin-bottom: 10px;
 }
 
+.field.has-error {
+  border-color: #ef9a95;
+  background: #fffafa;
+}
+
 .field > .label {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 6px;
   margin-bottom: 8px;
   font-size: 13px;
@@ -257,6 +269,45 @@ button.danger {
   color: #8a2f28;
   white-space: pre-wrap;
   font-size: 12px;
+}
+
+.validation-summary {
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #ffd2cf;
+  background: #fff3f2;
+  color: #8a2f28;
+  font-size: 12px;
+}
+
+.field-warning {
+  color: #b23b33;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.field-error-text {
+  margin-top: 8px;
+  color: #b42318;
+  font-size: 12px;
+  white-space: pre-wrap;
+}
+
+.collapse-toggle {
+  margin-left: auto;
+  padding: 2px 8px;
+  font-size: 12px;
+  border-radius: 999px;
+}
+
+.collapsed-note {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.autocomplete-tip {
+  margin-top: 6px;
 }
 
 .inline-ref {

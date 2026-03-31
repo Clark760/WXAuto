@@ -61,11 +61,13 @@ func start_battle(
 	begin_battle_loop(manager)
 	manager._emit_team_alive_count_changed(manager.TEAM_ALLY)
 	manager._emit_team_alive_count_changed(manager.TEAM_ENEMY)
+	var pre_signal_unit_count: int = manager._all_units.size()
 	manager.battle_started.emit(
 		int(manager._alive_by_team.get(manager.TEAM_ALLY, 0)),
 		int(manager._alive_by_team.get(manager.TEAM_ENEMY, 0))
 	)
-	if manager._battle_running:
+	var post_signal_unit_count: int = manager._all_units.size()
+	if manager._battle_running and post_signal_unit_count != pre_signal_unit_count:
 		_warmup_battle_start_runtime(manager, PROBE_SCOPE_COMBAT_START_POSTWARM)
 		manager._skip_runtime_cache_refresh_once = true
 	return true
@@ -291,7 +293,9 @@ func reset_battle_runtime_state(manager) -> void:
 	manager._attack_range_target_memory.clear()
 	manager._attack_range_target_frame.clear()
 	manager._follow_anchor_by_unit_id.clear()
+	manager._last_move_from_cell.clear()
 	manager._move_replan_cooldown_frame.clear()
+	manager._side_step_cooldown_frame.clear()
 	manager._target_query_ids_scratch.clear()
 	manager._loop_animation_reduced = false
 	manager._group_focus_target_id.clear()
@@ -305,6 +309,7 @@ func reset_battle_runtime_state(manager) -> void:
 	manager._team_cells_cache[manager.TEAM_ENEMY] = []
 	manager._cell_occupancy.clear()
 	manager._unit_cell.clear()
+	manager._neighbor_cells_cache.clear()
 	manager._terrain_blocked_cells.clear()
 	manager._last_terrain_cells.clear()
 	manager._flow_force_rebuild = true

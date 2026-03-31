@@ -93,10 +93,18 @@ func find_nearest_free_cell(owner: Node, start_cell: Vector2i) -> Vector2i:
 		owner,
 		owner.get("_hex_grid"),
 		owner.get("_cell_occupancy"),
-		start_cell
+		start_cell,
+		_get_neighbor_cache(owner)
 	)
 
 
 # 邻接格读取继续暴露旧接口，供 pathfinding 和 targeting adapter 复用。
 func neighbors_of(owner: Node, cell: Vector2i) -> Array[Vector2i]:
-	return _rules.neighbors_of(owner.get("_hex_grid"), cell)
+	return _rules.neighbors_of(owner.get("_hex_grid"), cell, _get_neighbor_cache(owner))
+
+
+func _get_neighbor_cache(owner: Node) -> Dictionary:
+	var cache_value: Variant = owner.get("_neighbor_cells_cache")
+	if cache_value is Dictionary:
+		return cache_value as Dictionary
+	return {}

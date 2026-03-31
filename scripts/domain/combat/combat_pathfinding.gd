@@ -17,7 +17,9 @@ func rebuild_flow_fields(
 	flow_to_ally,
 	team_cells_cache: Dictionary,
 	blocked_for_ally: Dictionary,
-	blocked_for_enemy: Dictionary
+	blocked_for_enemy: Dictionary,
+	weighted_for_ally: Dictionary = {},
+	weighted_for_enemy: Dictionary = {}
 ) -> void:
 	var ally_targets: Array[Vector2i] = []
 	var enemy_targets: Array[Vector2i] = []
@@ -38,8 +40,8 @@ func rebuild_flow_fields(
 	var hex_grid: Node = runtime_port.get("_hex_grid")
 	if hex_grid == null or not is_instance_valid(hex_grid):
 		return
-	flow_to_enemy.build(hex_grid, ally_targets, blocked_for_ally)
-	flow_to_ally.build(hex_grid, enemy_targets, blocked_for_enemy)
+	flow_to_enemy.build(hex_grid, ally_targets, blocked_for_ally, weighted_for_ally)
+	flow_to_ally.build(hex_grid, enemy_targets, blocked_for_enemy, weighted_for_enemy)
 
 
 func _append_unique_target_cell(output: Array[Vector2i], seen: Dictionary, cell: Vector2i) -> void:
@@ -103,6 +105,32 @@ func build_blocked_cells_for_team(
 	return blocked
 
 
+func build_weighted_cells_for_team(
+	runtime_port: Node,
+	cell_occupancy: Dictionary,
+	unit_by_id: Dictionary,
+	self_team: int,
+	extra_cost: int
+) -> Dictionary:
+	var weighted: Dictionary = {}
+	if extra_cost <= 0:
+		return weighted
+	for raw_key in cell_occupancy.keys():
+		var cell_key: int = int(raw_key)
+		var iid: int = int(cell_occupancy[cell_key])
+		if not unit_by_id.has(iid):
+			continue
+		var unit: Node = unit_by_id[iid]
+		if not runtime_port._is_live_unit(unit):
+			continue
+		if not runtime_port._is_unit_alive(unit):
+			continue
+		if int(unit.get("team_id")) != self_team:
+			continue
+		weighted[cell_key] = extra_cost
+	return weighted
+
+
 # 邻格决策只负责选下一步，不直接提交移动或改写占格。
 func pick_best_adjacent_cell(
 	runtime_port: Node,
@@ -114,7 +142,8 @@ func pick_best_adjacent_cell(
 	group_focus_target_id: Dictionary,
 	unit_by_id: Dictionary,
 	follow_anchor_by_unit_id: Dictionary,
-	attack_range_target: Node
+	attack_range_target: Node,
+	last_move_from_cell: Vector2i = Vector2i(-1, -1)
 ) -> Vector2i:
 	var team_id: int = int(unit.get("team_id"))
 	if attack_range_target != null:
@@ -128,6 +157,7 @@ func pick_best_adjacent_cell(
 	var side_step_cell: Vector2i = current_cell
 	var side_step_found: bool = false
 	var side_step_focus_dist: int = 1 << 30
+	var side_step_same_direction: bool = false
 	# side_step 只在没有更优降代价路径时参与，避免贴脸时横向抖动。
 
 	var has_focus_cell: bool = false
@@ -168,17 +198,29 @@ func pick_best_adjacent_cell(
 			continue
 
 		if allow_equal_cost_side_step and neighbor_cost == current_cost:
-			if current_cost <= 2:
+			if current_cost <= 3:
 				continue
-			if not side_step_found or neighbor_focus_dist < side_step_focus_dist:
+			var same_direction: bool = (
+				last_move_from_cell != current_cell
+				and last_move_from_cell.x >= 0
+				and neighbor == current_cell + (current_cell - last_move_from_cell)
+			)
+			if not side_step_found \
+			or neighbor_focus_dist < side_step_focus_dist \
+			or (
+				neighbor_focus_dist == side_step_focus_dist
+				and same_direction
+				and not side_step_same_direction
+			):
 				side_step_found = true
 				side_step_focus_dist = neighbor_focus_dist
+				side_step_same_direction = same_direction
 				side_step_cell = neighbor
 
 	if best_cell != current_cell:
 		return best_cell
 	# 没有明确主路径时，才允许退回“同代价但更靠近焦点”的横移方案。
-	if allow_equal_cost_side_step and side_step_found and current_cost > 2:
+	if allow_equal_cost_side_step and side_step_found and current_cost > 3:
 		return side_step_cell
 	var follow_ally_cell: Vector2i = _pick_follow_ally_cell(
 		runtime_port,
@@ -389,7 +431,7 @@ func _find_local_follow_anchor_id(
 				var candidate_focus_dist: int = int(
 					focus_distance_by_unit_id.get(candidate_id, 1 << 30)
 				)
-				if has_focus_cell and candidate_focus_dist >= self_focus_dist:
+				if has_focus_cell and candidate_focus_dist > self_focus_dist:
 					continue
 				if (
 					best_anchor_id <= 0
@@ -426,7 +468,7 @@ func _find_nearest_follow_anchor_id_full_scan(
 		var candidate_focus_dist: int = int(
 			focus_distance_by_unit_id.get(candidate_id, 1 << 30)
 		)
-		if has_focus_cell and candidate_focus_dist >= self_focus_dist:
+		if has_focus_cell and candidate_focus_dist > self_focus_dist:
 			continue
 		var candidate_cell: Vector2i = cell_by_unit_id.get(candidate_id, Vector2i(-1, -1))
 		if candidate_cell.x < 0:

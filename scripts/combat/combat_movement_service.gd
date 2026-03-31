@@ -39,6 +39,9 @@ func force_move_unit_to_cell(
 	# 这样能保证同帧内后续查询读到的是已经提交后的逻辑格。
 	if not manager._occupy_cell(target_cell, unit):
 		return false
+	manager._last_move_from_cell[unit.get_instance_id()] = current_cell
+	_clear_move_replan_cooldown(manager, unit)
+	_clear_side_step_cooldown(manager, unit)
 
 	var movement: Node = manager._get_movement(unit)
 	_clear_movement_target(movement)
@@ -142,6 +145,8 @@ func swap_unit_cells(
 	manager._cell_occupancy[key_b] = id_a
 	manager._unit_cell[id_a] = cell_b
 	manager._unit_cell[id_b] = cell_a
+	manager._last_move_from_cell[id_a] = cell_a
+	manager._last_move_from_cell[id_b] = cell_b
 
 	var hex_grid: Node = manager._hex_grid
 	if hex_grid != null and is_instance_valid(hex_grid):
@@ -155,6 +160,10 @@ func swap_unit_cells(
 
 	_clear_movement_target(manager._get_movement(unit_a))
 	_clear_movement_target(manager._get_movement(unit_b))
+	_clear_move_replan_cooldown(manager, unit_a)
+	_clear_move_replan_cooldown(manager, unit_b)
+	_clear_side_step_cooldown(manager, unit_a)
+	_clear_side_step_cooldown(manager, unit_b)
 	manager._flow_force_rebuild = true
 	manager._notify_unit_cell_changed(unit_a, cell_a, cell_b)
 	manager._notify_unit_cell_changed(unit_b, cell_b, cell_a)
@@ -184,13 +193,14 @@ func run_unit_logic(
 	var combat: Node = manager._get_combat(unit)
 	if combat == null:
 		return
+	var movement: Node = manager._get_movement(unit)
 	var combat_tick_begin_us: int = _probe_begin_timing(manager)
 	_tick_combat_logic(combat, delta)
 	_probe_commit_timing(manager, PROBE_SCOPE_COMBAT_COMPONENT_TICK, combat_tick_begin_us)
 
 	# 控制态优先于普攻和移动，这样 stun/fear 不会被后续逻辑冲掉。
 	if _is_unit_stunned(manager, unit):
-		_clear_unit_move_and_idle(unit, manager._get_movement(unit))
+		_clear_unit_move_and_idle(unit, movement)
 		emit_unit_move_failed(manager, unit, "stunned", {})
 		return
 
@@ -201,9 +211,10 @@ func run_unit_logic(
 	if allow_attack and combat.has_method("can_attack"):
 		var combat_api: Variant = combat
 		can_attempt_attack = bool(combat_api.can_attack())
-	if allow_move and not allow_attack and _should_skip_move_replan(manager, unit):
-		_clear_unit_move_and_idle(unit, manager._get_movement(unit))
-		return
+	var skip_equal_cost_side_step: bool = false
+	if allow_move and not allow_attack:
+		skip_equal_cost_side_step = _should_skip_move_replan(manager, unit) \
+			or _is_side_step_cooldown_active(manager, unit)
 	var target: Node = null
 	var should_pick_full_target: bool = feared or can_attempt_attack or (allow_attack and allow_move)
 	if should_pick_full_target:
@@ -213,7 +224,7 @@ func run_unit_logic(
 
 	# fear 会覆盖普通寻路，但仍允许它复用同一套移动统计口径。
 	if feared:
-		_run_feared_unit_logic(manager, unit, target, enemy_team)
+		_run_feared_unit_logic(manager, unit, target, enemy_team, movement)
 		return
 
 	# 攻击相位先走，只有真的没打出去时才会下沉到移动相位。
@@ -248,16 +259,18 @@ func run_unit_logic(
 	)
 
 	# 目标已经在射程内时直接停步，避免“冷却中也来回抖动”的旧问题回流。
-	if _should_hold_position_in_attack_range(manager, unit, attack_range_target):
+	if _should_hold_position_in_attack_range(manager, unit, attack_range_target, movement):
 		return
 	var move_phase_begin_us: int = _probe_begin_timing(manager)
 	_run_move_phase(
 		manager,
 		unit,
+		movement,
 		combat,
 		target,
 		attack_range_target,
-		allow_attack
+		allow_attack,
+		skip_equal_cost_side_step
 	)
 	_probe_commit_timing(manager, PROBE_SCOPE_COMBAT_MOVE_PHASE, move_phase_begin_us)
 
@@ -350,6 +363,29 @@ func _clear_move_replan_cooldown(manager, unit: Node) -> void:
 	manager._move_replan_cooldown_frame.erase(unit.get_instance_id())
 
 
+func _is_side_step_cooldown_active(manager, unit: Node) -> bool:
+	if manager == null or unit == null or not is_instance_valid(unit):
+		return false
+	if not manager._side_step_cooldown_frame.has(unit.get_instance_id()):
+		return false
+	return int(manager._side_step_cooldown_frame.get(unit.get_instance_id(), -1)) >= manager._logic_frame
+
+
+func _mark_side_step_cooldown(manager, unit: Node) -> void:
+	if manager == null or unit == null or not is_instance_valid(unit):
+		return
+	var cooldown_frames: int = int(manager._get_effective_side_step_cooldown_frames())
+	if cooldown_frames <= 0:
+		return
+	manager._side_step_cooldown_frame[unit.get_instance_id()] = manager._logic_frame + cooldown_frames
+
+
+func _clear_side_step_cooldown(manager, unit: Node) -> void:
+	if manager == null or unit == null or not is_instance_valid(unit):
+		return
+	manager._side_step_cooldown_frame.erase(unit.get_instance_id())
+
+
 # 对外的 move_failed 事件需要把 `unit` 与 `reason` 回写到 payload 中。
 # 当前 context 只承载扁平字段与节点引用，浅拷贝即可隔离监听者改写。
 # 所有移动失败分支都必须走这条统一出口。
@@ -374,11 +410,12 @@ func _run_feared_unit_logic(
 	manager,
 	unit: Node,
 	target: Node,
-	enemy_team: int
+	enemy_team: int,
+	movement: Node = null
 ) -> void:
 	var current_cell: Vector2i = manager._get_unit_cell(unit)
 	if current_cell.x < 0:
-		_clear_unit_move_and_idle(unit, manager._get_movement(unit))
+		_clear_unit_move_and_idle(unit, movement)
 		return
 
 	var resolved_target: Node = target
@@ -392,12 +429,12 @@ func _run_feared_unit_logic(
 		if resolved_target == null:
 			resolved_target = manager._pick_target_for_unit(unit, false)
 	if resolved_target == null:
-		_clear_unit_move_and_idle(unit, manager._get_movement(unit))
+		_clear_unit_move_and_idle(unit, movement)
 		return
 
 	var target_cell: Vector2i = manager._get_unit_cell(resolved_target)
 	if target_cell.x < 0:
-		_clear_unit_move_and_idle(unit, manager._get_movement(unit))
+		_clear_unit_move_and_idle(unit, movement)
 		return
 
 	var moved: bool = move_unit_steps_away(manager, unit, target_cell, 1)
@@ -410,7 +447,7 @@ func _run_feared_unit_logic(
 		manager._metric_total_move_started += 1
 		return
 
-	_clear_unit_move_and_idle(unit, manager._get_movement(unit))
+	_clear_unit_move_and_idle(unit, movement)
 	manager._metric_tick_move_blocked += 1
 	manager._metric_total_move_blocked += 1
 
@@ -421,13 +458,15 @@ func _run_feared_unit_logic(
 func _should_hold_position_in_attack_range(
 	manager,
 	unit: Node,
-	target: Node
+	target: Node,
+	movement: Node = null
 ) -> bool:
 	if target == null or not manager._is_target_in_attack_range(unit, target):
 		return false
 
 	_clear_move_replan_cooldown(manager, unit)
-	_clear_movement_target(manager._get_movement(unit))
+	_clear_side_step_cooldown(manager, unit)
+	_clear_movement_target(movement)
 	var unit_api: Variant = unit
 	unit_api.play_anim_state(0, {})
 	manager._metric_tick_move_checks += 1
@@ -444,10 +483,12 @@ func _should_hold_position_in_attack_range(
 func _run_move_phase(
 	manager,
 	unit: Node,
+	movement: Node,
 	combat: Node,
 	target: Node,
 	attack_range_target: Node,
-	allow_attack: bool
+	allow_attack: bool,
+	skip_equal_cost_side_step: bool = false
 ) -> void:
 	manager._metric_tick_move_checks += 1
 	manager._metric_total_move_checks += 1
@@ -455,7 +496,7 @@ func _run_move_phase(
 	var current_cell: Vector2i = manager._get_unit_cell(unit)
 	if current_cell.x < 0 or current_cell.y < 0:
 		# 逻辑格丢失时不能继续寻路，否则会把单位推入错误位置。
-		_clear_unit_move_and_idle(unit, manager._get_movement(unit))
+		_clear_unit_move_and_idle(unit, movement)
 		manager._metric_tick_idle_no_cell += 1
 		manager._metric_total_idle_no_cell += 1
 		emit_unit_move_failed(manager, unit, "no_cell", {})
@@ -475,7 +516,8 @@ func _run_move_phase(
 	var best_next: Vector2i = manager._pick_best_adjacent_cell(
 		unit,
 		current_cell,
-		attack_range_target
+		attack_range_target,
+		skip_equal_cost_side_step
 	)
 	if best_next == current_cell:
 		if _try_fallback_attack_when_blocked(
@@ -486,8 +528,9 @@ func _run_move_phase(
 			allow_attack
 		):
 			_clear_move_replan_cooldown(manager, unit)
+			_clear_side_step_cooldown(manager, unit)
 			return
-		_clear_unit_move_and_idle(unit, manager._get_movement(unit))
+		_clear_unit_move_and_idle(unit, movement)
 		_mark_move_replan_cooldown(manager, unit)
 		manager._metric_tick_move_blocked += 1
 		manager._metric_total_move_blocked += 1
@@ -500,7 +543,7 @@ func _run_move_phase(
 
 	# 提交移动前再验一次空格，避免同帧被其他单位抢占目标格。
 	if not manager._is_cell_free(best_next):
-		_clear_unit_move_and_idle(unit, manager._get_movement(unit))
+		_clear_unit_move_and_idle(unit, movement)
 		_mark_move_replan_cooldown(manager, unit)
 		manager._metric_tick_move_conflicts += 1
 		manager._metric_total_move_conflicts += 1
@@ -512,7 +555,7 @@ func _run_move_phase(
 
 	# occupy 失败说明发生了竞争态，这里统一归类为 conflict。
 	if not manager._occupy_cell(best_next, unit):
-		_clear_unit_move_and_idle(unit, manager._get_movement(unit))
+		_clear_unit_move_and_idle(unit, movement)
 		_mark_move_replan_cooldown(manager, unit)
 		manager._metric_tick_move_conflicts += 1
 		manager._metric_total_move_conflicts += 1
@@ -523,11 +566,33 @@ func _run_move_phase(
 		return
 
 	_clear_move_replan_cooldown(manager, unit)
-	_apply_move_visual(manager, unit, best_next)
+	manager._last_move_from_cell[unit.get_instance_id()] = current_cell
+	_sync_equal_cost_move_cooldown(manager, unit, flow_field, current_cell, best_next)
+	_apply_move_visual(manager, unit, movement, best_next)
 	var unit_api: Variant = unit
 	unit_api.play_anim_state(1, {})
 	manager._metric_tick_move_started += 1
 	manager._metric_total_move_started += 1
+
+
+func _sync_equal_cost_move_cooldown(
+	manager,
+	unit: Node,
+	flow_field,
+	from_cell: Vector2i,
+	to_cell: Vector2i
+) -> void:
+	if manager == null or unit == null or not is_instance_valid(unit):
+		return
+	if flow_field == null:
+		_clear_side_step_cooldown(manager, unit)
+		return
+	var from_cost: int = flow_field.sample_cost(from_cell)
+	var to_cost: int = flow_field.sample_cost(to_cell)
+	if from_cost >= 0 and to_cost == from_cost:
+		_mark_side_step_cooldown(manager, unit)
+		return
+	_clear_side_step_cooldown(manager, unit)
 
 
 # 被卡住时允许再尝试一次“当前射程内是否有备选目标可打”。
@@ -562,10 +627,10 @@ func _try_fallback_attack_when_blocked(
 func _apply_move_visual(
 	manager,
 	unit: Node,
+	movement: Node,
 	best_next: Vector2i
 ) -> void:
 	var hex_grid: Node = manager._hex_grid
-	var movement: Node = manager._get_movement(unit)
 	if hex_grid != null and is_instance_valid(hex_grid):
 		var hex_grid_api: Variant = hex_grid
 		var target_world: Vector2 = hex_grid_api.axial_to_world(best_next)

@@ -53,6 +53,7 @@ const PROBE_SCOPE_COMBAT_MANAGER_PROCESS: String = "combat_manager_process"
 @export var strict_snap_visual_step_duration_ratio: float = 0.75
 @export var shuffle_unit_order_each_tick: bool = true
 @export var block_teammate_cells_in_flow: bool = true
+@export var teammate_flow_weight_penalty: int = 3
 @export var allow_equal_cost_side_step: bool = true
 @export var allow_uphill_escape_step: bool = true
 @export var prioritize_targets_in_attack_range: bool = true
@@ -107,7 +108,9 @@ var _target_refresh_frame: Dictionary = {} # attacker_iid -> last reselection lo
 var _attack_range_target_memory: Dictionary = {} # attacker_iid -> same-frame in-range target iid or 0
 var _attack_range_target_frame: Dictionary = {} # attacker_iid -> logic_frame of in-range query result
 var _follow_anchor_by_unit_id: Dictionary = {} # unit_iid -> cached follow-anchor ally iid
+var _last_move_from_cell: Dictionary = {} # unit_iid -> previous occupied cell for side-step inertia
 var _move_replan_cooldown_frame: Dictionary = {} # unit_iid -> logic_frame until which move replanning is skipped
+var _side_step_cooldown_frame: Dictionary = {} # unit_iid -> logic_frame until which equal-cost side-step is disabled
 var _target_query_ids_scratch: Array[int] = []
 var _loop_animation_reduced: bool = false
 var _skip_runtime_cache_refresh_once: bool = false
@@ -141,6 +144,7 @@ var _metric_last_tick: Dictionary = {}
 # - _cell_occupancy: 格子 -> 单位
 var _cell_occupancy: Dictionary = {} # int(cell_key) -> int(unit_instance_id)
 var _unit_cell: Dictionary = {} # int(unit_instance_id) -> Vector2i
+var _neighbor_cells_cache: Dictionary = {} # int(cell_key) -> Array[Vector2i]
 var _static_blocked_cells: Dictionary = {} # int(cell_key) -> true（关卡静态阻挡）
 var _terrain_blocked_cells: Dictionary = {} # int(cell_key) -> true（临时地形阻挡）
 var _flow_force_rebuild: bool = false
@@ -193,6 +197,7 @@ func _process(delta: float) -> void:
 func configure_dependencies(hex_grid: Node, vfx_factory: Node) -> void:
 	_hex_grid = hex_grid
 	_vfx_factory = vfx_factory
+	_neighbor_cells_cache.clear()
 	_flow_force_rebuild = true
 	_apply_terrain_visuals()
 
@@ -493,6 +498,10 @@ func _get_effective_move_replan_cooldown_frames() -> int:
 		return split_phase_factor
 	return 0
 
+
+func _get_effective_side_step_cooldown_frames() -> int:
+	return 2 if split_attack_move_phase else 1
+
 # 注册一批单位并写入阵营与占格缓存。
 func _register_units(units: Array[Node], team_id: int) -> void:
 	_unit_registry_service.register_units(self, units, team_id)
@@ -643,13 +652,15 @@ func _build_blocked_cells_for_team(self_team: int) -> Dictionary:
 func _pick_best_adjacent_cell(
 	unit: Node,
 	current_cell: Vector2i,
-	attack_range_target: Node = null
+	attack_range_target: Node = null,
+	skip_equal_cost_side_step: bool = false
 ) -> Vector2i:
 	return _pathfinding.pick_best_adjacent_cell(
 		self,
 		unit,
 		current_cell,
-		attack_range_target
+		attack_range_target,
+		skip_equal_cost_side_step
 	)
 
 # 从起点开始寻找最近可用空格。

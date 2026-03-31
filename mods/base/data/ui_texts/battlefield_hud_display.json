@@ -41,14 +41,6 @@
       "external": "外功",
       "reflect": "反伤"
     },
-    "element_labels": {
-      "metal": "金",
-      "wood": "木",
-      "water": "水",
-      "fire": "火",
-      "earth": "土",
-      "none": "无属性"
-    },
     "status_labels": {
       "dead": "已阵亡",
       "in_combat": "战斗中",

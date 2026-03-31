@@ -166,6 +166,25 @@ func skill_requires_enemy_target(effects: Array) -> bool:
 	return false
 
 
+func skill_has_battlefield_side_effects(effects: Array) -> bool:
+	var side_effect_ops: Dictionary = {
+		"create_terrain": true,
+		"hazard_zone": true,
+		"summon_units": true,
+		"summon_clone": true
+	}
+
+	for effect_value in effects:
+		if not (effect_value is Dictionary):
+			continue
+		var effect: Dictionary = effect_value as Dictionary
+		var op: String = str(effect.get("op", "")).strip_edges()
+		if side_effect_ops.has(op):
+			return true
+
+	return false
+
+
 # 技能射程优先读技能自己的 `range`，未配置时才退回单位当前射程。
 # `default_range_cells` 是 facade 级保底值，避免配置缺省时出现 0 射程。
 # 这里不会读取普攻 AI 的寻敌半径，口径只看技能配置和 runtime stats。

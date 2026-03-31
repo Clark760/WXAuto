@@ -30,16 +30,36 @@ func poll_auto_triggers(manager: Node) -> void:
 	var state_service: Variant = manager.get_state_service()
 	var unit_states: Dictionary = state_service.get_unit_states()
 	var deep_probe_enabled: bool = bool(manager.get("deep_runtime_probe_enabled"))
-	_poll_passive_aura_triggers(manager, state_service, unit_states, deep_probe_enabled)
-	_poll_state_poll_triggers(manager, state_service, unit_states, deep_probe_enabled)
-	_poll_timed_poll_triggers(manager, state_service, unit_states, deep_probe_enabled)
+	var condition_context: Dictionary = _build_poll_condition_context(manager, state_service)
+	_poll_passive_aura_triggers(
+		manager,
+		state_service,
+		unit_states,
+		deep_probe_enabled,
+		condition_context
+	)
+	_poll_state_poll_triggers(
+		manager,
+		state_service,
+		unit_states,
+		deep_probe_enabled,
+		condition_context
+	)
+	_poll_timed_poll_triggers(
+		manager,
+		state_service,
+		unit_states,
+		deep_probe_enabled,
+		condition_context
+	)
 
 
 func _poll_passive_aura_triggers(
 	manager: Node,
 	state_service: Variant,
 	unit_states: Dictionary,
-	deep_probe_enabled: bool
+	deep_probe_enabled: bool,
+	condition_context: Dictionary
 ) -> void:
 	var battle_elapsed: float = manager.get_battle_runtime().get_battle_elapsed()
 	var aura_unit_ids: Array[int] = state_service.get_passive_aura_trigger_unit_ids()
@@ -82,7 +102,7 @@ func _poll_passive_aura_triggers(
 					continue
 				2:
 					continue
-			if not _poll_trigger_entry(manager, unit, entry, deep_probe_enabled):
+			if not _poll_trigger_entry(manager, unit, entry, deep_probe_enabled, condition_context):
 				keep_dirty = true
 		state_service.finalize_passive_aura_poll(iid, battle_elapsed, keep_dirty)
 
@@ -91,7 +111,8 @@ func _poll_state_poll_triggers(
 	manager: Node,
 	state_service: Variant,
 	unit_states: Dictionary,
-	deep_probe_enabled: bool
+	deep_probe_enabled: bool,
+	condition_context: Dictionary
 ) -> void:
 	var poll_unit_ids: Array[int] = state_service.get_state_poll_trigger_unit_ids()
 	var bucket_count: int = _resolve_poll_bucket_count(poll_unit_ids.size())
@@ -115,14 +136,21 @@ func _poll_state_poll_triggers(
 		for entry_value in poll_triggers:
 			if not (entry_value is Dictionary):
 				continue
-			_poll_trigger_entry(manager, unit, entry_value as Dictionary, deep_probe_enabled)
+			_poll_trigger_entry(
+				manager,
+				unit,
+				entry_value as Dictionary,
+				deep_probe_enabled,
+				condition_context
+			)
 
 
 func _poll_timed_poll_triggers(
 	manager: Node,
 	state_service: Variant,
 	unit_states: Dictionary,
-	deep_probe_enabled: bool
+	deep_probe_enabled: bool,
+	condition_context: Dictionary
 ) -> void:
 	var battle_elapsed: float = manager.get_battle_runtime().get_battle_elapsed()
 	var timed_unit_ids: Array[int] = state_service.get_timed_poll_trigger_unit_ids()
@@ -155,7 +183,7 @@ func _poll_timed_poll_triggers(
 			var entry: Dictionary = entry_value as Dictionary
 			if not _is_timed_trigger_due(entry, battle_elapsed):
 				continue
-			_poll_trigger_entry(manager, unit, entry, deep_probe_enabled)
+			_poll_trigger_entry(manager, unit, entry, deep_probe_enabled, condition_context)
 
 		state_service.refresh_timed_poll_state(iid)
 
@@ -164,7 +192,8 @@ func _poll_trigger_entry(
 	manager: Node,
 	unit: Node,
 	entry: Dictionary,
-	deep_probe_enabled: bool
+	deep_probe_enabled: bool,
+	condition_context: Dictionary = {}
 ) -> bool:
 	var probe_scope_name: String = ""
 	var probe_begin_us: int = 0
@@ -175,7 +204,7 @@ func _poll_trigger_entry(
 			probe_begin_us = _probe_begin_timing(manager)
 	var fired: bool = false
 	entry.erase(ENTRY_META_TRY_FIRE_STATUS)
-	if can_trigger_entry(manager, unit, entry, {}):
+	if can_trigger_entry(manager, unit, entry, condition_context):
 		fired = try_fire_skill(manager, unit, entry, {})
 	var try_fire_status: String = str(entry.get(ENTRY_META_TRY_FIRE_STATUS, "")).strip_edges()
 	entry.erase(ENTRY_META_TRY_FIRE_STATUS)
@@ -184,6 +213,45 @@ func _poll_trigger_entry(
 	if not probe_scope_name.is_empty():
 		_probe_commit_timing(manager, probe_scope_name, probe_begin_us)
 	return fired
+
+
+func _build_poll_condition_context(manager: Node, state_service: Variant) -> Dictionary:
+	var battle_units: Array = state_service.get_battle_units()
+	var alive_by_team: Dictionary = _resolve_alive_by_team_snapshot(manager, state_service, battle_units)
+	return {
+		"_ua_battle_units": battle_units,
+		"_ua_alive_by_team": alive_by_team,
+		"_ua_enemy_nearby_cache": {}
+	}
+
+
+func _resolve_alive_by_team_snapshot(
+	manager: Node,
+	state_service: Variant,
+	battle_units: Array
+) -> Dictionary:
+	var battle_runtime: Variant = manager.get_battle_runtime()
+	var combat_manager: Node = battle_runtime.get_bound_combat_manager()
+	if (
+		combat_manager != null
+		and is_instance_valid(combat_manager)
+		and combat_manager.has_method("get_team_alive_count")
+	):
+		return {
+			1: int(combat_manager.get_team_alive_count(1)),
+			2: int(combat_manager.get_team_alive_count(2))
+		}
+
+	var alive_by_team: Dictionary = {1: 0, 2: 0}
+	for unit_value in battle_units:
+		var unit: Node = unit_value as Node
+		if unit == null or not is_instance_valid(unit):
+			continue
+		if not state_service.is_unit_alive(unit):
+			continue
+		var team_id: int = int(unit.get("team_id"))
+		alive_by_team[team_id] = int(alive_by_team.get(team_id, 0)) + 1
+	return alive_by_team
 
 
 # 全体广播型 trigger 只遍历 battle units，不直接扫场景树。

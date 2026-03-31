@@ -32,6 +32,18 @@ const state = {
     staticItems: [],
     onPick: null,
   },
+  validation: {
+    issues: [],
+    byPath: {},
+    descendantCounts: {},
+  },
+  collapsedFields: {},
+  history: {
+    past: [],
+    future: [],
+    limit: 20,
+  },
+  autocompleteSeed: 0,
 };
 
 const BUILTIN_TRIGGER_LABELS = {
@@ -78,6 +90,8 @@ const BUILTIN_EFFECT_OP_LABELS = {
   stat_percent: "属性·百分比增益",
   conditional_stat: "属性·条件增益",
   mp_regen_add: "资源·内力恢复",
+  mp_gain_on_attack: "资源·普攻回蓝",
+  mp_gain_on_hit: "资源·受击回蓝",
   hp_regen_add: "资源·生命恢复",
   damage_reduce_flat: "防御·固定减伤",
   damage_reduce_percent: "防御·百分比减伤",
@@ -302,6 +316,8 @@ const EFFECT_PARAM_HINTS = {
     threshold: "条件阈值。",
   },
   mp_regen_add: { value: "被动时为每秒回蓝；主动时为立即回蓝量。" },
+  mp_gain_on_attack: { value: "每次普攻命中后额外获得的内力量。" },
+  mp_gain_on_hit: { value: "每次受到伤害后额外获得的内力量。" },
   hp_regen_add: { value: "每秒回血量。" },
   damage_reduce_flat: { value: "固定减伤值。" },
   damage_reduce_percent: { value: "百分比减伤，填 0~1。" },
@@ -549,6 +565,8 @@ const el = {
   categorySelect: document.getElementById("categorySelect"),
   fileSelect: document.getElementById("fileSelect"),
   saveBtn: document.getElementById("saveBtn"),
+  undoBtn: document.getElementById("undoBtn"),
+  redoBtn: document.getElementById("redoBtn"),
   reloadBtn: document.getElementById("reloadBtn"),
   newFileBtn: document.getElementById("newFileBtn"),
   deleteFileBtn: document.getElementById("deleteFileBtn"),
@@ -611,6 +629,90 @@ function escapeHtml(text) {
 function updateDirty(dirty) {
   state.dirty = dirty;
   el.saveBtn.textContent = dirty ? "保存数据 *" : "保存数据";
+}
+
+function updateUndoRedoButtons() {
+  if (el.undoBtn) {
+    el.undoBtn.disabled = state.history.past.length === 0;
+  }
+  if (el.redoBtn) {
+    el.redoBtn.disabled = state.history.future.length === 0;
+  }
+}
+
+function resetEditorTransientState() {
+  state.validation.issues = [];
+  state.validation.byPath = {};
+  state.validation.descendantCounts = {};
+  state.collapsedFields = {};
+}
+
+function resetDocumentHistory() {
+  state.history.past = [];
+  state.history.future = [];
+  updateUndoRedoButtons();
+}
+
+function applyDocumentSnapshot(nextDocument, { preserveFocus = false, markDirty = true } = {}) {
+  state.document = nextDocument;
+  state.rootIsArray = Array.isArray(nextDocument);
+  if (state.rootIsArray && Array.isArray(state.document)) {
+    state.selectedIndex = Math.max(0, Math.min(state.selectedIndex, state.document.length - 1));
+  } else {
+    state.selectedIndex = 0;
+  }
+  updateDirty(markDirty);
+  if (preserveFocus) {
+    renderPreservingEditorFocus();
+  } else {
+    render();
+  }
+}
+
+function commitDocumentChange(nextDocument, { preserveFocus = true } = {}) {
+  if (state.document != null) {
+    state.history.past.push(deepClone(state.document));
+    if (state.history.past.length > state.history.limit) {
+      state.history.past.shift();
+    }
+  }
+  state.history.future = [];
+  applyDocumentSnapshot(nextDocument, { preserveFocus, markDirty: true });
+  updateUndoRedoButtons();
+}
+
+function undoDocumentChange() {
+  if (state.history.past.length === 0) {
+    setStatus("没有可撤销的操作。", true);
+    return;
+  }
+  if (state.document != null) {
+    state.history.future.push(deepClone(state.document));
+    if (state.history.future.length > state.history.limit) {
+      state.history.future.shift();
+    }
+  }
+  const previous = state.history.past.pop();
+  applyDocumentSnapshot(deepClone(previous), { preserveFocus: false, markDirty: true });
+  updateUndoRedoButtons();
+  setStatus("已撤销。");
+}
+
+function redoDocumentChange() {
+  if (state.history.future.length === 0) {
+    setStatus("没有可重做的操作。", true);
+    return;
+  }
+  if (state.document != null) {
+    state.history.past.push(deepClone(state.document));
+    if (state.history.past.length > state.history.limit) {
+      state.history.past.shift();
+    }
+  }
+  const next = state.history.future.pop();
+  applyDocumentSnapshot(deepClone(next), { preserveFocus: false, markDirty: true });
+  updateUndoRedoButtons();
+  setStatus("已重做。");
 }
 
 async function apiGet(url) {
@@ -765,6 +867,30 @@ function createNode(tag, className = "", text = "") {
   return node;
 }
 
+function encodePathSegmentForKey(segment) {
+  return encodeURIComponent(String(segment == null ? "" : segment));
+}
+
+function focusPathKey(focusPath) {
+  if (!Array.isArray(focusPath) || focusPath.length === 0) return "";
+  return focusPath.map(encodePathSegmentForKey).join("/");
+}
+
+function focusPathDisplay(focusPath) {
+  if (!Array.isArray(focusPath) || focusPath.length === 0) return "$root";
+  const [head, ...rest] = focusPath;
+  let text = String(head || "$root");
+  for (const segment of rest) {
+    const part = String(segment || "");
+    if (/^\[\d+\]$/.test(part)) {
+      text += part;
+    } else {
+      text += `.${part}`;
+    }
+  }
+  return text;
+}
+
 function encodeFocusSegment(segment) {
   return encodeURIComponent(String(segment == null ? "" : segment));
 }
@@ -858,6 +984,180 @@ function normalizePathSegment(segment) {
   if (text === "[]") return "[]";
   if (/^\[\d+\]$/.test(text)) return "[]";
   return text;
+}
+
+function isFieldCollapsed(focusPath) {
+  const key = focusPathKey(focusPath);
+  if (!key) return false;
+  return Boolean(state.collapsedFields[key]);
+}
+
+function toggleFieldCollapse(focusPath) {
+  const key = focusPathKey(focusPath);
+  if (!key) return;
+  if (state.collapsedFields[key]) {
+    delete state.collapsedFields[key];
+  } else {
+    state.collapsedFields[key] = true;
+  }
+}
+
+function addValidationIssue(issues, focusPath, message) {
+  issues.push({
+    path: focusPathDisplay(focusPath),
+    pathKey: focusPathKey(focusPath),
+    focusPath: focusPath.slice(),
+    message: String(message || "").trim(),
+  });
+}
+
+function isSchemaTypeMatch(value, expectedType) {
+  if (expectedType === "null") return value === null;
+  if (expectedType === "object") return isObject(value);
+  if (expectedType === "array") return Array.isArray(value);
+  if (expectedType === "boolean") return typeof value === "boolean";
+  if (expectedType === "integer") return typeof value === "number" && Number.isInteger(value);
+  if (expectedType === "number") return typeof value === "number" && Number.isFinite(value);
+  if (expectedType === "string") return typeof value === "string";
+  return false;
+}
+
+function schemaTypeLabel(value) {
+  if (value === null) return "null";
+  if (Array.isArray(value)) return "array";
+  if (isObject(value)) return "object";
+  return typeof value;
+}
+
+function validateRequired(value, rawSchema, rootSchema, focusPath = ["$root"], issues = []) {
+  const schema = effectiveSchema(rawSchema, rootSchema);
+  const types = schemaTypes(schema);
+
+  if (types.length > 0) {
+    const matched = types.some((typeName) => isSchemaTypeMatch(value, typeName));
+    if (!matched) {
+      addValidationIssue(
+        issues,
+        focusPath,
+        `类型不匹配，期望 ${types.join("|")}，实际 ${schemaTypeLabel(value)}`
+      );
+      return issues;
+    }
+  }
+
+  if (Array.isArray(schema.enum) && schema.enum.length > 0) {
+    const enumMatch = schema.enum.some((x) => JSON.stringify(x) === JSON.stringify(value));
+    if (!enumMatch) {
+      addValidationIssue(issues, focusPath, `值不在 enum 允许列表内`);
+    }
+  }
+
+  if (typeof value === "string") {
+    if (typeof schema.minLength === "number" && value.length < schema.minLength) {
+      addValidationIssue(issues, focusPath, `长度不能小于 ${schema.minLength}`);
+    }
+    if (typeof schema.maxLength === "number" && value.length > schema.maxLength) {
+      addValidationIssue(issues, focusPath, `长度不能大于 ${schema.maxLength}`);
+    }
+    if (typeof schema.pattern === "string" && schema.pattern.trim()) {
+      try {
+        const re = new RegExp(schema.pattern);
+        if (!re.test(value)) {
+          addValidationIssue(issues, focusPath, `不符合 pattern: ${schema.pattern}`);
+        }
+      } catch (_err) {
+        // Ignore invalid patterns in schema.
+      }
+    }
+  }
+
+  if (typeof value === "number" && Number.isFinite(value)) {
+    if (typeof schema.minimum === "number" && value < schema.minimum) {
+      addValidationIssue(issues, focusPath, `值不能小于 ${schema.minimum}`);
+    }
+    if (typeof schema.maximum === "number" && value > schema.maximum) {
+      addValidationIssue(issues, focusPath, `值不能大于 ${schema.maximum}`);
+    }
+    if (typeof schema.exclusiveMinimum === "number" && value <= schema.exclusiveMinimum) {
+      addValidationIssue(issues, focusPath, `值必须大于 ${schema.exclusiveMinimum}`);
+    }
+    if (typeof schema.exclusiveMaximum === "number" && value >= schema.exclusiveMaximum) {
+      addValidationIssue(issues, focusPath, `值必须小于 ${schema.exclusiveMaximum}`);
+    }
+  }
+
+  if (Array.isArray(value)) {
+    if (typeof schema.minItems === "number" && value.length < schema.minItems) {
+      addValidationIssue(issues, focusPath, `数组长度不能小于 ${schema.minItems}`);
+    }
+    if (typeof schema.maxItems === "number" && value.length > schema.maxItems) {
+      addValidationIssue(issues, focusPath, `数组长度不能大于 ${schema.maxItems}`);
+    }
+    const itemSchema = schema.items || {};
+    value.forEach((item, i) => validateRequired(item, itemSchema, rootSchema, [...focusPath, `[${i}]`], issues));
+    return issues;
+  }
+
+  if (isObject(value)) {
+    const required = Array.isArray(schema.required) ? schema.required : [];
+    for (const key of required) {
+      if (!Object.prototype.hasOwnProperty.call(value, key)) {
+        addValidationIssue(issues, [...focusPath, key], "缺少必填字段（当前未写入文件）");
+      }
+    }
+
+    const props = schema.properties || {};
+    for (const [key, child] of Object.entries(value)) {
+      if (Object.prototype.hasOwnProperty.call(props, key)) {
+        validateRequired(child, props[key], rootSchema, [...focusPath, key], issues);
+        continue;
+      }
+      if (schema.additionalProperties === false) {
+        addValidationIssue(issues, [...focusPath, key], "不允许的额外字段");
+        continue;
+      }
+      if (isObject(schema.additionalProperties)) {
+        validateRequired(child, schema.additionalProperties, rootSchema, [...focusPath, key], issues);
+      }
+    }
+  }
+
+  return issues;
+}
+
+function rebuildValidationState(rootSchema) {
+  const issues = validateRequired(state.document, rootSchema, rootSchema, ["$root"], []);
+  const byPath = {};
+  const descendantCounts = {};
+
+  for (const issue of issues) {
+    const key = issue.pathKey;
+    if (!key) continue;
+    if (!Array.isArray(byPath[key])) byPath[key] = [];
+    byPath[key].push(issue.message);
+
+    const segs = key.split("/");
+    for (let i = 1; i <= segs.length; i += 1) {
+      const prefix = segs.slice(0, i).join("/");
+      descendantCounts[prefix] = (descendantCounts[prefix] || 0) + 1;
+    }
+  }
+
+  state.validation.issues = issues;
+  state.validation.byPath = byPath;
+  state.validation.descendantCounts = descendantCounts;
+}
+
+function validationMessagesForPath(focusPath) {
+  const key = focusPathKey(focusPath);
+  if (!key) return [];
+  return Array.isArray(state.validation.byPath[key]) ? state.validation.byPath[key] : [];
+}
+
+function validationIssueCountForPath(focusPath) {
+  const key = focusPathKey(focusPath);
+  if (!key) return 0;
+  return Number(state.validation.descendantCounts[key] || 0);
 }
 
 function inferReferenceKind(pathSegments, currentCategory) {
@@ -1275,45 +1575,10 @@ function contextualFieldHint({ keyName, path, contextEffectOp, contextTriggerId 
   return "";
 }
 
-function validateRequired(value, rawSchema, rootSchema, path = "$") {
-  const issues = [];
-  const schema = effectiveSchema(rawSchema, rootSchema);
-  const types = schemaTypes(schema);
-
-  if (value === null) {
-    if (!types.includes("null")) issues.push(`${path}: 不允许为 null`);
-    return issues;
-  }
-
-  if (types.includes("object") && isObject(value)) {
-    const required = Array.isArray(schema.required) ? schema.required : [];
-    for (const key of required) {
-      if (!Object.prototype.hasOwnProperty.call(value, key)) issues.push(`${path}.${key}: 必填`);
-    }
-    const props = schema.properties || {};
-    for (const [key, child] of Object.entries(value)) {
-      if (props[key]) {
-        issues.push(...validateRequired(child, props[key], rootSchema, `${path}.${key}`));
-      } else if (isObject(schema.additionalProperties)) {
-        issues.push(...validateRequired(child, schema.additionalProperties, rootSchema, `${path}.${key}`));
-      }
-    }
-  }
-  if (types.includes("array") && Array.isArray(value)) {
-    const itemSchema = schema.items || {};
-    value.forEach((item, i) => issues.push(...validateRequired(item, itemSchema, rootSchema, `${path}[${i}]`)));
-  }
-  return issues;
-}
-
 function applyRawToDocument() {
   try {
     const parsed = JSON.parse(el.rawEditor.value);
-    state.document = parsed;
-    state.rootIsArray = Array.isArray(parsed);
-    state.selectedIndex = 0;
-    updateDirty(true);
-    render();
+    commitDocumentChange(parsed, { preserveFocus: false });
     setStatus("已应用 JSON 到表单。");
   } catch (err) {
     setStatus(`JSON 解析失败: ${err.message}`, true);
@@ -1451,10 +1716,18 @@ function renderEditorPanel() {
   }
 
   const rootSchema = docRootSchema();
-  const issues = validateRequired(state.document, rootSchema, rootSchema);
-  if (issues.length > 0) {
-    const box = createNode("div", "validation");
-    box.textContent = `必填校验提醒（仅提示，不会阻止保存）:\n${issues.join("\n")}`;
+  rebuildValidationState(rootSchema);
+  const issueCount = state.validation.issues.length;
+  if (issueCount > 0) {
+    const box = createNode("div", "validation-summary");
+    const preview = state.validation.issues
+      .slice(0, 4)
+      .map((issue) => `${issue.path}：${issue.message}`)
+      .join("\n");
+    box.textContent =
+      issueCount > 4
+        ? `当前存在 ${issueCount} 个校验问题，请优先修正红色字段。\n${preview}\n...`
+        : `当前存在 ${issueCount} 个校验问题，请优先修正红色字段。\n${preview}`;
     el.formTab.appendChild(box);
   }
 
@@ -1475,9 +1748,9 @@ function renderEditorPanel() {
       rootSchema,
       required: true,
       onChange: (next) => {
-        state.document[state.selectedIndex] = next;
-        updateDirty(true);
-        renderPreservingEditorFocus();
+        const clone = Array.isArray(state.document) ? state.document.slice() : [];
+        clone[state.selectedIndex] = next;
+        commitDocumentChange(clone, { preserveFocus: true });
       },
     });
     el.formTab.appendChild(field);
@@ -1493,9 +1766,7 @@ function renderEditorPanel() {
     rootSchema,
     required: true,
     onChange: (next) => {
-      state.document = next;
-      updateDirty(true);
-      renderPreservingEditorFocus();
+      commitDocumentChange(next, { preserveFocus: true });
     },
   });
   el.formTab.appendChild(field);
@@ -1508,6 +1779,7 @@ function render() {
   renderEditorPanel();
   renderRawEditor();
   renderReferenceModal();
+  updateUndoRedoButtons();
 }
 
 function openReferencePicker(kind, title, onPick) {
@@ -1641,6 +1913,105 @@ async function fetchReferencePage() {
   }
 }
 
+function bindStringInputEvents(input, onChange) {
+  let composing = false;
+  let lastEmittedValue = input.value;
+  const emitIfChanged = () => {
+    const nextValue = input.value;
+    if (nextValue === lastEmittedValue) return;
+    lastEmittedValue = nextValue;
+    onChange(nextValue);
+  };
+  input.addEventListener("compositionstart", () => {
+    composing = true;
+  });
+  input.addEventListener("compositionend", () => {
+    composing = false;
+    emitIfChanged();
+  });
+  input.addEventListener("input", (ev) => {
+    if (composing || ev.isComposing) return;
+    emitIfChanged();
+  });
+}
+
+function nextAutocompleteListId() {
+  state.autocompleteSeed += 1;
+  return `ref_autocomplete_${state.autocompleteSeed}`;
+}
+
+function renderAutocompleteList(datalist, rows) {
+  datalist.innerHTML = "";
+  rows.slice(0, 40).forEach((row) => {
+    const option = document.createElement("option");
+    option.value = String(row.id || "");
+    const name = String(row.name || "").trim();
+    const mod = String(row.mod || "").trim();
+    option.label = [name, mod].filter((x) => x.length > 0).join(" | ");
+    datalist.appendChild(option);
+  });
+}
+
+async function fetchReferenceRowsForAutocomplete(kind, query) {
+  if (!state.selectedMod || !kind) return [];
+  const q = String(query || "").trim().toLowerCase();
+  if (kind === "trigger" || kind === "effect_op") {
+    const rows = Array.isArray(state.referenceCache[kind]) ? state.referenceCache[kind] : [];
+    if (!q) return rows.slice(0, 40);
+    return rows
+      .filter((row) => {
+        const id = String(row.id || "").toLowerCase();
+        const name = String(row.name || "").toLowerCase();
+        return id.includes(q) || name.includes(q);
+      })
+      .slice(0, 40);
+  }
+
+  try {
+    const resp = await apiGet(
+      `/api/references?mod=${encodeURIComponent(state.selectedMod)}` +
+        `&kind=${encodeURIComponent(kind)}` +
+        `&scope=before_and_self` +
+        `&q=${encodeURIComponent(q)}` +
+        `&page=1&page_size=40`
+    );
+    return Array.isArray(resp.items) ? resp.items : [];
+  } catch (_err) {
+    return [];
+  }
+}
+
+function attachReferenceAutocomplete(input, datalist, kind) {
+  let timer = null;
+  let requestSeq = 0;
+
+  const run = async (query) => {
+    requestSeq += 1;
+    const currentSeq = requestSeq;
+    const rows = await fetchReferenceRowsForAutocomplete(kind, query);
+    if (currentSeq !== requestSeq) return;
+    if (!input.isConnected || !datalist.isConnected) return;
+    renderAutocompleteList(datalist, rows);
+  };
+
+  const schedule = (immediate = false) => {
+    if (timer) {
+      window.clearTimeout(timer);
+      timer = null;
+    }
+    if (immediate) {
+      run(input.value);
+      return;
+    }
+    timer = window.setTimeout(() => {
+      run(input.value);
+    }, 180);
+  };
+
+  input.addEventListener("focus", () => schedule(true));
+  input.addEventListener("input", () => schedule(false));
+}
+
 function primitiveInput({ value, schema, rootSchema, path, focusPath = [], onChange, contextTriggerId = "", contextEffectOp = "" }) {
   const node = createNode("div");
   const schemaTypeList = schemaTypes(schema);
@@ -1671,31 +2042,21 @@ function primitiveInput({ value, schema, rootSchema, path, focusPath = [], onCha
     if (value === null) return node;
   }
 
-  if ((refKind === "trigger" || refKind === "effect_op") && activeType === "string") {
+  if (refKind && activeType === "string") {
     const wrap = createNode("div", "inline-ref");
-    const options = state.referenceCache[refKind] || [];
-    const select = document.createElement("select");
-    attachFocusKey(select, focusPath, "select");
-    const currentValue = String(value == null ? "" : value);
-    const hasCurrent = options.some((row) => String(row.id || "") === currentValue);
+    const input = document.createElement("input");
+    input.type = "text";
+    input.value = value == null ? "" : String(value);
+    attachFocusKey(input, focusPath, "input");
+    const listId = nextAutocompleteListId();
+    input.setAttribute("list", listId);
+    bindStringInputEvents(input, onChange);
+    wrap.appendChild(input);
 
-    if (!hasCurrent) {
-      const currentOption = document.createElement("option");
-      currentOption.value = currentValue;
-      currentOption.textContent = currentValue || "(空)";
-      currentOption.selected = true;
-      select.appendChild(currentOption);
-    }
-    options.forEach((row) => {
-      const op = document.createElement("option");
-      op.value = String(row.id || "");
-      const label = String(row.name || row.id || "");
-      op.textContent = label && label !== String(row.id || "") ? String(row.id || "") + " | " + label : String(row.id || "");
-      if (String(row.id || "") === currentValue) op.selected = true;
-      select.appendChild(op);
-    });
-    select.addEventListener("change", () => onChange(select.value));
-    wrap.appendChild(select);
+    const list = document.createElement("datalist");
+    list.id = listId;
+    wrap.appendChild(list);
+    attachReferenceAutocomplete(input, list, refKind);
 
     const btn = createNode("button", "", "列表选择");
     btn.type = "button";
@@ -1704,6 +2065,7 @@ function primitiveInput({ value, schema, rootSchema, path, focusPath = [], onCha
     });
     wrap.appendChild(btn);
     node.appendChild(wrap);
+    node.appendChild(createNode("div", "muted autocomplete-tip", "支持输入关键字自动补全（防抖搜索）。"));
     return node;
   }
 
@@ -1721,14 +2083,6 @@ function primitiveInput({ value, schema, rootSchema, path, focusPath = [], onCha
     select.addEventListener("change", () => onChange(select.value));
     wrap.appendChild(select);
 
-    if (refKind && refKind !== "trigger" && refKind !== "effect_op") {
-      const btn = createNode("button", "", "列表选择");
-      btn.type = "button";
-      btn.addEventListener("click", () => {
-        openReferencePicker(refKind, refKind + " 引用选择", (pickedId) => onChange(String(pickedId)));
-      });
-      wrap.appendChild(btn);
-    }
     node.appendChild(wrap);
     return node;
   }
@@ -1803,35 +2157,8 @@ function primitiveInput({ value, schema, rootSchema, path, focusPath = [], onCha
   input.type = "text";
   attachFocusKey(input, focusPath, "input");
   input.value = value == null ? "" : String(value);
-  let composing = false;
-  let lastEmittedValue = input.value;
-  const emitIfChanged = () => {
-    const nextValue = input.value;
-    if (nextValue === lastEmittedValue) return;
-    lastEmittedValue = nextValue;
-    onChange(nextValue);
-  };
-  input.addEventListener("compositionstart", () => {
-    composing = true;
-  });
-  input.addEventListener("compositionend", () => {
-    composing = false;
-    emitIfChanged();
-  });
-  input.addEventListener("input", (ev) => {
-    if (composing || ev.isComposing) return;
-    emitIfChanged();
-  });
+  bindStringInputEvents(input, onChange);
   wrap.appendChild(input);
-
-  if (refKind && refKind !== "trigger" && refKind !== "effect_op") {
-    const btn = createNode("button", "", "列表选择");
-    btn.type = "button";
-    btn.addEventListener("click", () => {
-      openReferencePicker(refKind, refKind + " 引用选择", (pickedId) => onChange(String(pickedId)));
-    });
-    wrap.appendChild(btn);
-  }
   node.appendChild(wrap);
   return node;
 }
@@ -1853,6 +2180,11 @@ function buildFieldNode({
   const typeList = schemaTypes(schema);
   const types = typeList.length > 0 ? typeList : inferTypesFromValue(value);
   const node = createNode("div", "field");
+  const ownIssues = Array.from(new Set(validationMessagesForPath(focusPath)));
+  const issueCount = validationIssueCountForPath(focusPath);
+  const collapsible = types.includes("object") || types.includes("array");
+  const collapsed = collapsible && isFieldCollapsed(focusPath);
+  if (ownIssues.length > 0) node.classList.add("has-error");
 
   const label = createNode("div", "label");
   label.appendChild(createNode("span", "", keyName));
@@ -1860,6 +2192,18 @@ function buildFieldNode({
   if (schema.type) {
     const t = Array.isArray(schema.type) ? schema.type.join("|") : schema.type;
     label.appendChild(createNode("span", "badge", t));
+  }
+  if (issueCount > 0) {
+    label.appendChild(createNode("span", "field-warning", `⚠${issueCount}`));
+  }
+  if (collapsible) {
+    const toggleBtn = createNode("button", "collapse-toggle", collapsed ? "展开" : "折叠");
+    toggleBtn.type = "button";
+    toggleBtn.addEventListener("click", () => {
+      toggleFieldCollapse(focusPath);
+      renderPreservingEditorFocus();
+    });
+    label.appendChild(toggleBtn);
   }
   node.appendChild(label);
 
@@ -1874,7 +2218,15 @@ function buildFieldNode({
   if (hintText && hintText !== schema.description) descParts.push(hintText);
   if (descParts.length > 0) node.appendChild(createNode("div", "muted", descParts.join(" | ")));
 
-  if (types.includes("object")) {
+  if (collapsed) {
+    if (types.includes("array")) {
+      const size = Array.isArray(value) ? value.length : 0;
+      node.appendChild(createNode("div", "collapsed-note", `数组已折叠（${size} 项）`));
+    } else if (types.includes("object")) {
+      const keys = isObject(value) ? Object.keys(value).length : 0;
+      node.appendChild(createNode("div", "collapsed-note", `对象已折叠（${keys} 个字段）`));
+    }
+  } else if (types.includes("object")) {
     node.appendChild(
       objectEditor({
         value: isObject(value) ? value : {},
@@ -1888,10 +2240,7 @@ function buildFieldNode({
         contextEffectOp,
       })
     );
-    return node;
-  }
-
-  if (types.includes("array")) {
+  } else if (types.includes("array")) {
     node.appendChild(
       arrayEditor({
         value: Array.isArray(value) ? value : [],
@@ -1905,21 +2254,24 @@ function buildFieldNode({
         contextEffectOp,
       })
     );
-    return node;
+  } else {
+    node.appendChild(
+      primitiveInput({
+        value,
+        schema,
+        rootSchema,
+        path,
+        focusPath,
+        onChange,
+        contextTriggerId,
+        contextEffectOp,
+      })
+    );
   }
 
-  node.appendChild(
-    primitiveInput({
-      value,
-      schema,
-      rootSchema,
-      path,
-      focusPath,
-      onChange,
-      contextTriggerId,
-      contextEffectOp,
-    })
-  );
+  if (ownIssues.length > 0) {
+    node.appendChild(createNode("div", "field-error-text", ownIssues.join("\n")));
+  }
   return node;
 }
 
@@ -2097,6 +2449,11 @@ function objectEditor({
 
       if (isUnderEffectTree(path)) {
         setStatus("该位置字段受特效定义约束，请先选择 op，并从固定参数列表添加。", true);
+        return;
+      }
+
+      if (!isObject(additionalSchema)) {
+        setStatus("该对象不允许自由新增字段，请按 Schema 或固定参数列表填写。", true);
         return;
       }
 
@@ -2359,6 +2716,8 @@ async function reloadAll() {
     await loadBootstrap();
     await loadFilesForSelection();
     await Promise.all([loadSchemaAndDocument(), loadManifest(), refreshReferenceCache()]);
+    resetEditorTransientState();
+    resetDocumentHistory();
     updateDirty(false);
     render();
     setStatus("加载完成。");
@@ -2373,6 +2732,8 @@ async function onModChanged() {
     state.effectParamCache = {};
     await loadFilesForSelection();
     await Promise.all([loadSchemaAndDocument(), loadManifest(), refreshReferenceCache()]);
+    resetEditorTransientState();
+    resetDocumentHistory();
     updateDirty(false);
     render();
     setStatus("已切换 Mod。");
@@ -2386,6 +2747,8 @@ async function onCategoryChanged() {
     state.selectedCategory = el.categorySelect.value;
     await loadFilesForSelection();
     await loadSchemaAndDocument();
+    resetEditorTransientState();
+    resetDocumentHistory();
     updateDirty(false);
     render();
     setStatus("已切换分类。");
@@ -2398,6 +2761,8 @@ async function onFileChanged() {
   try {
     state.selectedFile = el.fileSelect.value;
     await loadSchemaAndDocument();
+    resetEditorTransientState();
+    resetDocumentHistory();
     updateDirty(false);
     render();
     setStatus("已切换文件。");
@@ -2463,6 +2828,8 @@ async function onConfirmNewFileDialog() {
     state.selectedFile = fileName;
     await loadFilesForSelection();
     await loadSchemaAndDocument();
+    resetEditorTransientState();
+    resetDocumentHistory();
     updateDirty(false);
     render();
     setStatus(`已创建文件: ${fileName}`);
@@ -2489,6 +2856,8 @@ async function onDeleteFile() {
     });
     await loadFilesForSelection();
     await loadSchemaAndDocument();
+    resetEditorTransientState();
+    resetDocumentHistory();
     updateDirty(false);
     render();
     setStatus(`已删除文件: ${fileName}`);
@@ -2522,6 +2891,12 @@ async function onSaveManifest() {
 function bindEvents() {
   el.reloadBtn.addEventListener("click", reloadAll);
   el.saveBtn.addEventListener("click", onSaveDocument);
+  if (el.undoBtn) {
+    el.undoBtn.addEventListener("click", undoDocumentChange);
+  }
+  if (el.redoBtn) {
+    el.redoBtn.addEventListener("click", redoDocumentChange);
+  }
   el.modSelect.addEventListener("change", onModChanged);
   el.categorySelect.addEventListener("change", onCategoryChanged);
   el.fileSelect.addEventListener("change", onFileChanged);
@@ -2567,27 +2942,27 @@ function bindEvents() {
 
   el.addItemBtn.addEventListener("click", () => {
     if (!Array.isArray(state.document)) return;
-    state.document.push(defaultValueForSchema(state.schema, state.schema));
-    state.selectedIndex = state.document.length - 1;
-    updateDirty(true);
-    render();
+    const clone = state.document.slice();
+    clone.push(defaultValueForSchema(state.schema, state.schema));
+    state.selectedIndex = clone.length - 1;
+    commitDocumentChange(clone, { preserveFocus: false });
   });
   el.cloneItemBtn.addEventListener("click", () => {
     if (!Array.isArray(state.document) || state.document.length === 0) return;
     const src = state.document[state.selectedIndex] ?? state.document[0];
-    state.document.splice(state.selectedIndex + 1, 0, deepClone(src));
+    const clone = state.document.slice();
+    clone.splice(state.selectedIndex + 1, 0, deepClone(src));
     state.selectedIndex += 1;
-    updateDirty(true);
-    render();
+    commitDocumentChange(clone, { preserveFocus: false });
   });
   el.removeItemBtn.addEventListener("click", () => {
     if (!Array.isArray(state.document) || state.document.length === 0) return;
     const ok = window.confirm(`确定删除当前条目 #${state.selectedIndex} ?`);
     if (!ok) return;
-    state.document.splice(state.selectedIndex, 1);
-    state.selectedIndex = Math.max(0, Math.min(state.selectedIndex, state.document.length - 1));
-    updateDirty(true);
-    render();
+    const clone = state.document.slice();
+    clone.splice(state.selectedIndex, 1);
+    state.selectedIndex = Math.max(0, Math.min(state.selectedIndex, clone.length - 1));
+    commitDocumentChange(clone, { preserveFocus: false });
   });
   el.itemList.addEventListener("click", (ev) => {
     const target = ev.target;
@@ -2650,6 +3025,26 @@ function bindEvents() {
   });
   el.refPickerMask.addEventListener("click", (ev) => {
     if (ev.target === el.refPickerMask) closeReferencePicker();
+  });
+
+  window.addEventListener("keydown", (ev) => {
+    const key = String(ev.key || "").toLowerCase();
+    const ctrlLike = ev.ctrlKey || ev.metaKey;
+    if (!ctrlLike) return;
+    if (key === "z" && ev.shiftKey) {
+      ev.preventDefault();
+      redoDocumentChange();
+      return;
+    }
+    if (key === "z") {
+      ev.preventDefault();
+      undoDocumentChange();
+      return;
+    }
+    if (key === "y") {
+      ev.preventDefault();
+      redoDocumentChange();
+    }
   });
 
   window.addEventListener("beforeunload", (ev) => {

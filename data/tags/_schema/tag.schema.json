@@ -22,5 +22,5 @@
       "minLength": 1
     }
   },
-  "additionalProperties": true
+  "additionalProperties": false
 }

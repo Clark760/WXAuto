@@ -89,7 +89,8 @@ func _run() -> void:
 		_runtime_probe.reset()
 	var started: bool = false
 	if _coordinator != null and _coordinator.has_method("start_battle_from_session"):
-		started = bool(_coordinator.call("start_battle_from_session", STRESS_SEED, false))
+		var coordinator_api: Variant = _coordinator
+		started = bool(await coordinator_api.start_battle_from_session(STRESS_SEED, false))
 	if not started:
 		await _abort("BattlefieldCoordinator failed to start 50v200 stress battle.")
 		return
@@ -230,7 +231,7 @@ func _deploy_stress_units() -> bool:
 
 	for ally_index in range(ALLY_COUNT):
 		var ally_unit_id: String = ally_unit_ids[ally_index]
-		var ally_unit: Node = _unit_factory.call("acquire_unit", ally_unit_id, 1, unit_layer)
+		var ally_unit: Node = _unit_factory.call("acquire_unit", ally_unit_id, unit_layer)
 		if ally_unit == null:
 			push_error("Acquire ally unit failed: %s" % ally_unit_id)
 			return false
@@ -238,7 +239,7 @@ func _deploy_stress_units() -> bool:
 
 	for enemy_index in range(ENEMY_COUNT):
 		var enemy_unit_id: String = enemy_unit_ids[enemy_index]
-		var enemy_unit: Node = _unit_factory.call("acquire_unit", enemy_unit_id, 1, unit_layer)
+		var enemy_unit: Node = _unit_factory.call("acquire_unit", enemy_unit_id, unit_layer)
 		if enemy_unit == null:
 			push_error("Acquire enemy unit failed: %s" % enemy_unit_id)
 			return false

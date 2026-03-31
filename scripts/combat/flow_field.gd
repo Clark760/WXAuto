@@ -17,8 +17,13 @@ func clear() -> void:
 
 
 # 旧 runtime 仍按 HexGrid + 目标格数组的方式构建流场。
-func build(hex_grid: Node, target_cells: Array[Vector2i], blocked_cells: Dictionary = {}) -> void:
-	_rules.build(hex_grid, target_cells, blocked_cells)
+func build(
+	hex_grid: Node,
+	target_cells: Array[Vector2i],
+	blocked_cells: Dictionary = {},
+	weighted_cells: Dictionary = {}
+) -> void:
+	_rules.build(hex_grid, target_cells, blocked_cells, weighted_cells)
 
 
 # 对外查询方向时继续保持旧契约。
