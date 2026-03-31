@@ -161,26 +161,27 @@ const BUILTIN_EFFECT_OP_LABELS = {
 };
 
 const TRIGGER_COMMON_PARAM_HINTS = {
-  team_scope: "队伍范围：`ally` 我方 / `enemy` 敌方 / `all` 双方。",
-  exclude_self: "是否排除施法者自身。",
-  team_alive_count_min: "触发时要求队伍最少存活人数（含边界）。",
-  team_alive_count_max: "触发时要求队伍最多存活人数（含边界）。",
+  team_scope: "队伍范围：`ally` / `enemy` / `both`（双方）。",
+  exclude_self: "是否在人数统计时排除施法者自身（布尔值）。",
+  team_alive_count_min: "触发所需最少存活人数（含边界）。别名 `team_alive_at_least`。",
+  team_alive_count_max: "触发所需最多存活人数（含边界）。别名 `team_alive_at_most`。",
+  require_enemy_nearby: "要求射程内有敌方才触发（布尔值，默认 false）。",
 };
 
 const TRIGGER_PARAM_HINTS = {
   auto_mp_full: {},
   manual: {},
   auto_hp_below: {
-    threshold: "生命阈值，低于该比例时可自动触发。",
+    threshold: "生命阈值比例，低于此比例时持续触发（电平型）。填 0~1，默认 0.3。",
   },
   on_hp_below: {
-    threshold: "生命比例阈值，通常填 0~1，仅在“上->下”跌破时触发。",
+    threshold: "生命比例阈值，仅从高于跌至低于阈值时触发一次（边沿型）。填 0~1，默认 0.3。",
   },
   on_time_elapsed: {
-    at_seconds: "战斗进行到第几秒触发。",
+    at_seconds: "战斗开始后的绝对秒数，到达该时刻仅触发一次。",
   },
   periodic_seconds: {
-    interval: "周期触发间隔（秒）。",
+    interval: "周期触发间隔（秒），最小有效值 0.05。",
   },
   passive_aura: {},
   on_combat_start: {},
@@ -191,22 +192,22 @@ const TRIGGER_PARAM_HINTS = {
   on_crit: {},
   on_dodge: {},
   on_attack_fail: {
-    reasons: "失败原因过滤数组，如 `cooldown` / `out_of_range` / `no_target`。",
+    reasons: "失败原因过滤数组，留空表示不限。可选值见下拉。",
   },
   on_shield_broken: {},
   on_unit_spawned_mid_battle: {},
   on_damage_received: {
-    min_damage: "最小受伤值，低于该值不触发。",
+    min_damage: "最小受伤值门槛，低于该值不触发（默认 0）。",
   },
   on_heal_received: {
-    min_heal: "最小治疗值，低于该值不触发。",
+    min_heal: "最小治疗值门槛，低于该值不触发（默认 0）。",
   },
   on_thorns_triggered: {
-    min_reflect: "最小反伤值过滤。",
+    min_reflect: "最小反伤值门槛，低于该值不触发（默认 0）。",
   },
   on_unit_move_success: {},
   on_unit_move_failed: {
-    reasons: "失败原因过滤数组，如 `block` / `conflict` / `stunned`。",
+    reasons: "失败原因过滤数组，留空表示不限。可选值见下拉。",
   },
   on_terrain_created: {
     terrain_tags_any: "地形命中：任一标签命中即可。",
@@ -230,11 +231,11 @@ const TRIGGER_PARAM_HINTS = {
   },
   on_team_alive_count_changed: {},
   on_debuff_applied: {
-    debuff_id: "只监听指定 Debuff；留空表示任意 Debuff。",
+    debuff_id: "只监听指定 Debuff ID；留空表示任意 Debuff 均触发。",
   },
   on_buff_expired: {
-    watch_buff_id: "监听移除的 Buff ID（推荐字段）。",
-    buff_id: "兼容旧写法：监听移除的 Buff ID。",
+    watch_buff_id: "必填：要监听移除/到期的 Buff ID。",
+    buff_id: "兼容旧写法：watch_buff_id 为空时回退读取此字段。",
   },
 };
 
@@ -336,73 +337,75 @@ const EFFECT_PARAM_HINTS = {
   mp_on_kill: { value: "击杀回蓝值。" },
   attack_speed_bonus: { value: "攻速加成比例，填 0~1。" },
   range_add: { value: "射程增加格数。" },
-  damage_target: { value: "单体伤害值。", damage_type: "伤害类型。" },
-  damage_aoe: { value: "范围伤害值。", radius: "范围半径。", damage_type: "伤害类型。" },
-  damage_chain: { value: "连锁基础伤害。", radius: "跳转搜索半径。", jumps: "连锁跳数。", chain_count: "连锁次数。", decay: "每跳衰减。", damage_type: "伤害类型。" },
-  damage_cone: { value: "扇形伤害值。", radius: "扇形射程。", range: "扇形射程。", angle_deg: "扇形角度。", angle: "扇形角度。", damage_type: "伤害类型。" },
-  damage_if_debuffed: { value: "伤害值。", require_debuff: "要求目标带指定 Debuff。", bonus_multiplier: "额外倍率。", damage_type: "伤害类型。" },
-  damage_if_marked: { value: "伤害值。", mark_id: "要求目标带指定标记。", bonus_multiplier: "额外倍率。", damage_type: "伤害类型。" },
-  damage_target_scaling: { value: "基础伤害。", scale_stat: "缩放属性。", scale_ratio: "缩放系数。", scale_source: "缩放来源。", damage_type: "伤害类型。" },
-  execute_target: { threshold: "斩杀阈值比例。", damage: "触发斩杀时伤害。", value: "兼容字段：伤害值。", damage_type: "伤害类型。" },
-  aoe_percent_hp_damage: { ratio: "按目标最大生命比例造成伤害。", percent: "兼容字段：比例。", radius: "范围半径。", damage_type: "伤害类型。" },
+  damage_target: { value: "单体伤害值。", multiplier: "伤害倍率（可选，默认 1.0）。", damage_type: "伤害类型（默认 `internal`）。" },
+  damage_aoe: { value: "每个目标的范围伤害值。", radius: "范围半径（格，默认 2）。", damage_type: "伤害类型（默认 `internal`）。" },
+  damage_chain: { value: "连锁基础伤害。", chain_count: "额外跳转次数（总命中 = 1 + chain_count）。", jumps: "兼容字段（同 chain_count）。", radius: "跳转搜索半径（格，默认 3）。", decay: "每跳衰减比例（如 0.2 = 每跳减20%，默认 0）。", damage_type: "伤害类型（默认 `internal`）。" },
+  damage_cone: { value: "扇形区域伤害值。", angle: "扇形角度（度，默认 60，上限 180）。", angle_deg: "扇形角度别名。", range: "扇形射程（格，默认 2）。", radius: "射程别名。", damage_type: "伤害类型（默认 `internal`）。" },
+  damage_if_debuffed: { value: "基础伤害值。", require_debuff: "要求目标带指定 Debuff ID（留空 = 有任意 Debuff 即可）。", bonus_multiplier: "命中时的伤害倍率（默认 1.0）。", damage_type: "伤害类型（默认 `internal`）。" },
+  damage_if_marked: { value: "基础伤害值。", mark_id: "要求目标带指定标记 ID。", bonus_multiplier: "标记命中时的伤害倍率（默认 1.0）。", damage_type: "伤害类型（默认 `internal`）。" },
+  damage_target_scaling: { value: "固定底数伤害。", scale_stat: "缩放属性键（默认 `max_hp`）。", scale_ratio: "缩放系数（最终 = value + 属性值 * ratio）。", scale_source: "取值来源：`auto`/`source`/`target`（血量类默认取 target）。", damage_type: "伤害类型（默认 `internal`）。" },
+  execute_target: { threshold: "斩杀阈值比例（填 0~1，默认 0.15）。别名 `hp_threshold`。", damage: "触发斩杀时伤害。", value: "兼容字段（当 damage 未填时读取）。", damage_type: "伤害类型（默认 `external`）。" },
+  aoe_percent_hp_damage: { percent: "按目标最大生命比例伤害（填 0~1，默认 0.05）。", ratio: "兼容字段（当 percent 未填时读取）。", radius: "范围半径（格，默认 2）。", cap: "单目标伤害上限（-1 = 不限）。", damage_type: "伤害类型（默认 `internal`）。" },
   heal_self: { value: "自身治疗值。" },
   heal_self_percent: { value: "按自身最大生命比例治疗，填 0~1。" },
-  heal_allies_aoe: { value: "治疗值。", radius: "范围半径。", exclude_self: "是否排除自己。" },
+  heal_allies_aoe: { value: "每目标固定治疗量。", radius: "范围半径（格，默认 3）。", exclude_self: "是否排除施法者（布尔值，默认 false）。" },
   heal_target_flat: { value: "目标治疗值。" },
-  heal_lowest_ally: { value: "治疗值。", radius: "搜索半径。" },
-  heal_percent_missing_hp: { ratio: "按已损失生命比例治疗。", value: "兼容字段：比例值。" },
+  heal_lowest_ally: { value: "治疗值（自动选择当前血比最低的友方）。" },
+  heal_percent_missing_hp: { value: "按已损失生命比例回复（如 0.5 = 回复50%已损失生命）。", ratio: "兼容字段（当 value 未填时读取）。" },
   drain_mp: { value: "抽取内力值。" },
-  shield_self: { value: "护盾值。", duration: "持续时间。", buff_id: "绑定护盾Buff（可选）。" },
-  shield_allies_aoe: { value: "护盾值。", radius: "范围半径。", duration: "持续时间。", buff_id: "绑定护盾Buff。", exclude_self: "是否排除自己。" },
-  immunity_self: { duration: "免疫持续时间。", buff_id: "免疫Buff ID。" },
+  shield_self: { value: "护盾值。", duration: "护盾 Buff 持续时间（秒）。", buff_id: "护盞绑定 Buff ID（默认 `buff_qi_shield`）。", shield_buff_id: "护盞 Buff ID别名。", immunity_buff_id: "附带免疫 Buff ID（可选）。" },
+  shield_allies_aoe: { value: "每目标护盾值。", radius: "范围半径（格，默认 3）。", duration: "护盞 Buff 持续时间。", buff_id: "护盞 Buff ID（默认 `buff_qi_shield`）。", exclude_self: "是否排除施法者（默认 false）。" },
+  immunity_self: { buff_id: "免疫 Buff ID（必填）。", duration: "免疫持续时间（秒）。" },
   buff_self: { buff_id: "目标 Buff ID。", duration: "持续时间。" },
   buff_target: { buff_id: "目标 Buff ID。", duration: "持续时间。" },
-  buff_allies_aoe: { buff_id: "目标 Buff ID。", duration: "持续时间。", radius: "范围半径。", exclude_self: "是否排除自己。", binding_mode: "是否来源绑定光环。" },
+  buff_allies_aoe: { buff_id: "要附着的 Buff ID。", duration: "持续时间（秒）。", radius: "范围半径（格，默认 3）。", exclude_self: "是否排除施法者（默认 false）。", binding_mode: "绑定模式：留空 = 普通，`source_bound_aura` = 来源绑定光环。" },
   debuff_target: { buff_id: "目标 Debuff ID。", duration: "持续时间。" },
-  debuff_aoe: { buff_id: "目标 Debuff ID。", duration: "持续时间。", radius: "范围半径。", binding_mode: "是否来源绑定光环。" },
-  cleanse_self: { count: "净化层数。", debuff_ids: "限定可净化 Debuff ID 列表。" },
-  cleanse_ally: { count: "净化层数。", radius: "范围半径。", debuff_ids: "限定可净化 Debuff ID 列表。" },
-  steal_buff: { count: "偷取层数。", prefer_ids: "优先偷取 Buff ID 列表。" },
-  dispel_target: { count: "驱散层数。", buff_ids: "限定可驱散 Buff ID 列表。" },
+  debuff_aoe: { buff_id: "要附着的 Debuff ID。", duration: "持续时间（秒）。", radius: "范围半径（格，默认 3）。", binding_mode: "绑定模式：留空 = 普通，`source_bound_aura` = 来源绑定光环。" },
+  cleanse_self: {},
+  cleanse_ally: {},
+  steal_buff: { count: "尝试偷取的 Buff 条数（默认 1）。" },
+  dispel_target: { count: "驱散的 Buff 条数（默认 1）。" },
   mark_target: { mark_id: "施加标记ID。", duration: "标记持续时间。" },
-  pull_target: { cells: "拉拽格数。", distance: "兼容字段：位移距离。" },
-  knockback_aoe: { radius: "范围半径。", cells: "击退格数。", distance: "兼容字段：位移距离。" },
-  knockback_target: { cells: "击退格数。", distance: "兼容字段：位移距离。" },
+  pull_target: { distance: "拉拽步数（格）。", cells: "拉拽步数别名。" },
+  knockback_aoe: { radius: "范围半径（格，默认 2）。", distance: "击退步数（格）。", cells: "击退步数别名。" },
+  knockback_target: { distance: "击退步数（格）。", cells: "击退步数别名。" },
   swap_position: {},
-  silence_target: { duration: "沉默持续时间。", buff_id: "沉默 Debuff ID（推荐）。" },
-  stun_target: { duration: "眩晕持续时间。", buff_id: "眩晕 Debuff ID（推荐）。" },
-  fear_aoe: { duration: "恐惧持续时间。", radius: "范围半径。", buff_id: "恐惧 Debuff ID（推荐）。" },
-  freeze_target: { duration: "冻结持续时间。", buff_id: "冻结 Debuff ID（推荐）。" },
-  teleport_behind: { distance_cells: "落点与目标的间隔格数。", distance: "兼容字段：位移距离。" },
-  dash_forward: { distance_cells: "突进距离（格）。", distance: "兼容字段：位移距离。" },
-  taunt_aoe: { duration: "嘲讽持续时间。", radius: "范围半径。", buff_id: "嘲讽 Debuff ID（推荐）。" },
+  silence_target: { duration: "沉默持续时间（秒，默认 2.0）。" },
+  stun_target: { duration: "眩晕持续时间（秒，默认 1.5）。" },
+  fear_aoe: { duration: "恐惧持续时间（秒，默认 2.0）。", radius: "范围半径（格，默认 2）。" },
+  freeze_target: { duration: "冻结持续时间（秒，默认 2.0）。冻结目标受击必定暴击。" },
+  teleport_behind: { distance: "落点与目标的间隔步数（格，默认 1）。", cells: "步数别名。" },
+  dash_forward: { distance: "突进距离（格，默认 1）。", cells: "步数别名。" },
+  taunt_aoe: { duration: "嘲讽持续时间（秒，默认 2.0）。", radius: "范围半径（格，默认 2）。", buff_id: "嘲讽 Debuff ID（可选，用于状态栏显示）。" },
   create_terrain: {
-    terrain_ref_id: "引用已有地形模板ID。",
-    terrain_id: "直接创建的地形ID。",
-    terrain_type: "地形类型。",
-    radius: "范围半径。",
-    duration: "地形持续时间。",
-    tick_interval: "地形周期触发间隔。",
-    effects_on_enter: "进入地形时触发效果数组。",
-    effects_on_tick: "周期触发效果数组。",
+    terrain_ref_id: "引用已有地形模板 ID（引用后属性由模板决定）。",
+    terrain_type: "地形类型（直接创建时使用）。",
+    radius: "范围半径（格）。",
+    duration: "地形持续时间（秒）。",
+    tick_interval: "地形周期触发间隔（秒）。",
+    target_mode: "目标模式：`enemies` / `allies` / `all`。",
+    effects_on_enter: "进入地形时触发的效果数组。",
+    effects_on_tick: "地形周期触发效果数组。",
     effects_on_exit: "离开地形时触发效果数组。",
     effects_on_expire: "地形结束时触发效果数组。",
-    tags: "地形标签数组。",
+    tags: "地形标签数组（供触发器 terrain_tags_any/all 过滤）。",
   },
   summon_units: { unit_ids: "召唤单位ID列表。", units: "召唤单位详细列表。", count: "召唤数量。", team: "召唤阵营。", cells: "部署格数。", deploy: "部署策略。" },
   hazard_zone: { radius: "危险区半径。", duration: "持续时间。", tick_interval: "触发间隔。", effects_on_tick: "周期触发效果数组。", value: "简化写法：每跳伤害值。" },
   spawn_vfx: { vfx_id: "特效ID。", at: "特效挂点。" },
-  summon_clone: { count: "分身数量。", inherit_ratio: "继承属性比例。", unit_id: "可选：指定分身模板单位ID。" },
-  revive_random_ally: { hp_ratio: "复活后生命比例。", hp_percent: "兼容字段：生命比例。", value: "兼容字段：生命值。" },
-  resurrect_self: { hp_ratio: "复活后生命比例。", hp_percent: "兼容字段：生命比例。", resurrect_key: "复活唯一键，避免重复复活冲突。" },
+  summon_clone: { count: "分身数量（默认 1）。", inherit_ratio: "继承属性比例（同时设置 hp_ratio 和 atk_ratio）。", hp_ratio: "分身生命比例（优先于 inherit_ratio）。", atk_ratio: "分身攻击比例（优先于 inherit_ratio）。", unit_id: "指定分身模板单位 ID（可选）。", deploy: "部署策略（默认 `around_self`）。" },
+  revive_random_ally: { value: "固定复活治疗量（>0 时优先使用，覆盖比例）。", hp_ratio: "复活后生命比例（默认 0.35）。", hp_percent: "生命比例别名。" },
+  resurrect_self: { hp_ratio: "复活后生命比例（默认 0.3）。", hp_percent: "生命比例别名。", resurrect_key: "复活唯一键（同一键只能复活一次，默认 `default`）。" },
   tag_linkage_branch: {
-    execution_mode: "执行模式：`continuous` 连续评估 / `stateful` 状态保持。",
-    range: "检索范围（格）。",
-    team_scope: "统计队伍范围。",
-    count_mode: "计数口径。",
-    queries: "联动查询列表。",
-    cases: "计数分支列表。",
-    else_effects: "未命中分支时执行效果。",
+    execution_mode: "执行模式：`continuous` 每次按当前条件执行 / `stateful` 按状态切换减少抖动。",
+    range: "检索范围（格），0 = 仅自身脚下。",
+    include_self: "是否把自身纳入 provider 统计（布尔值，默认 true）。",
+    team_scope: "provider 统计队伍范围：`ally` / `enemy` / `all`。",
+    count_mode: "计数口径：`provider` 按来源去重 / `unit` 按单位 / `occurrence` 按命中次数。",
+    source_types: "来源类型过滤数组：`trait`/`gongfa`/`equipment`/`buff`/`terrain`/`unit`。",
+    queries: "联动查询列表（每项含 id、tags、tag_match、source_types 等字段）。",
+    cases: "联动 case 分支列表（按从上到下顺序匹配，每项含 id、all 条件和 effects）。",
+    else_effects: "所有 case 均未命中时执行的效果数组。",
   },
 };
 
@@ -423,10 +426,10 @@ const EFFECT_PARAM_SUGGESTIONS = Object.fromEntries(
 const TRIGGER_DESCRIPTIONS = {
   auto_mp_full: "内力回满时自动触发，常用于大招自动释放。",
   manual: "手动触发器，一般用于主动施法按钮。",
-  auto_hp_below: "生命低于阈值时自动触发，非边沿检测。",
-  on_hp_below: "生命从高于阈值跌破到低于阈值时触发一次。",
-  on_time_elapsed: "战斗达到指定秒数时触发。",
-  periodic_seconds: "按间隔周期触发。",
+  auto_hp_below: "生命低于阈值时持续自动触发（电平型，冷却结束后可重复）。默认阈值 30%。",
+  on_hp_below: "生命从高于阈值跌破到低于阈值时触发一次（边沿型，不重复）。默认阈值 30%。",
+  on_time_elapsed: "战斗到达指定秒数时触发一次（不重复）。",
+  periodic_seconds: "按固定间隔周期触发（最小间隔 0.05 秒）。别名 `periodic`。",
   passive_aura: "光环轮询触发，适合持续型效果。",
   on_combat_start: "战斗开始时触发。",
   on_attack_hit: "攻击命中后触发。",
@@ -449,8 +452,8 @@ const TRIGGER_DESCRIPTIONS = {
   on_terrain_exit: "离开地形时触发。",
   on_terrain_expire: "地形结束时触发。",
   on_team_alive_count_changed: "队伍存活人数变化时触发。",
-  on_debuff_applied: "施加 Debuff 时触发。",
-  on_buff_expired: "Buff 移除或到期时触发。",
+  on_debuff_applied: "目标被施加 Debuff 时触发，可通过 debuff_id 精确匹配。",
+  on_buff_expired: "Buff 移除或到期时触发。必须通过 watch_buff_id 指定监听目标。",
   on_preparation_started: "全局事件：进入备战阶段。",
   on_stage_combat_started: "全局事件：关卡战斗开始。",
   on_stage_completed: "全局事件：关卡胜利结算。",
@@ -569,6 +572,7 @@ const el = {
   redoBtn: document.getElementById("redoBtn"),
   reloadBtn: document.getElementById("reloadBtn"),
   newFileBtn: document.getElementById("newFileBtn"),
+  renameFileBtn: document.getElementById("renameFileBtn"),
   deleteFileBtn: document.getElementById("deleteFileBtn"),
   arrayPanel: document.getElementById("arrayPanel"),
   itemList: document.getElementById("itemList"),
@@ -1607,6 +1611,9 @@ function renderSelectors() {
   }
   if (el.deleteFileBtn) {
     el.deleteFileBtn.disabled = !state.selectedFile;
+  }
+  if (el.renameFileBtn) {
+    el.renameFileBtn.disabled = !state.selectedFile;
   }
   const category = state.categories.find((x) => x.id === state.selectedCategory);
   el.schemaInfo.textContent = category ? `Schema: ${category.schema_file}` : "";
@@ -2866,6 +2873,47 @@ async function onDeleteFile() {
   }
 }
 
+async function onRenameFile() {
+  if (!state.selectedMod || !state.selectedCategory || !state.selectedFile) {
+    setStatus("请先选择要重命名的文件。", true);
+    return;
+  }
+
+  const oldFileName = String(state.selectedFile || "");
+  const rawNewName = window.prompt("请输入新的文件名（可不带 .json）：", oldFileName);
+  if (rawNewName == null) return;
+
+  const newFileName = normalizeNewFileName(rawNewName);
+  if (!newFileName) {
+    setStatus("请输入有效的文件名。", true);
+    return;
+  }
+  if (newFileName === oldFileName) {
+    setStatus("文件名未变化。");
+    return;
+  }
+
+  try {
+    setStatus("正在重命名文件...");
+    await apiPost("/api/document_rename", {
+      mod: state.selectedMod,
+      category: state.selectedCategory,
+      file: oldFileName,
+      new_file: newFileName,
+    });
+    state.selectedFile = newFileName;
+    await loadFilesForSelection();
+    await loadSchemaAndDocument();
+    resetEditorTransientState();
+    resetDocumentHistory();
+    updateDirty(false);
+    render();
+    setStatus(`已重命名文件: ${oldFileName} -> ${newFileName}`);
+  } catch (err) {
+    setStatus(err.message, true);
+  }
+}
+
 async function onSaveManifest() {
   if (!state.selectedMod) {
     setStatus("请先选择 Mod。", true);
@@ -2901,6 +2949,9 @@ function bindEvents() {
   el.categorySelect.addEventListener("change", onCategoryChanged);
   el.fileSelect.addEventListener("change", onFileChanged);
   el.newFileBtn.addEventListener("click", onNewFile);
+  if (el.renameFileBtn) {
+    el.renameFileBtn.addEventListener("click", onRenameFile);
+  }
   if (el.deleteFileBtn) {
     el.deleteFileBtn.addEventListener("click", onDeleteFile);
   }

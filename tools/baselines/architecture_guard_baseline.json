@@ -1,20 +1,24 @@
 {
     "version":  1,
-    "generated_at_utc":  "2026-03-27T04:47:13.3969975Z",
+    "generated_at_utc":  "2026-03-31T05:51:38.0788439Z",
     "rules":  {
                   "file_length":  {
                                       "soft_limit":  600,
                                       "hard_limit":  900,
                                       "files":  {
-                                                    "scripts/app/battlefield/battlefield_coordinator.gd":  847,
-                                                    "scripts/app/battlefield/battlefield_hud_detail_view.gd":  778,
-                                                    "scripts/app/battlefield/battlefield_hud_support.gd":  674,
-                                                    "scripts/app/battlefield/battlefield_world_controller.gd":  869
+                                                    "scripts/app/battlefield/battlefield_coordinator.gd":  727,
+                                                    "scripts/app/battlefield/battlefield_hud_effect_formatter_support.gd":  614,
+                                                    "scripts/app/battlefield/battlefield_hud_shop_inventory_view.gd":  664,
+                                                    "scripts/combat/combat_manager.gd":  656,
+                                                    "scripts/combat/combat_movement_service.gd":  651,
+                                                    "scripts/domain/combat/combat_targeting.gd":  648,
+                                                    "scripts/unit_augment/unit_augment_buff_manager.gd":  661,
+                                                    "scripts/unit_augment/unit_augment_unit_state_service.gd":  1187
                                                 },
                                       "summary":  {
-                                                      "total_files":  4,
-                                                      "over_900_files":  0,
-                                                      "between_601_and_900_files":  4
+                                                      "total_files":  8,
+                                                      "over_900_files":  1,
+                                                      "between_601_and_900_files":  7
                                                   }
                                   },
                   "scene_first_ui":  {
@@ -41,68 +45,35 @@
                                                           "TextureRect.new"
                                                       ],
                                          "files":  {
-                                                       "scripts/main/main_scene.gd":  2,
-                                                       "scripts/ui/battle_bench_ui.gd":  5,
-                                                       "scripts/ui/battle_inventory_item_card.gd":  2,
-                                                       "scripts/ui/battle_slot_drop_target.gd":  1,
-                                                       "scripts/ui/battle_stats_panel.gd":  14,
-                                                       "scripts/ui/recycle_drop_zone.gd":  5
+
                                                    },
-                                         "total_occurrences":  29,
-                                         "total_files":  6
+                                         "total_occurrences":  0,
+                                         "total_files":  0
                                      },
                   "root_lookup":  {
                                       "pattern":  "_get_root_node(",
                                       "files":  {
-                                                    "scripts/app/battlefield/battlefield_coordinator.gd":  9
+
                                                 },
-                                      "total_occurrences":  9,
-                                      "total_files":  1
+                                      "total_occurrences":  0,
+                                      "total_files":  0
                                   },
                   "dynamic_call":  {
                                        "pattern":  "call(",
                                        "files":  {
-                                                     "scripts/app/battlefield/battlefield_coordinator.gd":  46,
-                                                     "scripts/app/battlefield/battlefield_coordinator_economy_support.gd":  43,
-                                                     "scripts/app/battlefield/battlefield_coordinator_layout_support.gd":  2,
-                                                     "scripts/app/battlefield/battlefield_coordinator_statistics_support.gd":  11,
-                                                     "scripts/app/battlefield/battlefield_hud_detail_view.gd":  8,
-                                                     "scripts/app/battlefield/battlefield_hud_presenter.gd":  1,
-                                                     "scripts/app/battlefield/battlefield_hud_runtime_view.gd":  1,
-                                                     "scripts/app/battlefield/battlefield_hud_shop_inventory_view.gd":  13,
-                                                     "scripts/app/battlefield/battlefield_hud_support.gd":  8,
-                                                     "scripts/app/battlefield/battlefield_world_controller.gd":  2,
                                                      "scripts/battle/battlefield_renderer.gd":  1,
                                                      "scripts/battle/drag_controller.gd":  5,
-                                                     "scripts/board/inventory_controller.gd":  1,
-                                                     "scripts/board/recycle_controller.gd":  3,
-                                                     "scripts/board/shop_controller.gd":  4,
-                                                     "scripts/board/stage_bridge.gd":  5,
-                                                     "scripts/combat/cell_occupancy.gd":  19,
                                                      "scripts/combat/combat_manager.gd":  13,
-                                                     "scripts/combat/combat_pathfinding.gd":  12,
-                                                     "scripts/combat/combat_targeting.gd":  23,
-                                                     "scripts/combat/flow_field.gd":  4,
-                                                     "scripts/core/game_manager.gd":  8,
-                                                     "scripts/core/mod_loader.gd":  4,
-                                                     "scripts/core/object_pool.gd":  5,
-                                                     "scripts/data/data_manager.gd":  1,
-                                                     "scripts/economy/economy_manager.gd":  1,
-                                                     "scripts/economy/shop_manager.gd":  4,
-                                                     "scripts/main/main_scene.gd":  7,
-                                                     "scripts/stage/obstacle_manager.gd":  3,
-                                                     "scripts/stage/reward_manager.gd":  9,
-                                                     "scripts/stage/stage_manager.gd":  4,
-                                                     "scripts/ui/battle_bench_ui.gd":  2,
-                                                     "scripts/ui/battle_stats_panel.gd":  4,
-                                                     "scripts/unit/unit_base.gd":  15,
+                                                     "scripts/combat/combat_targeting.gd":  1,
+                                                     "scripts/core/object_pool.gd":  1,
+                                                     "scripts/ui/battle_bench_ui.gd":  1,
+                                                     "scripts/unit/unit_base.gd":  16,
                                                      "scripts/unit/unit_combat.gd":  3,
-                                                     "scripts/unit/unit_factory.gd":  10,
                                                      "scripts/unit/unit_movement.gd":  1,
                                                      "scripts/vfx/vfx_factory.gd":  7
                                                  },
-                                       "total_occurrences":  313,
-                                       "total_files":  38
+                                       "total_occurrences":  49,
+                                       "total_files":  10
                                    }
               }
 }

@@ -9,7 +9,8 @@
     "stat_labels",
     "quality_labels",
     "quality_colors",
-    "damage_type_labels"
+    "damage_type_labels",
+    "status_labels"
   ],
   "properties": {
     "id": {
@@ -46,6 +47,12 @@
       }
     },
     "damage_type_labels": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "status_labels": {
       "type": "object",
       "additionalProperties": {
         "type": "string"

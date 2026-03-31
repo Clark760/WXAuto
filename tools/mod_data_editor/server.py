@@ -897,6 +897,40 @@ class ModDataEditorHandler(BaseHTTPRequestHandler):
                 )
                 return
 
+            if route == "/api/document_rename":
+                mod = str(payload.get("mod", ""))
+                category = str(payload.get("category", ""))
+                old_file_name = str(payload.get("file", ""))
+                new_file_name = str(payload.get("new_file", ""))
+                source = _safe_document_path(mod, category, old_file_name)
+                target = _safe_document_path(mod, category, new_file_name)
+                if not source.exists():
+                    raise FileNotFoundError(f"Document not found: {source}")
+                if not source.is_file():
+                    raise ValueError(f"Document is not a file: {source}")
+                if source == target:
+                    self._send_json(
+                        {
+                            "ok": True,
+                            "renamed": True,
+                            "from": str(source.relative_to(_must_context().project_root)).replace("\\", "/"),
+                            "to": str(target.relative_to(_must_context().project_root)).replace("\\", "/"),
+                        }
+                    )
+                    return
+                if target.exists():
+                    raise ValueError(f"Target file already exists: {target.name}")
+                source.rename(target)
+                self._send_json(
+                    {
+                        "ok": True,
+                        "renamed": True,
+                        "from": str(source.relative_to(_must_context().project_root)).replace("\\", "/"),
+                        "to": str(target.relative_to(_must_context().project_root)).replace("\\", "/"),
+                    }
+                )
+                return
+
             self._send_error("Not found", status=HTTPStatus.NOT_FOUND)
         except ValueError as exc:
             self._send_error(str(exc), status=HTTPStatus.BAD_REQUEST)

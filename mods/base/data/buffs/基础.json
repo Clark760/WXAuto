@@ -1,0 +1,389 @@
+[
+  {
+    "id": "buff_qi_shield",
+    "name": "真气护体",
+    "type": "buff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 4.0,
+    "effects": [],
+    "tick_effects": [],
+    "tick_interval": 0.0,
+    "tags": ["罡气罩", "真气", "气障"]
+  },
+  {
+    "id": "buff_hantie_guard",
+    "name": "寒铁护身",
+    "type": "buff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 1.2,
+    "effects": [
+      { "op": "damage_reduce_percent", "value": 0.08 },
+      { "op": "damage_reduce_flat", "value": 8 }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0,
+    "tags": ["护体", "外功", "守御"]
+  },
+  {
+    "id": "buff_youlong_haste",
+    "name": "游龙疾行",
+    "type": "buff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 2.0,
+    "effects": [
+      { "op": "attack_speed_bonus", "value": 0.16 }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0,
+    "tags": ["轻身", "轻功", "连势"]
+  },
+  {
+    "id": "buff_youlong_dodge",
+    "name": "游龙回影",
+    "type": "buff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 2.0,
+    "effects": [
+      { "op": "dodge_bonus", "value": 0.09 }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0,
+    "tags": ["轻身", "迷踪", "轻功"]
+  },
+  {
+    "id": "buff_array_peak",
+    "name": "北斗极炁",
+    "type": "buff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 1.2,
+    "effects": [
+      { "op": "damage_amp_percent", "value": 0.3 }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0,
+    "tags": ["阵炁", "锋芒", "上乘"]
+  },
+  {
+    "id": "buff_array_mid",
+    "name": "北斗盛炁",
+    "type": "buff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 1.2,
+    "effects": [
+      { "op": "damage_amp_percent", "value": 0.18 }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0,
+    "tags": ["阵炁", "锋芒", "中境"]
+  },
+  {
+    "id": "buff_array_low",
+    "name": "北斗起炁",
+    "type": "buff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 1.2,
+    "effects": [
+      { "op": "damage_amp_percent", "value": 0.1 }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0,
+    "tags": ["阵炁", "锋芒", "初境"]
+  },
+  {
+    "id": "buff_chiyu_step",
+    "name": "赤羽轻身",
+    "type": "buff",
+    "stackable": true,
+    "max_stacks": 3,
+    "default_duration": 3.0,
+    "effects": [
+      { "op": "stat_add", "stat": "spd", "value": 6 }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0,
+    "tags": ["轻身", "轻功", "步势"]
+  },
+  {
+    "id": "buff_wandu_bless",
+    "name": "万毒护脉",
+    "type": "buff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 1.5,
+    "effects": [
+      { "op": "damage_amp_percent", "value": 0.12 },
+      { "op": "tenacity", "value": 0.1 }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0,
+    "tags": ["毒息", "锋芒", "毒功"]
+  },
+  {
+    "id": "buff_guinsoo_rageblade",
+    "name": "追命连势",
+    "type": "buff",
+    "stackable": true,
+    "max_stacks": 8,
+    "default_duration": 6.0,
+    "effects": [
+      { "op": "attack_speed_bonus", "value": 0.03 }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0,
+    "tags": ["轻身", "狂势", "连势"]
+  },
+  {
+    "id": "buff_calm_mind",
+    "name": "清心诀",
+    "type": "buff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 3.0,
+    "effects": [
+      { "op": "tenacity", "value": 0.2 },
+      { "op": "mp_regen_add", "value": 2.0 }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0,
+    "tags": ["凝神", "清心", "内功"]
+  },
+  {
+    "id": "buff_chase_haste",
+    "name": "追风逐影",
+    "type": "buff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 1.8,
+    "effects": [
+      { "op": "attack_speed_bonus", "value": 0.1 },
+      { "op": "stat_add", "stat": "spd", "value": 10 }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0,
+    "tags": ["轻身", "轻功", "追击"]
+  },
+  {
+    "id": "buff_last_stand",
+    "name": "背水战意",
+    "type": "buff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 3.0,
+    "effects": [
+      { "op": "damage_reduce_percent", "value": 0.1 },
+      { "op": "conditional_stat", "stat": "atk", "value": 24, "condition": "hp_below", "threshold": 0.5 },
+      { "op": "conditional_stat", "stat": "iat", "value": 24, "condition": "hp_below", "threshold": 0.5 }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0,
+    "tags": ["绝境反锋", "锋芒", "守势"]
+  },
+  {
+    "id": "buff_poison_attune",
+    "name": "毒经合气",
+    "type": "buff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 2.5,
+    "effects": [
+      { "op": "damage_amp_vs_debuffed", "value": 0.15 },
+      { "op": "mp_regen_add", "value": 1.5 }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0,
+    "tags": ["毒息", "合脉", "乘隙"]
+  },
+  {
+    "id": "buff_resonance_high",
+    "name": "群锋共鸣·盛",
+    "type": "buff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 1.5,
+    "effects": [
+      { "op": "damage_amp_percent", "value": 0.12 },
+      { "op": "attack_speed_bonus", "value": 0.08 }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0,
+    "tags": ["阵炁", "轻身", "上乘"]
+  },
+  {
+    "id": "buff_resonance_mid",
+    "name": "群锋共鸣·中",
+    "type": "buff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 1.5,
+    "effects": [
+      { "op": "damage_amp_percent", "value": 0.08 },
+      { "op": "attack_speed_bonus", "value": 0.05 }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0,
+    "tags": ["阵炁", "轻身", "中境"]
+  },
+  {
+    "id": "buff_resonance_low",
+    "name": "群锋共鸣·起",
+    "type": "buff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 1.0,
+    "effects": [
+      { "op": "damage_amp_percent", "value": 0.04 },
+      { "op": "attack_speed_bonus", "value": 0.02 }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0,
+    "tags": ["阵炁", "轻身", "初境"]
+  },
+  {
+    "id": "debuff_armor_shred_1ring",
+    "name": "裂甲",
+    "type": "debuff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 1.2,
+    "effects": [
+      { "op": "stat_percent", "stat": "def", "value": -0.2 }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0,
+    "tags": ["裂甲", "破防", "外功"]
+  },
+  {
+    "id": "debuff_array_break",
+    "name": "阵势紊乱",
+    "type": "debuff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 1.0,
+    "effects": [
+      { "op": "damage_reduce_percent", "value": -0.08 },
+      { "op": "attack_speed_bonus", "value": -0.08 }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0,
+    "tags": ["破阵", "虚弱", "阵法"]
+  },
+  {
+    "id": "debuff_wandu_burn",
+    "name": "毒火灼脉",
+    "type": "debuff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 1.5,
+    "effects": [
+      { "op": "damage_reduce_percent", "value": -0.04 }
+    ],
+    "tick_effects": [
+      { "op": "damage_target", "value": 18, "damage_type": "internal" }
+    ],
+    "tick_interval": 0.5,
+    "tags": ["灼脉", "蚀伤", "毒火"]
+  },
+  {
+    "id": "debuff_counter_poison_stack",
+    "name": "蚀骨毒",
+    "type": "debuff",
+    "stackable": true,
+    "max_stacks": 5,
+    "default_duration": 2.0,
+    "effects": [
+      { "op": "damage_reduce_percent", "value": -0.02 }
+    ],
+    "tick_effects": [
+      { "op": "damage_target", "value": 10, "damage_type": "internal" }
+    ],
+    "tick_interval": 0.8,
+    "tags": ["中毒", "蚀伤", "叠蚀", "毒功"]
+  },
+  {
+    "id": "debuff_burn_mark",
+    "name": "引燃印",
+    "type": "debuff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 2.5,
+    "effects": [
+      { "op": "damage_reduce_percent", "value": -0.06 }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0,
+    "tags": ["灼脉", "追命印", "炎劲"]
+  },
+  {
+    "id": "debuff_silence",
+    "name": "封脉",
+    "type": "debuff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 1.8,
+    "effects": [],
+    "tick_effects": [],
+    "tick_interval": 0.0,
+    "tags": ["封脉", "制身", "内功"]
+  },
+  {
+    "id": "debuff_stun",
+    "name": "震脉",
+    "type": "debuff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 1.5,
+    "effects": [],
+    "tick_effects": [],
+    "tick_interval": 0.0,
+    "tags": ["震脉", "制身", "外功"]
+  },
+  {
+    "id": "debuff_freeze",
+    "name": "寒凝",
+    "type": "debuff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 2.0,
+    "effects": [
+      { "op": "damage_reduce_percent", "value": -0.05 }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0,
+    "tags": ["寒凝", "制身", "寒劲"]
+  },
+  {
+    "id": "debuff_fear",
+    "name": "惊魂",
+    "type": "debuff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 1.5,
+    "effects": [
+      { "op": "attack_speed_bonus", "value": -0.1 }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0,
+    "tags": ["惊魂", "制身", "摄魂"]
+  },
+  {
+    "id": "debuff_taunt",
+    "name": "挑衅",
+    "type": "debuff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 1.5,
+    "effects": [
+      { "op": "damage_amp_percent", "value": -0.08 }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0,
+    "tags": ["引仇", "制身", "阵法"]
+  }
+]

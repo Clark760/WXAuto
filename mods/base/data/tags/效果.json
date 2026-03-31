@@ -1,0 +1,237 @@
+[
+  {
+    "id": "tag_effect_buff_array",
+    "name": "阵炁",
+    "description": "阵法或共鸣类增益，用于标记阵势强化、阵列共振等正面效果。"
+  },
+  {
+    "id": "tag_effect_buff_attune",
+    "name": "合脉",
+    "description": "调息契合类增益，用于标记与特定地形、流派或异常状态共鸣的正面效果。"
+  },
+  {
+    "id": "tag_effect_buff_calm",
+    "name": "清心",
+    "description": "清心定神类增益，用于标记稳定心神、减轻控制影响的正面效果。"
+  },
+  {
+    "id": "tag_effect_buff_defense",
+    "name": "守势",
+    "description": "防御向增益总，用于标记减伤、守势、硬化、生存提升类 Buff。"
+  },
+  {
+    "id": "tag_effect_buff_dodge",
+    "name": "迷踪",
+    "description": "闪避向增益，用于标记提升身法闪转、规避攻击的正面效果。"
+  },
+  {
+    "id": "tag_effect_buff_focus",
+    "name": "凝神",
+    "description": "专注凝神类增益，用于标记心法凝聚、回气稳定、专注强化类 Buff。"
+  },
+  {
+    "id": "tag_effect_buff_guard",
+    "name": "护体",
+    "description": "守御护身类增益，用于标记护体、守架、稳守反击等正面效果。"
+  },
+  {
+    "id": "tag_effect_buff_last_stand",
+    "name": "绝境反锋",
+    "description": "背水一战类增益，用于标记残血反扑、濒危强化等逆境 Buff。"
+  },
+  {
+    "id": "tag_effect_buff_offense",
+    "name": "锋芒",
+    "description": "进攻向增益总，用于标记增伤、爆发、收割、输出强化类 Buff。"
+  },
+  {
+    "id": "tag_effect_buff_poison",
+    "name": "毒息",
+    "description": "毒系正面联动，用于标记以毒养战、毒脉增幅、毒功契合类 Buff。"
+  },
+  {
+    "id": "tag_effect_buff_shield",
+    "name": "罡气罩",
+    "description": "护盾类增益，用于标记真气护体、护罩、护盾绑定类正面效果。"
+  },
+  {
+    "id": "tag_effect_buff_speed",
+    "name": "轻身",
+    "description": "速度向增益，用于标记攻速、身法、出手节奏提升类 Buff。"
+  },
+  {
+    "id": "tag_effect_buff_stack_rage",
+    "name": "狂势",
+    "description": "叠层狂势类增益，用于标记随攻击或时间逐步积累强度的 Buff。"
+  },
+  {
+    "id": "tag_effect_debuff_armor_break",
+    "name": "裂甲",
+    "description": "破甲减防类减益，用于标记裂甲、削防、外防削弱类 Debuff。"
+  },
+  {
+    "id": "tag_effect_debuff_array_break",
+    "name": "破阵",
+    "description": "破阵扰阵类减益，用于标记阵型紊乱、协同失效、队列失衡类 Debuff。"
+  },
+  {
+    "id": "tag_effect_debuff_dot",
+    "name": "蚀伤",
+    "description": "持续伤害类减益，用于标记中毒、灼烧、侵蚀等按周期掉血效果。"
+  },
+  {
+    "id": "tag_effect_debuff_mark",
+    "name": "追命印",
+    "description": "标记类减益，用于标记点燃印记、猎杀印记、连招前置标识等 Debuff。"
+  },
+  {
+    "id": "tag_effect_debuff_stack",
+    "name": "叠蚀",
+    "description": "可叠层减益，用于标记中毒层数、蚀骨层数等会累积的 Debuff。"
+  },
+  {
+    "id": "tag_effect_defense_barrier",
+    "name": "气障",
+    "description": "屏障护体语义，用于标记真气壁障、护罩、隔绝伤害类效果。"
+  },
+  {
+    "id": "tag_effect_defense_guard",
+    "name": "守御",
+    "description": "守御防守语义，用于标记格挡、护身、守架类效果语义。"
+  },
+  {
+    "id": "tag_effect_offense_chase",
+    "name": "追击",
+    "description": "追击突进语义，用于标记追风、追杀、追击窗口强化类效果。"
+  },
+  {
+    "id": "tag_effect_offense_debuff_synergy",
+    "name": "乘隙",
+    "description": "减益联动输出，用于标记对带 Debuff 目标有额外收益的效果。"
+  },
+  {
+    "id": "tag_effect_offense_tempo",
+    "name": "连势",
+    "description": "战斗节奏强化，用于标记以连击、频率、压制节奏取胜的效果。"
+  },
+  {
+    "id": "tag_effect_stack_step",
+    "name": "步势",
+    "description": "步法叠层，用于标记随移动、踏步、换位逐步叠加的效果。"
+  },
+  {
+    "id": "tag_effect_state_burn",
+    "name": "灼脉",
+    "description": "灼烧状态，用于标记火毒、焚伤、引燃等持续燃烧状态。"
+  },
+  {
+    "id": "tag_effect_state_control",
+    "name": "制身",
+    "description": "控制状态总，用于标记眩晕、沉默、冻结、恐惧、嘲讽等限制状态。"
+  },
+  {
+    "id": "tag_effect_state_fear",
+    "name": "惊魂",
+    "description": "恐惧状态，用于标记惊魂、胆寒、受慑等失措类控制状态。"
+  },
+  {
+    "id": "tag_effect_state_freeze",
+    "name": "寒凝",
+    "description": "冻结状态，用于标记寒凝、冰封、定身必暴击等寒系控制状态。"
+  },
+  {
+    "id": "tag_effect_state_poison",
+    "name": "中毒",
+    "description": "中毒状态，用于标记毒伤、蚀骨、毒脉侵蚀等毒系异常状态。"
+  },
+  {
+    "id": "tag_effect_state_shred",
+    "name": "破防",
+    "description": "削弱护甲状态，用于标记护甲被撕裂、防御被削减的异常状态。"
+  },
+  {
+    "id": "tag_effect_state_silence",
+    "name": "封脉",
+    "description": "沉默状态，用于标记封脉、禁言、无法施展技能的控制状态。"
+  },
+  {
+    "id": "tag_effect_state_stun",
+    "name": "震脉",
+    "description": "眩晕状态，用于标记震脉、昏厥、短时失去行动能力的控制状态。"
+  },
+  {
+    "id": "tag_effect_state_taunt",
+    "name": "引仇",
+    "description": "嘲讽状态，用于标记挑衅、强制牵制、吸引仇恨类控制状态。"
+  },
+  {
+    "id": "tag_effect_state_weakened",
+    "name": "虚弱",
+    "description": "虚弱状态，用于标记被压制、气势受损、节奏下滑类异常状态。"
+  },
+  {
+    "id": "tag_effect_style_array",
+    "name": "阵法",
+    "description": "阵法流派，用于标记与阵型、阵眼、协同加成相关的效果。"
+  },
+  {
+    "id": "tag_effect_style_cold",
+    "name": "寒劲",
+    "description": "寒冰流派，用于标记冻结、寒劲、阴寒控制相关效果。"
+  },
+  {
+    "id": "tag_effect_style_external",
+    "name": "外功",
+    "description": "外功流派，用于标记拳脚兵刃、刚猛外力、破甲硬攻类效果。"
+  },
+  {
+    "id": "tag_effect_style_fire",
+    "name": "炎劲",
+    "description": "火劲流派，用于标记灼烧、引燃、烈焰伤害相关效果。"
+  },
+  {
+    "id": "tag_effect_style_inner",
+    "name": "内功",
+    "description": "内功流派，用于标记调息、真气、封脉、内劲运转相关效果。"
+  },
+  {
+    "id": "tag_effect_style_poison",
+    "name": "毒功",
+    "description": "毒功流派，用于标记中毒、蚀骨、毒脉强化相关效果。"
+  },
+  {
+    "id": "tag_effect_style_poison_fire",
+    "name": "毒火",
+    "description": "毒火混合流派，用于标记兼具灼烧与毒伤联动的复合效果。"
+  },
+  {
+    "id": "tag_effect_style_qi",
+    "name": "真气",
+    "description": "真气护体流派，用于标记以真气、护体罡气为核心的效果。"
+  },
+  {
+    "id": "tag_effect_style_qinggong",
+    "name": "轻功",
+    "description": "轻功流派，用于标记身法、位移、闪转腾挪、步法叠势类效果。"
+  },
+  {
+    "id": "tag_effect_style_spirit",
+    "name": "摄魂",
+    "description": "精神心魄流派，用于标记震慑、摄魂、惊魂等精神压制效果。"
+  },
+  {
+    "id": "tag_effect_tier_high",
+    "name": "上乘",
+    "description": "高阶层级，用于标记阵法共鸣或效果强度处于高档位。"
+  },
+  {
+    "id": "tag_effect_tier_low",
+    "name": "初境",
+    "description": "低阶层级，用于标记阵法共鸣或效果强度处于起始档位。"
+  },
+  {
+    "id": "tag_effect_tier_mid",
+    "name": "中境",
+    "description": "中阶层级，用于标记阵法共鸣或效果强度处于中档位。"
+  }
+]
