@@ -220,6 +220,11 @@ func append_battle_log(line: String, event_type: String = "info") -> void:
 	_runtime_view.append_battle_log(line, event_type)
 
 
+# coordinator 追加结构化战斗事件时，交给 runtime view 做聚合与延迟渲染。
+func append_combat_event(event: Dictionary) -> void:
+	_runtime_view.append_combat_event(event)
+
+
 # 对外保留详情关闭入口，供 runtime view 和 world/controller 调用。
 func force_close_detail_panel(animate: bool) -> void:
 	_detail_view.force_close_detail_panel(animate)
@@ -256,6 +261,16 @@ func update_hovered_unit(unit: Node, screen_pos: Vector2) -> void:
 # 世界 hover 丢失时，由 detail view 统一清理 tooltip。
 func clear_hovered_unit() -> void:
 	_detail_view.clear_hovered_unit()
+
+
+# 世界地形 hover 命中后，由 runtime view 统一渲染地形提示。
+func update_hovered_terrain(terrain_snapshot: Dictionary, screen_pos: Vector2) -> void:
+	_runtime_view.show_terrain_tooltip(terrain_snapshot, screen_pos)
+
+
+# 世界地形 hover 丢失时，统一清理地形提示。
+func clear_hovered_terrain() -> void:
+	_runtime_view.clear_terrain_tooltip()
 
 
 # 世界状态变化后，HUD 只做最小同步，不反向驱动世界逻辑。
@@ -323,6 +338,9 @@ func set_shop_panel_visible(visible: bool, remember_preference: bool) -> void:
 # ESC 关闭链只处理 tooltip、detail 和 shop 三层显隐，不掺入业务流程。
 # 这样能保证“关闭 UI”和“推进战斗/关卡”是两条完全独立的职责线。
 func handle_escape_close_chain() -> bool:
+	if _refs.terrain_tooltip_panel != null and _refs.terrain_tooltip_panel.visible:
+		clear_hovered_terrain()
+		return true
 	if _refs.item_tooltip != null and _refs.item_tooltip.visible:
 		_refs.item_tooltip.visible = false
 		_support.clear_item_hover_state()

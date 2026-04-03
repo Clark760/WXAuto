@@ -36,6 +36,7 @@ func connect_all(event_bus: Node) -> void:
 	_connect_battle_statistics_signal()
 	_connect_if_present(_refs.unit_augment_manager, "skill_effect_damage", "_on_skill_effect_damage")
 	_connect_if_present(_refs.unit_augment_manager, "skill_effect_heal", "_on_skill_effect_heal")
+	_connect_if_present(_refs.unit_augment_manager, "skill_triggered", "_on_skill_triggered")
 	_connect_if_present(
 		_refs.unit_augment_manager,
 		"unit_augment_data_reloaded",

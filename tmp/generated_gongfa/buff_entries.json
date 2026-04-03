@@ -1,0 +1,103 @@
+[
+  {
+    "id": "buff_sect_guard_drill",
+    "name": "???????",
+    "type": "buff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 2.4,
+    "effects": [
+      {
+        "op": "damage_reduce_percent",
+        "value": 0.06
+      },
+      {
+        "op": "tenacity",
+        "value": 0.06
+      }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0,
+    "tags": [
+      "??",
+      "??",
+      "????"
+    ]
+  },
+  {
+    "id": "buff_sect_mobility_step",
+    "name": "???????",
+    "type": "buff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 2.0,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 8
+      },
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.06
+      }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0,
+    "tags": [
+      "??",
+      "??",
+      "????"
+    ]
+  },
+  {
+    "id": "debuff_sect_exposed_gap",
+    "name": "????",
+    "type": "debuff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 2.0,
+    "effects": [
+      {
+        "op": "damage_reduce_percent",
+        "value": -0.06
+      },
+      {
+        "op": "attack_speed_bonus",
+        "value": -0.05
+      }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0,
+    "tags": [
+      "??",
+      "??",
+      "????"
+    ]
+  },
+  {
+    "id": "debuff_sect_qi_disrupt",
+    "name": "????",
+    "type": "debuff",
+    "stackable": false,
+    "max_stacks": 1,
+    "default_duration": 2.2,
+    "effects": [
+      {
+        "op": "mp_regen_add",
+        "value": -1.2
+      },
+      {
+        "op": "crit_bonus",
+        "value": -0.04
+      }
+    ],
+    "tick_effects": [],
+    "tick_interval": 0.0,
+    "tags": [
+      "??",
+      "??",
+      "????"
+    ]
+  }
+]

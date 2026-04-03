@@ -55,10 +55,13 @@ var world_press_cell: Vector2i = INVALID_CELL
 var hover_candidate_unit: Node = null
 var hover_hold_time: float = 0.0
 var tooltip_hide_delay: float = 0.0
+var terrain_hover_candidate_cell: Vector2i = INVALID_CELL
+var terrain_hover_hold_time: float = 0.0
 
 # 各类局内面板显隐状态。
 # presenter 只负责投影这些显隐态，不在节点上另存一份业务真相。
 var tooltip_visible: bool = false
+var terrain_tooltip_visible: bool = false
 var detail_visible: bool = false
 var shop_visible: bool = false
 var inventory_visible: bool = false
@@ -114,6 +117,7 @@ func _init() -> void:
 	drag_target_cell = INVALID_CELL
 	drag_origin_cell = INVALID_CELL
 	world_press_cell = INVALID_CELL
+	terrain_hover_candidate_cell = INVALID_CELL
 
 
 # 根场景在完成 refs 和协作者装配后调用这个入口，供 smoke test 与后续批次判断。

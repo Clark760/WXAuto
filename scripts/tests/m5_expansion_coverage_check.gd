@@ -6,10 +6,10 @@ const BUFF_DATA_DIR := "res://mods/base/data/buffs"
 const EQUIPMENT_DATA_DIR := "res://mods/base/data/equipment"
 const GONGFA_DATA_DIR := "res://mods/base/data/gongfa"
 const TERRAIN_DATA_DIR := "res://mods/base/data/terrains"
-const EXPECTED_BUFF_COUNT: int = 48
-const EXPECTED_EQUIPMENT_COUNT: int = 156
-const EXPECTED_GONGFA_COUNT: int = 172
-const EXPECTED_TERRAIN_COUNT: int = 8
+const EXPECTED_BUFF_COUNT: int = 61
+const EXPECTED_EQUIPMENT_COUNT: int = 90
+const EXPECTED_GONGFA_COUNT: int = 162
+const EXPECTED_TERRAIN_COUNT: int = 20
 
 const EXPECTED_PASSIVE_OPS: Array[String] = [
 	"hp_regen_add",
@@ -215,20 +215,27 @@ func _check_data_counts() -> void:
 	_assert_true(gongfa.size() == EXPECTED_GONGFA_COUNT, "gongfa_count == %d (actual=%d)" % [EXPECTED_GONGFA_COUNT, gongfa.size()])
 	_assert_true(terrains.size() == EXPECTED_TERRAIN_COUNT, "terrain_count == %d (actual=%d)" % [EXPECTED_TERRAIN_COUNT, terrains.size()])
 
-	var equip_with_trigger: int = 0
 	for row_value in equips:
 		if not (row_value is Dictionary):
 			continue
 		var row: Dictionary = row_value
-		var trigger: Dictionary = row.get("trigger", {})
-		var trigger_type: String = str(trigger.get("type", "")).strip_edges()
-		var effects: Array = trigger.get("effects", [])
-		if not trigger_type.is_empty() and not effects.is_empty():
-			equip_with_trigger += 1
-	_assert_true(
-		equip_with_trigger == EXPECTED_EQUIPMENT_COUNT,
-		"equipment_with_trigger == %d (actual=%d)" % [EXPECTED_EQUIPMENT_COUNT, equip_with_trigger]
-	)
+		var quality: String = str(row.get("quality", "")).strip_edges().to_lower()
+		var trigger_value: Variant = row.get("trigger", null)
+		var has_trigger: bool = false
+		if trigger_value != null:
+			_assert_true(trigger_value is Dictionary, "equipment trigger should be dictionary id=%s" % str(row.get("id", "")))
+			if trigger_value is Dictionary:
+				var trigger: Dictionary = trigger_value
+				var trigger_type: String = str(trigger.get("type", trigger.get("trigger", ""))).strip_edges()
+				var effects_value: Variant = trigger.get("effects", [])
+				var effects_ok: bool = effects_value is Array and not (effects_value as Array).is_empty()
+				var trigger_ok: bool = not trigger_type.is_empty() and effects_ok
+				_assert_true(trigger_ok, "equipment trigger malformed id=%s" % str(row.get("id", "")))
+				has_trigger = trigger_ok
+		if quality == "blue" or quality == "purple" or quality == "orange":
+			_assert_true(has_trigger, "high quality equipment should have trigger id=%s quality=%s" % [str(row.get("id", "")), quality])
+		elif quality == "white" or quality == "green":
+			_assert_true(not has_trigger, "low quality equipment should not have trigger id=%s quality=%s" % [str(row.get("id", "")), quality])
 
 
 func _check_linkage_removed() -> void:

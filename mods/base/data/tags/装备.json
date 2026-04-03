@@ -3,5 +3,15 @@
     "id": "tag_eq_type_01",
     "name": "兵器",
     "description": "兵器"
+  },
+  {
+    "id": "tag_eq_type_02",
+    "name": "护甲",
+    "description": "护甲"
+  },
+  {
+    "id": "tag_eq_type_03",
+    "name": "饰品",
+    "description": "饰品"
   }
 ]

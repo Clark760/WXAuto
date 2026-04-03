@@ -1,0 +1,1658 @@
+[
+  {
+    "id": "gf_shaolin_guard_qinggong_02",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "earth",
+    "quality": "green",
+    "cost": 180,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_shaolin",
+      "sect_name.??",
+      "style.shaolin_guard",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 8
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.012
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_mobility_step",
+            "duration": 2.05
+          },
+          {
+            "op": "pull_target",
+            "distance": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_shaolin_strike_qinggong_02",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "metal",
+    "quality": "green",
+    "cost": 180,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_shaolin",
+      "sect_name.??",
+      "style.shaolin_strike",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 8
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.012
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "mark_shaolin_strike",
+            "duration": 1.65
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "mark_shaolin_strike",
+            "value": 28.8,
+            "bonus_multiplier": 1.65,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudang_taiji_qinggong_02",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "water",
+    "quality": "green",
+    "cost": 180,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudang",
+      "sect_name.??",
+      "style.wudang_taiji",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 8
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.012
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_mobility_step",
+            "duration": 2.05
+          },
+          {
+            "op": "pull_target",
+            "distance": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudang_taiji_qinggong_05",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "water",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudang",
+      "sect_name.??",
+      "style.wudang_taiji",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 12
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 1.8,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_mobility_step",
+            "duration": 2.55
+          },
+          {
+            "op": "pull_target",
+            "distance": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudang_sword_qinggong_02",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "metal",
+    "quality": "green",
+    "cost": 180,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudang",
+      "sect_name.??",
+      "style.wudang_sword",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 8
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.012
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "mark_wudang_sword",
+            "duration": 1.65
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "mark_wudang_sword",
+            "value": 28.8,
+            "bonus_multiplier": 1.65,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudang_sword_qinggong_06",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "metal",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudang",
+      "sect_name.??",
+      "style.wudang_sword",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 15
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.021
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 1.6,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "mark_wudang_sword",
+            "duration": 2.4
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "mark_wudang_sword",
+            "value": 64.8,
+            "bonus_multiplier": 1.65,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudang_sword_qinggong_07",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "metal",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudang",
+      "sect_name.??",
+      "style.wudang_sword",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 15
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.021
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 1.6,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "mark_wudang_sword",
+            "duration": 2.4
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "mark_wudang_sword",
+            "value": 64.8,
+            "bonus_multiplier": 1.65,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_huashan_jianzong_qinggong_02",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "metal",
+    "quality": "green",
+    "cost": 180,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_huashan",
+      "sect_name.??",
+      "style.huashan_jianzong",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 8
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.012
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "mark_huashan_jianzong",
+            "duration": 1.65
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "mark_huashan_jianzong",
+            "value": 28.8,
+            "bonus_multiplier": 1.65,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_huashan_jianzong_qinggong_05",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "metal",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_huashan",
+      "sect_name.??",
+      "style.huashan_jianzong",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 12
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 1.8,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "mark_huashan_jianzong",
+            "duration": 2.15
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "mark_huashan_jianzong",
+            "value": 50.4,
+            "bonus_multiplier": 1.65,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_huashan_qizong_qinggong_02",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "wood",
+    "quality": "green",
+    "cost": 180,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_huashan",
+      "sect_name.??",
+      "style.huashan_qizong",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 8
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.012
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_mobility_step",
+            "duration": 2.05
+          },
+          {
+            "op": "pull_target",
+            "distance": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_qingcheng_raid_qinggong_02",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "wood",
+    "quality": "green",
+    "cost": 180,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_qingcheng",
+      "sect_name.??",
+      "style.qingcheng_raid",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 8
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.012
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "mark_qingcheng_raid",
+            "duration": 1.65
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "mark_qingcheng_raid",
+            "value": 28.8,
+            "bonus_multiplier": 1.65,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_qingcheng_raid_qinggong_05",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "wood",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_qingcheng",
+      "sect_name.??",
+      "style.qingcheng_raid",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 12
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 1.8,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "mark_qingcheng_raid",
+            "duration": 2.15
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "mark_qingcheng_raid",
+            "value": 50.4,
+            "bonus_multiplier": 1.65,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_qingcheng_raid_qinggong_07",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "wood",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_qingcheng",
+      "sect_name.??",
+      "style.qingcheng_raid",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 15
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.021
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 1.6,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "mark_qingcheng_raid",
+            "duration": 2.4
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "mark_qingcheng_raid",
+            "value": 64.8,
+            "bonus_multiplier": 1.65,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_qingcheng_calm_qinggong_02",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "none",
+    "quality": "green",
+    "cost": 180,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_qingcheng",
+      "sect_name.??",
+      "style.qingcheng_calm",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 8
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.012
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_mobility_step",
+            "duration": 2.05
+          },
+          {
+            "op": "pull_target",
+            "distance": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_qingcheng_calm_qinggong_05",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "none",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_qingcheng",
+      "sect_name.??",
+      "style.qingcheng_calm",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 12
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 1.8,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_mobility_step",
+            "duration": 2.55
+          },
+          {
+            "op": "pull_target",
+            "distance": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_tangmen_mechanism_qinggong_02",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "metal",
+    "quality": "green",
+    "cost": 180,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_tangmen",
+      "sect_name.??",
+      "style.tangmen_mechanism",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 8
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.012
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "mark_tangmen_mechanism",
+            "duration": 1.65
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "mark_tangmen_mechanism",
+            "value": 28.8,
+            "bonus_multiplier": 1.65,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_tangmen_mechanism_qinggong_06",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "metal",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_tangmen",
+      "sect_name.??",
+      "style.tangmen_mechanism",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 15
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.021
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 1.6,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "mark_tangmen_mechanism",
+            "duration": 2.4
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "mark_tangmen_mechanism",
+            "value": 64.8,
+            "bonus_multiplier": 1.65,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_tangmen_hiddenweapon_qinggong_02",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "wood",
+    "quality": "green",
+    "cost": 180,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_tangmen",
+      "sect_name.??",
+      "style.tangmen_hiddenweapon",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 8
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.012
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "mark_tangmen_hiddenweapon",
+            "duration": 1.65
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "mark_tangmen_hiddenweapon",
+            "value": 28.8,
+            "bonus_multiplier": 1.65,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_tangmen_hiddenweapon_qinggong_05",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "wood",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_tangmen",
+      "sect_name.??",
+      "style.tangmen_hiddenweapon",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 12
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 1.8,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "mark_tangmen_hiddenweapon",
+            "duration": 2.15
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "mark_tangmen_hiddenweapon",
+            "value": 50.4,
+            "bonus_multiplier": 1.65,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_tangmen_hiddenweapon_qinggong_07",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "wood",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_tangmen",
+      "sect_name.??",
+      "style.tangmen_hiddenweapon",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 15
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.021
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 1.6,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "mark_tangmen_hiddenweapon",
+            "duration": 2.4
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "mark_tangmen_hiddenweapon",
+            "value": 64.8,
+            "bonus_multiplier": 1.65,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_kongtong_sevenhurt_qinggong_02",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "fire",
+    "quality": "green",
+    "cost": 180,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_kongtong",
+      "sect_name.??",
+      "style.kongtong_sevenhurt",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 8
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.012
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "mark_kongtong_sevenhurt",
+            "duration": 1.65
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "mark_kongtong_sevenhurt",
+            "value": 28.8,
+            "bonus_multiplier": 1.65,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_kongtong_mystic_qinggong_02",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "earth",
+    "quality": "green",
+    "cost": 180,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_kongtong",
+      "sect_name.??",
+      "style.kongtong_mystic",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 8
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.012
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_mobility_step",
+            "duration": 2.05
+          },
+          {
+            "op": "pull_target",
+            "distance": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_guanfu_command_qinggong_02",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "earth",
+    "quality": "green",
+    "cost": 180,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_guanfu",
+      "sect_name.??",
+      "style.guanfu_command",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 8
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.012
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_mobility_step",
+            "duration": 2.05
+          },
+          {
+            "op": "pull_target",
+            "distance": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_guanfu_arrest_qinggong_02",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "metal",
+    "quality": "green",
+    "cost": 180,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_guanfu",
+      "sect_name.??",
+      "style.guanfu_arrest",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 8
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.012
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "mark_guanfu_arrest",
+            "duration": 1.65
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "mark_guanfu_arrest",
+            "value": 28.8,
+            "bonus_multiplier": 1.65,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_guanfu_arrest_qinggong_05",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "metal",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_guanfu",
+      "sect_name.??",
+      "style.guanfu_arrest",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 12
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 1.8,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "mark_guanfu_arrest",
+            "duration": 2.15
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "mark_guanfu_arrest",
+            "value": 50.4,
+            "bonus_multiplier": 1.65,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudu_poison_qinggong_02",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "wood",
+    "quality": "green",
+    "cost": 180,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudu",
+      "sect_name.??",
+      "style.wudu_poison",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 8
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.012
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "mark_wudu_poison",
+            "duration": 1.95
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "mark_wudu_poison",
+            "value": 27.2,
+            "bonus_multiplier": 1.7,
+            "damage_type": "internal"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudu_serpent_qinggong_02",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "water",
+    "quality": "green",
+    "cost": 180,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudu",
+      "sect_name.??",
+      "style.wudu_serpent",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 8
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.012
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "mark_wudu_serpent",
+            "duration": 1.65
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "mark_wudu_serpent",
+            "value": 28.8,
+            "bonus_multiplier": 1.65,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudu_serpent_qinggong_06",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "water",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudu",
+      "sect_name.??",
+      "style.wudu_serpent",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 15
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.021
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 1.6,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "mark_wudu_serpent",
+            "duration": 2.4
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "mark_wudu_serpent",
+            "value": 64.8,
+            "bonus_multiplier": 1.65,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudu_serpent_qinggong_07",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "water",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudu",
+      "sect_name.??",
+      "style.wudu_serpent",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 15
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.021
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 1.6,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "mark_wudu_serpent",
+            "duration": 2.4
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "mark_wudu_serpent",
+            "value": 64.8,
+            "bonus_multiplier": 1.65,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_gaibang_drunkenstaff_qinggong_02",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "earth",
+    "quality": "green",
+    "cost": 180,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_gaibang",
+      "sect_name.??",
+      "style.gaibang_drunkenstaff",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 8
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.012
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "mark_gaibang_drunkenstaff",
+            "duration": 1.65
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "mark_gaibang_drunkenstaff",
+            "value": 28.8,
+            "bonus_multiplier": 1.65,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_gaibang_drunkenstaff_qinggong_05",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "earth",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_gaibang",
+      "sect_name.??",
+      "style.gaibang_drunkenstaff",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 12
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 1.8,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "mark_gaibang_drunkenstaff",
+            "duration": 2.15
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "mark_gaibang_drunkenstaff",
+            "value": 50.4,
+            "bonus_multiplier": 1.65,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_gaibang_support_qinggong_02",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "none",
+    "quality": "green",
+    "cost": 180,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_gaibang",
+      "sect_name.??",
+      "style.gaibang_support",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 8
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.012
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_mobility_step",
+            "duration": 2.05
+          },
+          {
+            "op": "pull_target",
+            "distance": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_gaibang_support_qinggong_06",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "none",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_gaibang",
+      "sect_name.??",
+      "style.gaibang_support",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 15
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.021
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 1.6,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_mobility_step",
+            "duration": 2.8
+          },
+          {
+            "op": "pull_target",
+            "distance": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_mingjiao_flame_qinggong_02",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "fire",
+    "quality": "green",
+    "cost": 180,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_mingjiao",
+      "sect_name.??",
+      "style.mingjiao_flame",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 8
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.012
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "mark_mingjiao_flame",
+            "duration": 1.65
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "mark_mingjiao_flame",
+            "value": 28.8,
+            "bonus_multiplier": 1.65,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_mingjiao_light_qinggong_02",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "fire",
+    "quality": "green",
+    "cost": 180,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_mingjiao",
+      "sect_name.??",
+      "style.mingjiao_light",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 8
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.012
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_mobility_step",
+            "duration": 2.05
+          },
+          {
+            "op": "pull_target",
+            "distance": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_mingjiao_light_qinggong_05",
+    "name": "???????????",
+    "type": "qinggong",
+    "description": "????????????",
+    "element": "fire",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_mingjiao",
+      "sect_name.??",
+      "style.mingjiao_light",
+      "type.qinggong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 12
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 1.8,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_mobility_step",
+            "duration": 2.55
+          },
+          {
+            "op": "pull_target",
+            "distance": 1
+          }
+        ]
+      }
+    ]
+  }
+]

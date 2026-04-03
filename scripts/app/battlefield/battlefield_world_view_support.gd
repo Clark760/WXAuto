@@ -20,6 +20,7 @@ var _bottom_reserved_preparation: float = 250.0
 var _bottom_tween: Tween = null
 
 const COMBAT_COMPACT_VISUAL_UNIT_THRESHOLD: int = 120 # 高密度战斗隐藏单位标签。
+const TERRAIN_HOVER_SHOW_DELAY: float = 0.06
 
 
 # 绑定 world controller、场景引用表和会话状态，后续所有视图态都只走这里。
@@ -256,6 +257,79 @@ func update_hover(delta: float) -> Dictionary:
 			"unit": hovered,
 			"screen_pos": mouse_screen
 		}
+	return {}
+
+
+# 地形 hover 更新同样回传“展示 / 清理”投影结果，真正 HUD 写入仍在 world controller。
+func update_terrain_hover(delta: float, block_by_ui: bool = false) -> Dictionary:
+	if _state == null or _scene_root == null or _refs == null or _refs.hex_grid == null:
+		return {}
+	if _state.dragging_unit != null or block_by_ui:
+		return _clear_terrain_hover_state()
+
+	var viewport: Viewport = _scene_root.get_viewport()
+	if viewport == null:
+		return {}
+	var mouse_screen: Vector2 = viewport.get_mouse_position()
+	var world_pos: Vector2 = screen_to_world(mouse_screen)
+	var cell_value: Variant = _refs.hex_grid.world_to_axial(world_pos)
+	if not (cell_value is Vector2i):
+		return _clear_terrain_hover_state()
+	var cell: Vector2i = cell_value as Vector2i
+	if not _refs.hex_grid.is_inside_grid(cell):
+		return _clear_terrain_hover_state()
+
+	if cell == _state.terrain_hover_candidate_cell:
+		_state.terrain_hover_hold_time += maxf(delta, 0.0)
+	else:
+		_state.terrain_hover_candidate_cell = cell
+		_state.terrain_hover_hold_time = 0.0
+
+	if _state.terrain_hover_hold_time < TERRAIN_HOVER_SHOW_DELAY and not _state.terrain_tooltip_visible:
+		return {}
+
+	var terrain_snapshot: Dictionary = _build_terrain_snapshot_for_cell(cell)
+	if terrain_snapshot.is_empty():
+		return _clear_terrain_hover_state()
+	_state.terrain_tooltip_visible = true
+	return {
+		"action": "show",
+		"cell": cell,
+		"screen_pos": mouse_screen,
+		"terrain": terrain_snapshot
+	}
+
+
+func _build_terrain_snapshot_for_cell(cell: Vector2i) -> Dictionary:
+	if _refs == null or _refs.combat_manager == null:
+		return {}
+	var combat_manager: Node = _refs.combat_manager
+	var entries: Array[Dictionary] = []
+	if combat_manager.has_method("get_terrain_entries_at_cell"):
+		var entries_value: Variant = combat_manager.get_terrain_entries_at_cell(cell, "all")
+		if entries_value is Array:
+			for entry_value in (entries_value as Array):
+				if entry_value is Dictionary:
+					entries.append((entry_value as Dictionary).duplicate(true))
+	var tags: Array[String] = []
+	if combat_manager.has_method("get_terrain_tags_at_cell"):
+		tags = combat_manager.get_terrain_tags_at_cell(cell, "all")
+	if entries.is_empty() and tags.is_empty():
+		return {}
+	return {
+		"cell": cell,
+		"entries": entries,
+		"tags": tags
+	}
+
+
+func _clear_terrain_hover_state() -> Dictionary:
+	var should_clear: bool = _state.terrain_tooltip_visible
+	_state.terrain_tooltip_visible = false
+	_state.terrain_hover_candidate_cell = Vector2i(-999, -999)
+	_state.terrain_hover_hold_time = 0.0
+	if should_clear:
+		return {"action": "clear"}
 	return {}
 
 

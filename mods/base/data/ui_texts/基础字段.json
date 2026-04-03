@@ -41,6 +41,11 @@
       "external": "外功",
       "reflect": "反伤"
     },
+    "terrain_type_labels": {
+      "beneficial": "增益地形",
+      "hazard": "危险地形",
+      "obstacle": "障碍地形"
+    },
     "status_labels": {
       "dead": "已阵亡",
       "in_combat": "战斗中",

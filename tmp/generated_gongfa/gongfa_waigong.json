@@ -1,0 +1,2084 @@
+[
+  {
+    "id": "gf_shaolin_guard_waigong_01",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "earth",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_shaolin",
+      "sect_name.??",
+      "style.shaolin_guard",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 21.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_shaolin_guard_waigong_05",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "earth",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_shaolin",
+      "sect_name.??",
+      "style.shaolin_guard",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 16
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 50.4,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.15
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_shaolin_strike_waigong_01",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "metal",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_shaolin",
+      "sect_name.??",
+      "style.shaolin_strike",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 25.2,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_shaolin_strike_waigong_05",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "metal",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_shaolin",
+      "sect_name.??",
+      "style.shaolin_strike",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 16
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 58.8,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.15
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_shaolin_strike_waigong_07",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "metal",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_shaolin",
+      "sect_name.??",
+      "style.shaolin_strike",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 19
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.021
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.0,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 75.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudang_taiji_waigong_01",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "water",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudang",
+      "sect_name.??",
+      "style.wudang_taiji",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 21.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudang_sword_waigong_01",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "metal",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudang",
+      "sect_name.??",
+      "style.wudang_sword",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 25.2,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudang_sword_waigong_05",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "metal",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudang",
+      "sect_name.??",
+      "style.wudang_sword",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 16
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 58.8,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.15
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_huashan_jianzong_waigong_01",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "metal",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_huashan",
+      "sect_name.??",
+      "style.huashan_jianzong",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 25.2,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_huashan_jianzong_waigong_04",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "metal",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_huashan",
+      "sect_name.??",
+      "style.huashan_jianzong",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 16
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 58.8,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.15
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_huashan_jianzong_waigong_06",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "metal",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_huashan",
+      "sect_name.??",
+      "style.huashan_jianzong",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 19
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.021
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.0,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 75.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_huashan_jianzong_waigong_07",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "metal",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_huashan",
+      "sect_name.??",
+      "style.huashan_jianzong",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 19
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.021
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.0,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 75.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_huashan_qizong_waigong_01",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "wood",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_huashan",
+      "sect_name.??",
+      "style.huashan_qizong",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 21.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_huashan_qizong_waigong_05",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "wood",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_huashan",
+      "sect_name.??",
+      "style.huashan_qizong",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 16
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 50.4,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.15
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_qingcheng_raid_waigong_01",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "wood",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_qingcheng",
+      "sect_name.??",
+      "style.qingcheng_raid",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 25.2,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_qingcheng_raid_waigong_04",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "wood",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_qingcheng",
+      "sect_name.??",
+      "style.qingcheng_raid",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 16
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 58.8,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.15
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_qingcheng_raid_waigong_06",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "wood",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_qingcheng",
+      "sect_name.??",
+      "style.qingcheng_raid",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 19
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.021
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.0,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 75.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_qingcheng_calm_waigong_01",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "none",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_qingcheng",
+      "sect_name.??",
+      "style.qingcheng_calm",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 21.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_tangmen_mechanism_waigong_01",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "metal",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_tangmen",
+      "sect_name.??",
+      "style.tangmen_mechanism",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "mark_tangmen_mechanism",
+            "duration": 1.7
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "mark_tangmen_mechanism",
+            "value": 21.6,
+            "bonus_multiplier": 1.6,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_tangmen_mechanism_waigong_05",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "metal",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_tangmen",
+      "sect_name.??",
+      "style.tangmen_mechanism",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 16
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "mark_tangmen_mechanism",
+            "duration": 2.4499999999999997
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "mark_tangmen_mechanism",
+            "value": 50.4,
+            "bonus_multiplier": 1.6,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_tangmen_hiddenweapon_waigong_01",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "wood",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_tangmen",
+      "sect_name.??",
+      "style.tangmen_hiddenweapon",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 25.2,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_tangmen_hiddenweapon_waigong_04",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "wood",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_tangmen",
+      "sect_name.??",
+      "style.tangmen_hiddenweapon",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 16
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 58.8,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.15
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_tangmen_hiddenweapon_waigong_06",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "wood",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_tangmen",
+      "sect_name.??",
+      "style.tangmen_hiddenweapon",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 19
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.021
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.0,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 75.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_kongtong_sevenhurt_waigong_01",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "fire",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_kongtong",
+      "sect_name.??",
+      "style.kongtong_sevenhurt",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 25.2,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_kongtong_sevenhurt_waigong_05",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "fire",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_kongtong",
+      "sect_name.??",
+      "style.kongtong_sevenhurt",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 16
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 58.8,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.15
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_kongtong_sevenhurt_waigong_07",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "fire",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_kongtong",
+      "sect_name.??",
+      "style.kongtong_sevenhurt",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 19
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.021
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.0,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 75.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_kongtong_mystic_waigong_01",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "earth",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_kongtong",
+      "sect_name.??",
+      "style.kongtong_mystic",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 21.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_kongtong_mystic_waigong_05",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "earth",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_kongtong",
+      "sect_name.??",
+      "style.kongtong_mystic",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 16
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 50.4,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.15
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_guanfu_command_waigong_01",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "earth",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_guanfu",
+      "sect_name.??",
+      "style.guanfu_command",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 21.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_guanfu_command_waigong_05",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "earth",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_guanfu",
+      "sect_name.??",
+      "style.guanfu_command",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 16
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 50.4,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.15
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_guanfu_arrest_waigong_01",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "metal",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_guanfu",
+      "sect_name.??",
+      "style.guanfu_arrest",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 25.2,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_guanfu_arrest_waigong_04",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "metal",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_guanfu",
+      "sect_name.??",
+      "style.guanfu_arrest",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 16
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 58.8,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.15
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_guanfu_arrest_waigong_07",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "metal",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_guanfu",
+      "sect_name.??",
+      "style.guanfu_arrest",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 19
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.021
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.0,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 75.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudu_poison_waigong_01",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "wood",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudu",
+      "sect_name.??",
+      "style.wudu_poison",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 22.8,
+            "damage_type": "internal"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_qi_disrupt",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudu_serpent_waigong_01",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "water",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudu",
+      "sect_name.??",
+      "style.wudu_serpent",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 25.2,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudu_serpent_waigong_05",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "water",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudu",
+      "sect_name.??",
+      "style.wudu_serpent",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 16
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 58.8,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.15
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_gaibang_drunkenstaff_waigong_01",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "earth",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_gaibang",
+      "sect_name.??",
+      "style.gaibang_drunkenstaff",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 25.2,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_gaibang_drunkenstaff_waigong_04",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "earth",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_gaibang",
+      "sect_name.??",
+      "style.gaibang_drunkenstaff",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 16
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 58.8,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.15
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_gaibang_drunkenstaff_waigong_06",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "earth",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_gaibang",
+      "sect_name.??",
+      "style.gaibang_drunkenstaff",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 19
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.021
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.0,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 75.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_gaibang_drunkenstaff_waigong_07",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "earth",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_gaibang",
+      "sect_name.??",
+      "style.gaibang_drunkenstaff",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 19
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.021
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.0,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 75.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_gaibang_support_waigong_01",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "none",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_gaibang",
+      "sect_name.??",
+      "style.gaibang_support",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 21.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_gaibang_support_waigong_05",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "none",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_gaibang",
+      "sect_name.??",
+      "style.gaibang_support",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 16
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 50.4,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.15
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_mingjiao_flame_waigong_01",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "fire",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_mingjiao",
+      "sect_name.??",
+      "style.mingjiao_flame",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "create_terrain",
+            "terrain_ref_id": "terrain_cn_desert",
+            "at": "target",
+            "radius": 1,
+            "duration": 4.0,
+            "target_mode": "enemies"
+          },
+          {
+            "op": "damage_target",
+            "value": 25.2,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_mingjiao_flame_waigong_05",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "fire",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_mingjiao",
+      "sect_name.??",
+      "style.mingjiao_flame",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 16
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 58.8,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.15
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_mingjiao_flame_waigong_07",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "fire",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_mingjiao",
+      "sect_name.??",
+      "style.mingjiao_flame",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 19
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.021
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.0,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 75.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_mingjiao_light_waigong_01",
+    "name": "???????????",
+    "type": "waigong",
+    "description": "????????????",
+    "element": "fire",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_mingjiao",
+      "sect_name.??",
+      "style.mingjiao_light",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 21.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  }
+]

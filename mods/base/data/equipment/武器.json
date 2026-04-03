@@ -1,0 +1,1048 @@
+[
+  {
+    "id": "eq_wx_weapon_001",
+    "name": "玄铁长剑·壹",
+    "description": "武侠风白阶兵器，适合江湖历练。",
+    "type": "weapon",
+    "element": "metal",
+    "quality": "white",
+    "cost": 60,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 10
+      },
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.01
+      }
+    ],
+    "tags": [
+      "equip.type.weapon",
+      "equip.theme.wuxia",
+      "equip.quality.white",
+      "equip.element.metal",
+      "tag_eq_type_01"
+    ]
+  },
+  {
+    "id": "eq_wx_weapon_002",
+    "name": "玄铁横刀·贰",
+    "description": "武侠风白阶兵器，适合江湖历练。",
+    "type": "weapon",
+    "element": "fire",
+    "quality": "white",
+    "cost": 60,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 10
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "tags": [
+      "equip.type.weapon",
+      "equip.theme.wuxia",
+      "equip.quality.white",
+      "equip.element.fire",
+      "tag_eq_type_01"
+    ]
+  },
+  {
+    "id": "eq_wx_weapon_003",
+    "name": "玄铁战枪·叁",
+    "description": "武侠风白阶兵器，适合江湖历练。",
+    "type": "weapon",
+    "element": "wood",
+    "quality": "white",
+    "cost": 60,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 10
+      },
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.01
+      }
+    ],
+    "tags": [
+      "equip.type.weapon",
+      "equip.theme.wuxia",
+      "equip.quality.white",
+      "equip.element.wood",
+      "tag_eq_type_01"
+    ]
+  },
+  {
+    "id": "eq_wx_weapon_004",
+    "name": "玄铁短刃·肆",
+    "description": "武侠风白阶兵器，适合江湖历练。",
+    "type": "weapon",
+    "element": "water",
+    "quality": "white",
+    "cost": 60,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 10
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "tags": [
+      "equip.type.weapon",
+      "equip.theme.wuxia",
+      "equip.quality.white",
+      "equip.element.water",
+      "tag_eq_type_01"
+    ]
+  },
+  {
+    "id": "eq_wx_weapon_005",
+    "name": "玄铁重戟·伍",
+    "description": "武侠风绿阶兵器，适合江湖历练。",
+    "type": "weapon",
+    "element": "earth",
+    "quality": "green",
+    "cost": 90,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 14
+      },
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.015
+      }
+    ],
+    "tags": [
+      "equip.type.weapon",
+      "equip.theme.wuxia",
+      "equip.quality.green",
+      "equip.element.earth",
+      "tag_eq_type_01"
+    ]
+  },
+  {
+    "id": "eq_wx_weapon_006",
+    "name": "玄铁雁翎刀·陆",
+    "description": "武侠风绿阶兵器，适合江湖历练。",
+    "type": "weapon",
+    "element": "none",
+    "quality": "green",
+    "cost": 90,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 14
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.015
+      }
+    ],
+    "tags": [
+      "equip.type.weapon",
+      "equip.theme.wuxia",
+      "equip.quality.green",
+      "equip.element.none",
+      "tag_eq_type_01"
+    ]
+  },
+  {
+    "id": "eq_wx_weapon_007",
+    "name": "玄铁软剑·柒",
+    "description": "武侠风绿阶兵器，适合江湖历练。",
+    "type": "weapon",
+    "element": "metal",
+    "quality": "green",
+    "cost": 90,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 14
+      },
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.015
+      }
+    ],
+    "tags": [
+      "equip.type.weapon",
+      "equip.theme.wuxia",
+      "equip.quality.green",
+      "equip.element.metal",
+      "tag_eq_type_01"
+    ]
+  },
+  {
+    "id": "eq_wx_weapon_008",
+    "name": "玄铁佚月刀·捌",
+    "description": "武侠风绿阶兵器，适合江湖历练。",
+    "type": "weapon",
+    "element": "fire",
+    "quality": "green",
+    "cost": 90,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 14
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.015
+      }
+    ],
+    "tags": [
+      "equip.type.weapon",
+      "equip.theme.wuxia",
+      "equip.quality.green",
+      "equip.element.fire",
+      "tag_eq_type_01"
+    ]
+  },
+  {
+    "id": "eq_wx_weapon_009",
+    "name": "玄铁双钩·玖",
+    "description": "武侠风蓝阶兵器，适合江湖历练。",
+    "type": "weapon",
+    "element": "wood",
+    "quality": "blue",
+    "cost": 140,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 20
+      },
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.022
+      }
+    ],
+    "tags": [
+      "equip.type.weapon",
+      "equip.theme.wuxia",
+      "equip.quality.blue",
+      "equip.element.wood",
+      "tag_eq_type_01"
+    ],
+    "trigger": {
+      "type": "on_attack_hit",
+      "chance": 0.24,
+      "cooldown": 2.4,
+      "effects": [
+        {
+          "op": "damage_target",
+          "value": 34.0,
+          "damage_type": "external"
+        },
+        {
+          "op": "debuff_target",
+          "buff_id": "debuff_sect_exposed_gap",
+          "duration": 1.4
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_weapon_010",
+    "name": "玄铁长鞭·拾",
+    "description": "武侠风蓝阶兵器，适合江湖历练。",
+    "type": "weapon",
+    "element": "water",
+    "quality": "blue",
+    "cost": 140,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 20
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.024
+      }
+    ],
+    "tags": [
+      "equip.type.weapon",
+      "equip.theme.wuxia",
+      "equip.quality.blue",
+      "equip.element.water",
+      "tag_eq_type_01"
+    ],
+    "trigger": {
+      "type": "on_attack_hit",
+      "chance": 0.24,
+      "cooldown": 2.4,
+      "effects": [
+        {
+          "op": "mark_target",
+          "mark_id": "mark_eq_wx_weapon_010",
+          "duration": 1.6
+        },
+        {
+          "op": "damage_if_marked",
+          "mark_id": "mark_eq_wx_weapon_010",
+          "value": 28.0,
+          "bonus_multiplier": 1.65,
+          "damage_type": "external"
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_weapon_011",
+    "name": "寒星长剑·拾壹",
+    "description": "武侠风蓝阶兵器，适合江湖历练。",
+    "type": "weapon",
+    "element": "earth",
+    "quality": "blue",
+    "cost": 140,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 20
+      },
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.022
+      }
+    ],
+    "tags": [
+      "equip.type.weapon",
+      "equip.theme.wuxia",
+      "equip.quality.blue",
+      "equip.element.earth",
+      "tag_eq_type_01"
+    ],
+    "trigger": {
+      "type": "on_attack_hit",
+      "chance": 0.24,
+      "cooldown": 2.4,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_sect_guard_drill",
+          "duration": 2.0
+        },
+        {
+          "op": "damage_target",
+          "value": 30.0,
+          "damage_type": "external"
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_weapon_012",
+    "name": "寒星横刀·拾贰",
+    "description": "武侠风蓝阶兵器，适合江湖历练。",
+    "type": "weapon",
+    "element": "none",
+    "quality": "blue",
+    "cost": 140,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 20
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.024
+      }
+    ],
+    "tags": [
+      "equip.type.weapon",
+      "equip.theme.wuxia",
+      "equip.quality.blue",
+      "equip.element.none",
+      "tag_eq_type_01"
+    ],
+    "trigger": {
+      "type": "on_attack_hit",
+      "chance": 0.24,
+      "cooldown": 2.4,
+      "effects": [
+        {
+          "op": "damage_target",
+          "value": 34.0,
+          "damage_type": "external"
+        },
+        {
+          "op": "debuff_target",
+          "buff_id": "debuff_sect_exposed_gap",
+          "duration": 1.4
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_weapon_013",
+    "name": "寒星战枪·拾叁",
+    "description": "武侠风蓝阶兵器，适合江湖历练。",
+    "type": "weapon",
+    "element": "metal",
+    "quality": "blue",
+    "cost": 140,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 20
+      },
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.022
+      }
+    ],
+    "tags": [
+      "equip.type.weapon",
+      "equip.theme.wuxia",
+      "equip.quality.blue",
+      "equip.element.metal",
+      "tag_eq_type_01"
+    ],
+    "trigger": {
+      "type": "on_attack_hit",
+      "chance": 0.24,
+      "cooldown": 2.4,
+      "effects": [
+        {
+          "op": "mark_target",
+          "mark_id": "mark_eq_wx_weapon_013",
+          "duration": 1.6
+        },
+        {
+          "op": "damage_if_marked",
+          "mark_id": "mark_eq_wx_weapon_013",
+          "value": 28.0,
+          "bonus_multiplier": 1.65,
+          "damage_type": "external"
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_weapon_014",
+    "name": "寒星短刃·拾肆",
+    "description": "武侠风蓝阶兵器，适合江湖历练。",
+    "type": "weapon",
+    "element": "fire",
+    "quality": "blue",
+    "cost": 140,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 20
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.024
+      }
+    ],
+    "tags": [
+      "equip.type.weapon",
+      "equip.theme.wuxia",
+      "equip.quality.blue",
+      "equip.element.fire",
+      "tag_eq_type_01"
+    ],
+    "trigger": {
+      "type": "on_attack_hit",
+      "chance": 0.24,
+      "cooldown": 2.4,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_sect_guard_drill",
+          "duration": 2.0
+        },
+        {
+          "op": "damage_target",
+          "value": 30.0,
+          "damage_type": "external"
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_weapon_015",
+    "name": "寒星重戟·拾伍",
+    "description": "武侠风紫阶兵器，适合江湖历练。",
+    "type": "weapon",
+    "element": "wood",
+    "quality": "purple",
+    "cost": 220,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 27
+      },
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.03
+      }
+    ],
+    "tags": [
+      "equip.type.weapon",
+      "equip.theme.wuxia",
+      "equip.quality.purple",
+      "equip.element.wood",
+      "tag_eq_type_01"
+    ],
+    "trigger": {
+      "type": "on_attack_hit",
+      "chance": 0.29,
+      "cooldown": 2.1,
+      "effects": [
+        {
+          "op": "damage_target",
+          "value": 48.0,
+          "damage_type": "external"
+        },
+        {
+          "op": "debuff_target",
+          "buff_id": "debuff_sect_exposed_gap",
+          "duration": 1.8
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_weapon_016",
+    "name": "寒星雁翎刀·拾陆",
+    "description": "武侠风紫阶兵器，适合江湖历练。",
+    "type": "weapon",
+    "element": "water",
+    "quality": "purple",
+    "cost": 220,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 27
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.034
+      }
+    ],
+    "tags": [
+      "equip.type.weapon",
+      "equip.theme.wuxia",
+      "equip.quality.purple",
+      "equip.element.water",
+      "tag_eq_type_01"
+    ],
+    "trigger": {
+      "type": "on_attack_hit",
+      "chance": 0.29,
+      "cooldown": 2.1,
+      "effects": [
+        {
+          "op": "mark_target",
+          "mark_id": "mark_eq_wx_weapon_016",
+          "duration": 1.9
+        },
+        {
+          "op": "damage_if_marked",
+          "mark_id": "mark_eq_wx_weapon_016",
+          "value": 40.0,
+          "bonus_multiplier": 1.8,
+          "damage_type": "external"
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_weapon_017",
+    "name": "寒星软剑·拾柒",
+    "description": "武侠风紫阶兵器，适合江湖历练。",
+    "type": "weapon",
+    "element": "earth",
+    "quality": "purple",
+    "cost": 220,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 27
+      },
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.03
+      }
+    ],
+    "tags": [
+      "equip.type.weapon",
+      "equip.theme.wuxia",
+      "equip.quality.purple",
+      "equip.element.earth",
+      "tag_eq_type_01"
+    ],
+    "trigger": {
+      "type": "on_attack_hit",
+      "chance": 0.29,
+      "cooldown": 2.1,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_sect_guard_drill",
+          "duration": 2.4
+        },
+        {
+          "op": "damage_target",
+          "value": 44.0,
+          "damage_type": "external"
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_weapon_018",
+    "name": "寒星佚月刀·拾捌",
+    "description": "武侠风紫阶兵器，适合江湖历练。",
+    "type": "weapon",
+    "element": "none",
+    "quality": "purple",
+    "cost": 220,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 27
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.034
+      }
+    ],
+    "tags": [
+      "equip.type.weapon",
+      "equip.theme.wuxia",
+      "equip.quality.purple",
+      "equip.element.none",
+      "tag_eq_type_01"
+    ],
+    "trigger": {
+      "type": "on_attack_hit",
+      "chance": 0.29,
+      "cooldown": 2.1,
+      "effects": [
+        {
+          "op": "damage_target",
+          "value": 48.0,
+          "damage_type": "external"
+        },
+        {
+          "op": "debuff_target",
+          "buff_id": "debuff_sect_exposed_gap",
+          "duration": 1.8
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_weapon_019",
+    "name": "寒星双钩·拾玖",
+    "description": "武侠风紫阶兵器，适合江湖历练。",
+    "type": "weapon",
+    "element": "metal",
+    "quality": "purple",
+    "cost": 220,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 27
+      },
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.03
+      }
+    ],
+    "tags": [
+      "equip.type.weapon",
+      "equip.theme.wuxia",
+      "equip.quality.purple",
+      "equip.element.metal",
+      "tag_eq_type_01"
+    ],
+    "trigger": {
+      "type": "on_attack_hit",
+      "chance": 0.29,
+      "cooldown": 2.1,
+      "effects": [
+        {
+          "op": "mark_target",
+          "mark_id": "mark_eq_wx_weapon_019",
+          "duration": 1.9
+        },
+        {
+          "op": "damage_if_marked",
+          "mark_id": "mark_eq_wx_weapon_019",
+          "value": 40.0,
+          "bonus_multiplier": 1.8,
+          "damage_type": "external"
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_weapon_020",
+    "name": "寒星长鞭·贰拾",
+    "description": "武侠风紫阶兵器，适合江湖历练。",
+    "type": "weapon",
+    "element": "fire",
+    "quality": "purple",
+    "cost": 220,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 27
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.034
+      }
+    ],
+    "tags": [
+      "equip.type.weapon",
+      "equip.theme.wuxia",
+      "equip.quality.purple",
+      "equip.element.fire",
+      "tag_eq_type_01"
+    ],
+    "trigger": {
+      "type": "on_attack_hit",
+      "chance": 0.29,
+      "cooldown": 2.1,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_sect_guard_drill",
+          "duration": 2.4
+        },
+        {
+          "op": "damage_target",
+          "value": 44.0,
+          "damage_type": "external"
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_weapon_021",
+    "name": "流云长剑·贰拾壹",
+    "description": "武侠风紫阶兵器，适合江湖历练。",
+    "type": "weapon",
+    "element": "wood",
+    "quality": "purple",
+    "cost": 220,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 27
+      },
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.03
+      }
+    ],
+    "tags": [
+      "equip.type.weapon",
+      "equip.theme.wuxia",
+      "equip.quality.purple",
+      "equip.element.wood",
+      "tag_eq_type_01"
+    ],
+    "trigger": {
+      "type": "on_attack_hit",
+      "chance": 0.29,
+      "cooldown": 2.1,
+      "effects": [
+        {
+          "op": "damage_target",
+          "value": 48.0,
+          "damage_type": "external"
+        },
+        {
+          "op": "debuff_target",
+          "buff_id": "debuff_sect_exposed_gap",
+          "duration": 1.8
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_weapon_022",
+    "name": "流云横刀·贰拾贰",
+    "description": "武侠风橙阶兵器，适合江湖历练。",
+    "type": "weapon",
+    "element": "water",
+    "quality": "orange",
+    "cost": 320,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 35
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.045
+      }
+    ],
+    "tags": [
+      "equip.type.weapon",
+      "equip.theme.wuxia",
+      "equip.quality.orange",
+      "equip.element.water",
+      "tag_eq_type_01"
+    ],
+    "trigger": {
+      "type": "on_attack_hit",
+      "chance": 0.34,
+      "cooldown": 1.8,
+      "effects": [
+        {
+          "op": "mark_target",
+          "mark_id": "mark_eq_wx_weapon_022",
+          "duration": 2.2
+        },
+        {
+          "op": "damage_if_marked",
+          "mark_id": "mark_eq_wx_weapon_022",
+          "value": 54.0,
+          "bonus_multiplier": 1.95,
+          "damage_type": "external"
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_weapon_023",
+    "name": "流云战枪·贰拾叁",
+    "description": "武侠风橙阶兵器，适合江湖历练。",
+    "type": "weapon",
+    "element": "earth",
+    "quality": "orange",
+    "cost": 320,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 35
+      },
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.04
+      }
+    ],
+    "tags": [
+      "equip.type.weapon",
+      "equip.theme.wuxia",
+      "equip.quality.orange",
+      "equip.element.earth",
+      "tag_eq_type_01"
+    ],
+    "trigger": {
+      "type": "on_attack_hit",
+      "chance": 0.34,
+      "cooldown": 1.8,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_sect_guard_drill",
+          "duration": 2.8
+        },
+        {
+          "op": "damage_target",
+          "value": 58.0,
+          "damage_type": "external"
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_weapon_024",
+    "name": "流云短刃·贰拾肆",
+    "description": "武侠风橙阶兵器，适合江湖历练。",
+    "type": "weapon",
+    "element": "none",
+    "quality": "orange",
+    "cost": 320,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 35
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.045
+      }
+    ],
+    "tags": [
+      "equip.type.weapon",
+      "equip.theme.wuxia",
+      "equip.quality.orange",
+      "equip.element.none",
+      "tag_eq_type_01"
+    ],
+    "trigger": {
+      "type": "on_attack_hit",
+      "chance": 0.34,
+      "cooldown": 1.8,
+      "effects": [
+        {
+          "op": "damage_target",
+          "value": 64.0,
+          "damage_type": "external"
+        },
+        {
+          "op": "debuff_target",
+          "buff_id": "debuff_sect_exposed_gap",
+          "duration": 2.2
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_weapon_025",
+    "name": "流云重戟·贰拾伍",
+    "description": "武侠风橙阶兵器，适合江湖历练。",
+    "type": "weapon",
+    "element": "metal",
+    "quality": "orange",
+    "cost": 320,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 35
+      },
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.04
+      }
+    ],
+    "tags": [
+      "equip.type.weapon",
+      "equip.theme.wuxia",
+      "equip.quality.orange",
+      "equip.element.metal",
+      "tag_eq_type_01"
+    ],
+    "trigger": {
+      "type": "on_attack_hit",
+      "chance": 0.34,
+      "cooldown": 1.8,
+      "effects": [
+        {
+          "op": "mark_target",
+          "mark_id": "mark_eq_wx_weapon_025",
+          "duration": 2.2
+        },
+        {
+          "op": "damage_if_marked",
+          "mark_id": "mark_eq_wx_weapon_025",
+          "value": 54.0,
+          "bonus_multiplier": 1.95,
+          "damage_type": "external"
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_weapon_026",
+    "name": "流云雁翎刀·贰拾陆",
+    "description": "武侠风橙阶兵器，适合江湖历练。",
+    "type": "weapon",
+    "element": "fire",
+    "quality": "orange",
+    "cost": 320,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 35
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.045
+      }
+    ],
+    "tags": [
+      "equip.type.weapon",
+      "equip.theme.wuxia",
+      "equip.quality.orange",
+      "equip.element.fire",
+      "tag_eq_type_01"
+    ],
+    "trigger": {
+      "type": "on_attack_hit",
+      "chance": 0.34,
+      "cooldown": 1.8,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_sect_guard_drill",
+          "duration": 2.8
+        },
+        {
+          "op": "damage_target",
+          "value": 58.0,
+          "damage_type": "external"
+        }
+      ]
+    }
+  }
+]

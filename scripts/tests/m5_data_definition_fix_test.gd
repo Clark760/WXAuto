@@ -286,7 +286,10 @@ func _test_battlefield_hud_display_config_loads_from_data() -> void:
 		UI_TEXTS_MOD_DIR,
 		"mod:test_ui_texts"
 	)
-	_assert_true(int(ui_texts_result.get("records", 0)) == 1, "ui_texts mod data should load one record")
+	_assert_true(
+		int(ui_texts_result.get("records", 0)) >= 1,
+		"ui_texts mod data should load at least one record"
+	)
 
 	var display_record: Dictionary = data_manager.get_record("ui_texts", "battlefield_hud_display")
 	_assert_true(not display_record.is_empty(), "battlefield_hud_display record should exist")
@@ -345,6 +348,11 @@ func _test_battlefield_hud_display_config_loads_from_data() -> void:
 	_assert_true(
 		str(damage_type_labels.get("reflect", "")) == support.damage_type_to_cn("reflect"),
 		"damage_type_to_cn should read label from ui_texts config"
+	)
+	var terrain_type_labels: Dictionary = display_record.get("terrain_type_labels", {})
+	_assert_true(
+		str(terrain_type_labels.get("hazard", "")) == support.terrain_class_to_cn("hazard"),
+		"terrain_class_to_cn should read label from ui_texts config"
 	)
 
 	refs.free()

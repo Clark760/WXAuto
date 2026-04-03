@@ -535,6 +535,24 @@ func _update_hover(delta: float) -> void:
 			hover_projection.get("screen_pos", Vector2.ZERO)
 		)
 
+	var block_terrain_hover: bool = false
+	var viewport: Viewport = _scene_root.get_viewport() if _scene_root != null else null
+	if viewport != null:
+		var mouse_pos: Vector2 = viewport.get_mouse_position()
+		block_terrain_hover = _is_point_over_interactive_ui(mouse_pos)
+	var terrain_projection: Dictionary = _world_view_support.update_terrain_hover(
+		delta,
+		block_terrain_hover
+	)
+	var terrain_action: String = str(terrain_projection.get("action", ""))
+	if terrain_action == "clear":
+		_notify_terrain_hover_cleared()
+	elif terrain_action == "show":
+		_notify_hover_terrain(
+			terrain_projection.get("terrain", {}),
+			terrain_projection.get("screen_pos", Vector2.ZERO)
+		)
+
 
 # 阶段切换在世界层只处理交互性和布局，不处理战斗编排与面板内容。
 func _set_stage(next_stage: int) -> void:
@@ -681,6 +699,20 @@ func _notify_hover_cleared() -> void:
 	var hud_presenter: Node = _get_hud_presenter()
 	if hud_presenter != null and hud_presenter.has_method("clear_hovered_unit"):
 		hud_presenter.clear_hovered_unit()
+
+
+# 地形 hover 命中后转发给 HUD，由 HUD 决定具体展示样式。
+func _notify_hover_terrain(terrain_snapshot: Dictionary, screen_pos: Vector2) -> void:
+	var hud_presenter: Node = _get_hud_presenter()
+	if hud_presenter != null and hud_presenter.has_method("update_hovered_terrain"):
+		hud_presenter.update_hovered_terrain(terrain_snapshot, screen_pos)
+
+
+# 地形 hover 丢失时由 HUD 统一收拢地形 tooltip 状态。
+func _notify_terrain_hover_cleared() -> void:
+	var hud_presenter: Node = _get_hud_presenter()
+	if hud_presenter != null and hud_presenter.has_method("clear_hovered_terrain"):
+		hud_presenter.clear_hovered_terrain()
 
 
 # world controller 只保留“拖拽落到回收区”的显式包装口，真正出售逻辑仍在 coordinator。

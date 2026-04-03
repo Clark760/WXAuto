@@ -1,2 +1,1825 @@
 [
+  {
+    "id": "gf_shaolin_core_neigong_00",
+    "name": "少林·镇派本源·同源心法",
+    "type": "neigong",
+    "description": "少林 shared core manual for both styles.",
+    "element": "earth",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_shaolin",
+      "sect_name.少林",
+      "style.shaolin_guard",
+      "style.shaolin_strike",
+      "type.neigong",
+      "role.shared_core"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.2
+      },
+      {
+        "op": "tenacity",
+        "value": 0.04
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 5.2
+        },
+        "mp_cost": 12,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.4
+          },
+          {
+            "op": "mp_regen_add",
+            "value": 1.6
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_shaolin_guard_neigong_04",
+    "name": "少林·金刚守御·绝学内功·第四式",
+    "type": "neigong",
+    "description": "少林 Guard line gongfa.",
+    "element": "earth",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_shaolin",
+      "sect_name.少林",
+      "style.shaolin_guard",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.88
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.45
+        },
+        "mp_cost": 16,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.75
+          },
+          {
+            "op": "heal_self",
+            "value": 29.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_shaolin_guard_neigong_07",
+    "name": "少林·金刚守御·镇派内功·第七式",
+    "type": "neigong",
+    "description": "少林 Guard line gongfa.",
+    "element": "earth",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_shaolin",
+      "sect_name.少林",
+      "style.shaolin_guard",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 17
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.07
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.05
+        },
+        "mp_cost": 18,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 3.0
+          },
+          {
+            "op": "heal_self",
+            "value": 39.2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_shaolin_strike_neigong_04",
+    "name": "少林·伏魔震荡·绝学内功·第四式",
+    "type": "neigong",
+    "description": "少林 Strike line gongfa.",
+    "element": "metal",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_shaolin",
+      "sect_name.少林",
+      "style.shaolin_strike",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 18
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.88
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.45
+        },
+        "mp_cost": 16,
+        "effects": [
+          {
+            "op": "damage_aoe",
+            "value": 44.8,
+            "radius": 2,
+            "damage_type": "internal"
+          },
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.15,
+            "radius": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudang_core_neigong_00",
+    "name": "武当·镇派本源·同源心法",
+    "type": "neigong",
+    "description": "武当 shared core manual for both styles.",
+    "element": "water",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudang",
+      "sect_name.武当",
+      "style.wudang_taiji",
+      "style.wudang_sword",
+      "type.neigong",
+      "role.shared_core"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.2
+      },
+      {
+        "op": "tenacity",
+        "value": 0.04
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 5.2
+        },
+        "mp_cost": 12,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.4
+          },
+          {
+            "op": "mp_regen_add",
+            "value": 1.6
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudang_taiji_neigong_04",
+    "name": "武当·太极绵化·绝学内功·第四式",
+    "type": "neigong",
+    "description": "武当 Taiji line gongfa.",
+    "element": "water",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudang",
+      "sect_name.武当",
+      "style.wudang_taiji",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.88
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.45
+        },
+        "mp_cost": 16,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.75
+          },
+          {
+            "op": "heal_self",
+            "value": 29.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudang_taiji_neigong_07",
+    "name": "武当·太极绵化·镇派内功·第七式",
+    "type": "neigong",
+    "description": "武当 Taiji line gongfa.",
+    "element": "water",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudang",
+      "sect_name.武当",
+      "style.wudang_taiji",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 17
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.07
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.05
+        },
+        "mp_cost": 18,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 3.0
+          },
+          {
+            "op": "heal_self",
+            "value": 39.2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudang_sword_neigong_04",
+    "name": "武当·御剑真意·绝学内功·第四式",
+    "type": "neigong",
+    "description": "武当 Sword line gongfa.",
+    "element": "metal",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudang",
+      "sect_name.武当",
+      "style.wudang_sword",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 18
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.88
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.45
+        },
+        "mp_cost": 16,
+        "effects": [
+          {
+            "op": "damage_aoe",
+            "value": 44.8,
+            "radius": 2,
+            "damage_type": "internal"
+          },
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.15,
+            "radius": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_huashan_core_neigong_00",
+    "name": "华山·镇派本源·同源心法",
+    "type": "neigong",
+    "description": "华山 shared core manual for both styles.",
+    "element": "metal",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_huashan",
+      "sect_name.华山",
+      "style.huashan_jianzong",
+      "style.huashan_qizong",
+      "type.neigong",
+      "role.shared_core"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.2
+      },
+      {
+        "op": "tenacity",
+        "value": 0.04
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 5.2
+        },
+        "mp_cost": 12,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.4
+          },
+          {
+            "op": "mp_regen_add",
+            "value": 1.6
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_huashan_qizong_neigong_04",
+    "name": "华山·气宗归元·绝学内功·第四式",
+    "type": "neigong",
+    "description": "华山 Qizong line gongfa.",
+    "element": "wood",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_huashan",
+      "sect_name.华山",
+      "style.huashan_qizong",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.88
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.45
+        },
+        "mp_cost": 16,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.75
+          },
+          {
+            "op": "heal_self",
+            "value": 29.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_huashan_qizong_neigong_07",
+    "name": "华山·气宗归元·镇派内功·第七式",
+    "type": "neigong",
+    "description": "华山 Qizong line gongfa.",
+    "element": "wood",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_huashan",
+      "sect_name.华山",
+      "style.huashan_qizong",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 17
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.07
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.05
+        },
+        "mp_cost": 18,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 3.0
+          },
+          {
+            "op": "heal_self",
+            "value": 39.2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_qingcheng_core_neigong_00",
+    "name": "青城·镇派本源·同源心法",
+    "type": "neigong",
+    "description": "青城 shared core manual for both styles.",
+    "element": "wood",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_qingcheng",
+      "sect_name.青城",
+      "style.qingcheng_raid",
+      "style.qingcheng_calm",
+      "type.neigong",
+      "role.shared_core"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.2
+      },
+      {
+        "op": "tenacity",
+        "value": 0.04
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 5.2
+        },
+        "mp_cost": 12,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.4
+          },
+          {
+            "op": "mp_regen_add",
+            "value": 1.6
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_qingcheng_calm_neigong_04",
+    "name": "青城·清微养气·绝学内功·第四式",
+    "type": "neigong",
+    "description": "青城 Calm line gongfa.",
+    "element": "none",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_qingcheng",
+      "sect_name.青城",
+      "style.qingcheng_calm",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.88
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.45
+        },
+        "mp_cost": 16,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.75
+          },
+          {
+            "op": "heal_self",
+            "value": 29.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_qingcheng_calm_neigong_07",
+    "name": "青城·清微养气·镇派内功·第七式",
+    "type": "neigong",
+    "description": "青城 Calm line gongfa.",
+    "element": "none",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_qingcheng",
+      "sect_name.青城",
+      "style.qingcheng_calm",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 17
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.07
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.05
+        },
+        "mp_cost": 18,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 3.0
+          },
+          {
+            "op": "heal_self",
+            "value": 39.2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_tangmen_core_neigong_00",
+    "name": "唐门·镇派本源·同源心法",
+    "type": "neigong",
+    "description": "唐门 shared core manual for both styles.",
+    "element": "metal",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_tangmen",
+      "sect_name.唐门",
+      "style.tangmen_mechanism",
+      "style.tangmen_hiddenweapon",
+      "type.neigong",
+      "role.shared_core"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.2
+      },
+      {
+        "op": "tenacity",
+        "value": 0.04
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 5.2
+        },
+        "mp_cost": 12,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.4
+          },
+          {
+            "op": "mp_regen_add",
+            "value": 1.6
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_tangmen_mechanism_neigong_04",
+    "name": "唐门·机关百变·绝学内功·第四式",
+    "type": "neigong",
+    "description": "唐门 Mechanism line gongfa.",
+    "element": "metal",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_tangmen",
+      "sect_name.唐门",
+      "style.tangmen_mechanism",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 18
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.88
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.45
+        },
+        "mp_cost": 16,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_mobility_step",
+            "duration": 2.15
+          },
+          {
+            "op": "mp_regen_add",
+            "value": 1.61
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_kongtong_core_neigong_00",
+    "name": "崆峒·镇派本源·同源心法",
+    "type": "neigong",
+    "description": "崆峒 shared core manual for both styles.",
+    "element": "fire",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_kongtong",
+      "sect_name.崆峒",
+      "style.kongtong_sevenhurt",
+      "style.kongtong_mystic",
+      "type.neigong",
+      "role.shared_core"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.2
+      },
+      {
+        "op": "tenacity",
+        "value": 0.04
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 5.2
+        },
+        "mp_cost": 12,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.4
+          },
+          {
+            "op": "mp_regen_add",
+            "value": 1.6
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_kongtong_sevenhurt_neigong_04",
+    "name": "崆峒·七伤劲道·绝学内功·第四式",
+    "type": "neigong",
+    "description": "崆峒 SevenHurt line gongfa.",
+    "element": "fire",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_kongtong",
+      "sect_name.崆峒",
+      "style.kongtong_sevenhurt",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 18
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.88
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.45
+        },
+        "mp_cost": 16,
+        "effects": [
+          {
+            "op": "damage_aoe",
+            "value": 44.8,
+            "radius": 2,
+            "damage_type": "internal"
+          },
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.15,
+            "radius": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_kongtong_mystic_neigong_04",
+    "name": "崆峒·借力玄门·绝学内功·第四式",
+    "type": "neigong",
+    "description": "崆峒 Mystic line gongfa.",
+    "element": "earth",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_kongtong",
+      "sect_name.崆峒",
+      "style.kongtong_mystic",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.88
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.45
+        },
+        "mp_cost": 16,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.75
+          },
+          {
+            "op": "heal_self",
+            "value": 29.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_kongtong_mystic_neigong_07",
+    "name": "崆峒·借力玄门·镇派内功·第七式",
+    "type": "neigong",
+    "description": "崆峒 Mystic line gongfa.",
+    "element": "earth",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_kongtong",
+      "sect_name.崆峒",
+      "style.kongtong_mystic",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 17
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.07
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.05
+        },
+        "mp_cost": 18,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 3.0
+          },
+          {
+            "op": "heal_self",
+            "value": 39.2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_guanfu_core_neigong_00",
+    "name": "官府·镇派本源·同源心法",
+    "type": "neigong",
+    "description": "官府 shared core manual for both styles.",
+    "element": "earth",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_guanfu",
+      "sect_name.官府",
+      "style.guanfu_command",
+      "style.guanfu_arrest",
+      "type.neigong",
+      "role.shared_core"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.2
+      },
+      {
+        "op": "tenacity",
+        "value": 0.04
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 5.2
+        },
+        "mp_cost": 12,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.4
+          },
+          {
+            "op": "mp_regen_add",
+            "value": 1.6
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_guanfu_command_neigong_04",
+    "name": "官府·军阵统御·绝学内功·第四式",
+    "type": "neigong",
+    "description": "官府 Command line gongfa.",
+    "element": "earth",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_guanfu",
+      "sect_name.官府",
+      "style.guanfu_command",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.88
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.45
+        },
+        "mp_cost": 16,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.75
+          },
+          {
+            "op": "heal_self",
+            "value": 29.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudu_core_neigong_00",
+    "name": "五毒·镇派本源·同源心法",
+    "type": "neigong",
+    "description": "五毒 shared core manual for both styles.",
+    "element": "wood",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudu",
+      "sect_name.五毒",
+      "style.wudu_poison",
+      "style.wudu_serpent",
+      "type.neigong",
+      "role.shared_core"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.2
+      },
+      {
+        "op": "tenacity",
+        "value": 0.04
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 5.2
+        },
+        "mp_cost": 12,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.4
+          },
+          {
+            "op": "mp_regen_add",
+            "value": 1.6
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudu_poison_neigong_04",
+    "name": "五毒·蛊毒蔓延·绝学内功·第四式",
+    "type": "neigong",
+    "description": "五毒 Poison line gongfa.",
+    "element": "wood",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudu",
+      "sect_name.五毒",
+      "style.wudu_poison",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 18
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.88
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.45
+        },
+        "mp_cost": 16,
+        "effects": [
+          {
+            "op": "create_terrain",
+            "terrain_ref_id": "terrain_cn_marsh",
+            "at": "self",
+            "radius": 1,
+            "duration": 4.0,
+            "target_mode": "enemies"
+          },
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_qi_disrupt",
+            "duration": 2.55,
+            "radius": 2
+          },
+          {
+            "op": "damage_aoe",
+            "value": 42.0,
+            "radius": 2,
+            "damage_type": "internal"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudu_poison_neigong_06",
+    "name": "五毒·蛊毒蔓延·镇派内功·第六式",
+    "type": "neigong",
+    "description": "五毒 Poison line gongfa.",
+    "element": "wood",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudu",
+      "sect_name.五毒",
+      "style.wudu_poison",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 22
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.07
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.05
+        },
+        "mp_cost": 18,
+        "effects": [
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_qi_disrupt",
+            "duration": 2.8,
+            "radius": 2
+          },
+          {
+            "op": "damage_aoe",
+            "value": 54.0,
+            "radius": 2,
+            "damage_type": "internal"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudu_serpent_neigong_04",
+    "name": "五毒·蛇影追魂·绝学内功·第四式",
+    "type": "neigong",
+    "description": "五毒 Serpent line gongfa.",
+    "element": "water",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudu",
+      "sect_name.五毒",
+      "style.wudu_serpent",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 18
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.88
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.45
+        },
+        "mp_cost": 16,
+        "effects": [
+          {
+            "op": "damage_aoe",
+            "value": 44.8,
+            "radius": 2,
+            "damage_type": "internal"
+          },
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.15,
+            "radius": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_gaibang_core_neigong_00",
+    "name": "丐帮·镇派本源·同源心法",
+    "type": "neigong",
+    "description": "丐帮 shared core manual for both styles.",
+    "element": "earth",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_gaibang",
+      "sect_name.丐帮",
+      "style.gaibang_drunkenstaff",
+      "style.gaibang_support",
+      "type.neigong",
+      "role.shared_core"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.2
+      },
+      {
+        "op": "tenacity",
+        "value": 0.04
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 5.2
+        },
+        "mp_cost": 12,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.4
+          },
+          {
+            "op": "mp_regen_add",
+            "value": 1.6
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_gaibang_support_neigong_04",
+    "name": "丐帮·群援义行·绝学内功·第四式",
+    "type": "neigong",
+    "description": "丐帮 Support line gongfa.",
+    "element": "none",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_gaibang",
+      "sect_name.丐帮",
+      "style.gaibang_support",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.88
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.45
+        },
+        "mp_cost": 16,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.75
+          },
+          {
+            "op": "heal_self",
+            "value": 29.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_mingjiao_core_neigong_00",
+    "name": "明教·镇派本源·同源心法",
+    "type": "neigong",
+    "description": "明教 shared core manual for both styles.",
+    "element": "fire",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_mingjiao",
+      "sect_name.明教",
+      "style.mingjiao_flame",
+      "style.mingjiao_light",
+      "type.neigong",
+      "role.shared_core"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.2
+      },
+      {
+        "op": "tenacity",
+        "value": 0.04
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 5.2
+        },
+        "mp_cost": 12,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.4
+          },
+          {
+            "op": "mp_regen_add",
+            "value": 1.6
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_mingjiao_flame_neigong_04",
+    "name": "明教·烈焰焚天·绝学内功·第四式",
+    "type": "neigong",
+    "description": "明教 Flame line gongfa.",
+    "element": "fire",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_mingjiao",
+      "sect_name.明教",
+      "style.mingjiao_flame",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 18
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.88
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.45
+        },
+        "mp_cost": 16,
+        "effects": [
+          {
+            "op": "damage_aoe",
+            "value": 47.6,
+            "radius": 2,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.15,
+            "radius": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_mingjiao_light_neigong_04",
+    "name": "明教·光明圣辉·绝学内功·第四式",
+    "type": "neigong",
+    "description": "明教 Light line gongfa.",
+    "element": "fire",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_mingjiao",
+      "sect_name.明教",
+      "style.mingjiao_light",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.88
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.45
+        },
+        "mp_cost": 16,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.75
+          },
+          {
+            "op": "heal_self",
+            "value": 29.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_mingjiao_light_neigong_07",
+    "name": "明教·光明圣辉·镇派内功·第七式",
+    "type": "neigong",
+    "description": "明教 Light line gongfa.",
+    "element": "fire",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_mingjiao",
+      "sect_name.明教",
+      "style.mingjiao_light",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 17
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.07
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.05
+        },
+        "mp_cost": 18,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 3.0
+          },
+          {
+            "op": "heal_self",
+            "value": 39.2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_tangmen_mechanism_neigong_08",
+    "name": "唐门·机关百变·绝学内功·第八式",
+    "type": "neigong",
+    "description": "唐门 Mechanism line gongfa with temporary terrain linkage.",
+    "element": "metal",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_tangmen",
+      "sect_name.唐门",
+      "style.tangmen_mechanism",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 16
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.95
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.2
+        },
+        "mp_cost": 17,
+        "effects": [
+          {
+            "op": "create_terrain",
+            "terrain_ref_id": "terrain_tmp_tangmen_mistveil",
+            "at": "self",
+            "radius": 1,
+            "duration": 5.0,
+            "target_mode": "allies"
+          },
+          {
+            "op": "buff_allies_aoe",
+            "buff_id": "buff_sect_mobility_step",
+            "duration": 2.4,
+            "radius": 2
+          },
+          {
+            "op": "mp_regen_add",
+            "value": 1.2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_tangmen_mechanism_neigong_09",
+    "name": "唐门·机关百变·镇派内功·第九式",
+    "type": "neigong",
+    "description": "唐门 Mechanism line gongfa with temporary terrain linkage.",
+    "element": "metal",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_tangmen",
+      "sect_name.唐门",
+      "style.tangmen_mechanism",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 19
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 3.95
+        },
+        "mp_cost": 19,
+        "effects": [
+          {
+            "op": "create_terrain",
+            "terrain_ref_id": "terrain_tmp_tangmen_snarefield",
+            "at": "target",
+            "radius": 1,
+            "duration": 5.0,
+            "target_mode": "enemies"
+          },
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.4,
+            "radius": 2
+          },
+          {
+            "op": "damage_aoe",
+            "value": 52.0,
+            "radius": 2,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudu_poison_neigong_08",
+    "name": "五毒·蛊毒蔓延·绝学内功·第八式",
+    "type": "neigong",
+    "description": "五毒 Poison line gongfa with temporary terrain linkage.",
+    "element": "wood",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudu",
+      "sect_name.五毒",
+      "style.wudu_poison",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 16
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.94
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.15
+        },
+        "mp_cost": 17,
+        "effects": [
+          {
+            "op": "create_terrain",
+            "terrain_ref_id": "terrain_tmp_wudu_venom_mire",
+            "at": "self",
+            "radius": 1,
+            "duration": 5.0,
+            "target_mode": "enemies"
+          },
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_qi_disrupt",
+            "duration": 2.4,
+            "radius": 2
+          },
+          {
+            "op": "damage_aoe",
+            "value": 48.0,
+            "radius": 2,
+            "damage_type": "internal"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudu_poison_neigong_09",
+    "name": "五毒·蛊毒蔓延·镇派内功·第九式",
+    "type": "neigong",
+    "description": "五毒 Poison line gongfa with temporary terrain linkage.",
+    "element": "wood",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudu",
+      "sect_name.五毒",
+      "style.wudu_poison",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 19
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.08
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 3.9
+        },
+        "mp_cost": 19,
+        "effects": [
+          {
+            "op": "create_terrain",
+            "terrain_ref_id": "terrain_tmp_wudu_serpent_nest",
+            "at": "target",
+            "radius": 1,
+            "duration": 5.0,
+            "target_mode": "enemies"
+          },
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.2,
+            "radius": 2
+          },
+          {
+            "op": "damage_aoe",
+            "value": 55.0,
+            "radius": 2,
+            "damage_type": "internal"
+          }
+        ]
+      }
+    ]
+  }
 ]

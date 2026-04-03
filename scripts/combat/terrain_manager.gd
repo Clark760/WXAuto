@@ -273,6 +273,61 @@ func get_terrain_tags_at_cell(cell: Vector2i, scope: String = "all", hex_grid: N
 	return merged
 
 
+# 查询某格命中的地形条目详情，供 HUD 悬停提示直接使用。
+# 返回值是可展示快照，调用方不应直接改写内部 terrain 实例。
+func get_terrain_entries_at_cell(
+	cell: Vector2i,
+	scope: String = "all",
+	hex_grid: Node = null
+) -> Array[Dictionary]:
+	var entries: Array[Dictionary] = []
+	if cell.x < 0 or cell.y < 0:
+		return entries
+
+	for terrain_value in _terrains:
+		if not (terrain_value is Dictionary):
+			continue
+		var terrain: Dictionary = terrain_value as Dictionary
+		if not _should_include_terrain_by_scope(terrain, scope):
+			continue
+
+		var contains_cell: bool = false
+		for terrain_cell in _grid_support.get_effective_cells_for_terrain(self, terrain, hex_grid):
+			if terrain_cell == cell:
+				contains_cell = true
+				break
+		if not contains_cell:
+			continue
+
+		entries.append({
+			"terrain_id": str(terrain.get("terrain_id", "")).strip_edges(),
+			"terrain_def_id": str(terrain.get("terrain_def_id", "")).strip_edges(),
+			"name": str(terrain.get("terrain_name", terrain.get("terrain_type", "地形"))).strip_edges(),
+			"type": str(terrain.get("terrain_class", terrain.get("terrain_type", "hazard"))).strip_edges().to_lower(),
+			"terrain_type": str(terrain.get("terrain_type", "")).strip_edges().to_lower(),
+			"is_barrier": bool(terrain.get("is_barrier", false)),
+			"is_static": bool(terrain.get("is_static", false)),
+			"remaining": float(terrain.get("remaining", -1.0)),
+			"target_mode": str(terrain.get("target_mode", "")).strip_edges().to_lower(),
+			"source_name": str(terrain.get("source_name", "")).strip_edges(),
+			"color": terrain.get("color", Color(0.75, 0.75, 0.75, 0.35)),
+			"tags": _normalize_tags(terrain.get("tags", [])),
+			"effects": {
+				"enter": _normalize_effect_rows(terrain.get("effects_on_enter", [])).size(),
+				"tick": _normalize_effect_rows(terrain.get("effects_on_tick", [])).size(),
+				"exit": _normalize_effect_rows(terrain.get("effects_on_exit", [])).size(),
+				"expire": _normalize_effect_rows(terrain.get("effects_on_expire", [])).size()
+			},
+			"effect_rows": {
+				"enter": _normalize_effect_rows(terrain.get("effects_on_enter", [])),
+				"tick": _normalize_effect_rows(terrain.get("effects_on_tick", [])),
+				"exit": _normalize_effect_rows(terrain.get("effects_on_exit", [])),
+				"expire": _normalize_effect_rows(terrain.get("effects_on_expire", []))
+			}
+		})
+	return entries
+
+
 # 布尔查询统一复用 tag 列表查询，避免出现第二套统计逻辑。
 # 这样 tooltip 和 trigger 不会出现两套 tag 统计口径。
 func cell_has_terrain_tag(cell: Vector2i, tag: String, scope: String = "all", hex_grid: Node = null) -> bool:

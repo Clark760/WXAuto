@@ -1,52 +1,53 @@
 [
   {
-    "id": "base_mp_1",
+    "id": "tag_sect_shaolin",
     "name": "少林",
     "description": "少林寺"
   },
   {
-    "id": "base_mp_12",
+    "id": "tag_sect_wudang",
     "name": "武当",
     "description": "武当山"
   },
   {
-    "id": "base_mp_3",
+    "id": "tag_sect_huashan",
     "name": "华山",
     "description": "华山派"
   },
   {
-    "id": "base_mp_5",
+    "id": "tag_sect_qingcheng",
     "name": "青城",
     "description": "青城派"
   },
   {
-    "id": "base_mp_5",
+    "id": "tag_sect_tangmen",
     "name": "唐门",
     "description": "唐门"
   },
   {
-    "id": "base_mp_6",
+    "id": "tag_sect_kongtong",
     "name": "崆峒",
     "description": "崆峒派"
   },
   {
-    "id": "base_mp_7",
+    "id": "tag_sect_guanfu",
     "name": "官府",
     "description": "六扇门、锦衣卫以及神机营等官府势力"
   },
   {
-    "id": "base_mp_8",
+    "id": "tag_sect_wudu",
     "name": "五毒",
     "description": "五毒教"
   },
   {
-    "id": "base_mp_9",
+    "id": "tag_sect_gaibang",
     "name": "丐帮",
     "description": "丐帮"
   },
   {
-    "id": "base_mp_10",
+    "id": "tag_sect_mingjiao",
     "name": "明教",
     "description": "明教"
   }
 ]
+

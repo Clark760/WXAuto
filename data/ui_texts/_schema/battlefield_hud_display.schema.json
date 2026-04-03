@@ -52,6 +52,12 @@
         "type": "string"
       }
     },
+    "terrain_type_labels": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
     "status_labels": {
       "type": "object",
       "additionalProperties": {

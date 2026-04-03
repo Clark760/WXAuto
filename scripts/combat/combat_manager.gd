@@ -320,6 +320,10 @@ func is_cell_blocked(cell: Vector2i) -> bool:
 func get_terrain_tags_at_cell(cell: Vector2i, scope: String = "all") -> Array[String]:
 	return _terrain_service.get_terrain_tags_at_cell(self, cell, scope)
 
+# 查询指定格子的地形条目快照，供 HUD 或调试层展示地形明细。
+func get_terrain_entries_at_cell(cell: Vector2i, scope: String = "all") -> Array[Dictionary]:
+	return _terrain_service.get_terrain_entries_at_cell(self, cell, scope)
+
 # 查询指定格子是否包含目标 terrain tag。
 func cell_has_terrain_tag(cell: Vector2i, tag: String, scope: String = "all") -> bool:
 	return _terrain_service.cell_has_terrain_tag(self, cell, tag, scope)

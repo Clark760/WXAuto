@@ -1,0 +1,497 @@
+[
+  {
+    "id": "terrain_cn_plain",
+    "name": "平原",
+    "type": "beneficial",
+    "aliases": [
+      "plain",
+      "yuanye",
+      "平原",
+      "原野"
+    ],
+    "color": "#C8B77D",
+    "is_barrier": false,
+    "tick_interval": 1.0,
+    "target_mode": "all",
+    "tags": [
+      "terrain",
+      "china",
+      "plain",
+      "平原",
+      "开阔",
+      "terrain.beneficial"
+    ],
+    "effects_on_enter": [
+      {
+        "op": "buff_target",
+        "buff_id": "buff_chase_haste",
+        "duration": 1.2
+      }
+    ],
+    "effects_on_tick": [
+      {
+        "op": "mp_regen_add",
+        "value": 1.0
+      }
+    ],
+    "effects_on_exit": [],
+    "effects_on_expire": []
+  },
+  {
+    "id": "terrain_cn_hill",
+    "name": "丘陵",
+    "type": "beneficial",
+    "aliases": [
+      "hill",
+      "qiuling",
+      "丘陵",
+      "岗地"
+    ],
+    "color": "#A08D62",
+    "is_barrier": false,
+    "tick_interval": 1.0,
+    "target_mode": "all",
+    "tags": [
+      "terrain",
+      "china",
+      "hill",
+      "丘陵",
+      "高地",
+      "terrain.beneficial"
+    ],
+    "effects_on_enter": [
+      {
+        "op": "buff_target",
+        "buff_id": "buff_youlong_dodge",
+        "duration": 1.6
+      }
+    ],
+    "effects_on_tick": [
+      {
+        "op": "buff_target",
+        "buff_id": "buff_hantie_guard",
+        "duration": 1.0
+      }
+    ],
+    "effects_on_exit": [],
+    "effects_on_expire": []
+  },
+  {
+    "id": "terrain_cn_mountain",
+    "name": "山地",
+    "type": "obstacle",
+    "aliases": [
+      "mountain",
+      "shandi",
+      "山地",
+      "山岭"
+    ],
+    "color": "#6A705E",
+    "is_barrier": true,
+    "tick_interval": 1.0,
+    "target_mode": "none",
+    "tags": [
+      "terrain",
+      "china",
+      "mountain",
+      "山地",
+      "阻挡",
+      "terrain.obstacle",
+      "bm5.terrain.rock"
+    ],
+    "effects_on_enter": [],
+    "effects_on_tick": [],
+    "effects_on_exit": [],
+    "effects_on_expire": []
+  },
+  {
+    "id": "terrain_cn_cliff",
+    "name": "悬崖",
+    "type": "obstacle",
+    "aliases": [
+      "cliff",
+      "xuanya",
+      "悬崖",
+      "绝壁"
+    ],
+    "color": "#5C5A50",
+    "is_barrier": true,
+    "tick_interval": 1.0,
+    "target_mode": "none",
+    "tags": [
+      "terrain",
+      "china",
+      "cliff",
+      "悬崖",
+      "阻挡",
+      "terrain.obstacle"
+    ],
+    "effects_on_enter": [],
+    "effects_on_tick": [],
+    "effects_on_exit": [],
+    "effects_on_expire": []
+  },
+  {
+    "id": "terrain_cn_forest",
+    "name": "密林",
+    "type": "hazard",
+    "aliases": [
+      "forest",
+      "miling",
+      "密林",
+      "林地"
+    ],
+    "color": "#466249",
+    "is_barrier": false,
+    "tick_interval": 1.0,
+    "target_mode": "all",
+    "tags": [
+      "terrain",
+      "china",
+      "forest",
+      "密林",
+      "林地",
+      "terrain.hazard"
+    ],
+    "effects_on_enter": [
+      {
+        "op": "debuff_target",
+        "buff_id": "debuff_counter_poison_stack",
+        "duration": 1.6
+      }
+    ],
+    "effects_on_tick": [
+      {
+        "op": "damage_target",
+        "value": 7,
+        "damage_type": "internal"
+      }
+    ],
+    "effects_on_exit": [],
+    "effects_on_expire": []
+  },
+  {
+    "id": "terrain_cn_bamboo_grove",
+    "name": "竹林",
+    "type": "beneficial",
+    "aliases": [
+      "bamboo",
+      "zhulin",
+      "竹林",
+      "竹海"
+    ],
+    "color": "#6D8B4F",
+    "is_barrier": false,
+    "tick_interval": 1.0,
+    "target_mode": "all",
+    "tags": [
+      "terrain",
+      "china",
+      "bamboo",
+      "竹林",
+      "隐蔽",
+      "terrain.beneficial",
+      "bm5.terrain.bamboo"
+    ],
+    "effects_on_enter": [
+      {
+        "op": "buff_target",
+        "buff_id": "buff_chiyu_step",
+        "duration": 2.0
+      }
+    ],
+    "effects_on_tick": [
+      {
+        "op": "heal_target_flat",
+        "value": 6
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.0
+      }
+    ],
+    "effects_on_exit": [],
+    "effects_on_expire": []
+  },
+  {
+    "id": "terrain_cn_river",
+    "name": "河道",
+    "type": "obstacle",
+    "aliases": [
+      "river",
+      "hedao",
+      "河道",
+      "江流"
+    ],
+    "color": "#4E88B3",
+    "is_barrier": true,
+    "tick_interval": 1.0,
+    "target_mode": "none",
+    "tags": [
+      "terrain",
+      "china",
+      "river",
+      "河道",
+      "水域",
+      "terrain.obstacle"
+    ],
+    "effects_on_enter": [],
+    "effects_on_tick": [],
+    "effects_on_exit": [],
+    "effects_on_expire": []
+  },
+  {
+    "id": "terrain_cn_lake",
+    "name": "湖泊",
+    "type": "obstacle",
+    "aliases": [
+      "lake",
+      "hupo",
+      "湖泊",
+      "泽国"
+    ],
+    "color": "#4A7FA6",
+    "is_barrier": true,
+    "tick_interval": 1.0,
+    "target_mode": "none",
+    "tags": [
+      "terrain",
+      "china",
+      "lake",
+      "湖泊",
+      "水域",
+      "terrain.obstacle",
+      "bm5.terrain.ice"
+    ],
+    "effects_on_enter": [],
+    "effects_on_tick": [],
+    "effects_on_exit": [],
+    "effects_on_expire": []
+  },
+  {
+    "id": "terrain_cn_marsh",
+    "name": "沼泽",
+    "type": "hazard",
+    "aliases": [
+      "marsh",
+      "zhaoze",
+      "沼泽",
+      "泥淖"
+    ],
+    "color": "#5F6E4F",
+    "is_barrier": false,
+    "tick_interval": 1.0,
+    "target_mode": "all",
+    "tags": [
+      "terrain",
+      "china",
+      "marsh",
+      "沼泽",
+      "泥地",
+      "terrain.hazard",
+      "bm5.terrain.marsh"
+    ],
+    "effects_on_enter": [
+      {
+        "op": "debuff_target",
+        "buff_id": "debuff_array_break",
+        "duration": 1.8
+      }
+    ],
+    "effects_on_tick": [
+      {
+        "op": "damage_target",
+        "value": 10,
+        "damage_type": "internal"
+      }
+    ],
+    "effects_on_exit": [],
+    "effects_on_expire": []
+  },
+  {
+    "id": "terrain_cn_desert",
+    "name": "沙地",
+    "type": "hazard",
+    "aliases": [
+      "desert",
+      "shadi",
+      "沙地",
+      "流沙"
+    ],
+    "color": "#D2B36A",
+    "is_barrier": false,
+    "tick_interval": 1.0,
+    "target_mode": "all",
+    "tags": [
+      "terrain",
+      "china",
+      "desert",
+      "沙地",
+      "干旱",
+      "terrain.hazard"
+    ],
+    "effects_on_enter": [
+      {
+        "op": "debuff_target",
+        "buff_id": "debuff_armor_shred_1ring",
+        "duration": 1.2
+      }
+    ],
+    "effects_on_tick": [
+      {
+        "op": "damage_target",
+        "value": 8,
+        "damage_type": "external"
+      }
+    ],
+    "effects_on_exit": [],
+    "effects_on_expire": []
+  },
+  {
+    "id": "terrain_cn_gobi",
+    "name": "戈壁",
+    "type": "hazard",
+    "aliases": [
+      "gobi",
+      "gebi",
+      "戈壁",
+      "荒漠"
+    ],
+    "color": "#A88D62",
+    "is_barrier": false,
+    "tick_interval": 1.0,
+    "target_mode": "all",
+    "tags": [
+      "terrain",
+      "china",
+      "gobi",
+      "戈壁",
+      "荒漠",
+      "terrain.hazard"
+    ],
+    "effects_on_enter": [
+      {
+        "op": "damage_target",
+        "value": 12,
+        "damage_type": "external"
+      }
+    ],
+    "effects_on_tick": [
+      {
+        "op": "damage_target",
+        "value": 14,
+        "damage_type": "external"
+      }
+    ],
+    "effects_on_exit": [],
+    "effects_on_expire": []
+  },
+  {
+    "id": "terrain_cn_pass",
+    "name": "关隘",
+    "type": "obstacle",
+    "aliases": [
+      "pass",
+      "guanai",
+      "关隘",
+      "隘口"
+    ],
+    "color": "#7C6A52",
+    "is_barrier": false,
+    "tick_interval": 1.0,
+    "target_mode": "all",
+    "tags": [
+      "terrain",
+      "china",
+      "pass",
+      "关隘",
+      "要道",
+      "terrain.obstacle"
+    ],
+    "effects_on_enter": [
+      {
+        "op": "buff_target",
+        "buff_id": "buff_hantie_guard",
+        "duration": 2.0
+      }
+    ],
+    "effects_on_tick": [
+      {
+        "op": "buff_target",
+        "buff_id": "buff_hantie_guard",
+        "duration": 1.0
+      }
+    ],
+    "effects_on_exit": [],
+    "effects_on_expire": []
+  },
+  {
+    "id": "terrain_cn_city_wall",
+    "name": "城墙",
+    "type": "obstacle",
+    "aliases": [
+      "city_wall",
+      "chengqiang",
+      "城墙",
+      "壁垒"
+    ],
+    "color": "#7A7468",
+    "is_barrier": true,
+    "tick_interval": 1.0,
+    "target_mode": "none",
+    "tags": [
+      "terrain",
+      "china",
+      "city_wall",
+      "城墙",
+      "阻挡",
+      "terrain.obstacle"
+    ],
+    "effects_on_enter": [],
+    "effects_on_tick": [],
+    "effects_on_exit": [],
+    "effects_on_expire": []
+  },
+  {
+    "id": "terrain_cn_farmland",
+    "name": "田畴",
+    "type": "beneficial",
+    "aliases": [
+      "farmland",
+      "tianchou",
+      "田畴",
+      "稻田"
+    ],
+    "color": "#9BAE5C",
+    "is_barrier": false,
+    "tick_interval": 1.0,
+    "target_mode": "all",
+    "tags": [
+      "terrain",
+      "china",
+      "farmland",
+      "田畴",
+      "农田",
+      "terrain.beneficial",
+      "bm5.terrain.heal"
+    ],
+    "effects_on_enter": [
+      {
+        "op": "heal_target_flat",
+        "value": 20
+      }
+    ],
+    "effects_on_tick": [
+      {
+        "op": "heal_target_flat",
+        "value": 5
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.5
+      }
+    ],
+    "effects_on_exit": [],
+    "effects_on_expire": []
+  }
+]

@@ -95,6 +95,12 @@ var tooltip_rng_label: Label = null # tooltip 射程属性。
 var tooltip_gongfa_list: VBoxContainer = null # tooltip 功法列表。
 var tooltip_buff_list: HBoxContainer = null # tooltip Buff 列表。
 var tooltip_status_label: Label = null # tooltip 状态摘要。
+var terrain_tooltip_panel: PanelContainer = null # 地形悬停提示根容器。
+var terrain_tooltip_title: Label = null # 地形名称。
+var terrain_tooltip_cell: Label = null # 地形格坐标。
+var terrain_tooltip_type: Label = null # 地形类型。
+var terrain_tooltip_tags: Label = null # 地形标签摘要。
+var terrain_tooltip_effects: Label = null # 地形效果摘要。
 
 # 详情、仓库与物品 tooltip 节点。
 var unit_detail_mask: ColorRect = null # 详情面板遮罩层。
@@ -188,6 +194,7 @@ func bind_from_scene(scene_root_value: Node) -> void:
 	_bind_bottom_refs(scene_root_value)
 	_bind_top_hud_refs(scene_root_value)
 	_bind_unit_tooltip_refs(scene_root_value)
+	_bind_terrain_tooltip_refs(scene_root_value)
 	_bind_detail_refs(scene_root_value)
 	_bind_inventory_refs(scene_root_value)
 	_bind_shop_refs(scene_root_value)
@@ -304,6 +311,26 @@ func _bind_unit_tooltip_refs(scene_root_value: Node) -> void:
 	) as HBoxContainer
 	tooltip_status_label = scene_root_value.get_node_or_null(
 		"HUDLayer/UnitTooltip/TooltipVBox/StatusLabel"
+	) as Label
+
+
+# 地形 tooltip 节点集中采集，供 runtime view 展示格子地形信息。
+func _bind_terrain_tooltip_refs(scene_root_value: Node) -> void:
+	terrain_tooltip_panel = scene_root_value.get_node_or_null("HUDLayer/TerrainTooltip") as PanelContainer
+	terrain_tooltip_title = scene_root_value.get_node_or_null(
+		"HUDLayer/TerrainTooltip/TerrainTooltipMargin/TerrainTooltipRoot/TerrainTitle"
+	) as Label
+	terrain_tooltip_cell = scene_root_value.get_node_or_null(
+		"HUDLayer/TerrainTooltip/TerrainTooltipMargin/TerrainTooltipRoot/TerrainCell"
+	) as Label
+	terrain_tooltip_type = scene_root_value.get_node_or_null(
+		"HUDLayer/TerrainTooltip/TerrainTooltipMargin/TerrainTooltipRoot/TerrainType"
+	) as Label
+	terrain_tooltip_tags = scene_root_value.get_node_or_null(
+		"HUDLayer/TerrainTooltip/TerrainTooltipMargin/TerrainTooltipRoot/TerrainTags"
+	) as Label
+	terrain_tooltip_effects = scene_root_value.get_node_or_null(
+		"HUDLayer/TerrainTooltip/TerrainTooltipMargin/TerrainTooltipRoot/TerrainEffects"
 	) as Label
 
 

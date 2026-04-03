@@ -1,2 +1,2192 @@
 [
+  {
+    "id": "gf_shaolin_guard_waigong_01",
+    "name": "少林·金刚守御·初阶外功·第一式",
+    "type": "waigong",
+    "description": "少林 Guard line gongfa.",
+    "element": "earth",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_shaolin",
+      "sect_name.少林",
+      "style.shaolin_guard",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 21.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_shaolin_guard_waigong_05",
+    "name": "少林·金刚守御·绝学外功·第五式",
+    "type": "waigong",
+    "description": "少林 Guard line gongfa.",
+    "element": "earth",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_shaolin",
+      "sect_name.少林",
+      "style.shaolin_guard",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 16
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 50.4,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.15
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_shaolin_strike_waigong_01",
+    "name": "少林·伏魔震荡·初阶外功·第一式",
+    "type": "waigong",
+    "description": "少林 Strike line gongfa.",
+    "element": "metal",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_shaolin",
+      "sect_name.少林",
+      "style.shaolin_strike",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 25.2,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_shaolin_strike_waigong_05",
+    "name": "少林·伏魔震荡·绝学外功·第五式",
+    "type": "waigong",
+    "description": "少林 Strike line gongfa.",
+    "element": "metal",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_shaolin",
+      "sect_name.少林",
+      "style.shaolin_strike",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 16
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 58.8,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.15
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_shaolin_strike_waigong_07",
+    "name": "少林·伏魔震荡·镇派外功·第七式",
+    "type": "waigong",
+    "description": "少林 Strike line gongfa.",
+    "element": "metal",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_shaolin",
+      "sect_name.少林",
+      "style.shaolin_strike",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 19
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.021
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.0,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 75.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudang_taiji_waigong_01",
+    "name": "武当·太极绵化·初阶外功·第一式",
+    "type": "waigong",
+    "description": "武当 Taiji line gongfa.",
+    "element": "water",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudang",
+      "sect_name.武当",
+      "style.wudang_taiji",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 21.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudang_sword_waigong_01",
+    "name": "武当·御剑真意·初阶外功·第一式",
+    "type": "waigong",
+    "description": "武当 Sword line gongfa.",
+    "element": "metal",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudang",
+      "sect_name.武当",
+      "style.wudang_sword",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 25.2,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudang_sword_waigong_05",
+    "name": "武当·御剑真意·绝学外功·第五式",
+    "type": "waigong",
+    "description": "武当 Sword line gongfa.",
+    "element": "metal",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudang",
+      "sect_name.武当",
+      "style.wudang_sword",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 16
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 58.8,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.15
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_huashan_jianzong_waigong_01",
+    "name": "华山·剑宗迅烈·初阶外功·第一式",
+    "type": "waigong",
+    "description": "华山 Jianzong line gongfa.",
+    "element": "metal",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_huashan",
+      "sect_name.华山",
+      "style.huashan_jianzong",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 25.2,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_huashan_jianzong_waigong_04",
+    "name": "华山·剑宗迅烈·绝学外功·第四式",
+    "type": "waigong",
+    "description": "华山 Jianzong line gongfa.",
+    "element": "metal",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_huashan",
+      "sect_name.华山",
+      "style.huashan_jianzong",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 16
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 58.8,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.15
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_huashan_jianzong_waigong_06",
+    "name": "华山·剑宗迅烈·镇派外功·第六式",
+    "type": "waigong",
+    "description": "华山 Jianzong line gongfa.",
+    "element": "metal",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_huashan",
+      "sect_name.华山",
+      "style.huashan_jianzong",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 19
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.021
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.0,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 75.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_huashan_jianzong_waigong_07",
+    "name": "华山·剑宗迅烈·镇派外功·第七式",
+    "type": "waigong",
+    "description": "华山 Jianzong line gongfa.",
+    "element": "metal",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_huashan",
+      "sect_name.华山",
+      "style.huashan_jianzong",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 19
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.021
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.0,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 75.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_huashan_qizong_waigong_01",
+    "name": "华山·气宗归元·初阶外功·第一式",
+    "type": "waigong",
+    "description": "华山 Qizong line gongfa.",
+    "element": "wood",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_huashan",
+      "sect_name.华山",
+      "style.huashan_qizong",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 21.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_huashan_qizong_waigong_05",
+    "name": "华山·气宗归元·绝学外功·第五式",
+    "type": "waigong",
+    "description": "华山 Qizong line gongfa.",
+    "element": "wood",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_huashan",
+      "sect_name.华山",
+      "style.huashan_qizong",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 16
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 50.4,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.15
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_qingcheng_raid_waigong_01",
+    "name": "青城·诡道奇袭·初阶外功·第一式",
+    "type": "waigong",
+    "description": "青城 Raid line gongfa.",
+    "element": "wood",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_qingcheng",
+      "sect_name.青城",
+      "style.qingcheng_raid",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 25.2,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_qingcheng_raid_waigong_04",
+    "name": "青城·诡道奇袭·绝学外功·第四式",
+    "type": "waigong",
+    "description": "青城 Raid line gongfa.",
+    "element": "wood",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_qingcheng",
+      "sect_name.青城",
+      "style.qingcheng_raid",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 16
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 58.8,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.15
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_qingcheng_raid_waigong_06",
+    "name": "青城·诡道奇袭·镇派外功·第六式",
+    "type": "waigong",
+    "description": "青城 Raid line gongfa.",
+    "element": "wood",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_qingcheng",
+      "sect_name.青城",
+      "style.qingcheng_raid",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 19
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.021
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.0,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 75.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_qingcheng_calm_waigong_01",
+    "name": "青城·清微养气·初阶外功·第一式",
+    "type": "waigong",
+    "description": "青城 Calm line gongfa.",
+    "element": "none",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_qingcheng",
+      "sect_name.青城",
+      "style.qingcheng_calm",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 21.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_tangmen_mechanism_waigong_01",
+    "name": "唐门·机关百变·初阶外功·第一式",
+    "type": "waigong",
+    "description": "唐门 Mechanism line gongfa.",
+    "element": "metal",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_tangmen",
+      "sect_name.唐门",
+      "style.tangmen_mechanism",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "mark_tangmen_mechanism",
+            "duration": 1.7
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "mark_tangmen_mechanism",
+            "value": 21.6,
+            "bonus_multiplier": 1.6,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_tangmen_mechanism_waigong_05",
+    "name": "唐门·机关百变·绝学外功·第五式",
+    "type": "waigong",
+    "description": "唐门 Mechanism line gongfa.",
+    "element": "metal",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_tangmen",
+      "sect_name.唐门",
+      "style.tangmen_mechanism",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 16
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "mark_target",
+            "mark_id": "mark_tangmen_mechanism",
+            "duration": 2.4499999999999997
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "mark_tangmen_mechanism",
+            "value": 50.4,
+            "bonus_multiplier": 1.6,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_tangmen_hiddenweapon_waigong_01",
+    "name": "唐门·暗器绝艺·初阶外功·第一式",
+    "type": "waigong",
+    "description": "唐门 HiddenWeapon line gongfa.",
+    "element": "wood",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_tangmen",
+      "sect_name.唐门",
+      "style.tangmen_hiddenweapon",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 25.2,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_tangmen_hiddenweapon_waigong_04",
+    "name": "唐门·暗器绝艺·绝学外功·第四式",
+    "type": "waigong",
+    "description": "唐门 HiddenWeapon line gongfa.",
+    "element": "wood",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_tangmen",
+      "sect_name.唐门",
+      "style.tangmen_hiddenweapon",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 16
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 58.8,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.15
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_tangmen_hiddenweapon_waigong_06",
+    "name": "唐门·暗器绝艺·镇派外功·第六式",
+    "type": "waigong",
+    "description": "唐门 HiddenWeapon line gongfa.",
+    "element": "wood",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_tangmen",
+      "sect_name.唐门",
+      "style.tangmen_hiddenweapon",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 19
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.021
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.0,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 75.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_kongtong_sevenhurt_waigong_01",
+    "name": "崆峒·七伤劲道·初阶外功·第一式",
+    "type": "waigong",
+    "description": "崆峒 SevenHurt line gongfa.",
+    "element": "fire",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_kongtong",
+      "sect_name.崆峒",
+      "style.kongtong_sevenhurt",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 25.2,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_kongtong_sevenhurt_waigong_05",
+    "name": "崆峒·七伤劲道·绝学外功·第五式",
+    "type": "waigong",
+    "description": "崆峒 SevenHurt line gongfa.",
+    "element": "fire",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_kongtong",
+      "sect_name.崆峒",
+      "style.kongtong_sevenhurt",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 16
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 58.8,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.15
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_kongtong_sevenhurt_waigong_07",
+    "name": "崆峒·七伤劲道·镇派外功·第七式",
+    "type": "waigong",
+    "description": "崆峒 SevenHurt line gongfa.",
+    "element": "fire",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_kongtong",
+      "sect_name.崆峒",
+      "style.kongtong_sevenhurt",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 19
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.021
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.0,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 75.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_kongtong_mystic_waigong_01",
+    "name": "崆峒·借力玄门·初阶外功·第一式",
+    "type": "waigong",
+    "description": "崆峒 Mystic line gongfa.",
+    "element": "earth",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_kongtong",
+      "sect_name.崆峒",
+      "style.kongtong_mystic",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 21.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_kongtong_mystic_waigong_05",
+    "name": "崆峒·借力玄门·绝学外功·第五式",
+    "type": "waigong",
+    "description": "崆峒 Mystic line gongfa.",
+    "element": "earth",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_kongtong",
+      "sect_name.崆峒",
+      "style.kongtong_mystic",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 16
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 50.4,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.15
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_guanfu_command_waigong_01",
+    "name": "官府·军阵统御·初阶外功·第一式",
+    "type": "waigong",
+    "description": "官府 Command line gongfa.",
+    "element": "earth",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_guanfu",
+      "sect_name.官府",
+      "style.guanfu_command",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 21.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_guanfu_command_waigong_05",
+    "name": "官府·军阵统御·绝学外功·第五式",
+    "type": "waigong",
+    "description": "官府 Command line gongfa.",
+    "element": "earth",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_guanfu",
+      "sect_name.官府",
+      "style.guanfu_command",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 16
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 50.4,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.15
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_guanfu_arrest_waigong_01",
+    "name": "官府·缉拿擒敌·初阶外功·第一式",
+    "type": "waigong",
+    "description": "官府 Arrest line gongfa.",
+    "element": "metal",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_guanfu",
+      "sect_name.官府",
+      "style.guanfu_arrest",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 25.2,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_guanfu_arrest_waigong_04",
+    "name": "官府·缉拿擒敌·绝学外功·第四式",
+    "type": "waigong",
+    "description": "官府 Arrest line gongfa.",
+    "element": "metal",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_guanfu",
+      "sect_name.官府",
+      "style.guanfu_arrest",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 16
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 58.8,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.15
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_guanfu_arrest_waigong_07",
+    "name": "官府·缉拿擒敌·镇派外功·第七式",
+    "type": "waigong",
+    "description": "官府 Arrest line gongfa.",
+    "element": "metal",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_guanfu",
+      "sect_name.官府",
+      "style.guanfu_arrest",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 19
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.021
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.0,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 75.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudu_poison_waigong_01",
+    "name": "五毒·蛊毒蔓延·初阶外功·第一式",
+    "type": "waigong",
+    "description": "五毒 Poison line gongfa.",
+    "element": "wood",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudu",
+      "sect_name.五毒",
+      "style.wudu_poison",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 22.8,
+            "damage_type": "internal"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_qi_disrupt",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudu_serpent_waigong_01",
+    "name": "五毒·蛇影追魂·初阶外功·第一式",
+    "type": "waigong",
+    "description": "五毒 Serpent line gongfa.",
+    "element": "water",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudu",
+      "sect_name.五毒",
+      "style.wudu_serpent",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 25.2,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudu_serpent_waigong_05",
+    "name": "五毒·蛇影追魂·绝学外功·第五式",
+    "type": "waigong",
+    "description": "五毒 Serpent line gongfa.",
+    "element": "water",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudu",
+      "sect_name.五毒",
+      "style.wudu_serpent",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 16
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 58.8,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.15
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_gaibang_drunkenstaff_waigong_01",
+    "name": "丐帮·醉棍狂歌·初阶外功·第一式",
+    "type": "waigong",
+    "description": "丐帮 DrunkenStaff line gongfa.",
+    "element": "earth",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_gaibang",
+      "sect_name.丐帮",
+      "style.gaibang_drunkenstaff",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 25.2,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_gaibang_drunkenstaff_waigong_04",
+    "name": "丐帮·醉棍狂歌·绝学外功·第四式",
+    "type": "waigong",
+    "description": "丐帮 DrunkenStaff line gongfa.",
+    "element": "earth",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_gaibang",
+      "sect_name.丐帮",
+      "style.gaibang_drunkenstaff",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 16
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 58.8,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.15
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_gaibang_drunkenstaff_waigong_06",
+    "name": "丐帮·醉棍狂歌·镇派外功·第六式",
+    "type": "waigong",
+    "description": "丐帮 DrunkenStaff line gongfa.",
+    "element": "earth",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_gaibang",
+      "sect_name.丐帮",
+      "style.gaibang_drunkenstaff",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 19
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.021
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.0,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 75.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_gaibang_drunkenstaff_waigong_07",
+    "name": "丐帮·醉棍狂歌·镇派外功·第七式",
+    "type": "waigong",
+    "description": "丐帮 DrunkenStaff line gongfa.",
+    "element": "earth",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_gaibang",
+      "sect_name.丐帮",
+      "style.gaibang_drunkenstaff",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 19
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.021
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.0,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 75.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_gaibang_support_waigong_01",
+    "name": "丐帮·群援义行·初阶外功·第一式",
+    "type": "waigong",
+    "description": "丐帮 Support line gongfa.",
+    "element": "none",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_gaibang",
+      "sect_name.丐帮",
+      "style.gaibang_support",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 21.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_gaibang_support_waigong_05",
+    "name": "丐帮·群援义行·绝学外功·第五式",
+    "type": "waigong",
+    "description": "丐帮 Support line gongfa.",
+    "element": "none",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_gaibang",
+      "sect_name.丐帮",
+      "style.gaibang_support",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 16
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 50.4,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.15
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_mingjiao_flame_waigong_01",
+    "name": "明教·烈焰焚天·初阶外功·第一式",
+    "type": "waigong",
+    "description": "明教 Flame line gongfa.",
+    "element": "fire",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_mingjiao",
+      "sect_name.明教",
+      "style.mingjiao_flame",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "create_terrain",
+            "terrain_ref_id": "terrain_cn_desert",
+            "at": "target",
+            "radius": 1,
+            "duration": 4.0,
+            "target_mode": "enemies"
+          },
+          {
+            "op": "damage_target",
+            "value": 25.2,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_mingjiao_flame_waigong_05",
+    "name": "明教·烈焰焚天·绝学外功·第五式",
+    "type": "waigong",
+    "description": "明教 Flame line gongfa.",
+    "element": "fire",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_mingjiao",
+      "sect_name.明教",
+      "style.mingjiao_flame",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 16
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.018
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.2,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 58.8,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.15
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_mingjiao_flame_waigong_07",
+    "name": "明教·烈焰焚天·镇派外功·第七式",
+    "type": "waigong",
+    "description": "明教 Flame line gongfa.",
+    "element": "fire",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_mingjiao",
+      "sect_name.明教",
+      "style.mingjiao_flame",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 19
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.021
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.0,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 75.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_mingjiao_light_waigong_01",
+    "name": "明教·光明圣辉·初阶外功·第一式",
+    "type": "waigong",
+    "description": "明教 Light line gongfa.",
+    "element": "fire",
+    "quality": "white",
+    "cost": 120,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_mingjiao",
+      "sect_name.明教",
+      "style.mingjiao_light",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 9
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.01
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.8,
+        "effects": [
+          {
+            "op": "damage_target",
+            "value": 21.6,
+            "damage_type": "external"
+          },
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_tangmen_mechanism_waigong_08",
+    "name": "唐门·机关百变·绝学外功·第八式",
+    "type": "waigong",
+    "description": "唐门 Mechanism line gongfa with temporary terrain linkage.",
+    "element": "metal",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_tangmen",
+      "sect_name.唐门",
+      "style.tangmen_mechanism",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 17
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.019
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.1,
+        "effects": [
+          {
+            "op": "create_terrain",
+            "terrain_ref_id": "terrain_tmp_tangmen_ironfence",
+            "at": "target",
+            "radius": 0,
+            "duration": 3.5,
+            "target_mode": "none"
+          },
+          {
+            "op": "mark_target",
+            "mark_id": "mark_tangmen_mechanism",
+            "duration": 2.0
+          },
+          {
+            "op": "damage_if_marked",
+            "mark_id": "mark_tangmen_mechanism",
+            "value": 54.0,
+            "bonus_multiplier": 1.7,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_mingjiao_flame_waigong_08",
+    "name": "明教·烈焰焚天·绝学外功·第八式",
+    "type": "waigong",
+    "description": "明教 Flame line gongfa with temporary terrain linkage.",
+    "element": "fire",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_mingjiao",
+      "sect_name.明教",
+      "style.mingjiao_flame",
+      "type.waigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "atk",
+        "value": 17
+      },
+      {
+        "op": "crit_bonus",
+        "value": 0.019
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "on_attack_hit",
+        "cooldown": 2.1,
+        "effects": [
+          {
+            "op": "create_terrain",
+            "terrain_ref_id": "terrain_tmp_mingjiao_blaze_ring",
+            "at": "target",
+            "radius": 1,
+            "duration": 4.5,
+            "target_mode": "enemies"
+          },
+          {
+            "op": "damage_target",
+            "value": 63.0,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_target",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.2
+          }
+        ]
+      }
+    ]
+  }
 ]

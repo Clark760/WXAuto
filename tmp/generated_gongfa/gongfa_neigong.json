@@ -1,0 +1,1595 @@
+[
+  {
+    "id": "gf_shaolin_core_neigong_00",
+    "name": "????????????",
+    "type": "neigong",
+    "description": "????????????????",
+    "element": "earth",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_shaolin",
+      "sect_name.??",
+      "style.shaolin_guard",
+      "style.shaolin_strike",
+      "type.neigong",
+      "role.shared_core"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.2
+      },
+      {
+        "op": "tenacity",
+        "value": 0.04
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 5.2
+        },
+        "mp_cost": 12,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.4
+          },
+          {
+            "op": "mp_regen_add",
+            "value": 1.6
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_shaolin_guard_neigong_04",
+    "name": "???????????",
+    "type": "neigong",
+    "description": "????????????",
+    "element": "earth",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_shaolin",
+      "sect_name.??",
+      "style.shaolin_guard",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.88
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.45
+        },
+        "mp_cost": 16,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.75
+          },
+          {
+            "op": "heal_self",
+            "value": 29.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_shaolin_guard_neigong_07",
+    "name": "???????????",
+    "type": "neigong",
+    "description": "????????????",
+    "element": "earth",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_shaolin",
+      "sect_name.??",
+      "style.shaolin_guard",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 17
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.07
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.05
+        },
+        "mp_cost": 18,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 3.0
+          },
+          {
+            "op": "heal_self",
+            "value": 39.2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_shaolin_strike_neigong_04",
+    "name": "???????????",
+    "type": "neigong",
+    "description": "????????????",
+    "element": "metal",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_shaolin",
+      "sect_name.??",
+      "style.shaolin_strike",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 18
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.88
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.45
+        },
+        "mp_cost": 16,
+        "effects": [
+          {
+            "op": "damage_aoe",
+            "value": 44.8,
+            "radius": 2,
+            "damage_type": "internal"
+          },
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.15,
+            "radius": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudang_core_neigong_00",
+    "name": "????????????",
+    "type": "neigong",
+    "description": "????????????????",
+    "element": "water",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudang",
+      "sect_name.??",
+      "style.wudang_taiji",
+      "style.wudang_sword",
+      "type.neigong",
+      "role.shared_core"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.2
+      },
+      {
+        "op": "tenacity",
+        "value": 0.04
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 5.2
+        },
+        "mp_cost": 12,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.4
+          },
+          {
+            "op": "mp_regen_add",
+            "value": 1.6
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudang_taiji_neigong_04",
+    "name": "???????????",
+    "type": "neigong",
+    "description": "????????????",
+    "element": "water",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudang",
+      "sect_name.??",
+      "style.wudang_taiji",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.88
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.45
+        },
+        "mp_cost": 16,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.75
+          },
+          {
+            "op": "heal_self",
+            "value": 29.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudang_taiji_neigong_07",
+    "name": "???????????",
+    "type": "neigong",
+    "description": "????????????",
+    "element": "water",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudang",
+      "sect_name.??",
+      "style.wudang_taiji",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 17
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.07
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.05
+        },
+        "mp_cost": 18,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 3.0
+          },
+          {
+            "op": "heal_self",
+            "value": 39.2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudang_sword_neigong_04",
+    "name": "???????????",
+    "type": "neigong",
+    "description": "????????????",
+    "element": "metal",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudang",
+      "sect_name.??",
+      "style.wudang_sword",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 18
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.88
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.45
+        },
+        "mp_cost": 16,
+        "effects": [
+          {
+            "op": "damage_aoe",
+            "value": 44.8,
+            "radius": 2,
+            "damage_type": "internal"
+          },
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.15,
+            "radius": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_huashan_core_neigong_00",
+    "name": "????????????",
+    "type": "neigong",
+    "description": "????????????????",
+    "element": "metal",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_huashan",
+      "sect_name.??",
+      "style.huashan_jianzong",
+      "style.huashan_qizong",
+      "type.neigong",
+      "role.shared_core"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.2
+      },
+      {
+        "op": "tenacity",
+        "value": 0.04
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 5.2
+        },
+        "mp_cost": 12,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.4
+          },
+          {
+            "op": "mp_regen_add",
+            "value": 1.6
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_huashan_qizong_neigong_04",
+    "name": "???????????",
+    "type": "neigong",
+    "description": "????????????",
+    "element": "wood",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_huashan",
+      "sect_name.??",
+      "style.huashan_qizong",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.88
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.45
+        },
+        "mp_cost": 16,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.75
+          },
+          {
+            "op": "heal_self",
+            "value": 29.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_huashan_qizong_neigong_07",
+    "name": "???????????",
+    "type": "neigong",
+    "description": "????????????",
+    "element": "wood",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_huashan",
+      "sect_name.??",
+      "style.huashan_qizong",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 17
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.07
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.05
+        },
+        "mp_cost": 18,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 3.0
+          },
+          {
+            "op": "heal_self",
+            "value": 39.2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_qingcheng_core_neigong_00",
+    "name": "????????????",
+    "type": "neigong",
+    "description": "????????????????",
+    "element": "wood",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_qingcheng",
+      "sect_name.??",
+      "style.qingcheng_raid",
+      "style.qingcheng_calm",
+      "type.neigong",
+      "role.shared_core"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.2
+      },
+      {
+        "op": "tenacity",
+        "value": 0.04
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 5.2
+        },
+        "mp_cost": 12,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.4
+          },
+          {
+            "op": "mp_regen_add",
+            "value": 1.6
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_qingcheng_calm_neigong_04",
+    "name": "???????????",
+    "type": "neigong",
+    "description": "????????????",
+    "element": "none",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_qingcheng",
+      "sect_name.??",
+      "style.qingcheng_calm",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.88
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.45
+        },
+        "mp_cost": 16,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.75
+          },
+          {
+            "op": "heal_self",
+            "value": 29.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_qingcheng_calm_neigong_07",
+    "name": "???????????",
+    "type": "neigong",
+    "description": "????????????",
+    "element": "none",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_qingcheng",
+      "sect_name.??",
+      "style.qingcheng_calm",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 17
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.07
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.05
+        },
+        "mp_cost": 18,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 3.0
+          },
+          {
+            "op": "heal_self",
+            "value": 39.2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_tangmen_core_neigong_00",
+    "name": "????????????",
+    "type": "neigong",
+    "description": "????????????????",
+    "element": "metal",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_tangmen",
+      "sect_name.??",
+      "style.tangmen_mechanism",
+      "style.tangmen_hiddenweapon",
+      "type.neigong",
+      "role.shared_core"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.2
+      },
+      {
+        "op": "tenacity",
+        "value": 0.04
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 5.2
+        },
+        "mp_cost": 12,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.4
+          },
+          {
+            "op": "mp_regen_add",
+            "value": 1.6
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_tangmen_mechanism_neigong_04",
+    "name": "???????????",
+    "type": "neigong",
+    "description": "????????????",
+    "element": "metal",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_tangmen",
+      "sect_name.??",
+      "style.tangmen_mechanism",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 18
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.88
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.45
+        },
+        "mp_cost": 16,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_mobility_step",
+            "duration": 2.15
+          },
+          {
+            "op": "mp_regen_add",
+            "value": 1.61
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_kongtong_core_neigong_00",
+    "name": "????????????",
+    "type": "neigong",
+    "description": "????????????????",
+    "element": "fire",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_kongtong",
+      "sect_name.??",
+      "style.kongtong_sevenhurt",
+      "style.kongtong_mystic",
+      "type.neigong",
+      "role.shared_core"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.2
+      },
+      {
+        "op": "tenacity",
+        "value": 0.04
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 5.2
+        },
+        "mp_cost": 12,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.4
+          },
+          {
+            "op": "mp_regen_add",
+            "value": 1.6
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_kongtong_sevenhurt_neigong_04",
+    "name": "???????????",
+    "type": "neigong",
+    "description": "????????????",
+    "element": "fire",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_kongtong",
+      "sect_name.??",
+      "style.kongtong_sevenhurt",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 18
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.88
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.45
+        },
+        "mp_cost": 16,
+        "effects": [
+          {
+            "op": "damage_aoe",
+            "value": 44.8,
+            "radius": 2,
+            "damage_type": "internal"
+          },
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.15,
+            "radius": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_kongtong_mystic_neigong_04",
+    "name": "???????????",
+    "type": "neigong",
+    "description": "????????????",
+    "element": "earth",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_kongtong",
+      "sect_name.??",
+      "style.kongtong_mystic",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.88
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.45
+        },
+        "mp_cost": 16,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.75
+          },
+          {
+            "op": "heal_self",
+            "value": 29.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_kongtong_mystic_neigong_07",
+    "name": "???????????",
+    "type": "neigong",
+    "description": "????????????",
+    "element": "earth",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_kongtong",
+      "sect_name.??",
+      "style.kongtong_mystic",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 17
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.07
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.05
+        },
+        "mp_cost": 18,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 3.0
+          },
+          {
+            "op": "heal_self",
+            "value": 39.2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_guanfu_core_neigong_00",
+    "name": "????????????",
+    "type": "neigong",
+    "description": "????????????????",
+    "element": "earth",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_guanfu",
+      "sect_name.??",
+      "style.guanfu_command",
+      "style.guanfu_arrest",
+      "type.neigong",
+      "role.shared_core"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.2
+      },
+      {
+        "op": "tenacity",
+        "value": 0.04
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 5.2
+        },
+        "mp_cost": 12,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.4
+          },
+          {
+            "op": "mp_regen_add",
+            "value": 1.6
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_guanfu_command_neigong_04",
+    "name": "???????????",
+    "type": "neigong",
+    "description": "????????????",
+    "element": "earth",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_guanfu",
+      "sect_name.??",
+      "style.guanfu_command",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.88
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.45
+        },
+        "mp_cost": 16,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.75
+          },
+          {
+            "op": "heal_self",
+            "value": 29.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudu_core_neigong_00",
+    "name": "????????????",
+    "type": "neigong",
+    "description": "????????????????",
+    "element": "wood",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudu",
+      "sect_name.??",
+      "style.wudu_poison",
+      "style.wudu_serpent",
+      "type.neigong",
+      "role.shared_core"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.2
+      },
+      {
+        "op": "tenacity",
+        "value": 0.04
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 5.2
+        },
+        "mp_cost": 12,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.4
+          },
+          {
+            "op": "mp_regen_add",
+            "value": 1.6
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudu_poison_neigong_04",
+    "name": "???????????",
+    "type": "neigong",
+    "description": "????????????",
+    "element": "wood",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudu",
+      "sect_name.??",
+      "style.wudu_poison",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 18
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.88
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.45
+        },
+        "mp_cost": 16,
+        "effects": [
+          {
+            "op": "create_terrain",
+            "terrain_ref_id": "terrain_cn_marsh",
+            "at": "self",
+            "radius": 1,
+            "duration": 4.0,
+            "target_mode": "enemies"
+          },
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_qi_disrupt",
+            "duration": 2.55,
+            "radius": 2
+          },
+          {
+            "op": "damage_aoe",
+            "value": 42.0,
+            "radius": 2,
+            "damage_type": "internal"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudu_poison_neigong_06",
+    "name": "???????????",
+    "type": "neigong",
+    "description": "????????????",
+    "element": "wood",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudu",
+      "sect_name.??",
+      "style.wudu_poison",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 22
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.07
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.05
+        },
+        "mp_cost": 18,
+        "effects": [
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_qi_disrupt",
+            "duration": 2.8,
+            "radius": 2
+          },
+          {
+            "op": "damage_aoe",
+            "value": 54.0,
+            "radius": 2,
+            "damage_type": "internal"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudu_serpent_neigong_04",
+    "name": "???????????",
+    "type": "neigong",
+    "description": "????????????",
+    "element": "water",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudu",
+      "sect_name.??",
+      "style.wudu_serpent",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 18
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.88
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.45
+        },
+        "mp_cost": 16,
+        "effects": [
+          {
+            "op": "damage_aoe",
+            "value": 44.8,
+            "radius": 2,
+            "damage_type": "internal"
+          },
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.15,
+            "radius": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_gaibang_core_neigong_00",
+    "name": "????????????",
+    "type": "neigong",
+    "description": "????????????????",
+    "element": "earth",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_gaibang",
+      "sect_name.??",
+      "style.gaibang_drunkenstaff",
+      "style.gaibang_support",
+      "type.neigong",
+      "role.shared_core"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.2
+      },
+      {
+        "op": "tenacity",
+        "value": 0.04
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 5.2
+        },
+        "mp_cost": 12,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.4
+          },
+          {
+            "op": "mp_regen_add",
+            "value": 1.6
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_gaibang_support_neigong_04",
+    "name": "???????????",
+    "type": "neigong",
+    "description": "????????????",
+    "element": "none",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_gaibang",
+      "sect_name.??",
+      "style.gaibang_support",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.88
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.45
+        },
+        "mp_cost": 16,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.75
+          },
+          {
+            "op": "heal_self",
+            "value": 29.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_mingjiao_core_neigong_00",
+    "name": "????????????",
+    "type": "neigong",
+    "description": "????????????????",
+    "element": "fire",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_mingjiao",
+      "sect_name.??",
+      "style.mingjiao_flame",
+      "style.mingjiao_light",
+      "type.neigong",
+      "role.shared_core"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.2
+      },
+      {
+        "op": "tenacity",
+        "value": 0.04
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 5.2
+        },
+        "mp_cost": 12,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.4
+          },
+          {
+            "op": "mp_regen_add",
+            "value": 1.6
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_mingjiao_flame_neigong_04",
+    "name": "???????????",
+    "type": "neigong",
+    "description": "????????????",
+    "element": "fire",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_mingjiao",
+      "sect_name.??",
+      "style.mingjiao_flame",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 18
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.88
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.45
+        },
+        "mp_cost": 16,
+        "effects": [
+          {
+            "op": "damage_aoe",
+            "value": 47.6,
+            "radius": 2,
+            "damage_type": "external"
+          },
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.15,
+            "radius": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_mingjiao_light_neigong_04",
+    "name": "???????????",
+    "type": "neigong",
+    "description": "????????????",
+    "element": "fire",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_mingjiao",
+      "sect_name.??",
+      "style.mingjiao_light",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.88
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.45
+        },
+        "mp_cost": 16,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.75
+          },
+          {
+            "op": "heal_self",
+            "value": 29.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_mingjiao_light_neigong_07",
+    "name": "???????????",
+    "type": "neigong",
+    "description": "????????????",
+    "element": "fire",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_mingjiao",
+      "sect_name.??",
+      "style.mingjiao_light",
+      "type.neigong"
+    ],
+    "passive_effects": [
+      {
+        "op": "stat_add",
+        "stat": "iat",
+        "value": 17
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.07
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.05
+        },
+        "mp_cost": 18,
+        "effects": [
+          {
+            "op": "buff_self",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 3.0
+          },
+          {
+            "op": "heal_self",
+            "value": 39.2
+          }
+        ]
+      }
+    ]
+  }
+]

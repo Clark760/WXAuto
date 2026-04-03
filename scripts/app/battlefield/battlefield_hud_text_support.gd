@@ -296,6 +296,19 @@ func _fallback_damage_type_label(damage_type: String) -> String:
 			return damage_type
 
 
+# 地形类别默认文案只用于 HUD 展示，不参与地形判定逻辑。
+func _fallback_terrain_type_label(terrain_type: String) -> String:
+	match terrain_type:
+		"beneficial":
+			return "增益地形"
+		"hazard":
+			return "危险地形"
+		"obstacle":
+			return "障碍地形"
+		_:
+			return terrain_type
+
+
 # 单位状态文案支持外置覆盖，兜底继续保持旧文案。
 func _fallback_status_label(status_key: String) -> String:
 	match status_key:
@@ -420,6 +433,15 @@ func damage_type_to_cn(damage_type: String) -> String:
 		"damage_type_labels",
 		damage_type,
 		_fallback_damage_type_label(damage_type)
+	)
+
+
+# 地形类别文案优先读配置，缺失时回退默认文案。
+func terrain_class_to_cn(terrain_type: String) -> String:
+	return _read_display_text(
+		"terrain_type_labels",
+		terrain_type.strip_edges().to_lower(),
+		_fallback_terrain_type_label(terrain_type.strip_edges().to_lower())
 	)
 
 

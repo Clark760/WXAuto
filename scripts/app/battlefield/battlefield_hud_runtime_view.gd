@@ -19,8 +19,16 @@ const STAGE_PREPARATION: int = 0 # 备战期 HUD 允许商店和仓库交互。
 const STAGE_COMBAT: int = 1 # 交锋期 HUD 强调战斗信息。
 const STAGE_RESULT: int = 2 # 结算期 HUD 让位给结果统计。
 
+const COMBAT_LOG_AGGREGATOR_SCRIPT: Script = preload(
+	"res://scripts/app/battlefield/battlefield_combat_log_aggregator.gd"
+)
+
 const BATTLE_LOG_MAX_LINES: int = 50 # 日志缓存上限。
-const BATTLE_LOG_FLUSH_INTERVAL: float = 0.12 # 日志批量刷新的节奏。
+const BATTLE_LOG_DISPLAY_LINES: int = 40 # RichTextLabel 实际保留显示行数。
+const BATTLE_LOG_MAX_FLUSH_BATCH: int = 10 # 单次 flush 最多写入聚合后的条目数。
+const BATTLE_LOG_FLUSH_INTERVAL_NORMAL: float = 0.25 # 普通密度下日志刷新节奏。
+const BATTLE_LOG_FLUSH_INTERVAL_DENSE: float = 0.50 # 高密度战斗下进一步降频刷新。
+const DENSE_LOG_UNIT_THRESHOLD: int = 120 # 超过阈值后启用高密度日志节流。
 const TOP_HUD_REFRESH_INTERVAL_PREP: float = 0.20 # 非战斗期顶栏 5Hz 足够可读。
 const TOP_HUD_REFRESH_INTERVAL_COMBAT: float = 0.16 # 普通战斗期顶栏刷新节流。
 const TOP_HUD_REFRESH_INTERVAL_DENSE_COMBAT: float = 0.32 # 高密度战斗期进一步减少 UI 改写。
@@ -32,6 +40,8 @@ var _refs = null # 场景引用表。
 var _state = null # 会话状态表。
 var _support = null # HUD 共享支撑。
 var _top_hud_refresh_accum: float = 0.0 # 顶栏节流累计时间。
+var _combat_log_aggregator = null # 战斗日志聚合器。
+var _pending_aggregated_lines: Array[Dictionary] = [] # 尚未刷入 RichText 的聚合文案。
 
 
 # 绑定 runtime view 所需的 facade、引用表、状态和共享 support。
@@ -42,6 +52,9 @@ func initialize(owner, scene_root, refs, state, support) -> void:
 	_state = state
 	_support = support
 	_top_hud_refresh_accum = 0.0
+	_combat_log_aggregator = COMBAT_LOG_AGGREGATOR_SCRIPT.new()
+	_combat_log_aggregator.initialize(_support)
+	_pending_aggregated_lines.clear()
 
 # 清理 runtime view 的场景引用，等待下次重新装配。
 func shutdown() -> void:
@@ -51,6 +64,8 @@ func shutdown() -> void:
 	_state = null
 	_support = null
 	_top_hud_refresh_accum = 0.0
+	_combat_log_aggregator = null
+	_pending_aggregated_lines.clear()
 
 
 # 新入口初始化时统一收拢 HUD 默认显隐和按钮状态。
@@ -58,6 +73,8 @@ func shutdown() -> void:
 func initialize_view_defaults() -> void:
 	if _refs.unit_tooltip != null:
 		_refs.unit_tooltip.visible = false
+	if _refs.terrain_tooltip_panel != null:
+		_refs.terrain_tooltip_panel.visible = false
 	if _refs.item_tooltip != null:
 		_refs.item_tooltip.visible = false
 	if _refs.drag_preview != null:
@@ -168,6 +185,7 @@ func apply_stage_ui_state() -> void:
 		return
 	_owner.force_close_detail_panel(false)
 	_owner.clear_hovered_unit()
+	_owner.clear_hovered_terrain()
 	if _refs.item_tooltip != null:
 		_refs.item_tooltip.visible = false
 
@@ -214,12 +232,20 @@ func append_battle_log(line: String, event_type: String = "info") -> void:
 	_state.battle_log_entries.append(
 		"[color=%s]%s[/color]" % [_support.battle_log_color_hex(event_type), line]
 	)
-	while _state.battle_log_entries.size() > BATTLE_LOG_MAX_LINES:
-		_state.battle_log_entries.remove_at(0)
-		_state.battle_log_requires_rebuild = true
+	_trim_battle_log_entries_if_needed()
 	_state.battle_log_dirty = true
 	if int(_state.stage) != STAGE_COMBAT:
 		flush_battle_log(true)
+
+
+# 写入结构化战斗事件，交给聚合器等待下一次分批 flush。
+func append_combat_event(event: Dictionary) -> void:
+	if event.is_empty():
+		return
+	if _combat_log_aggregator == null:
+		return
+	_combat_log_aggregator.push_event(event)
+	_state.battle_log_dirty = true
 
 
 # 以固定间隔把 battle log 缓存刷入 RichText，减少逐条 append 抖动。
@@ -227,10 +253,15 @@ func append_battle_log(line: String, event_type: String = "info") -> void:
 func update_battle_log_view(delta: float) -> void:
 	if not _state.battle_log_dirty:
 		return
-	_state.battle_log_flush_accum += delta
-	if _state.battle_log_flush_accum < BATTLE_LOG_FLUSH_INTERVAL:
+	if _refs.battle_log_panel == null or not _refs.battle_log_panel.visible:
 		return
+	_state.battle_log_flush_accum += delta
+	if _state.battle_log_flush_accum < _resolve_log_flush_interval():
+		return
+	_flush_combat_event_lines()
 	flush_battle_log(true)
+	if not _pending_aggregated_lines.is_empty():
+		_state.battle_log_dirty = true
 
 
 # 把 battle log 缓存同步到 RichText，并在需要时滚到末尾。
@@ -238,10 +269,20 @@ func update_battle_log_view(delta: float) -> void:
 func flush_battle_log(scroll_to_bottom: bool) -> void:
 	if _refs.battle_log_text == null:
 		return
+	if _refs.battle_log_panel != null and not _refs.battle_log_panel.visible:
+		return
+	_trim_battle_log_entries_if_needed()
 	if _state.battle_log_requires_rebuild:
 		_refs.battle_log_text.clear()
-		if not _state.battle_log_entries.is_empty():
-			_refs.battle_log_text.append_text("\n".join(_state.battle_log_entries))
+		var display_entries: Array[String] = _state.battle_log_entries
+		if display_entries.size() > BATTLE_LOG_DISPLAY_LINES:
+			var clipped: Array[String] = []
+			var start_index: int = display_entries.size() - BATTLE_LOG_DISPLAY_LINES
+			for index in range(start_index, display_entries.size()):
+				clipped.append(display_entries[index])
+			display_entries = clipped
+		if not display_entries.is_empty():
+			_refs.battle_log_text.append_text("\n".join(display_entries))
 		_state.battle_log_last_flushed_count = _state.battle_log_entries.size()
 		_state.battle_log_requires_rebuild = false
 	elif _state.battle_log_last_flushed_count > _state.battle_log_entries.size():
@@ -270,8 +311,59 @@ func clear_battle_log() -> void:
 	_state.battle_log_requires_rebuild = true
 	_state.battle_log_dirty = false
 	_state.battle_log_flush_accum = 0.0
+	_pending_aggregated_lines.clear()
+	if _combat_log_aggregator != null:
+		_combat_log_aggregator.clear()
 	if _refs.battle_log_text != null:
 		_refs.battle_log_text.clear()
+
+
+func _flush_combat_event_lines() -> void:
+	if _combat_log_aggregator == null:
+		return
+	if _pending_aggregated_lines.is_empty():
+		var elapsed: float = float(_state.combat_elapsed) if _state != null else 0.0
+		_pending_aggregated_lines = _combat_log_aggregator.flush_aggregated(elapsed)
+	if _pending_aggregated_lines.is_empty():
+		return
+	var consume_count: int = mini(BATTLE_LOG_MAX_FLUSH_BATCH, _pending_aggregated_lines.size())
+	for index in range(consume_count):
+		var line_entry: Dictionary = _pending_aggregated_lines[index]
+		append_battle_log(
+			str(line_entry.get("text", "")),
+			str(line_entry.get("event_type", "info")).strip_edges().to_lower()
+		)
+	if consume_count >= _pending_aggregated_lines.size():
+		_pending_aggregated_lines.clear()
+		return
+	var remain: Array[Dictionary] = []
+	for index in range(consume_count, _pending_aggregated_lines.size()):
+		remain.append(_pending_aggregated_lines[index])
+	_pending_aggregated_lines = remain
+
+
+func _resolve_log_flush_interval() -> float:
+	var total_units: int = 0
+	if _state != null:
+		total_units = _state.ally_deployed.size() + _state.enemy_deployed.size()
+	if total_units >= DENSE_LOG_UNIT_THRESHOLD:
+		return BATTLE_LOG_FLUSH_INTERVAL_DENSE
+	return BATTLE_LOG_FLUSH_INTERVAL_NORMAL
+
+
+func _trim_battle_log_entries_if_needed() -> void:
+	if _state == null:
+		return
+	var line_count: int = _state.battle_log_entries.size()
+	if line_count <= BATTLE_LOG_MAX_LINES:
+		return
+	var trimmed: Array[String] = []
+	var start_index: int = line_count - BATTLE_LOG_MAX_LINES
+	for index in range(start_index, line_count):
+		trimmed.append(_state.battle_log_entries[index])
+	_state.battle_log_entries = trimmed
+	_state.battle_log_last_flushed_count = mini(_state.battle_log_last_flushed_count, trimmed.size())
+	_state.battle_log_requires_rebuild = true
 
 
 # 世界拖拽显隐只通过 runtime view 写 DragPreview 节点，避免 world 层继续碰 UI。
@@ -309,6 +401,132 @@ func sync_world_debug_status(snapshot: Dictionary) -> void:
 		int(snapshot.get("ally_count", 0)),
 		int(snapshot.get("enemy_count", 0))
 	])
+
+
+# 渲染地形悬停提示，展示坐标、类型、标签和主要地形效果统计。
+func show_terrain_tooltip(terrain_snapshot: Dictionary, screen_pos: Vector2) -> void:
+	if _refs == null or _refs.terrain_tooltip_panel == null:
+		return
+	var cell: Vector2i = terrain_snapshot.get("cell", Vector2i(-1, -1))
+	var entries: Array[Dictionary] = []
+	var entries_value: Variant = terrain_snapshot.get("entries", [])
+	if entries_value is Array:
+		for entry_value in (entries_value as Array):
+			if entry_value is Dictionary:
+				entries.append(entry_value as Dictionary)
+	var tags: Array[String] = []
+	var tags_value: Variant = terrain_snapshot.get("tags", [])
+	if tags_value is Array:
+		for tag_value in (tags_value as Array):
+			var tag_text: String = str(tag_value).strip_edges()
+			if not tag_text.is_empty():
+				tags.append(tag_text)
+	var main_name: String = "地形"
+	var main_type: String = "未知"
+	if not entries.is_empty():
+		main_name = str(entries[0].get("name", main_name)).strip_edges()
+		main_type = str(entries[0].get("type", main_type)).strip_edges().to_lower()
+		if entries.size() > 1:
+			main_name = "%s 等%d层" % [main_name, entries.size()]
+	_set_label_text_if_changed(_refs.terrain_tooltip_title, main_name)
+	_set_label_text_if_changed(_refs.terrain_tooltip_cell, "坐标：%d, %d" % [cell.x, cell.y])
+	_set_label_text_if_changed(
+		_refs.terrain_tooltip_type,
+		"类型：%s" % _support.terrain_class_to_cn(main_type)
+	)
+	_set_label_text_if_changed(
+		_refs.terrain_tooltip_tags,
+		"标签：%s" % _build_terrain_tags_preview(tags)
+	)
+	_set_label_text_if_changed(
+		_refs.terrain_tooltip_effects,
+		"效果：%s" % _build_terrain_effect_preview(entries)
+	)
+	_position_terrain_tooltip(screen_pos)
+	_refs.terrain_tooltip_panel.visible = true
+
+
+# 清理地形悬停提示显示。
+func clear_terrain_tooltip() -> void:
+	if _refs == null or _refs.terrain_tooltip_panel == null:
+		return
+	_refs.terrain_tooltip_panel.visible = false
+
+
+func _build_terrain_tags_preview(tags: Array[String]) -> String:
+	if tags.is_empty():
+		return "无"
+	var visible: Array[String] = []
+	for tag in tags:
+		if tag.begins_with("terrain.") or tag.begins_with("bm5.terrain."):
+			continue
+		visible.append(tag)
+	if visible.is_empty():
+		visible = tags.duplicate()
+	if visible.size() > 6:
+		var clipped: Array[String] = []
+		for index in range(6):
+			clipped.append(visible[index])
+		return "%s 等%d项" % ["/".join(clipped), visible.size()]
+	return "/".join(visible)
+
+
+func _build_terrain_effect_preview(entries: Array[Dictionary]) -> String:
+	if entries.is_empty():
+		return "无"
+	var effect_lines: Array[String] = []
+	for entry in entries:
+		var entry_name: String = str(entry.get("name", "地形")).strip_edges()
+		var effect_rows_value: Variant = entry.get("effect_rows", {})
+		if not (effect_rows_value is Dictionary):
+			effect_lines.append("%s：无额外效果" % entry_name)
+			continue
+		var effect_rows: Dictionary = effect_rows_value as Dictionary
+		var one_line: String = _first_terrain_effect_line(effect_rows)
+		if one_line.is_empty():
+			one_line = "无额外效果"
+		var desc: String = "%s：%s" % [entry_name, one_line]
+		if bool(entry.get("is_barrier", false)):
+			desc += "（阻挡）"
+		effect_lines.append(desc)
+	if effect_lines.size() > 2:
+		return "%s；等%d层" % [effect_lines[0], effect_lines.size()]
+	return "；".join(effect_lines)
+
+
+func _first_terrain_effect_line(effect_rows: Dictionary) -> String:
+	var phase_order: Array[String] = ["enter", "tick", "exit", "expire"]
+	for phase in phase_order:
+		var effects_value: Variant = effect_rows.get(phase, [])
+		if not (effects_value is Array):
+			continue
+		for effect_value in (effects_value as Array):
+			if not (effect_value is Dictionary):
+				continue
+			var effect_text: String = _support.format_effect_op(effect_value as Dictionary).strip_edges()
+			if effect_text.is_empty():
+				continue
+			var phase_prefix: String = "进入" if phase == "enter" else (
+				"持续" if phase == "tick" else ("离开" if phase == "exit" else "结束")
+			)
+			return "%s:%s" % [phase_prefix, effect_text]
+	return ""
+
+
+func _position_terrain_tooltip(screen_pos: Vector2) -> void:
+	if _refs == null or _refs.terrain_tooltip_panel == null or _scene_root == null:
+		return
+	_refs.terrain_tooltip_panel.reset_size()
+	var viewport_size: Vector2 = _scene_root.get_viewport().get_visible_rect().size
+	var desired: Vector2 = screen_pos + Vector2(18.0, -12.0)
+	var panel_size: Vector2 = _refs.terrain_tooltip_panel.size
+	if desired.x + panel_size.x > viewport_size.x - 8.0:
+		desired.x = screen_pos.x - panel_size.x - 14.0
+	if desired.y + panel_size.y > viewport_size.y - 8.0:
+		desired.y = screen_pos.y - panel_size.y - 12.0
+	desired.x = clampf(desired.x, 8.0, viewport_size.x - panel_size.x - 8.0)
+	desired.y = clampf(desired.y, 8.0, viewport_size.y - panel_size.y - 8.0)
+	_refs.terrain_tooltip_panel.position = desired
 
 
 # 统一读取 CombatManager，避免顶栏按钮重复写 refs 判空。

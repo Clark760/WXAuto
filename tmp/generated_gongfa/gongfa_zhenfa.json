@@ -1,0 +1,1694 @@
+[
+  {
+    "id": "gf_shaolin_guard_zhenfa_03",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "earth",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_shaolin",
+      "sect_name.??",
+      "style.shaolin_guard",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.028
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.76
+        },
+        "mp_cost": 12.6,
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.3,
+            "radius": 2,
+            "binding_mode": "source_bound_aura"
+          },
+          {
+            "op": "heal_allies_aoe",
+            "value": 14.4,
+            "radius": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_shaolin_guard_zhenfa_06",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "earth",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_shaolin",
+      "sect_name.??",
+      "style.shaolin_guard",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.043
+      },
+      {
+        "op": "range_add",
+        "value": 1
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.31
+        },
+        "mp_cost": 16.2,
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.8,
+            "radius": 2,
+            "binding_mode": "source_bound_aura"
+          },
+          {
+            "op": "heal_allies_aoe",
+            "value": 25.2,
+            "radius": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_shaolin_strike_zhenfa_03",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "metal",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_shaolin",
+      "sect_name.??",
+      "style.shaolin_strike",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.028
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.76
+        },
+        "mp_cost": 12.6,
+        "effects": [
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 1.9,
+            "radius": 2
+          },
+          {
+            "op": "damage_aoe",
+            "value": 27.3,
+            "radius": 2,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_shaolin_strike_zhenfa_06",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "metal",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_shaolin",
+      "sect_name.??",
+      "style.shaolin_strike",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.043
+      },
+      {
+        "op": "range_add",
+        "value": 1
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.31
+        },
+        "mp_cost": 16.2,
+        "effects": [
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.4,
+            "radius": 2
+          },
+          {
+            "op": "damage_aoe",
+            "value": 46.8,
+            "radius": 2,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudang_taiji_zhenfa_03",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "water",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudang",
+      "sect_name.??",
+      "style.wudang_taiji",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.028
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.76
+        },
+        "mp_cost": 12.6,
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.3,
+            "radius": 2,
+            "binding_mode": "source_bound_aura"
+          },
+          {
+            "op": "heal_allies_aoe",
+            "value": 14.4,
+            "radius": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudang_taiji_zhenfa_06",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "water",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudang",
+      "sect_name.??",
+      "style.wudang_taiji",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.043
+      },
+      {
+        "op": "range_add",
+        "value": 1
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.31
+        },
+        "mp_cost": 16.2,
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.8,
+            "radius": 2,
+            "binding_mode": "source_bound_aura"
+          },
+          {
+            "op": "heal_allies_aoe",
+            "value": 25.2,
+            "radius": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudang_sword_zhenfa_03",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "metal",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudang",
+      "sect_name.??",
+      "style.wudang_sword",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.028
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.76
+        },
+        "mp_cost": 12.6,
+        "effects": [
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 1.9,
+            "radius": 2
+          },
+          {
+            "op": "damage_aoe",
+            "value": 27.3,
+            "radius": 2,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_huashan_jianzong_zhenfa_03",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "metal",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_huashan",
+      "sect_name.??",
+      "style.huashan_jianzong",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.028
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.76
+        },
+        "mp_cost": 12.6,
+        "effects": [
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 1.9,
+            "radius": 2
+          },
+          {
+            "op": "damage_aoe",
+            "value": 27.3,
+            "radius": 2,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_huashan_qizong_zhenfa_03",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "wood",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_huashan",
+      "sect_name.??",
+      "style.huashan_qizong",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.028
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.76
+        },
+        "mp_cost": 12.6,
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.3,
+            "radius": 2,
+            "binding_mode": "source_bound_aura"
+          },
+          {
+            "op": "heal_allies_aoe",
+            "value": 14.4,
+            "radius": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_huashan_qizong_zhenfa_06",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "wood",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_huashan",
+      "sect_name.??",
+      "style.huashan_qizong",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.043
+      },
+      {
+        "op": "range_add",
+        "value": 1
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.31
+        },
+        "mp_cost": 16.2,
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.8,
+            "radius": 2,
+            "binding_mode": "source_bound_aura"
+          },
+          {
+            "op": "heal_allies_aoe",
+            "value": 25.2,
+            "radius": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_qingcheng_raid_zhenfa_03",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "wood",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_qingcheng",
+      "sect_name.??",
+      "style.qingcheng_raid",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.028
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.76
+        },
+        "mp_cost": 12.6,
+        "effects": [
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 1.9,
+            "radius": 2
+          },
+          {
+            "op": "damage_aoe",
+            "value": 27.3,
+            "radius": 2,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_qingcheng_calm_zhenfa_03",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "none",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_qingcheng",
+      "sect_name.??",
+      "style.qingcheng_calm",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.028
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.76
+        },
+        "mp_cost": 12.6,
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.3,
+            "radius": 2,
+            "binding_mode": "source_bound_aura"
+          },
+          {
+            "op": "heal_allies_aoe",
+            "value": 14.4,
+            "radius": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_qingcheng_calm_zhenfa_06",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "none",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_qingcheng",
+      "sect_name.??",
+      "style.qingcheng_calm",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.043
+      },
+      {
+        "op": "range_add",
+        "value": 1
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.31
+        },
+        "mp_cost": 16.2,
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.8,
+            "radius": 2,
+            "binding_mode": "source_bound_aura"
+          },
+          {
+            "op": "heal_allies_aoe",
+            "value": 25.2,
+            "radius": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_tangmen_mechanism_zhenfa_03",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "metal",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_tangmen",
+      "sect_name.??",
+      "style.tangmen_mechanism",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.028
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.76
+        },
+        "mp_cost": 12.6,
+        "effects": [
+          {
+            "op": "create_terrain",
+            "terrain_ref_id": "terrain_cn_marsh",
+            "at": "self",
+            "radius": 1,
+            "duration": 4.0,
+            "target_mode": "enemies"
+          },
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 1.9,
+            "radius": 2
+          },
+          {
+            "op": "buff_allies_aoe",
+            "buff_id": "buff_sect_mobility_step",
+            "duration": 1.9,
+            "radius": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_tangmen_mechanism_zhenfa_07",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "metal",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_tangmen",
+      "sect_name.??",
+      "style.tangmen_mechanism",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.043
+      },
+      {
+        "op": "range_add",
+        "value": 1
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.31
+        },
+        "mp_cost": 16.2,
+        "effects": [
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.4,
+            "radius": 2
+          },
+          {
+            "op": "buff_allies_aoe",
+            "buff_id": "buff_sect_mobility_step",
+            "duration": 2.4,
+            "radius": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_tangmen_hiddenweapon_zhenfa_03",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "wood",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_tangmen",
+      "sect_name.??",
+      "style.tangmen_hiddenweapon",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.028
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.76
+        },
+        "mp_cost": 12.6,
+        "effects": [
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 1.9,
+            "radius": 2
+          },
+          {
+            "op": "damage_aoe",
+            "value": 27.3,
+            "radius": 2,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_kongtong_sevenhurt_zhenfa_03",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "fire",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_kongtong",
+      "sect_name.??",
+      "style.kongtong_sevenhurt",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.028
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.76
+        },
+        "mp_cost": 12.6,
+        "effects": [
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 1.9,
+            "radius": 2
+          },
+          {
+            "op": "damage_aoe",
+            "value": 27.3,
+            "radius": 2,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_kongtong_sevenhurt_zhenfa_06",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "fire",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_kongtong",
+      "sect_name.??",
+      "style.kongtong_sevenhurt",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.043
+      },
+      {
+        "op": "range_add",
+        "value": 1
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.31
+        },
+        "mp_cost": 16.2,
+        "effects": [
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.4,
+            "radius": 2
+          },
+          {
+            "op": "damage_aoe",
+            "value": 46.8,
+            "radius": 2,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_kongtong_mystic_zhenfa_03",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "earth",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_kongtong",
+      "sect_name.??",
+      "style.kongtong_mystic",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.028
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.76
+        },
+        "mp_cost": 12.6,
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.3,
+            "radius": 2,
+            "binding_mode": "source_bound_aura"
+          },
+          {
+            "op": "heal_allies_aoe",
+            "value": 14.4,
+            "radius": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_kongtong_mystic_zhenfa_06",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "earth",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_kongtong",
+      "sect_name.??",
+      "style.kongtong_mystic",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.043
+      },
+      {
+        "op": "range_add",
+        "value": 1
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.31
+        },
+        "mp_cost": 16.2,
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.8,
+            "radius": 2,
+            "binding_mode": "source_bound_aura"
+          },
+          {
+            "op": "heal_allies_aoe",
+            "value": 25.2,
+            "radius": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_guanfu_command_zhenfa_03",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "earth",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_guanfu",
+      "sect_name.??",
+      "style.guanfu_command",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.028
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.76
+        },
+        "mp_cost": 12.6,
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.3,
+            "radius": 2,
+            "binding_mode": "source_bound_aura"
+          },
+          {
+            "op": "heal_allies_aoe",
+            "value": 14.4,
+            "radius": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_guanfu_command_zhenfa_06",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "earth",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_guanfu",
+      "sect_name.??",
+      "style.guanfu_command",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.043
+      },
+      {
+        "op": "range_add",
+        "value": 1
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.31
+        },
+        "mp_cost": 16.2,
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.8,
+            "radius": 2,
+            "binding_mode": "source_bound_aura"
+          },
+          {
+            "op": "heal_allies_aoe",
+            "value": 25.2,
+            "radius": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_guanfu_command_zhenfa_07",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "earth",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_guanfu",
+      "sect_name.??",
+      "style.guanfu_command",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.043
+      },
+      {
+        "op": "range_add",
+        "value": 1
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.31
+        },
+        "mp_cost": 16.2,
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.8,
+            "radius": 2,
+            "binding_mode": "source_bound_aura"
+          },
+          {
+            "op": "heal_allies_aoe",
+            "value": 25.2,
+            "radius": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_guanfu_arrest_zhenfa_03",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "metal",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_guanfu",
+      "sect_name.??",
+      "style.guanfu_arrest",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.028
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.76
+        },
+        "mp_cost": 12.6,
+        "effects": [
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 1.9,
+            "radius": 2
+          },
+          {
+            "op": "damage_aoe",
+            "value": 27.3,
+            "radius": 2,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_guanfu_arrest_zhenfa_06",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "metal",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_guanfu",
+      "sect_name.??",
+      "style.guanfu_arrest",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.043
+      },
+      {
+        "op": "range_add",
+        "value": 1
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.31
+        },
+        "mp_cost": 16.2,
+        "effects": [
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.4,
+            "radius": 2
+          },
+          {
+            "op": "damage_aoe",
+            "value": 46.8,
+            "radius": 2,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudu_poison_zhenfa_03",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "wood",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudu",
+      "sect_name.??",
+      "style.wudu_poison",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.028
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.76
+        },
+        "mp_cost": 12.6,
+        "effects": [
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_qi_disrupt",
+            "duration": 2.1999999999999997,
+            "radius": 2
+          },
+          {
+            "op": "damage_aoe",
+            "value": 25.2,
+            "radius": 2,
+            "damage_type": "internal"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudu_poison_zhenfa_05",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "wood",
+    "quality": "purple",
+    "cost": 360,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudu",
+      "sect_name.??",
+      "style.wudu_poison",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.035
+      },
+      {
+        "op": "range_add",
+        "value": 1
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.55
+        },
+        "mp_cost": 14.4,
+        "effects": [
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_qi_disrupt",
+            "duration": 2.4499999999999997,
+            "radius": 2
+          },
+          {
+            "op": "damage_aoe",
+            "value": 33.6,
+            "radius": 2,
+            "damage_type": "internal"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudu_poison_zhenfa_07",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "wood",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudu",
+      "sect_name.??",
+      "style.wudu_poison",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.043
+      },
+      {
+        "op": "range_add",
+        "value": 1
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.31
+        },
+        "mp_cost": 16.2,
+        "effects": [
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_qi_disrupt",
+            "duration": 2.6999999999999997,
+            "radius": 2
+          },
+          {
+            "op": "damage_aoe",
+            "value": 43.2,
+            "radius": 2,
+            "damage_type": "internal"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_wudu_serpent_zhenfa_03",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "water",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_wudu",
+      "sect_name.??",
+      "style.wudu_serpent",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.028
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.76
+        },
+        "mp_cost": 12.6,
+        "effects": [
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 1.9,
+            "radius": 2
+          },
+          {
+            "op": "damage_aoe",
+            "value": 27.3,
+            "radius": 2,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_gaibang_drunkenstaff_zhenfa_03",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "earth",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_gaibang",
+      "sect_name.??",
+      "style.gaibang_drunkenstaff",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.028
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.76
+        },
+        "mp_cost": 12.6,
+        "effects": [
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 1.9,
+            "radius": 2
+          },
+          {
+            "op": "damage_aoe",
+            "value": 27.3,
+            "radius": 2,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_gaibang_support_zhenfa_03",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "none",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_gaibang",
+      "sect_name.??",
+      "style.gaibang_support",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.028
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.76
+        },
+        "mp_cost": 12.6,
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.3,
+            "radius": 2,
+            "binding_mode": "source_bound_aura"
+          },
+          {
+            "op": "heal_allies_aoe",
+            "value": 14.4,
+            "radius": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_gaibang_support_zhenfa_07",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "none",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_gaibang",
+      "sect_name.??",
+      "style.gaibang_support",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.043
+      },
+      {
+        "op": "range_add",
+        "value": 1
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.31
+        },
+        "mp_cost": 16.2,
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.8,
+            "radius": 2,
+            "binding_mode": "source_bound_aura"
+          },
+          {
+            "op": "heal_allies_aoe",
+            "value": 25.2,
+            "radius": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_mingjiao_flame_zhenfa_03",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "fire",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_mingjiao",
+      "sect_name.??",
+      "style.mingjiao_flame",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.028
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.76
+        },
+        "mp_cost": 12.6,
+        "effects": [
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 1.9,
+            "radius": 2
+          },
+          {
+            "op": "damage_aoe",
+            "value": 27.3,
+            "radius": 2,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_mingjiao_flame_zhenfa_06",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "fire",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_mingjiao",
+      "sect_name.??",
+      "style.mingjiao_flame",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.043
+      },
+      {
+        "op": "range_add",
+        "value": 1
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.31
+        },
+        "mp_cost": 16.2,
+        "effects": [
+          {
+            "op": "debuff_aoe",
+            "buff_id": "debuff_sect_exposed_gap",
+            "duration": 2.4,
+            "radius": 2
+          },
+          {
+            "op": "damage_aoe",
+            "value": 46.8,
+            "radius": 2,
+            "damage_type": "external"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_mingjiao_light_zhenfa_03",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "fire",
+    "quality": "blue",
+    "cost": 260,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_mingjiao",
+      "sect_name.??",
+      "style.mingjiao_light",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.028
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.76
+        },
+        "mp_cost": 12.6,
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.3,
+            "radius": 2,
+            "binding_mode": "source_bound_aura"
+          },
+          {
+            "op": "heal_allies_aoe",
+            "value": 14.4,
+            "radius": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gf_mingjiao_light_zhenfa_06",
+    "name": "???????????",
+    "type": "zhenfa",
+    "description": "????????????",
+    "element": "fire",
+    "quality": "orange",
+    "cost": 520,
+    "shop_visible": true,
+    "tags": [
+      "sect.tag_sect_mingjiao",
+      "sect_name.??",
+      "style.mingjiao_light",
+      "type.zhenfa"
+    ],
+    "passive_effects": [
+      {
+        "op": "attack_speed_bonus",
+        "value": 0.043
+      },
+      {
+        "op": "range_add",
+        "value": 1
+      }
+    ],
+    "skills": [
+      {
+        "trigger": "periodic_seconds",
+        "trigger_params": {
+          "interval": 4.31
+        },
+        "mp_cost": 16.2,
+        "effects": [
+          {
+            "op": "buff_allies_aoe",
+            "buff_id": "buff_sect_guard_drill",
+            "duration": 2.8,
+            "radius": 2,
+            "binding_mode": "source_bound_aura"
+          },
+          {
+            "op": "heal_allies_aoe",
+            "value": 25.2,
+            "radius": 2
+          }
+        ]
+      }
+    ]
+  }
+]

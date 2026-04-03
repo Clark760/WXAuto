@@ -131,6 +131,19 @@ func get_terrain_tags_at_cell(
 	return terrain_manager.get_terrain_tags_at_cell(cell, scope, manager._hex_grid)
 
 
+# 查询指定格子的地形条目快照，供 HUD 悬停提示展示名称/类型/效果概要。
+# 返回数组内容来自 TerrainManager 的只读快照，不暴露内部实例引用。
+func get_terrain_entries_at_cell(
+	manager,
+	cell: Vector2i,
+	scope: String = "all"
+) -> Array[Dictionary]:
+	var terrain_manager = manager._terrain_manager
+	if terrain_manager == null:
+		return []
+	return terrain_manager.get_terrain_entries_at_cell(cell, scope, manager._hex_grid)
+
+
 # 布尔查询入口统一复用 TerrainManager 的 tag 查询。
 # `tag` 会在 TerrainManager 内部做标准化，这里不重复处理。
 # Combat 只负责兜底 null manager 的情况。

@@ -96,7 +96,7 @@ func _refresh_ui() -> void:
 	lines.append(summary_text)
 
 	info_label.text = "\n".join(lines)
-	tip_label.text = "点击章节序列按钮直接进入 | F6/Enter 进入当前选中序列 | F5 重载 JSON + Mod 数据"
+	tip_label.text = "点击章节序列按钮直接进入 | F6/Enter 进入当前选中序列 | F5 重载 JSON + Mod 数据 | 战场内悬停棋格可查看地形"
 	_refresh_stage_buttons(data_manager)
 
 # 处理 refresh stage buttons

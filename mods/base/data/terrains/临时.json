@@ -1,0 +1,224 @@
+[
+  {
+    "id": "terrain_tmp_tangmen_snarefield",
+    "name": "机括缚地",
+    "type": "hazard",
+    "aliases": [
+      "tmp_snarefield",
+      "tangmen_snare",
+      "机括缚地"
+    ],
+    "color": "#6E7B78",
+    "is_barrier": false,
+    "tick_interval": 1.0,
+    "target_mode": "enemies",
+    "tags": [
+      "terrain",
+      "temporary",
+      "tangmen",
+      "snare",
+      "机关",
+      "束缚",
+      "terrain.hazard"
+    ],
+    "effects_on_enter": [
+      {
+        "op": "debuff_target",
+        "buff_id": "debuff_sect_exposed_gap",
+        "duration": 1.8
+      }
+    ],
+    "effects_on_tick": [
+      {
+        "op": "damage_target",
+        "value": 9,
+        "damage_type": "external"
+      }
+    ],
+    "effects_on_exit": [],
+    "effects_on_expire": []
+  },
+  {
+    "id": "terrain_tmp_tangmen_mistveil",
+    "name": "机雾蔽影",
+    "type": "beneficial",
+    "aliases": [
+      "tmp_mistveil",
+      "tangmen_veil",
+      "机雾蔽影"
+    ],
+    "color": "#5A6E83",
+    "is_barrier": false,
+    "tick_interval": 1.0,
+    "target_mode": "allies",
+    "tags": [
+      "terrain",
+      "temporary",
+      "tangmen",
+      "mist",
+      "轻身",
+      "藏形",
+      "terrain.beneficial"
+    ],
+    "effects_on_enter": [
+      {
+        "op": "buff_target",
+        "buff_id": "buff_sect_mobility_step",
+        "duration": 2.0
+      }
+    ],
+    "effects_on_tick": [
+      {
+        "op": "mp_regen_add",
+        "value": 1.2
+      }
+    ],
+    "effects_on_exit": [],
+    "effects_on_expire": []
+  },
+  {
+    "id": "terrain_tmp_tangmen_ironfence",
+    "name": "铁栅锁道",
+    "type": "obstacle",
+    "aliases": [
+      "tmp_ironfence",
+      "tangmen_fence",
+      "铁栅锁道"
+    ],
+    "color": "#7A6A58",
+    "is_barrier": true,
+    "tick_interval": 1.0,
+    "target_mode": "none",
+    "tags": [
+      "terrain",
+      "temporary",
+      "tangmen",
+      "barrier",
+      "封锁",
+      "阻挡",
+      "terrain.obstacle"
+    ],
+    "effects_on_enter": [],
+    "effects_on_tick": [],
+    "effects_on_exit": [],
+    "effects_on_expire": []
+  },
+  {
+    "id": "terrain_tmp_wudu_venom_mire",
+    "name": "蛊瘴毒沼",
+    "type": "hazard",
+    "aliases": [
+      "tmp_venom_mire",
+      "wudu_venom",
+      "蛊瘴毒沼"
+    ],
+    "color": "#4F6A45",
+    "is_barrier": false,
+    "tick_interval": 1.0,
+    "target_mode": "enemies",
+    "tags": [
+      "terrain",
+      "temporary",
+      "wudu",
+      "venom",
+      "毒",
+      "沼泽",
+      "terrain.hazard"
+    ],
+    "effects_on_enter": [
+      {
+        "op": "debuff_target",
+        "buff_id": "debuff_sect_qi_disrupt",
+        "duration": 2.2
+      }
+    ],
+    "effects_on_tick": [
+      {
+        "op": "damage_target",
+        "value": 11,
+        "damage_type": "internal"
+      }
+    ],
+    "effects_on_exit": [],
+    "effects_on_expire": []
+  },
+  {
+    "id": "terrain_tmp_wudu_serpent_nest",
+    "name": "蛇窟盘踞",
+    "type": "hazard",
+    "aliases": [
+      "tmp_serpent_nest",
+      "wudu_serpent",
+      "蛇窟盘踞"
+    ],
+    "color": "#51603E",
+    "is_barrier": false,
+    "tick_interval": 1.0,
+    "target_mode": "enemies",
+    "tags": [
+      "terrain",
+      "temporary",
+      "wudu",
+      "serpent",
+      "蛇影",
+      "蛇毒",
+      "terrain.hazard"
+    ],
+    "effects_on_enter": [
+      {
+        "op": "debuff_target",
+        "buff_id": "debuff_sect_exposed_gap",
+        "duration": 1.6
+      }
+    ],
+    "effects_on_tick": [
+      {
+        "op": "damage_target",
+        "value": 10,
+        "damage_type": "internal"
+      }
+    ],
+    "effects_on_exit": [],
+    "effects_on_expire": []
+  },
+  {
+    "id": "terrain_tmp_mingjiao_blaze_ring",
+    "name": "烈焰火环",
+    "type": "hazard",
+    "aliases": [
+      "tmp_blaze_ring",
+      "mingjiao_blaze",
+      "烈焰火环"
+    ],
+    "color": "#C76A3A",
+    "is_barrier": false,
+    "tick_interval": 1.0,
+    "target_mode": "enemies",
+    "tags": [
+      "terrain",
+      "temporary",
+      "mingjiao",
+      "blaze",
+      "烈焰",
+      "火环",
+      "terrain.hazard",
+      "bm5.terrain.fire"
+    ],
+    "effects_on_enter": [
+      {
+        "op": "debuff_target",
+        "buff_id": "debuff_sect_exposed_gap",
+        "duration": 1.5
+      }
+    ],
+    "effects_on_tick": [
+      {
+        "op": "damage_target",
+        "value": 12,
+        "damage_type": "external"
+      }
+    ],
+    "effects_on_exit": [],
+    "effects_on_expire": []
+  }
+]

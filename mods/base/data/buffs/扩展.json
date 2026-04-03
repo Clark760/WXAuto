@@ -1,460 +1,953 @@
 [
-  {
-    "id": "buff_taixu_xingqi",
-    "name": "太虚行气",
-    "type": "buff",
-    "stackable": false,
-    "max_stacks": 1,
-    "default_duration": 4.0,
-    "effects": [
-      { "op": "mp_regen_add", "value": 3.0 },
-      { "op": "tenacity", "value": 0.08 }
-    ],
-    "tick_effects": [],
-    "tick_interval": 0.0,
-    "tags": ["真气", "清心", "内功"]
-  },
-  {
-    "id": "buff_yunlong_wuhen",
-    "name": "云龙无痕",
-    "type": "buff",
-    "stackable": false,
-    "max_stacks": 1,
-    "default_duration": 2.5,
-    "effects": [
-      { "op": "stat_add", "stat": "spd", "value": 10 },
-      { "op": "dodge_bonus", "value": 0.06 }
-    ],
-    "tick_effects": [],
-    "tick_interval": 0.0,
-    "tags": ["轻身", "迷踪", "轻功"]
-  },
-  {
-    "id": "buff_tiebi_hengjiang",
-    "name": "铁壁横江",
-    "type": "buff",
-    "stackable": false,
-    "max_stacks": 1,
-    "default_duration": 3.0,
-    "effects": [
-      { "op": "damage_reduce_flat", "value": 12 },
-      { "op": "damage_reduce_percent", "value": 0.06 }
-    ],
-    "tick_effects": [],
-    "tick_interval": 0.0,
-    "tags": ["护体", "守御", "外功"]
-  },
-  {
-    "id": "buff_jinzhong_zhengang",
-    "name": "金钟真罡",
-    "type": "buff",
-    "stackable": false,
-    "max_stacks": 1,
-    "default_duration": 4.0,
-    "effects": [
-      { "op": "shield_on_combat_start", "value": 160 },
-      { "op": "hp_regen_add", "value": 4.0 }
-    ],
-    "tick_effects": [],
-    "tick_interval": 0.0,
-    "tags": ["罡气罩", "气障", "真气"]
-  },
-  {
-    "id": "buff_canyang_juejing",
-    "name": "残阳绝境",
-    "type": "buff",
-    "stackable": false,
-    "max_stacks": 1,
-    "default_duration": 3.0,
-    "effects": [
-      { "op": "damage_reduce_percent", "value": 0.05 },
-      { "op": "conditional_stat", "stat": "atk", "value": 20, "condition": "hp_below", "threshold": 0.5 },
-      { "op": "conditional_stat", "stat": "iat", "value": 20, "condition": "hp_below", "threshold": 0.5 }
-    ],
-    "tick_effects": [],
-    "tick_interval": 0.0,
-    "tags": ["绝境反锋", "锋芒", "守势"]
-  },
-  {
-    "id": "buff_baidu_tongmai",
-    "name": "百毒通脉",
-    "type": "buff",
-    "stackable": false,
-    "max_stacks": 1,
-    "default_duration": 3.0,
-    "effects": [
-      { "op": "damage_amp_vs_debuffed", "value": 0.12 },
-      { "op": "mp_regen_add", "value": 1.5 }
-    ],
-    "tick_effects": [],
-    "tick_interval": 0.0,
-    "tags": ["毒息", "合脉", "毒功"]
-  },
-  {
-    "id": "buff_zhuifeng_duanyue",
-    "name": "追风断月",
-    "type": "buff",
-    "stackable": false,
-    "max_stacks": 1,
-    "default_duration": 2.5,
-    "effects": [
-      { "op": "attack_speed_bonus", "value": 0.08 },
-      { "op": "crit_bonus", "value": 0.06 }
-    ],
-    "tick_effects": [],
-    "tick_interval": 0.0,
-    "tags": ["追击", "轻身", "连势"]
-  },
-  {
-    "id": "buff_beidou_zhenmang",
-    "name": "北斗阵芒",
-    "type": "buff",
-    "stackable": false,
-    "max_stacks": 1,
-    "default_duration": 2.2,
-    "effects": [
-      { "op": "damage_amp_percent", "value": 0.14 },
-      { "op": "attack_speed_bonus", "value": 0.04 }
-    ],
-    "tick_effects": [],
-    "tick_interval": 0.0,
-    "tags": ["阵炁", "锋芒", "上乘"]
-  },
-  {
-    "id": "buff_qingming_lingtai",
-    "name": "清明灵台",
-    "type": "buff",
-    "stackable": false,
-    "max_stacks": 1,
-    "default_duration": 3.5,
-    "effects": [
-      { "op": "crit_bonus", "value": 0.05 },
-      { "op": "crit_damage_bonus", "value": 0.14 },
-      { "op": "tenacity", "value": 0.05 }
-    ],
-    "tick_effects": [],
-    "tick_interval": 0.0,
-    "tags": ["凝神", "清心", "内功"]
-  },
-  {
-    "id": "buff_hanxi_huguan",
-    "name": "寒息护关",
-    "type": "buff",
-    "stackable": false,
-    "max_stacks": 1,
-    "default_duration": 3.0,
-    "effects": [
-      { "op": "tenacity", "value": 0.12 },
-      { "op": "damage_reduce_percent", "value": 0.05 }
-    ],
-    "tick_effects": [],
-    "tick_interval": 0.0,
-    "tags": ["寒劲", "守势", "内功"]
-  },
-  {
-    "id": "buff_huoyun_liepo",
-    "name": "火云裂魄",
-    "type": "buff",
-    "stackable": false,
-    "max_stacks": 1,
-    "default_duration": 2.0,
-    "effects": [
-      { "op": "damage_amp_percent", "value": 0.08 },
-      { "op": "execute_threshold", "value": 0.08 }
-    ],
-    "tick_effects": [],
-    "tick_interval": 0.0,
-    "tags": ["炎劲", "锋芒", "追击"]
-  },
-  {
-    "id": "buff_xingluo_buzhen",
-    "name": "星罗布阵",
-    "type": "buff",
-    "stackable": false,
-    "max_stacks": 1,
-    "default_duration": 3.0,
-    "effects": [
-      { "op": "range_add", "value": 1 },
-      { "op": "stat_add", "stat": "spd", "value": 6 },
-      { "op": "attack_speed_bonus", "value": 0.04 }
-    ],
-    "tick_effects": [],
-    "tick_interval": 0.0,
-    "tags": ["阵法", "轻身", "中境"]
-  },
-  {
-    "id": "buff_fuhu_gangjin",
-    "name": "伏虎刚劲",
-    "type": "buff",
-    "stackable": false,
-    "max_stacks": 1,
-    "default_duration": 3.0,
-    "effects": [
-      { "op": "stat_add", "stat": "atk", "value": 20 },
-      { "op": "thorns_percent", "value": 0.08 }
-    ],
-    "tick_effects": [],
-    "tick_interval": 0.0,
-    "tags": ["外功", "护体", "锋芒"]
-  },
-  {
-    "id": "buff_duxin_shengxi",
-    "name": "毒心生息",
-    "type": "buff",
-    "stackable": false,
-    "max_stacks": 1,
-    "default_duration": 4.0,
-    "effects": [
-      { "op": "hp_regen_add", "value": 6.0 },
-      { "op": "healing_amp", "value": 0.1 }
-    ],
-    "tick_effects": [],
-    "tick_interval": 0.0,
-    "tags": ["毒功", "毒息", "清心"]
-  },
-  {
-    "id": "buff_sheying_qianshou",
-    "name": "蛇影潜手",
-    "type": "buff",
-    "stackable": false,
-    "max_stacks": 1,
-    "default_duration": 2.5,
-    "effects": [
-      { "op": "damage_amp_vs_debuffed", "value": 0.1 },
-      { "op": "dodge_bonus", "value": 0.05 }
-    ],
-    "tick_effects": [],
-    "tick_interval": 0.0,
-    "tags": ["轻功", "乘隙", "毒功"]
-  },
-  {
-    "id": "buff_suifeng_lianbu",
-    "name": "随风连步",
-    "type": "buff",
-    "stackable": true,
-    "max_stacks": 4,
-    "default_duration": 3.0,
-    "effects": [
-      { "op": "stat_add", "stat": "spd", "value": 4 },
-      { "op": "attack_speed_bonus", "value": 0.02 }
-    ],
-    "tick_effects": [],
-    "tick_interval": 0.0,
-    "tags": ["步势", "轻身", "轻功"]
-  },
-  {
-    "id": "buff_pojun_kuangge",
-    "name": "破军狂歌",
-    "type": "buff",
-    "stackable": true,
-    "max_stacks": 5,
-    "default_duration": 5.0,
-    "effects": [
-      { "op": "crit_damage_bonus", "value": 0.05 },
-      { "op": "damage_amp_percent", "value": 0.03 }
-    ],
-    "tick_effects": [],
-    "tick_interval": 0.0,
-    "tags": ["狂势", "锋芒", "上乘"]
-  },
-  {
-    "id": "buff_duanhong_guangying",
-    "name": "断虹光影",
-    "type": "buff",
-    "stackable": false,
-    "max_stacks": 1,
-    "default_duration": 2.4,
-    "effects": [
-      { "op": "range_add", "value": 1 },
-      { "op": "crit_bonus", "value": 0.06 },
-      { "op": "mp_on_kill", "value": 12 }
-    ],
-    "tick_effects": [],
-    "tick_interval": 0.0,
-    "tags": ["轻功", "锋芒", "追击"]
-  },
-  {
-    "id": "buff_xuezhan_baxi",
-    "name": "血战八息",
-    "type": "buff",
-    "stackable": false,
-    "max_stacks": 1,
-    "default_duration": 2.8,
-    "effects": [
-      { "op": "vampire", "value": 0.08 },
-      { "op": "attack_speed_bonus", "value": 0.04 }
-    ],
-    "tick_effects": [],
-    "tick_interval": 0.0,
-    "tags": ["锋芒", "外功", "连势"]
-  },
-  {
-    "id": "buff_hunyuan_yiqi",
-    "name": "混元一气",
-    "type": "buff",
-    "stackable": false,
-    "max_stacks": 1,
-    "default_duration": 4.0,
-    "effects": [
-      { "op": "hp_regen_add", "value": 4.0 },
-      { "op": "mp_regen_add", "value": 2.0 },
-      { "op": "healing_amp", "value": 0.08 }
-    ],
-    "tick_effects": [],
-    "tick_interval": 0.0,
-    "tags": ["真气", "守势", "内功"]
-  },
-  {
-    "id": "debuff_suigu_zhua",
-    "name": "碎骨爪痕",
-    "type": "debuff",
-    "stackable": false,
-    "max_stacks": 1,
-    "default_duration": 2.5,
-    "effects": [
-      { "op": "stat_percent", "stat": "def", "value": -0.15 },
-      { "op": "stat_percent", "stat": "idr", "value": -0.08 }
-    ],
-    "tick_effects": [],
-    "tick_interval": 0.0,
-    "tags": ["裂甲", "破防", "外功"]
-  },
-  {
-    "id": "debuff_luowang_pozhen",
-    "name": "落网破阵",
-    "type": "debuff",
-    "stackable": false,
-    "max_stacks": 1,
-    "default_duration": 2.0,
-    "effects": [
-      { "op": "damage_amp_percent", "value": -0.08 },
-      { "op": "attack_speed_bonus", "value": -0.08 }
-    ],
-    "tick_effects": [],
-    "tick_interval": 0.0,
-    "tags": ["破阵", "虚弱", "阵法"]
-  },
-  {
-    "id": "debuff_duyan_fushi",
-    "name": "毒烟腐蚀",
-    "type": "debuff",
-    "stackable": true,
-    "max_stacks": 3,
-    "default_duration": 3.0,
-    "effects": [
-      { "op": "damage_reduce_percent", "value": -0.03 }
-    ],
-    "tick_effects": [
-      { "op": "damage_target", "value": 12, "damage_type": "internal" }
-    ],
-    "tick_interval": 0.8,
-    "tags": ["中毒", "蚀伤", "毒功"]
-  },
-  {
-    "id": "debuff_huomai_fenteng",
-    "name": "火脉焚腾",
-    "type": "debuff",
-    "stackable": false,
-    "max_stacks": 1,
-    "default_duration": 2.0,
-    "effects": [
-      { "op": "damage_reduce_percent", "value": -0.04 }
-    ],
-    "tick_effects": [
-      { "op": "damage_target", "value": 14, "damage_type": "internal" }
-    ],
-    "tick_interval": 0.5,
-    "tags": ["灼脉", "蚀伤", "炎劲"]
-  },
-  {
-    "id": "debuff_zhenmai_duanqi",
-    "name": "震脉断气",
-    "type": "debuff",
-    "stackable": false,
-    "max_stacks": 1,
-    "default_duration": 1.2,
-    "effects": [
-      { "op": "attack_speed_bonus", "value": -0.15 },
-      { "op": "crit_bonus", "value": -0.06 }
-    ],
-    "tick_effects": [],
-    "tick_interval": 0.0,
-    "tags": ["震脉", "制身", "外功"]
-  },
-  {
-    "id": "debuff_qisuo_maiyin",
-    "name": "气锁脉引",
-    "type": "debuff",
-    "stackable": false,
-    "max_stacks": 1,
-    "default_duration": 2.2,
-    "effects": [
-      { "op": "attack_speed_bonus", "value": -0.08 },
-      { "op": "damage_amp_percent", "value": -0.05 }
-    ],
-    "tick_effects": [],
-    "tick_interval": 0.0,
-    "tags": ["封脉", "追命印", "内功"]
-  },
-  {
-    "id": "debuff_hanmai_ningzhi",
-    "name": "寒脉凝滞",
-    "type": "debuff",
-    "stackable": false,
-    "max_stacks": 1,
-    "default_duration": 2.5,
-    "effects": [
-      { "op": "attack_speed_bonus", "value": -0.12 },
-      { "op": "damage_reduce_percent", "value": -0.04 }
-    ],
-    "tick_effects": [],
-    "tick_interval": 0.0,
-    "tags": ["寒凝", "制身", "寒劲"]
-  },
-  {
-    "id": "debuff_jinghun_duoshe",
-    "name": "惊魂夺摄",
-    "type": "debuff",
-    "stackable": false,
-    "max_stacks": 1,
-    "default_duration": 2.0,
-    "effects": [
-      { "op": "crit_bonus", "value": -0.08 },
-      { "op": "attack_speed_bonus", "value": -0.1 }
-    ],
-    "tick_effects": [],
-    "tick_interval": 0.0,
-    "tags": ["惊魂", "制身", "摄魂"]
-  },
-  {
-    "id": "debuff_yinchou_qisheng",
-    "name": "引仇弃守",
-    "type": "debuff",
-    "stackable": false,
-    "max_stacks": 1,
-    "default_duration": 2.0,
-    "effects": [
-      { "op": "damage_reduce_percent", "value": -0.06 },
-      { "op": "damage_amp_percent", "value": -0.06 }
-    ],
-    "tick_effects": [],
-    "tick_interval": 0.0,
-    "tags": ["引仇", "虚弱", "阵法"]
-  },
-  {
-    "id": "debuff_duhuo_gongxin",
-    "name": "毒火攻心",
-    "type": "debuff",
-    "stackable": false,
-    "max_stacks": 1,
-    "default_duration": 3.0,
-    "effects": [
-      { "op": "damage_reduce_percent", "value": -0.03 }
-    ],
-    "tick_effects": [
-      { "op": "damage_target", "value": 14, "damage_type": "internal" }
-    ],
-    "tick_interval": 0.6,
-    "tags": ["毒火", "追命印", "中毒"]
-  }
+    {
+        "id":  "buff_taixu_xingqi",
+        "name":  "太虚行气",
+        "type":  "buff",
+        "stackable":  false,
+        "max_stacks":  1,
+        "default_duration":  4.0,
+        "effects":  [
+                        {
+                            "op":  "mp_regen_add",
+                            "value":  3.0
+                        },
+                        {
+                            "op":  "tenacity",
+                            "value":  0.08
+                        }
+                    ],
+        "tick_effects":  [
+
+                         ],
+        "tick_interval":  0.0,
+        "tags":  [
+                     "真气",
+                     "清心",
+                     "内功"
+                 ]
+    },
+    {
+        "id":  "buff_yunlong_wuhen",
+        "name":  "云龙无痕",
+        "type":  "buff",
+        "stackable":  false,
+        "max_stacks":  1,
+        "default_duration":  2.5,
+        "effects":  [
+                        {
+                            "op":  "stat_add",
+                            "stat":  "spd",
+                            "value":  10
+                        },
+                        {
+                            "op":  "dodge_bonus",
+                            "value":  0.06
+                        }
+                    ],
+        "tick_effects":  [
+
+                         ],
+        "tick_interval":  0.0,
+        "tags":  [
+                     "轻身",
+                     "迷踪",
+                     "轻功"
+                 ]
+    },
+    {
+        "id":  "buff_tiebi_hengjiang",
+        "name":  "铁壁横江",
+        "type":  "buff",
+        "stackable":  false,
+        "max_stacks":  1,
+        "default_duration":  3.0,
+        "effects":  [
+                        {
+                            "op":  "damage_reduce_flat",
+                            "value":  12
+                        },
+                        {
+                            "op":  "damage_reduce_percent",
+                            "value":  0.06
+                        }
+                    ],
+        "tick_effects":  [
+
+                         ],
+        "tick_interval":  0.0,
+        "tags":  [
+                     "护体",
+                     "守御",
+                     "外功"
+                 ]
+    },
+    {
+        "id":  "buff_jinzhong_zhengang",
+        "name":  "金钟真罡",
+        "type":  "buff",
+        "stackable":  false,
+        "max_stacks":  1,
+        "default_duration":  4.0,
+        "effects":  [
+                        {
+                            "op":  "shield_on_combat_start",
+                            "value":  160
+                        },
+                        {
+                            "op":  "hp_regen_add",
+                            "value":  4.0
+                        }
+                    ],
+        "tick_effects":  [
+
+                         ],
+        "tick_interval":  0.0,
+        "tags":  [
+                     "罡气罩",
+                     "气障",
+                     "真气"
+                 ]
+    },
+    {
+        "id":  "buff_canyang_juejing",
+        "name":  "残阳绝境",
+        "type":  "buff",
+        "stackable":  false,
+        "max_stacks":  1,
+        "default_duration":  3.0,
+        "effects":  [
+                        {
+                            "op":  "damage_reduce_percent",
+                            "value":  0.05
+                        },
+                        {
+                            "op":  "conditional_stat",
+                            "stat":  "atk",
+                            "value":  20,
+                            "condition":  "hp_below",
+                            "threshold":  0.5
+                        },
+                        {
+                            "op":  "conditional_stat",
+                            "stat":  "iat",
+                            "value":  20,
+                            "condition":  "hp_below",
+                            "threshold":  0.5
+                        }
+                    ],
+        "tick_effects":  [
+
+                         ],
+        "tick_interval":  0.0,
+        "tags":  [
+                     "绝境反锋",
+                     "锋芒",
+                     "守势"
+                 ]
+    },
+    {
+        "id":  "buff_baidu_tongmai",
+        "name":  "百毒通脉",
+        "type":  "buff",
+        "stackable":  false,
+        "max_stacks":  1,
+        "default_duration":  3.0,
+        "effects":  [
+                        {
+                            "op":  "damage_amp_vs_debuffed",
+                            "value":  0.12
+                        },
+                        {
+                            "op":  "mp_regen_add",
+                            "value":  1.5
+                        }
+                    ],
+        "tick_effects":  [
+
+                         ],
+        "tick_interval":  0.0,
+        "tags":  [
+                     "毒息",
+                     "合脉",
+                     "毒功"
+                 ]
+    },
+    {
+        "id":  "buff_zhuifeng_duanyue",
+        "name":  "追风断月",
+        "type":  "buff",
+        "stackable":  false,
+        "max_stacks":  1,
+        "default_duration":  2.5,
+        "effects":  [
+                        {
+                            "op":  "attack_speed_bonus",
+                            "value":  0.08
+                        },
+                        {
+                            "op":  "crit_bonus",
+                            "value":  0.06
+                        }
+                    ],
+        "tick_effects":  [
+
+                         ],
+        "tick_interval":  0.0,
+        "tags":  [
+                     "追击",
+                     "轻身",
+                     "连势"
+                 ]
+    },
+    {
+        "id":  "buff_beidou_zhenmang",
+        "name":  "北斗阵芒",
+        "type":  "buff",
+        "stackable":  false,
+        "max_stacks":  1,
+        "default_duration":  2.2,
+        "effects":  [
+                        {
+                            "op":  "damage_amp_percent",
+                            "value":  0.14
+                        },
+                        {
+                            "op":  "attack_speed_bonus",
+                            "value":  0.04
+                        }
+                    ],
+        "tick_effects":  [
+
+                         ],
+        "tick_interval":  0.0,
+        "tags":  [
+                     "阵炁",
+                     "锋芒",
+                     "上乘"
+                 ]
+    },
+    {
+        "id":  "buff_qingming_lingtai",
+        "name":  "清明灵台",
+        "type":  "buff",
+        "stackable":  false,
+        "max_stacks":  1,
+        "default_duration":  3.5,
+        "effects":  [
+                        {
+                            "op":  "crit_bonus",
+                            "value":  0.05
+                        },
+                        {
+                            "op":  "crit_damage_bonus",
+                            "value":  0.14
+                        },
+                        {
+                            "op":  "tenacity",
+                            "value":  0.05
+                        }
+                    ],
+        "tick_effects":  [
+
+                         ],
+        "tick_interval":  0.0,
+        "tags":  [
+                     "凝神",
+                     "清心",
+                     "内功"
+                 ]
+    },
+    {
+        "id":  "buff_hanxi_huguan",
+        "name":  "寒息护关",
+        "type":  "buff",
+        "stackable":  false,
+        "max_stacks":  1,
+        "default_duration":  3.0,
+        "effects":  [
+                        {
+                            "op":  "tenacity",
+                            "value":  0.12
+                        },
+                        {
+                            "op":  "damage_reduce_percent",
+                            "value":  0.05
+                        }
+                    ],
+        "tick_effects":  [
+
+                         ],
+        "tick_interval":  0.0,
+        "tags":  [
+                     "寒劲",
+                     "守势",
+                     "内功"
+                 ]
+    },
+    {
+        "id":  "buff_huoyun_liepo",
+        "name":  "火云裂魄",
+        "type":  "buff",
+        "stackable":  false,
+        "max_stacks":  1,
+        "default_duration":  2.0,
+        "effects":  [
+                        {
+                            "op":  "damage_amp_percent",
+                            "value":  0.08
+                        },
+                        {
+                            "op":  "execute_threshold",
+                            "value":  0.08
+                        }
+                    ],
+        "tick_effects":  [
+
+                         ],
+        "tick_interval":  0.0,
+        "tags":  [
+                     "炎劲",
+                     "锋芒",
+                     "追击"
+                 ]
+    },
+    {
+        "id":  "buff_xingluo_buzhen",
+        "name":  "星罗布阵",
+        "type":  "buff",
+        "stackable":  false,
+        "max_stacks":  1,
+        "default_duration":  3.0,
+        "effects":  [
+                        {
+                            "op":  "range_add",
+                            "value":  1
+                        },
+                        {
+                            "op":  "stat_add",
+                            "stat":  "spd",
+                            "value":  6
+                        },
+                        {
+                            "op":  "attack_speed_bonus",
+                            "value":  0.04
+                        }
+                    ],
+        "tick_effects":  [
+
+                         ],
+        "tick_interval":  0.0,
+        "tags":  [
+                     "阵法",
+                     "轻身",
+                     "中境"
+                 ]
+    },
+    {
+        "id":  "buff_fuhu_gangjin",
+        "name":  "伏虎刚劲",
+        "type":  "buff",
+        "stackable":  false,
+        "max_stacks":  1,
+        "default_duration":  3.0,
+        "effects":  [
+                        {
+                            "op":  "stat_add",
+                            "stat":  "atk",
+                            "value":  20
+                        },
+                        {
+                            "op":  "thorns_percent",
+                            "value":  0.08
+                        }
+                    ],
+        "tick_effects":  [
+
+                         ],
+        "tick_interval":  0.0,
+        "tags":  [
+                     "外功",
+                     "护体",
+                     "锋芒"
+                 ]
+    },
+    {
+        "id":  "buff_duxin_shengxi",
+        "name":  "毒心生息",
+        "type":  "buff",
+        "stackable":  false,
+        "max_stacks":  1,
+        "default_duration":  4.0,
+        "effects":  [
+                        {
+                            "op":  "hp_regen_add",
+                            "value":  6.0
+                        },
+                        {
+                            "op":  "healing_amp",
+                            "value":  0.1
+                        }
+                    ],
+        "tick_effects":  [
+
+                         ],
+        "tick_interval":  0.0,
+        "tags":  [
+                     "毒功",
+                     "毒息",
+                     "清心"
+                 ]
+    },
+    {
+        "id":  "buff_sheying_qianshou",
+        "name":  "蛇影潜手",
+        "type":  "buff",
+        "stackable":  false,
+        "max_stacks":  1,
+        "default_duration":  2.5,
+        "effects":  [
+                        {
+                            "op":  "damage_amp_vs_debuffed",
+                            "value":  0.1
+                        },
+                        {
+                            "op":  "dodge_bonus",
+                            "value":  0.05
+                        }
+                    ],
+        "tick_effects":  [
+
+                         ],
+        "tick_interval":  0.0,
+        "tags":  [
+                     "轻功",
+                     "乘隙",
+                     "毒功"
+                 ]
+    },
+    {
+        "id":  "buff_suifeng_lianbu",
+        "name":  "随风连步",
+        "type":  "buff",
+        "stackable":  true,
+        "max_stacks":  4,
+        "default_duration":  3.0,
+        "effects":  [
+                        {
+                            "op":  "stat_add",
+                            "stat":  "spd",
+                            "value":  4
+                        },
+                        {
+                            "op":  "attack_speed_bonus",
+                            "value":  0.02
+                        }
+                    ],
+        "tick_effects":  [
+
+                         ],
+        "tick_interval":  0.0,
+        "tags":  [
+                     "步势",
+                     "轻身",
+                     "轻功"
+                 ]
+    },
+    {
+        "id":  "buff_pojun_kuangge",
+        "name":  "破军狂歌",
+        "type":  "buff",
+        "stackable":  true,
+        "max_stacks":  5,
+        "default_duration":  5.0,
+        "effects":  [
+                        {
+                            "op":  "crit_damage_bonus",
+                            "value":  0.05
+                        },
+                        {
+                            "op":  "damage_amp_percent",
+                            "value":  0.03
+                        }
+                    ],
+        "tick_effects":  [
+
+                         ],
+        "tick_interval":  0.0,
+        "tags":  [
+                     "狂势",
+                     "锋芒",
+                     "上乘"
+                 ]
+    },
+    {
+        "id":  "buff_duanhong_guangying",
+        "name":  "断虹光影",
+        "type":  "buff",
+        "stackable":  false,
+        "max_stacks":  1,
+        "default_duration":  2.4,
+        "effects":  [
+                        {
+                            "op":  "range_add",
+                            "value":  1
+                        },
+                        {
+                            "op":  "crit_bonus",
+                            "value":  0.06
+                        },
+                        {
+                            "op":  "mp_on_kill",
+                            "value":  12
+                        }
+                    ],
+        "tick_effects":  [
+
+                         ],
+        "tick_interval":  0.0,
+        "tags":  [
+                     "轻功",
+                     "锋芒",
+                     "追击"
+                 ]
+    },
+    {
+        "id":  "buff_xuezhan_baxi",
+        "name":  "血战八息",
+        "type":  "buff",
+        "stackable":  false,
+        "max_stacks":  1,
+        "default_duration":  2.8,
+        "effects":  [
+                        {
+                            "op":  "vampire",
+                            "value":  0.08
+                        },
+                        {
+                            "op":  "attack_speed_bonus",
+                            "value":  0.04
+                        }
+                    ],
+        "tick_effects":  [
+
+                         ],
+        "tick_interval":  0.0,
+        "tags":  [
+                     "锋芒",
+                     "外功",
+                     "连势"
+                 ]
+    },
+    {
+        "id":  "buff_hunyuan_yiqi",
+        "name":  "混元一气",
+        "type":  "buff",
+        "stackable":  false,
+        "max_stacks":  1,
+        "default_duration":  4.0,
+        "effects":  [
+                        {
+                            "op":  "hp_regen_add",
+                            "value":  4.0
+                        },
+                        {
+                            "op":  "mp_regen_add",
+                            "value":  2.0
+                        },
+                        {
+                            "op":  "healing_amp",
+                            "value":  0.08
+                        }
+                    ],
+        "tick_effects":  [
+
+                         ],
+        "tick_interval":  0.0,
+        "tags":  [
+                     "真气",
+                     "守势",
+                     "内功"
+                 ]
+    },
+    {
+        "id":  "debuff_suigu_zhua",
+        "name":  "碎骨爪痕",
+        "type":  "debuff",
+        "stackable":  false,
+        "max_stacks":  1,
+        "default_duration":  2.5,
+        "effects":  [
+                        {
+                            "op":  "stat_percent",
+                            "stat":  "def",
+                            "value":  -0.15
+                        },
+                        {
+                            "op":  "stat_percent",
+                            "stat":  "idr",
+                            "value":  -0.08
+                        }
+                    ],
+        "tick_effects":  [
+
+                         ],
+        "tick_interval":  0.0,
+        "tags":  [
+                     "裂甲",
+                     "破防",
+                     "外功"
+                 ]
+    },
+    {
+        "id":  "debuff_luowang_pozhen",
+        "name":  "落网破阵",
+        "type":  "debuff",
+        "stackable":  false,
+        "max_stacks":  1,
+        "default_duration":  2.0,
+        "effects":  [
+                        {
+                            "op":  "damage_amp_percent",
+                            "value":  -0.08
+                        },
+                        {
+                            "op":  "attack_speed_bonus",
+                            "value":  -0.08
+                        }
+                    ],
+        "tick_effects":  [
+
+                         ],
+        "tick_interval":  0.0,
+        "tags":  [
+                     "破阵",
+                     "虚弱",
+                     "阵法"
+                 ]
+    },
+    {
+        "id":  "debuff_duyan_fushi",
+        "name":  "毒烟腐蚀",
+        "type":  "debuff",
+        "stackable":  true,
+        "max_stacks":  3,
+        "default_duration":  3.0,
+        "effects":  [
+                        {
+                            "op":  "damage_reduce_percent",
+                            "value":  -0.03
+                        }
+                    ],
+        "tick_effects":  [
+                             {
+                                 "op":  "damage_target",
+                                 "value":  12,
+                                 "damage_type":  "internal"
+                             }
+                         ],
+        "tick_interval":  0.8,
+        "tags":  [
+                     "中毒",
+                     "蚀伤",
+                     "毒功"
+                 ]
+    },
+    {
+        "id":  "debuff_huomai_fenteng",
+        "name":  "火脉焚腾",
+        "type":  "debuff",
+        "stackable":  false,
+        "max_stacks":  1,
+        "default_duration":  2.0,
+        "effects":  [
+                        {
+                            "op":  "damage_reduce_percent",
+                            "value":  -0.04
+                        }
+                    ],
+        "tick_effects":  [
+                             {
+                                 "op":  "damage_target",
+                                 "value":  14,
+                                 "damage_type":  "internal"
+                             }
+                         ],
+        "tick_interval":  0.5,
+        "tags":  [
+                     "灼脉",
+                     "蚀伤",
+                     "炎劲"
+                 ]
+    },
+    {
+        "id":  "debuff_zhenmai_duanqi",
+        "name":  "震脉断气",
+        "type":  "debuff",
+        "stackable":  false,
+        "max_stacks":  1,
+        "default_duration":  1.2,
+        "effects":  [
+                        {
+                            "op":  "attack_speed_bonus",
+                            "value":  -0.15
+                        },
+                        {
+                            "op":  "crit_bonus",
+                            "value":  -0.06
+                        }
+                    ],
+        "tick_effects":  [
+
+                         ],
+        "tick_interval":  0.0,
+        "tags":  [
+                     "震脉",
+                     "制身",
+                     "外功"
+                 ]
+    },
+    {
+        "id":  "debuff_qisuo_maiyin",
+        "name":  "气锁脉引",
+        "type":  "debuff",
+        "stackable":  false,
+        "max_stacks":  1,
+        "default_duration":  2.2,
+        "effects":  [
+                        {
+                            "op":  "attack_speed_bonus",
+                            "value":  -0.08
+                        },
+                        {
+                            "op":  "damage_amp_percent",
+                            "value":  -0.05
+                        }
+                    ],
+        "tick_effects":  [
+
+                         ],
+        "tick_interval":  0.0,
+        "tags":  [
+                     "封脉",
+                     "追命印",
+                     "内功"
+                 ]
+    },
+    {
+        "id":  "debuff_hanmai_ningzhi",
+        "name":  "寒脉凝滞",
+        "type":  "debuff",
+        "stackable":  false,
+        "max_stacks":  1,
+        "default_duration":  2.5,
+        "effects":  [
+                        {
+                            "op":  "attack_speed_bonus",
+                            "value":  -0.12
+                        },
+                        {
+                            "op":  "damage_reduce_percent",
+                            "value":  -0.04
+                        }
+                    ],
+        "tick_effects":  [
+
+                         ],
+        "tick_interval":  0.0,
+        "tags":  [
+                     "寒凝",
+                     "制身",
+                     "寒劲"
+                 ]
+    },
+    {
+        "id":  "debuff_jinghun_duoshe",
+        "name":  "惊魂夺摄",
+        "type":  "debuff",
+        "stackable":  false,
+        "max_stacks":  1,
+        "default_duration":  2.0,
+        "effects":  [
+                        {
+                            "op":  "crit_bonus",
+                            "value":  -0.08
+                        },
+                        {
+                            "op":  "attack_speed_bonus",
+                            "value":  -0.1
+                        }
+                    ],
+        "tick_effects":  [
+
+                         ],
+        "tick_interval":  0.0,
+        "tags":  [
+                     "惊魂",
+                     "制身",
+                     "摄魂"
+                 ]
+    },
+    {
+        "id":  "debuff_yinchou_qisheng",
+        "name":  "引仇弃守",
+        "type":  "debuff",
+        "stackable":  false,
+        "max_stacks":  1,
+        "default_duration":  2.0,
+        "effects":  [
+                        {
+                            "op":  "damage_reduce_percent",
+                            "value":  -0.06
+                        },
+                        {
+                            "op":  "damage_amp_percent",
+                            "value":  -0.06
+                        }
+                    ],
+        "tick_effects":  [
+
+                         ],
+        "tick_interval":  0.0,
+        "tags":  [
+                     "引仇",
+                     "虚弱",
+                     "阵法"
+                 ]
+    },
+    {
+        "id":  "debuff_duhuo_gongxin",
+        "name":  "毒火攻心",
+        "type":  "debuff",
+        "stackable":  false,
+        "max_stacks":  1,
+        "default_duration":  3.0,
+        "effects":  [
+                        {
+                            "op":  "damage_reduce_percent",
+                            "value":  -0.03
+                        }
+                    ],
+        "tick_effects":  [
+                             {
+                                 "op":  "damage_target",
+                                 "value":  14,
+                                 "damage_type":  "internal"
+                             }
+                         ],
+        "tick_interval":  0.6,
+        "tags":  [
+                     "毒火",
+                     "追命印",
+                     "中毒"
+                 ]
+    },
+    {
+        "id":  "buff_sect_guard_drill",
+        "name":  "Sect Guard Drill",
+        "type":  "buff",
+        "stackable":  false,
+        "max_stacks":  1,
+        "default_duration":  2.4,
+        "effects":  [
+                        {
+                            "op":  "damage_reduce_percent",
+                            "value":  0.06
+                        },
+                        {
+                            "op":  "tenacity",
+                            "value":  0.06
+                        }
+                    ],
+        "tick_effects":  [
+
+                         ],
+        "tick_interval":  0.0,
+        "tags":  [
+                     "sect",
+                     "guard",
+                     "shared"
+                 ]
+    },
+    {
+        "id":  "buff_sect_mobility_step",
+        "name":  "Sect Mobility Step",
+        "type":  "buff",
+        "stackable":  false,
+        "max_stacks":  1,
+        "default_duration":  2.0,
+        "effects":  [
+                        {
+                            "op":  "stat_add",
+                            "stat":  "spd",
+                            "value":  8
+                        },
+                        {
+                            "op":  "attack_speed_bonus",
+                            "value":  0.06
+                        }
+                    ],
+        "tick_effects":  [
+
+                         ],
+        "tick_interval":  0.0,
+        "tags":  [
+                     "sect",
+                     "mobility",
+                     "shared"
+                 ]
+    },
+    {
+        "id":  "debuff_sect_exposed_gap",
+        "name":  "Sect Exposed Gap",
+        "type":  "debuff",
+        "stackable":  false,
+        "max_stacks":  1,
+        "default_duration":  2.0,
+        "effects":  [
+                        {
+                            "op":  "damage_reduce_percent",
+                            "value":  -0.06
+                        },
+                        {
+                            "op":  "attack_speed_bonus",
+                            "value":  -0.05
+                        }
+                    ],
+        "tick_effects":  [
+
+                         ],
+        "tick_interval":  0.0,
+        "tags":  [
+                     "sect",
+                     "exposed",
+                     "counter"
+                 ]
+    },
+    {
+        "id":  "debuff_sect_qi_disrupt",
+        "name":  "Sect Qi Disrupt",
+        "type":  "debuff",
+        "stackable":  false,
+        "max_stacks":  1,
+        "default_duration":  2.2,
+        "effects":  [
+                        {
+                            "op":  "mp_regen_add",
+                            "value":  -1.2
+                        },
+                        {
+                            "op":  "crit_bonus",
+                            "value":  -0.04
+                        }
+                    ],
+        "tick_effects":  [
+
+                         ],
+        "tick_interval":  0.0,
+        "tags":  [
+                     "sect",
+                     "qi",
+                     "counter"
+                 ]
+    }
 ]

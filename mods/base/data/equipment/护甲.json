@@ -1,0 +1,1024 @@
+[
+  {
+    "id": "eq_wx_armor_001",
+    "name": "金丝软甲·壹",
+    "description": "武侠风白阶护甲，适合江湖历练。",
+    "type": "armor",
+    "element": "earth",
+    "quality": "white",
+    "cost": 60,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "def",
+        "value": 6
+      },
+      {
+        "op": "tenacity",
+        "value": 0.02
+      }
+    ],
+    "tags": [
+      "equip.type.armor",
+      "equip.theme.wuxia",
+      "equip.quality.white",
+      "equip.element.earth",
+      "tag_eq_type_02"
+    ]
+  },
+  {
+    "id": "eq_wx_armor_002",
+    "name": "金丝锁子甲·贰",
+    "description": "武侠风白阶护甲，适合江湖历练。",
+    "type": "armor",
+    "element": "metal",
+    "quality": "white",
+    "cost": 60,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "hp",
+        "value": 80
+      },
+      {
+        "op": "damage_reduce_percent",
+        "value": 0.02
+      }
+    ],
+    "tags": [
+      "equip.type.armor",
+      "equip.theme.wuxia",
+      "equip.quality.white",
+      "equip.element.metal",
+      "tag_eq_type_02"
+    ]
+  },
+  {
+    "id": "eq_wx_armor_003",
+    "name": "金丝护心镜·叁",
+    "description": "武侠风白阶护甲，适合江湖历练。",
+    "type": "armor",
+    "element": "water",
+    "quality": "white",
+    "cost": 60,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "def",
+        "value": 6
+      },
+      {
+        "op": "tenacity",
+        "value": 0.02
+      }
+    ],
+    "tags": [
+      "equip.type.armor",
+      "equip.theme.wuxia",
+      "equip.quality.white",
+      "equip.element.water",
+      "tag_eq_type_02"
+    ]
+  },
+  {
+    "id": "eq_wx_armor_004",
+    "name": "金丝皮胄·肆",
+    "description": "武侠风白阶护甲，适合江湖历练。",
+    "type": "armor",
+    "element": "wood",
+    "quality": "white",
+    "cost": 60,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "hp",
+        "value": 80
+      },
+      {
+        "op": "damage_reduce_percent",
+        "value": 0.02
+      }
+    ],
+    "tags": [
+      "equip.type.armor",
+      "equip.theme.wuxia",
+      "equip.quality.white",
+      "equip.element.wood",
+      "tag_eq_type_02"
+    ]
+  },
+  {
+    "id": "eq_wx_armor_005",
+    "name": "金丝战袍·伍",
+    "description": "武侠风绿阶护甲，适合江湖历练。",
+    "type": "armor",
+    "element": "fire",
+    "quality": "green",
+    "cost": 90,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "def",
+        "value": 9
+      },
+      {
+        "op": "tenacity",
+        "value": 0.03
+      }
+    ],
+    "tags": [
+      "equip.type.armor",
+      "equip.theme.wuxia",
+      "equip.quality.green",
+      "equip.element.fire",
+      "tag_eq_type_02"
+    ]
+  },
+  {
+    "id": "eq_wx_armor_006",
+    "name": "金丝胸甲·陆",
+    "description": "武侠风绿阶护甲，适合江湖历练。",
+    "type": "armor",
+    "element": "none",
+    "quality": "green",
+    "cost": 90,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "hp",
+        "value": 120
+      },
+      {
+        "op": "damage_reduce_percent",
+        "value": 0.03
+      }
+    ],
+    "tags": [
+      "equip.type.armor",
+      "equip.theme.wuxia",
+      "equip.quality.green",
+      "equip.element.none",
+      "tag_eq_type_02"
+    ]
+  },
+  {
+    "id": "eq_wx_armor_007",
+    "name": "金丝披风·柒",
+    "description": "武侠风绿阶护甲，适合江湖历练。",
+    "type": "armor",
+    "element": "earth",
+    "quality": "green",
+    "cost": 90,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "def",
+        "value": 9
+      },
+      {
+        "op": "tenacity",
+        "value": 0.03
+      }
+    ],
+    "tags": [
+      "equip.type.armor",
+      "equip.theme.wuxia",
+      "equip.quality.green",
+      "equip.element.earth",
+      "tag_eq_type_02"
+    ]
+  },
+  {
+    "id": "eq_wx_armor_008",
+    "name": "金丝护臂·捌",
+    "description": "武侠风绿阶护甲，适合江湖历练。",
+    "type": "armor",
+    "element": "metal",
+    "quality": "green",
+    "cost": 90,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "hp",
+        "value": 120
+      },
+      {
+        "op": "damage_reduce_percent",
+        "value": 0.03
+      }
+    ],
+    "tags": [
+      "equip.type.armor",
+      "equip.theme.wuxia",
+      "equip.quality.green",
+      "equip.element.metal",
+      "tag_eq_type_02"
+    ]
+  },
+  {
+    "id": "eq_wx_armor_009",
+    "name": "玄鳞软甲·玖",
+    "description": "武侠风蓝阶护甲，适合江湖历练。",
+    "type": "armor",
+    "element": "water",
+    "quality": "blue",
+    "cost": 140,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "def",
+        "value": 13
+      },
+      {
+        "op": "tenacity",
+        "value": 0.045
+      }
+    ],
+    "tags": [
+      "equip.type.armor",
+      "equip.theme.wuxia",
+      "equip.quality.blue",
+      "equip.element.water",
+      "tag_eq_type_02"
+    ],
+    "trigger": {
+      "type": "on_damage_received",
+      "chance": 0.2,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_sect_guard_drill",
+          "duration": 2.2
+        },
+        {
+          "op": "heal_self",
+          "value": 24.0
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_armor_010",
+    "name": "玄鳞锁子甲·拾",
+    "description": "武侠风蓝阶护甲，适合江湖历练。",
+    "type": "armor",
+    "element": "wood",
+    "quality": "blue",
+    "cost": 140,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "hp",
+        "value": 170
+      },
+      {
+        "op": "damage_reduce_percent",
+        "value": 0.045
+      }
+    ],
+    "tags": [
+      "equip.type.armor",
+      "equip.theme.wuxia",
+      "equip.quality.blue",
+      "equip.element.wood",
+      "tag_eq_type_02"
+    ],
+    "trigger": {
+      "type": "on_damage_received",
+      "chance": 0.2,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_sect_mobility_step",
+          "duration": 2.0
+        },
+        {
+          "op": "mp_regen_add",
+          "value": 1.2
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_armor_011",
+    "name": "玄鳞护心镜·拾壹",
+    "description": "武侠风蓝阶护甲，适合江湖历练。",
+    "type": "armor",
+    "element": "fire",
+    "quality": "blue",
+    "cost": 140,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "def",
+        "value": 13
+      },
+      {
+        "op": "tenacity",
+        "value": 0.045
+      }
+    ],
+    "tags": [
+      "equip.type.armor",
+      "equip.theme.wuxia",
+      "equip.quality.blue",
+      "equip.element.fire",
+      "tag_eq_type_02"
+    ],
+    "trigger": {
+      "type": "on_damage_received",
+      "chance": 0.2,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "heal_self",
+          "value": 30.0
+        },
+        {
+          "op": "buff_allies_aoe",
+          "buff_id": "buff_sect_guard_drill",
+          "duration": 1.8,
+          "radius": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_armor_012",
+    "name": "玄鳞皮胄·拾贰",
+    "description": "武侠风蓝阶护甲，适合江湖历练。",
+    "type": "armor",
+    "element": "none",
+    "quality": "blue",
+    "cost": 140,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "hp",
+        "value": 170
+      },
+      {
+        "op": "damage_reduce_percent",
+        "value": 0.045
+      }
+    ],
+    "tags": [
+      "equip.type.armor",
+      "equip.theme.wuxia",
+      "equip.quality.blue",
+      "equip.element.none",
+      "tag_eq_type_02"
+    ],
+    "trigger": {
+      "type": "on_damage_received",
+      "chance": 0.2,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_sect_guard_drill",
+          "duration": 2.2
+        },
+        {
+          "op": "heal_self",
+          "value": 24.0
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_armor_013",
+    "name": "玄鳞战袍·拾叁",
+    "description": "武侠风蓝阶护甲，适合江湖历练。",
+    "type": "armor",
+    "element": "earth",
+    "quality": "blue",
+    "cost": 140,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "def",
+        "value": 13
+      },
+      {
+        "op": "tenacity",
+        "value": 0.045
+      }
+    ],
+    "tags": [
+      "equip.type.armor",
+      "equip.theme.wuxia",
+      "equip.quality.blue",
+      "equip.element.earth",
+      "tag_eq_type_02"
+    ],
+    "trigger": {
+      "type": "on_damage_received",
+      "chance": 0.2,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_sect_mobility_step",
+          "duration": 2.0
+        },
+        {
+          "op": "mp_regen_add",
+          "value": 1.2
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_armor_014",
+    "name": "玄鳞胸甲·拾肆",
+    "description": "武侠风蓝阶护甲，适合江湖历练。",
+    "type": "armor",
+    "element": "metal",
+    "quality": "blue",
+    "cost": 140,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "hp",
+        "value": 170
+      },
+      {
+        "op": "damage_reduce_percent",
+        "value": 0.045
+      }
+    ],
+    "tags": [
+      "equip.type.armor",
+      "equip.theme.wuxia",
+      "equip.quality.blue",
+      "equip.element.metal",
+      "tag_eq_type_02"
+    ],
+    "trigger": {
+      "type": "on_damage_received",
+      "chance": 0.2,
+      "cooldown": 5.0,
+      "effects": [
+        {
+          "op": "heal_self",
+          "value": 30.0
+        },
+        {
+          "op": "buff_allies_aoe",
+          "buff_id": "buff_sect_guard_drill",
+          "duration": 1.8,
+          "radius": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_armor_015",
+    "name": "玄鳞披风·拾伍",
+    "description": "武侠风紫阶护甲，适合江湖历练。",
+    "type": "armor",
+    "element": "water",
+    "quality": "purple",
+    "cost": 220,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "def",
+        "value": 18
+      },
+      {
+        "op": "tenacity",
+        "value": 0.06
+      }
+    ],
+    "tags": [
+      "equip.type.armor",
+      "equip.theme.wuxia",
+      "equip.quality.purple",
+      "equip.element.water",
+      "tag_eq_type_02"
+    ],
+    "trigger": {
+      "type": "on_damage_received",
+      "chance": 0.25,
+      "cooldown": 4.4,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_sect_guard_drill",
+          "duration": 2.6
+        },
+        {
+          "op": "heal_self",
+          "value": 36.0
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_armor_016",
+    "name": "玄鳞护臂·拾陆",
+    "description": "武侠风紫阶护甲，适合江湖历练。",
+    "type": "armor",
+    "element": "wood",
+    "quality": "purple",
+    "cost": 220,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "hp",
+        "value": 230
+      },
+      {
+        "op": "damage_reduce_percent",
+        "value": 0.06
+      }
+    ],
+    "tags": [
+      "equip.type.armor",
+      "equip.theme.wuxia",
+      "equip.quality.purple",
+      "equip.element.wood",
+      "tag_eq_type_02"
+    ],
+    "trigger": {
+      "type": "on_damage_received",
+      "chance": 0.25,
+      "cooldown": 4.4,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_sect_mobility_step",
+          "duration": 2.4
+        },
+        {
+          "op": "mp_regen_add",
+          "value": 1.6
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_armor_017",
+    "name": "寒霜软甲·拾柒",
+    "description": "武侠风紫阶护甲，适合江湖历练。",
+    "type": "armor",
+    "element": "fire",
+    "quality": "purple",
+    "cost": 220,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "def",
+        "value": 18
+      },
+      {
+        "op": "tenacity",
+        "value": 0.06
+      }
+    ],
+    "tags": [
+      "equip.type.armor",
+      "equip.theme.wuxia",
+      "equip.quality.purple",
+      "equip.element.fire",
+      "tag_eq_type_02"
+    ],
+    "trigger": {
+      "type": "on_damage_received",
+      "chance": 0.25,
+      "cooldown": 4.4,
+      "effects": [
+        {
+          "op": "heal_self",
+          "value": 44.0
+        },
+        {
+          "op": "buff_allies_aoe",
+          "buff_id": "buff_sect_guard_drill",
+          "duration": 2.2,
+          "radius": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_armor_018",
+    "name": "寒霜锁子甲·拾捌",
+    "description": "武侠风紫阶护甲，适合江湖历练。",
+    "type": "armor",
+    "element": "none",
+    "quality": "purple",
+    "cost": 220,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "hp",
+        "value": 230
+      },
+      {
+        "op": "damage_reduce_percent",
+        "value": 0.06
+      }
+    ],
+    "tags": [
+      "equip.type.armor",
+      "equip.theme.wuxia",
+      "equip.quality.purple",
+      "equip.element.none",
+      "tag_eq_type_02"
+    ],
+    "trigger": {
+      "type": "on_damage_received",
+      "chance": 0.25,
+      "cooldown": 4.4,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_sect_guard_drill",
+          "duration": 2.6
+        },
+        {
+          "op": "heal_self",
+          "value": 36.0
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_armor_019",
+    "name": "寒霜护心镜·拾玖",
+    "description": "武侠风紫阶护甲，适合江湖历练。",
+    "type": "armor",
+    "element": "earth",
+    "quality": "purple",
+    "cost": 220,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "def",
+        "value": 18
+      },
+      {
+        "op": "tenacity",
+        "value": 0.06
+      }
+    ],
+    "tags": [
+      "equip.type.armor",
+      "equip.theme.wuxia",
+      "equip.quality.purple",
+      "equip.element.earth",
+      "tag_eq_type_02"
+    ],
+    "trigger": {
+      "type": "on_damage_received",
+      "chance": 0.25,
+      "cooldown": 4.4,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_sect_mobility_step",
+          "duration": 2.4
+        },
+        {
+          "op": "mp_regen_add",
+          "value": 1.6
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_armor_020",
+    "name": "寒霜皮胄·贰拾",
+    "description": "武侠风紫阶护甲，适合江湖历练。",
+    "type": "armor",
+    "element": "metal",
+    "quality": "purple",
+    "cost": 220,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "hp",
+        "value": 230
+      },
+      {
+        "op": "damage_reduce_percent",
+        "value": 0.06
+      }
+    ],
+    "tags": [
+      "equip.type.armor",
+      "equip.theme.wuxia",
+      "equip.quality.purple",
+      "equip.element.metal",
+      "tag_eq_type_02"
+    ],
+    "trigger": {
+      "type": "on_damage_received",
+      "chance": 0.25,
+      "cooldown": 4.4,
+      "effects": [
+        {
+          "op": "heal_self",
+          "value": 44.0
+        },
+        {
+          "op": "buff_allies_aoe",
+          "buff_id": "buff_sect_guard_drill",
+          "duration": 2.2,
+          "radius": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_armor_021",
+    "name": "寒霜战袍·贰拾壹",
+    "description": "武侠风紫阶护甲，适合江湖历练。",
+    "type": "armor",
+    "element": "water",
+    "quality": "purple",
+    "cost": 220,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "def",
+        "value": 18
+      },
+      {
+        "op": "tenacity",
+        "value": 0.06
+      }
+    ],
+    "tags": [
+      "equip.type.armor",
+      "equip.theme.wuxia",
+      "equip.quality.purple",
+      "equip.element.water",
+      "tag_eq_type_02"
+    ],
+    "trigger": {
+      "type": "on_damage_received",
+      "chance": 0.25,
+      "cooldown": 4.4,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_sect_guard_drill",
+          "duration": 2.6
+        },
+        {
+          "op": "heal_self",
+          "value": 36.0
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_armor_022",
+    "name": "寒霜胸甲·贰拾贰",
+    "description": "武侠风橙阶护甲，适合江湖历练。",
+    "type": "armor",
+    "element": "wood",
+    "quality": "orange",
+    "cost": 320,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "hp",
+        "value": 300
+      },
+      {
+        "op": "damage_reduce_percent",
+        "value": 0.08
+      }
+    ],
+    "tags": [
+      "equip.type.armor",
+      "equip.theme.wuxia",
+      "equip.quality.orange",
+      "equip.element.wood",
+      "tag_eq_type_02"
+    ],
+    "trigger": {
+      "type": "on_damage_received",
+      "chance": 0.3,
+      "cooldown": 3.8,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_sect_mobility_step",
+          "duration": 2.8
+        },
+        {
+          "op": "mp_regen_add",
+          "value": 2.0
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_armor_023",
+    "name": "寒霜披风·贰拾叁",
+    "description": "武侠风橙阶护甲，适合江湖历练。",
+    "type": "armor",
+    "element": "fire",
+    "quality": "orange",
+    "cost": 320,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "def",
+        "value": 24
+      },
+      {
+        "op": "tenacity",
+        "value": 0.08
+      }
+    ],
+    "tags": [
+      "equip.type.armor",
+      "equip.theme.wuxia",
+      "equip.quality.orange",
+      "equip.element.fire",
+      "tag_eq_type_02"
+    ],
+    "trigger": {
+      "type": "on_damage_received",
+      "chance": 0.3,
+      "cooldown": 3.8,
+      "effects": [
+        {
+          "op": "heal_self",
+          "value": 60.0
+        },
+        {
+          "op": "buff_allies_aoe",
+          "buff_id": "buff_sect_guard_drill",
+          "duration": 2.6,
+          "radius": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_armor_024",
+    "name": "寒霜护臂·贰拾肆",
+    "description": "武侠风橙阶护甲，适合江湖历练。",
+    "type": "armor",
+    "element": "none",
+    "quality": "orange",
+    "cost": 320,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "hp",
+        "value": 300
+      },
+      {
+        "op": "damage_reduce_percent",
+        "value": 0.08
+      }
+    ],
+    "tags": [
+      "equip.type.armor",
+      "equip.theme.wuxia",
+      "equip.quality.orange",
+      "equip.element.none",
+      "tag_eq_type_02"
+    ],
+    "trigger": {
+      "type": "on_damage_received",
+      "chance": 0.3,
+      "cooldown": 3.8,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_sect_guard_drill",
+          "duration": 3.0
+        },
+        {
+          "op": "heal_self",
+          "value": 52.0
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_armor_025",
+    "name": "铁壁软甲·贰拾伍",
+    "description": "武侠风橙阶护甲，适合江湖历练。",
+    "type": "armor",
+    "element": "earth",
+    "quality": "orange",
+    "cost": 320,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "def",
+        "value": 24
+      },
+      {
+        "op": "tenacity",
+        "value": 0.08
+      }
+    ],
+    "tags": [
+      "equip.type.armor",
+      "equip.theme.wuxia",
+      "equip.quality.orange",
+      "equip.element.earth",
+      "tag_eq_type_02"
+    ],
+    "trigger": {
+      "type": "on_damage_received",
+      "chance": 0.3,
+      "cooldown": 3.8,
+      "effects": [
+        {
+          "op": "buff_self",
+          "buff_id": "buff_sect_mobility_step",
+          "duration": 2.8
+        },
+        {
+          "op": "mp_regen_add",
+          "value": 2.0
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_armor_026",
+    "name": "铁壁锁子甲·贰拾陆",
+    "description": "武侠风橙阶护甲，适合江湖历练。",
+    "type": "armor",
+    "element": "metal",
+    "quality": "orange",
+    "cost": 320,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "hp",
+        "value": 300
+      },
+      {
+        "op": "damage_reduce_percent",
+        "value": 0.08
+      }
+    ],
+    "tags": [
+      "equip.type.armor",
+      "equip.theme.wuxia",
+      "equip.quality.orange",
+      "equip.element.metal",
+      "tag_eq_type_02"
+    ],
+    "trigger": {
+      "type": "on_damage_received",
+      "chance": 0.3,
+      "cooldown": 3.8,
+      "effects": [
+        {
+          "op": "heal_self",
+          "value": 60.0
+        },
+        {
+          "op": "buff_allies_aoe",
+          "buff_id": "buff_sect_guard_drill",
+          "duration": 2.6,
+          "radius": 2
+        }
+      ]
+    }
+  }
+]

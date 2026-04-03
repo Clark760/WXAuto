@@ -1,22 +1,2 @@
 [
-  {
-    "id": "",
-    "name": "",
-    "quality": "white",
-    "cost": 0,
-    "base_stats": {
-      "hp": 0,
-      "mp": 0,
-      "atk": 0,
-      "iat": 0,
-      "def": 0,
-      "idr": 0,
-      "spd": 0,
-      "rng": 0,
-      "wis": 0
-    },
-    "initial_gongfa": [],
-    "sprite_path": "",
-    "portrait_path": ""
-  }
 ]

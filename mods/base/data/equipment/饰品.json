@@ -1,0 +1,1498 @@
+[
+  {
+    "id": "eq_wx_accessory_001",
+    "name": "青玉玉佩·壹",
+    "description": "武侠风白阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "none",
+    "quality": "white",
+    "cost": 60,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 4
+      },
+      {
+        "op": "healing_amp",
+        "value": 0.01
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.white",
+      "equip.element.none",
+      "tag_eq_type_03"
+    ]
+  },
+  {
+    "id": "eq_wx_accessory_002",
+    "name": "青玉指环·贰",
+    "description": "武侠风白阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "wood",
+    "quality": "white",
+    "cost": 60,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 4
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.008
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.white",
+      "equip.element.wood",
+      "tag_eq_type_03"
+    ]
+  },
+  {
+    "id": "eq_wx_accessory_003",
+    "name": "青玉护符·叁",
+    "description": "武侠风白阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "water",
+    "quality": "white",
+    "cost": 60,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 4
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.3
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.white",
+      "equip.element.water",
+      "tag_eq_type_03"
+    ]
+  },
+  {
+    "id": "eq_wx_accessory_004",
+    "name": "青玉佛珠·肆",
+    "description": "武侠风白阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "fire",
+    "quality": "white",
+    "cost": 60,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 4
+      },
+      {
+        "op": "healing_amp",
+        "value": 0.01
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.white",
+      "equip.element.fire",
+      "tag_eq_type_03"
+    ]
+  },
+  {
+    "id": "eq_wx_accessory_005",
+    "name": "青玉香囊·伍",
+    "description": "武侠风白阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "earth",
+    "quality": "white",
+    "cost": 60,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 4
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.008
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.white",
+      "equip.element.earth",
+      "tag_eq_type_03"
+    ]
+  },
+  {
+    "id": "eq_wx_accessory_006",
+    "name": "青玉玉坠·陆",
+    "description": "武侠风白阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "metal",
+    "quality": "white",
+    "cost": 60,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 4
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.3
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.white",
+      "equip.element.metal",
+      "tag_eq_type_03"
+    ]
+  },
+  {
+    "id": "eq_wx_accessory_007",
+    "name": "青玉令牌·柒",
+    "description": "武侠风绿阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "none",
+    "quality": "green",
+    "cost": 90,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 6
+      },
+      {
+        "op": "healing_amp",
+        "value": 0.015
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.green",
+      "equip.element.none",
+      "tag_eq_type_03"
+    ]
+  },
+  {
+    "id": "eq_wx_accessory_008",
+    "name": "青玉铜镜·捌",
+    "description": "武侠风绿阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "wood",
+    "quality": "green",
+    "cost": 90,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 6
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.012
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.green",
+      "equip.element.wood",
+      "tag_eq_type_03"
+    ]
+  },
+  {
+    "id": "eq_wx_accessory_009",
+    "name": "青玉发簪·玖",
+    "description": "武侠风绿阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "water",
+    "quality": "green",
+    "cost": 90,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 6
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.45
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.green",
+      "equip.element.water",
+      "tag_eq_type_03"
+    ]
+  },
+  {
+    "id": "eq_wx_accessory_010",
+    "name": "青玉手链·拾",
+    "description": "武侠风绿阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "fire",
+    "quality": "green",
+    "cost": 90,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 6
+      },
+      {
+        "op": "healing_amp",
+        "value": 0.015
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.green",
+      "equip.element.fire",
+      "tag_eq_type_03"
+    ]
+  },
+  {
+    "id": "eq_wx_accessory_011",
+    "name": "雪珀玉佩·拾壹",
+    "description": "武侠风绿阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "earth",
+    "quality": "green",
+    "cost": 90,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 6
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.012
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.green",
+      "equip.element.earth",
+      "tag_eq_type_03"
+    ]
+  },
+  {
+    "id": "eq_wx_accessory_012",
+    "name": "雪珀指环·拾贰",
+    "description": "武侠风绿阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "metal",
+    "quality": "green",
+    "cost": 90,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 6
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.45
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.green",
+      "equip.element.metal",
+      "tag_eq_type_03"
+    ]
+  },
+  {
+    "id": "eq_wx_accessory_013",
+    "name": "雪珀护符·拾叁",
+    "description": "武侠风绿阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "none",
+    "quality": "green",
+    "cost": 90,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 6
+      },
+      {
+        "op": "healing_amp",
+        "value": 0.015
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.green",
+      "equip.element.none",
+      "tag_eq_type_03"
+    ]
+  },
+  {
+    "id": "eq_wx_accessory_014",
+    "name": "雪珀佛珠·拾肆",
+    "description": "武侠风绿阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "wood",
+    "quality": "green",
+    "cost": 90,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 6
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.012
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.green",
+      "equip.element.wood",
+      "tag_eq_type_03"
+    ]
+  },
+  {
+    "id": "eq_wx_accessory_015",
+    "name": "雪珀香囊·拾伍",
+    "description": "武侠风蓝阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "water",
+    "quality": "blue",
+    "cost": 140,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 8
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.65
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.blue",
+      "equip.element.water",
+      "tag_eq_type_03"
+    ],
+    "trigger": {
+      "type": "periodic_seconds",
+      "trigger_params": {
+        "interval": 6.5
+      },
+      "effects": [
+        {
+          "op": "buff_allies_aoe",
+          "buff_id": "buff_sect_guard_drill",
+          "duration": 2.0,
+          "radius": 2
+        },
+        {
+          "op": "heal_allies_aoe",
+          "value": 12.0,
+          "radius": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_accessory_016",
+    "name": "雪珀玉坠·拾陆",
+    "description": "武侠风蓝阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "fire",
+    "quality": "blue",
+    "cost": 140,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 8
+      },
+      {
+        "op": "healing_amp",
+        "value": 0.025
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.blue",
+      "equip.element.fire",
+      "tag_eq_type_03"
+    ],
+    "trigger": {
+      "type": "periodic_seconds",
+      "trigger_params": {
+        "interval": 6.5
+      },
+      "effects": [
+        {
+          "op": "buff_allies_aoe",
+          "buff_id": "buff_sect_mobility_step",
+          "duration": 2.0,
+          "radius": 2
+        },
+        {
+          "op": "mp_regen_add",
+          "value": 1.2
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_accessory_017",
+    "name": "雪珀令牌·拾柒",
+    "description": "武侠风蓝阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "earth",
+    "quality": "blue",
+    "cost": 140,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 8
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.018
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.blue",
+      "equip.element.earth",
+      "tag_eq_type_03"
+    ],
+    "trigger": {
+      "type": "periodic_seconds",
+      "trigger_params": {
+        "interval": 6.5
+      },
+      "effects": [
+        {
+          "op": "heal_allies_aoe",
+          "value": 10.0,
+          "radius": 2
+        },
+        {
+          "op": "heal_self",
+          "value": 14.0
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_accessory_018",
+    "name": "雪珀铜镜·拾捌",
+    "description": "武侠风蓝阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "metal",
+    "quality": "blue",
+    "cost": 140,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 8
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.65
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.blue",
+      "equip.element.metal",
+      "tag_eq_type_03"
+    ],
+    "trigger": {
+      "type": "periodic_seconds",
+      "trigger_params": {
+        "interval": 6.5
+      },
+      "effects": [
+        {
+          "op": "buff_allies_aoe",
+          "buff_id": "buff_sect_guard_drill",
+          "duration": 2.0,
+          "radius": 2
+        },
+        {
+          "op": "heal_allies_aoe",
+          "value": 12.0,
+          "radius": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_accessory_019",
+    "name": "雪珀发簪·拾玖",
+    "description": "武侠风蓝阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "none",
+    "quality": "blue",
+    "cost": 140,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 8
+      },
+      {
+        "op": "healing_amp",
+        "value": 0.025
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.blue",
+      "equip.element.none",
+      "tag_eq_type_03"
+    ],
+    "trigger": {
+      "type": "periodic_seconds",
+      "trigger_params": {
+        "interval": 6.5
+      },
+      "effects": [
+        {
+          "op": "buff_allies_aoe",
+          "buff_id": "buff_sect_mobility_step",
+          "duration": 2.0,
+          "radius": 2
+        },
+        {
+          "op": "mp_regen_add",
+          "value": 1.2
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_accessory_020",
+    "name": "雪珀手链·贰拾",
+    "description": "武侠风蓝阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "wood",
+    "quality": "blue",
+    "cost": 140,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 8
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.018
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.blue",
+      "equip.element.wood",
+      "tag_eq_type_03"
+    ],
+    "trigger": {
+      "type": "periodic_seconds",
+      "trigger_params": {
+        "interval": 6.5
+      },
+      "effects": [
+        {
+          "op": "heal_allies_aoe",
+          "value": 10.0,
+          "radius": 2
+        },
+        {
+          "op": "heal_self",
+          "value": 14.0
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_accessory_021",
+    "name": "赤炎玉佩·贰拾壹",
+    "description": "武侠风蓝阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "water",
+    "quality": "blue",
+    "cost": 140,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 8
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.65
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.blue",
+      "equip.element.water",
+      "tag_eq_type_03"
+    ],
+    "trigger": {
+      "type": "periodic_seconds",
+      "trigger_params": {
+        "interval": 6.5
+      },
+      "effects": [
+        {
+          "op": "buff_allies_aoe",
+          "buff_id": "buff_sect_guard_drill",
+          "duration": 2.0,
+          "radius": 2
+        },
+        {
+          "op": "heal_allies_aoe",
+          "value": 12.0,
+          "radius": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_accessory_022",
+    "name": "赤炎指环·贰拾贰",
+    "description": "武侠风蓝阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "fire",
+    "quality": "blue",
+    "cost": 140,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 8
+      },
+      {
+        "op": "healing_amp",
+        "value": 0.025
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.blue",
+      "equip.element.fire",
+      "tag_eq_type_03"
+    ],
+    "trigger": {
+      "type": "periodic_seconds",
+      "trigger_params": {
+        "interval": 6.5
+      },
+      "effects": [
+        {
+          "op": "buff_allies_aoe",
+          "buff_id": "buff_sect_mobility_step",
+          "duration": 2.0,
+          "radius": 2
+        },
+        {
+          "op": "mp_regen_add",
+          "value": 1.2
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_accessory_023",
+    "name": "赤炎护符·贰拾叁",
+    "description": "武侠风蓝阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "earth",
+    "quality": "blue",
+    "cost": 140,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 8
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.018
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.blue",
+      "equip.element.earth",
+      "tag_eq_type_03"
+    ],
+    "trigger": {
+      "type": "periodic_seconds",
+      "trigger_params": {
+        "interval": 6.5
+      },
+      "effects": [
+        {
+          "op": "heal_allies_aoe",
+          "value": 10.0,
+          "radius": 2
+        },
+        {
+          "op": "heal_self",
+          "value": 14.0
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_accessory_024",
+    "name": "赤炎佛珠·贰拾肆",
+    "description": "武侠风蓝阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "metal",
+    "quality": "blue",
+    "cost": 140,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 8
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.65
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.blue",
+      "equip.element.metal",
+      "tag_eq_type_03"
+    ],
+    "trigger": {
+      "type": "periodic_seconds",
+      "trigger_params": {
+        "interval": 6.5
+      },
+      "effects": [
+        {
+          "op": "buff_allies_aoe",
+          "buff_id": "buff_sect_guard_drill",
+          "duration": 2.0,
+          "radius": 2
+        },
+        {
+          "op": "heal_allies_aoe",
+          "value": 12.0,
+          "radius": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_accessory_025",
+    "name": "赤炎香囊·贰拾伍",
+    "description": "武侠风紫阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "none",
+    "quality": "purple",
+    "cost": 220,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 11
+      },
+      {
+        "op": "healing_amp",
+        "value": 0.035
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.purple",
+      "equip.element.none",
+      "tag_eq_type_03"
+    ],
+    "trigger": {
+      "type": "periodic_seconds",
+      "trigger_params": {
+        "interval": 5.8
+      },
+      "effects": [
+        {
+          "op": "buff_allies_aoe",
+          "buff_id": "buff_sect_mobility_step",
+          "duration": 2.4,
+          "radius": 2
+        },
+        {
+          "op": "mp_regen_add",
+          "value": 1.8
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_accessory_026",
+    "name": "赤炎玉坠·贰拾陆",
+    "description": "武侠风紫阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "wood",
+    "quality": "purple",
+    "cost": 220,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 11
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.025
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.purple",
+      "equip.element.wood",
+      "tag_eq_type_03"
+    ],
+    "trigger": {
+      "type": "periodic_seconds",
+      "trigger_params": {
+        "interval": 5.8
+      },
+      "effects": [
+        {
+          "op": "heal_allies_aoe",
+          "value": 16.0,
+          "radius": 2
+        },
+        {
+          "op": "heal_self",
+          "value": 20.0
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_accessory_027",
+    "name": "赤炎令牌·贰拾柒",
+    "description": "武侠风紫阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "water",
+    "quality": "purple",
+    "cost": 220,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 11
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.9
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.purple",
+      "equip.element.water",
+      "tag_eq_type_03"
+    ],
+    "trigger": {
+      "type": "periodic_seconds",
+      "trigger_params": {
+        "interval": 5.8
+      },
+      "effects": [
+        {
+          "op": "buff_allies_aoe",
+          "buff_id": "buff_sect_guard_drill",
+          "duration": 2.4,
+          "radius": 2
+        },
+        {
+          "op": "heal_allies_aoe",
+          "value": 18.0,
+          "radius": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_accessory_028",
+    "name": "赤炎铜镜·贰拾捌",
+    "description": "武侠风紫阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "fire",
+    "quality": "purple",
+    "cost": 220,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 11
+      },
+      {
+        "op": "healing_amp",
+        "value": 0.035
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.purple",
+      "equip.element.fire",
+      "tag_eq_type_03"
+    ],
+    "trigger": {
+      "type": "periodic_seconds",
+      "trigger_params": {
+        "interval": 5.8
+      },
+      "effects": [
+        {
+          "op": "buff_allies_aoe",
+          "buff_id": "buff_sect_mobility_step",
+          "duration": 2.4,
+          "radius": 2
+        },
+        {
+          "op": "mp_regen_add",
+          "value": 1.8
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_accessory_029",
+    "name": "赤炎发簪·贰拾玖",
+    "description": "武侠风紫阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "earth",
+    "quality": "purple",
+    "cost": 220,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 11
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.025
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.purple",
+      "equip.element.earth",
+      "tag_eq_type_03"
+    ],
+    "trigger": {
+      "type": "periodic_seconds",
+      "trigger_params": {
+        "interval": 5.8
+      },
+      "effects": [
+        {
+          "op": "heal_allies_aoe",
+          "value": 16.0,
+          "radius": 2
+        },
+        {
+          "op": "heal_self",
+          "value": 20.0
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_accessory_030",
+    "name": "赤炎手链·叁拾",
+    "description": "武侠风紫阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "metal",
+    "quality": "purple",
+    "cost": 220,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 11
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 0.9
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.purple",
+      "equip.element.metal",
+      "tag_eq_type_03"
+    ],
+    "trigger": {
+      "type": "periodic_seconds",
+      "trigger_params": {
+        "interval": 5.8
+      },
+      "effects": [
+        {
+          "op": "buff_allies_aoe",
+          "buff_id": "buff_sect_guard_drill",
+          "duration": 2.4,
+          "radius": 2
+        },
+        {
+          "op": "heal_allies_aoe",
+          "value": 18.0,
+          "radius": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_accessory_031",
+    "name": "云纹玉佩·叁拾壹",
+    "description": "武侠风紫阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "none",
+    "quality": "purple",
+    "cost": 220,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 11
+      },
+      {
+        "op": "healing_amp",
+        "value": 0.035
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.purple",
+      "equip.element.none",
+      "tag_eq_type_03"
+    ],
+    "trigger": {
+      "type": "periodic_seconds",
+      "trigger_params": {
+        "interval": 5.8
+      },
+      "effects": [
+        {
+          "op": "buff_allies_aoe",
+          "buff_id": "buff_sect_mobility_step",
+          "duration": 2.4,
+          "radius": 2
+        },
+        {
+          "op": "mp_regen_add",
+          "value": 1.8
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_accessory_032",
+    "name": "云纹指环·叁拾贰",
+    "description": "武侠风紫阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "wood",
+    "quality": "purple",
+    "cost": 220,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 11
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.025
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.purple",
+      "equip.element.wood",
+      "tag_eq_type_03"
+    ],
+    "trigger": {
+      "type": "periodic_seconds",
+      "trigger_params": {
+        "interval": 5.8
+      },
+      "effects": [
+        {
+          "op": "heal_allies_aoe",
+          "value": 16.0,
+          "radius": 2
+        },
+        {
+          "op": "heal_self",
+          "value": 20.0
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_accessory_033",
+    "name": "云纹护符·叁拾叁",
+    "description": "武侠风橙阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "water",
+    "quality": "orange",
+    "cost": 320,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.2
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.orange",
+      "equip.element.water",
+      "tag_eq_type_03"
+    ],
+    "trigger": {
+      "type": "periodic_seconds",
+      "trigger_params": {
+        "interval": 5.0
+      },
+      "effects": [
+        {
+          "op": "buff_allies_aoe",
+          "buff_id": "buff_sect_guard_drill",
+          "duration": 2.8,
+          "radius": 2
+        },
+        {
+          "op": "heal_allies_aoe",
+          "value": 26.0,
+          "radius": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_accessory_034",
+    "name": "云纹佛珠·叁拾肆",
+    "description": "武侠风橙阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "fire",
+    "quality": "orange",
+    "cost": 320,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 14
+      },
+      {
+        "op": "healing_amp",
+        "value": 0.05
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.orange",
+      "equip.element.fire",
+      "tag_eq_type_03"
+    ],
+    "trigger": {
+      "type": "periodic_seconds",
+      "trigger_params": {
+        "interval": 5.0
+      },
+      "effects": [
+        {
+          "op": "buff_allies_aoe",
+          "buff_id": "buff_sect_mobility_step",
+          "duration": 2.8,
+          "radius": 2
+        },
+        {
+          "op": "mp_regen_add",
+          "value": 2.4
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_accessory_035",
+    "name": "云纹香囊·叁拾伍",
+    "description": "武侠风橙阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "earth",
+    "quality": "orange",
+    "cost": 320,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 14
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.033
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.orange",
+      "equip.element.earth",
+      "tag_eq_type_03"
+    ],
+    "trigger": {
+      "type": "periodic_seconds",
+      "trigger_params": {
+        "interval": 5.0
+      },
+      "effects": [
+        {
+          "op": "heal_allies_aoe",
+          "value": 24.0,
+          "radius": 2
+        },
+        {
+          "op": "heal_self",
+          "value": 30.0
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_accessory_036",
+    "name": "云纹玉坠·叁拾陆",
+    "description": "武侠风橙阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "metal",
+    "quality": "orange",
+    "cost": 320,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 14
+      },
+      {
+        "op": "mp_regen_add",
+        "value": 1.2
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.orange",
+      "equip.element.metal",
+      "tag_eq_type_03"
+    ],
+    "trigger": {
+      "type": "periodic_seconds",
+      "trigger_params": {
+        "interval": 5.0
+      },
+      "effects": [
+        {
+          "op": "buff_allies_aoe",
+          "buff_id": "buff_sect_guard_drill",
+          "duration": 2.8,
+          "radius": 2
+        },
+        {
+          "op": "heal_allies_aoe",
+          "value": 26.0,
+          "radius": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_accessory_037",
+    "name": "云纹令牌·叁拾柒",
+    "description": "武侠风橙阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "none",
+    "quality": "orange",
+    "cost": 320,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 14
+      },
+      {
+        "op": "healing_amp",
+        "value": 0.05
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.orange",
+      "equip.element.none",
+      "tag_eq_type_03"
+    ],
+    "trigger": {
+      "type": "periodic_seconds",
+      "trigger_params": {
+        "interval": 5.0
+      },
+      "effects": [
+        {
+          "op": "buff_allies_aoe",
+          "buff_id": "buff_sect_mobility_step",
+          "duration": 2.8,
+          "radius": 2
+        },
+        {
+          "op": "mp_regen_add",
+          "value": 2.4
+        }
+      ]
+    }
+  },
+  {
+    "id": "eq_wx_accessory_038",
+    "name": "云纹铜镜·叁拾捌",
+    "description": "武侠风橙阶饰品，适合江湖历练。",
+    "type": "accessory",
+    "element": "wood",
+    "quality": "orange",
+    "cost": 320,
+    "shop_visible": true,
+    "effects": [
+      {
+        "op": "stat_add",
+        "stat": "spd",
+        "value": 14
+      },
+      {
+        "op": "dodge_bonus",
+        "value": 0.033
+      }
+    ],
+    "tags": [
+      "equip.type.accessory",
+      "equip.theme.wuxia",
+      "equip.quality.orange",
+      "equip.element.wood",
+      "tag_eq_type_03"
+    ],
+    "trigger": {
+      "type": "periodic_seconds",
+      "trigger_params": {
+        "interval": 5.0
+      },
+      "effects": [
+        {
+          "op": "heal_allies_aoe",
+          "value": 24.0,
+          "radius": 2
+        },
+        {
+          "op": "heal_self",
+          "value": 30.0
+        }
+      ]
+    }
+  }
+]
