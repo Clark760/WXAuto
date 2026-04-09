@@ -4,6 +4,7 @@ class_name BattlefieldScene
 const BATTLEFIELD_SESSION_STATE_SCRIPT: Script = preload(
 	"res://scripts/app/battlefield/battlefield_session_state.gd"
 )
+const INK_THEME_BUILDER = preload("res://scripts/ui/ink_theme_builder.gd")
 const PROBE_SCOPE_SCENE_PROCESS: String = "battlefield_scene_process"
 const PROBE_SCOPE_WORLD_PROCESS: String = "battlefield_world_process"
 const PROBE_SCOPE_COORDINATOR_PROCESS: String = "battlefield_coordinator_process"
@@ -38,6 +39,7 @@ func _bind_runtime_services_on_path(node_path: String) -> void:
 
 # 组装战场状态、引用表和各个子协调器。
 func _ready() -> void:
+	_apply_ink_theme()
 	_session_state = BATTLEFIELD_SESSION_STATE_SCRIPT.new()
 	if _scene_refs.has_method("bind_app_services"):
 		_scene_refs.bind_app_services(_services)
@@ -50,6 +52,34 @@ func _ready() -> void:
 	if _coordinator.has_method("start_session"):
 		_coordinator.start_session()
 	_session_state.mark_scene_ready()
+
+
+# 在场景根脚本中挂载水墨风主题
+func _apply_ink_theme() -> void:
+	var ink_theme: Theme = INK_THEME_BUILDER.build() as Theme
+	if ink_theme == null:
+		return
+	# 设置根节点 theme，所有子树继承
+	# 如果根是 Node2D，需要分别给 CanvasLayer 下的 Control 子树设置
+	for layer_name in ["HUDLayer", "ShopPanelLayer", "DetailLayer", "InventoryLayer", "BottomLayer"]:
+		var layer: Node = get_node_or_null(layer_name)
+		if layer == null:
+			continue
+		for child in layer.get_children():
+			if child is Control:
+				(child as Control).theme = ink_theme
+	var light_panel_style: StyleBox = INK_THEME_BUILDER.make_light_panel_style() as StyleBox
+	if light_panel_style == null:
+		return
+	for panel_path in [
+		"HUDLayer/BattleLogPanel",
+		"HUDLayer/UnitTooltip",
+		"HUDLayer/TerrainTooltip",
+		"DetailLayer/ItemTooltip"
+	]:
+		var panel: PanelContainer = get_node_or_null(panel_path) as PanelContainer
+		if panel != null:
+			panel.add_theme_stylebox_override("panel", light_panel_style.duplicate(true))
 
 
 # 退出战场时关闭 HUD，并释放会话引用。

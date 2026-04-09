@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
+  <!-- 左上角水墨花纹，竹叶两笔 -->
+  <path d="M 5,30 C 8,20 12,12 20,8"
+        stroke="#5C5244" stroke-opacity="0.30"
+        stroke-width="2.0" fill="none"
+        stroke-linecap="round"/>
+  <path d="M 8,28 C 14,22 20,16 28,10"
+        stroke="#5C5244" stroke-opacity="0.20"
+        stroke-width="1.5" fill="none"
+        stroke-linecap="round"/>
+</svg>

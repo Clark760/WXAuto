@@ -1,2 +1,2242 @@
-[
+﻿[
+    {
+        "id":  "blue_tank_161",
+        "name":  "尉迟恭",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1225,
+                           "mp":  97,
+                           "atk":  79,
+                           "iat":  86,
+                           "def":  71,
+                           "idr":  75,
+                           "spd":  97,
+                           "rng":  1,
+                           "wis":  79
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_tank_161.png",
+        "portrait_path":  "assets/sprites/portraits/blue_tank_161.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "blue_tank_162",
+        "name":  "鲁智深",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1161,
+                           "mp":  104,
+                           "atk":  92,
+                           "iat":  87,
+                           "def":  82,
+                           "idr":  65,
+                           "spd":  89,
+                           "rng":  1,
+                           "wis":  80
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_tank_162.png",
+        "portrait_path":  "assets/sprites/portraits/blue_tank_162.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "blue_tank_163",
+        "name":  "程咬金",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1311,
+                           "mp":  108,
+                           "atk":  91,
+                           "iat":  86,
+                           "def":  62,
+                           "idr":  66,
+                           "spd":  94,
+                           "rng":  1,
+                           "wis":  66
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_tank_163.png",
+        "portrait_path":  "assets/sprites/portraits/blue_tank_163.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "blue_tank_164",
+        "name":  "许褚",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1227,
+                           "mp":  125,
+                           "atk":  90,
+                           "iat":  81,
+                           "def":  69,
+                           "idr":  59,
+                           "spd":  89,
+                           "rng":  1,
+                           "wis":  69
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_tank_164.png",
+        "portrait_path":  "assets/sprites/portraits/blue_tank_164.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "blue_tank_165",
+        "name":  "牛皋",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1165,
+                           "mp":  111,
+                           "atk":  92,
+                           "iat":  91,
+                           "def":  63,
+                           "idr":  65,
+                           "spd":  89,
+                           "rng":  2,
+                           "wis":  64
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_tank_165.png",
+        "portrait_path":  "assets/sprites/portraits/blue_tank_165.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "blue_tank_166",
+        "name":  "呼延灼",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1181,
+                           "mp":  100,
+                           "atk":  80,
+                           "iat":  89,
+                           "def":  63,
+                           "idr":  68,
+                           "spd":  96,
+                           "rng":  1,
+                           "wis":  74
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_tank_166.png",
+        "portrait_path":  "assets/sprites/portraits/blue_tank_166.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "blue_tank_167",
+        "name":  "张飞",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1296,
+                           "mp":  104,
+                           "atk":  89,
+                           "iat":  82,
+                           "def":  79,
+                           "idr":  62,
+                           "spd":  94,
+                           "rng":  2,
+                           "wis":  66
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_tank_167.png",
+        "portrait_path":  "assets/sprites/portraits/blue_tank_167.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "blue_tank_168",
+        "name":  "邓艾",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1234,
+                           "mp":  116,
+                           "atk":  89,
+                           "iat":  89,
+                           "def":  71,
+                           "idr":  67,
+                           "spd":  98,
+                           "rng":  1,
+                           "wis":  66
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_tank_168.png",
+        "portrait_path":  "assets/sprites/portraits/blue_tank_168.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "blue_tank_169",
+        "name":  "坦克蓝12",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1294,
+                           "mp":  99,
+                           "atk":  83,
+                           "iat":  76,
+                           "def":  82,
+                           "idr":  70,
+                           "spd":  96,
+                           "rng":  1,
+                           "wis":  82
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_tank_169.png",
+        "portrait_path":  "assets/sprites/portraits/blue_tank_169.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "blue_tank_170",
+        "name":  "典韦",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1272,
+                           "mp":  122,
+                           "atk":  78,
+                           "iat":  84,
+                           "def":  64,
+                           "idr":  60,
+                           "spd":  93,
+                           "rng":  2,
+                           "wis":  76
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_tank_170.png",
+        "portrait_path":  "assets/sprites/portraits/blue_tank_170.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "blue_tank_171",
+        "name":  "李逵",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1177,
+                           "mp":  121,
+                           "atk":  88,
+                           "iat":  77,
+                           "def":  69,
+                           "idr":  69,
+                           "spd":  96,
+                           "rng":  1,
+                           "wis":  73
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_tank_171.png",
+        "portrait_path":  "assets/sprites/portraits/blue_tank_171.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "blue_tank_172",
+        "name":  "坦克蓝14",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1153,
+                           "mp":  107,
+                           "atk":  91,
+                           "iat":  86,
+                           "def":  69,
+                           "idr":  67,
+                           "spd":  87,
+                           "rng":  2,
+                           "wis":  67
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_tank_172.png",
+        "portrait_path":  "assets/sprites/portraits/blue_tank_172.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "blue_tank_173",
+        "name":  "坦克蓝11",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1147,
+                           "mp":  105,
+                           "atk":  78,
+                           "iat":  95,
+                           "def":  72,
+                           "idr":  59,
+                           "spd":  89,
+                           "rng":  1,
+                           "wis":  69
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_tank_173.png",
+        "portrait_path":  "assets/sprites/portraits/blue_tank_173.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "blue_tank_174",
+        "name":  "坦克蓝13",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1260,
+                           "mp":  117,
+                           "atk":  79,
+                           "iat":  90,
+                           "def":  76,
+                           "idr":  74,
+                           "spd":  85,
+                           "rng":  1,
+                           "wis":  60
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_tank_174.png",
+        "portrait_path":  "assets/sprites/portraits/blue_tank_174.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "blue_warrior_175",
+        "name":  "战士蓝14",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1121,
+                           "mp":  103,
+                           "atk":  127,
+                           "iat":  82,
+                           "def":  53,
+                           "idr":  55,
+                           "spd":  111,
+                           "rng":  1,
+                           "wis":  85
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_warrior_175.png",
+        "portrait_path":  "assets/sprites/portraits/blue_warrior_175.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "blue_warrior_176",
+        "name":  "战士蓝13",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1191,
+                           "mp":  108,
+                           "atk":  113,
+                           "iat":  102,
+                           "def":  54,
+                           "idr":  49,
+                           "spd":  105,
+                           "rng":  1,
+                           "wis":  84
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_warrior_176.png",
+        "portrait_path":  "assets/sprites/portraits/blue_warrior_176.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "blue_warrior_177",
+        "name":  "袁承志",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1150,
+                           "mp":  97,
+                           "atk":  124,
+                           "iat":  85,
+                           "def":  71,
+                           "idr":  42,
+                           "spd":  108,
+                           "rng":  2,
+                           "wis":  67
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_warrior_177.png",
+        "portrait_path":  "assets/sprites/portraits/blue_warrior_177.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "blue_warrior_178",
+        "name":  "张无忌",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1194,
+                           "mp":  107,
+                           "atk":  130,
+                           "iat":  105,
+                           "def":  66,
+                           "idr":  57,
+                           "spd":  92,
+                           "rng":  2,
+                           "wis":  80
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_warrior_178.png",
+        "portrait_path":  "assets/sprites/portraits/blue_warrior_178.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "blue_warrior_179",
+        "name":  "杨过",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1071,
+                           "mp":  110,
+                           "atk":  122,
+                           "iat":  91,
+                           "def":  58,
+                           "idr":  40,
+                           "spd":  103,
+                           "rng":  1,
+                           "wis":  76
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_warrior_179.png",
+        "portrait_path":  "assets/sprites/portraits/blue_warrior_179.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "blue_warrior_180",
+        "name":  "战士蓝12",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1121,
+                           "mp":  113,
+                           "atk":  104,
+                           "iat":  104,
+                           "def":  68,
+                           "idr":  50,
+                           "spd":  96,
+                           "rng":  1,
+                           "wis":  76
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_warrior_180.png",
+        "portrait_path":  "assets/sprites/portraits/blue_warrior_180.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "blue_warrior_181",
+        "name":  "令狐冲",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1199,
+                           "mp":  100,
+                           "atk":  109,
+                           "iat":  104,
+                           "def":  71,
+                           "idr":  54,
+                           "spd":  107,
+                           "rng":  1,
+                           "wis":  69
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_warrior_181.png",
+        "portrait_path":  "assets/sprites/portraits/blue_warrior_181.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "blue_warrior_182",
+        "name":  "胡斐",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1076,
+                           "mp":  112,
+                           "atk":  127,
+                           "iat":  81,
+                           "def":  59,
+                           "idr":  46,
+                           "spd":  93,
+                           "rng":  1,
+                           "wis":  66
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_warrior_182.png",
+        "portrait_path":  "assets/sprites/portraits/blue_warrior_182.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "blue_warrior_183",
+        "name":  "战士蓝11",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1140,
+                           "mp":  119,
+                           "atk":  117,
+                           "iat":  96,
+                           "def":  62,
+                           "idr":  57,
+                           "spd":  107,
+                           "rng":  2,
+                           "wis":  66
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_warrior_183.png",
+        "portrait_path":  "assets/sprites/portraits/blue_warrior_183.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "blue_warrior_184",
+        "name":  "韦小宝",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1225,
+                           "mp":  96,
+                           "atk":  116,
+                           "iat":  91,
+                           "def":  74,
+                           "idr":  41,
+                           "spd":  112,
+                           "rng":  2,
+                           "wis":  73
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_warrior_184.png",
+        "portrait_path":  "assets/sprites/portraits/blue_warrior_184.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "blue_warrior_185",
+        "name":  "石破天",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1091,
+                           "mp":  115,
+                           "atk":  121,
+                           "iat":  93,
+                           "def":  62,
+                           "idr":  54,
+                           "spd":  104,
+                           "rng":  2,
+                           "wis":  70
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_warrior_185.png",
+        "portrait_path":  "assets/sprites/portraits/blue_warrior_185.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "blue_warrior_186",
+        "name":  "萧峰",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1187,
+                           "mp":  112,
+                           "atk":  129,
+                           "iat":  91,
+                           "def":  75,
+                           "idr":  56,
+                           "spd":  100,
+                           "rng":  1,
+                           "wis":  88
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_warrior_186.png",
+        "portrait_path":  "assets/sprites/portraits/blue_warrior_186.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "blue_warrior_187",
+        "name":  "段誉",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1168,
+                           "mp":  92,
+                           "atk":  125,
+                           "iat":  99,
+                           "def":  55,
+                           "idr":  57,
+                           "spd":  101,
+                           "rng":  2,
+                           "wis":  68
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_warrior_187.png",
+        "portrait_path":  "assets/sprites/portraits/blue_warrior_187.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "blue_warrior_188",
+        "name":  "郭靖",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1080,
+                           "mp":  100,
+                           "atk":  116,
+                           "iat":  89,
+                           "def":  64,
+                           "idr":  59,
+                           "spd":  105,
+                           "rng":  1,
+                           "wis":  87
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_warrior_188.png",
+        "portrait_path":  "assets/sprites/portraits/blue_warrior_188.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "blue_archer_189",
+        "name":  "薛仁贵",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  987,
+                           "mp":  89,
+                           "atk":  127,
+                           "iat":  89,
+                           "def":  36,
+                           "idr":  34,
+                           "spd":  106,
+                           "rng":  3,
+                           "wis":  89
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_archer_189.png",
+        "portrait_path":  "assets/sprites/portraits/blue_archer_189.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "blue_archer_190",
+        "name":  "射手蓝12",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1073,
+                           "mp":  96,
+                           "atk":  120,
+                           "iat":  93,
+                           "def":  36,
+                           "idr":  34,
+                           "spd":  115,
+                           "rng":  4,
+                           "wis":  76
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_archer_190.png",
+        "portrait_path":  "assets/sprites/portraits/blue_archer_190.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "blue_archer_191",
+        "name":  "养由基",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1075,
+                           "mp":  99,
+                           "atk":  110,
+                           "iat":  93,
+                           "def":  39,
+                           "idr":  41,
+                           "spd":  111,
+                           "rng":  4,
+                           "wis":  85
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_archer_191.png",
+        "portrait_path":  "assets/sprites/portraits/blue_archer_191.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "blue_archer_192",
+        "name":  "花木兰",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1051,
+                           "mp":  92,
+                           "atk":  111,
+                           "iat":  75,
+                           "def":  40,
+                           "idr":  45,
+                           "spd":  113,
+                           "rng":  4,
+                           "wis":  82
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_archer_192.png",
+        "portrait_path":  "assets/sprites/portraits/blue_archer_192.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "blue_archer_193",
+        "name":  "铁木哥",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1010,
+                           "mp":  93,
+                           "atk":  116,
+                           "iat":  89,
+                           "def":  41,
+                           "idr":  39,
+                           "spd":  116,
+                           "rng":  4,
+                           "wis":  71
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_archer_193.png",
+        "portrait_path":  "assets/sprites/portraits/blue_archer_193.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "blue_archer_194",
+        "name":  "射手蓝11",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1011,
+                           "mp":  89,
+                           "atk":  110,
+                           "iat":  89,
+                           "def":  40,
+                           "idr":  44,
+                           "spd":  106,
+                           "rng":  4,
+                           "wis":  86
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_archer_194.png",
+        "portrait_path":  "assets/sprites/portraits/blue_archer_194.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "blue_archer_195",
+        "name":  "术赤",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1068,
+                           "mp":  107,
+                           "atk":  110,
+                           "iat":  92,
+                           "def":  44,
+                           "idr":  39,
+                           "spd":  118,
+                           "rng":  3,
+                           "wis":  87
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_archer_195.png",
+        "portrait_path":  "assets/sprites/portraits/blue_archer_195.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "blue_archer_196",
+        "name":  "秦良玉",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1024,
+                           "mp":  110,
+                           "atk":  119,
+                           "iat":  91,
+                           "def":  42,
+                           "idr":  33,
+                           "spd":  108,
+                           "rng":  3,
+                           "wis":  72
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_archer_196.png",
+        "portrait_path":  "assets/sprites/portraits/blue_archer_196.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "blue_archer_197",
+        "name":  "哲别",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1106,
+                           "mp":  85,
+                           "atk":  119,
+                           "iat":  92,
+                           "def":  46,
+                           "idr":  44,
+                           "spd":  117,
+                           "rng":  3,
+                           "wis":  84
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_archer_197.png",
+        "portrait_path":  "assets/sprites/portraits/blue_archer_197.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "blue_archer_198",
+        "name":  "射手蓝13",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1002,
+                           "mp":  87,
+                           "atk":  117,
+                           "iat":  87,
+                           "def":  50,
+                           "idr":  43,
+                           "spd":  117,
+                           "rng":  4,
+                           "wis":  83
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_archer_198.png",
+        "portrait_path":  "assets/sprites/portraits/blue_archer_198.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "blue_archer_199",
+        "name":  "李广",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  998,
+                           "mp":  89,
+                           "atk":  118,
+                           "iat":  95,
+                           "def":  37,
+                           "idr":  44,
+                           "spd":  112,
+                           "rng":  4,
+                           "wis":  69
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_archer_199.png",
+        "portrait_path":  "assets/sprites/portraits/blue_archer_199.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "blue_archer_200",
+        "name":  "射手蓝14",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1026,
+                           "mp":  109,
+                           "atk":  112,
+                           "iat":  88,
+                           "def":  36,
+                           "idr":  33,
+                           "spd":  113,
+                           "rng":  3,
+                           "wis":  74
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_archer_200.png",
+        "portrait_path":  "assets/sprites/portraits/blue_archer_200.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "blue_archer_201",
+        "name":  "王昭君",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1022,
+                           "mp":  90,
+                           "atk":  118,
+                           "iat":  82,
+                           "def":  46,
+                           "idr":  39,
+                           "spd":  118,
+                           "rng":  3,
+                           "wis":  73
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_archer_201.png",
+        "portrait_path":  "assets/sprites/portraits/blue_archer_201.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "blue_archer_202",
+        "name":  "纳兰",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1030,
+                           "mp":  105,
+                           "atk":  125,
+                           "iat":  83,
+                           "def":  39,
+                           "idr":  39,
+                           "spd":  114,
+                           "rng":  3,
+                           "wis":  81
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_archer_202.png",
+        "portrait_path":  "assets/sprites/portraits/blue_archer_202.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "blue_assassin_203",
+        "name":  "聂政",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1147,
+                           "mp":  93,
+                           "atk":  130,
+                           "iat":  84,
+                           "def":  51,
+                           "idr":  30,
+                           "spd":  115,
+                           "rng":  2,
+                           "wis":  98
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_assassin_203.png",
+        "portrait_path":  "assets/sprites/portraits/blue_assassin_203.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "blue_assassin_204",
+        "name":  "莫邪",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1077,
+                           "mp":  100,
+                           "atk":  117,
+                           "iat":  90,
+                           "def":  47,
+                           "idr":  44,
+                           "spd":  109,
+                           "rng":  1,
+                           "wis":  83
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_assassin_204.png",
+        "portrait_path":  "assets/sprites/portraits/blue_assassin_204.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "blue_assassin_205",
+        "name":  "要离",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1112,
+                           "mp":  98,
+                           "atk":  125,
+                           "iat":  92,
+                           "def":  44,
+                           "idr":  40,
+                           "spd":  117,
+                           "rng":  1,
+                           "wis":  88
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_assassin_205.png",
+        "portrait_path":  "assets/sprites/portraits/blue_assassin_205.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "blue_assassin_206",
+        "name":  "干将",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1081,
+                           "mp":  108,
+                           "atk":  121,
+                           "iat":  90,
+                           "def":  42,
+                           "idr":  41,
+                           "spd":  116,
+                           "rng":  1,
+                           "wis":  88
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_assassin_206.png",
+        "portrait_path":  "assets/sprites/portraits/blue_assassin_206.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "blue_assassin_207",
+        "name":  "荆轲",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1061,
+                           "mp":  99,
+                           "atk":  113,
+                           "iat":  86,
+                           "def":  52,
+                           "idr":  37,
+                           "spd":  110,
+                           "rng":  1,
+                           "wis":  79
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_assassin_207.png",
+        "portrait_path":  "assets/sprites/portraits/blue_assassin_207.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "blue_assassin_208",
+        "name":  "豫让",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1074,
+                           "mp":  97,
+                           "atk":  129,
+                           "iat":  91,
+                           "def":  45,
+                           "idr":  35,
+                           "spd":  113,
+                           "rng":  2,
+                           "wis":  84
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_assassin_208.png",
+        "portrait_path":  "assets/sprites/portraits/blue_assassin_208.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "blue_assassin_209",
+        "name":  "鱼肠",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1040,
+                           "mp":  100,
+                           "atk":  126,
+                           "iat":  92,
+                           "def":  53,
+                           "idr":  39,
+                           "spd":  115,
+                           "rng":  1,
+                           "wis":  80
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_assassin_209.png",
+        "portrait_path":  "assets/sprites/portraits/blue_assassin_209.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "blue_assassin_210",
+        "name":  "曹沫",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1100,
+                           "mp":  101,
+                           "atk":  124,
+                           "iat":  85,
+                           "def":  44,
+                           "idr":  48,
+                           "spd":  113,
+                           "rng":  1,
+                           "wis":  79
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_assassin_210.png",
+        "portrait_path":  "assets/sprites/portraits/blue_assassin_210.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "blue_assassin_211",
+        "name":  "刺客蓝14",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1072,
+                           "mp":  100,
+                           "atk":  129,
+                           "iat":  98,
+                           "def":  53,
+                           "idr":  39,
+                           "spd":  116,
+                           "rng":  1,
+                           "wis":  105
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_assassin_211.png",
+        "portrait_path":  "assets/sprites/portraits/blue_assassin_211.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "blue_assassin_212",
+        "name":  "刺客蓝13",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1027,
+                           "mp":  98,
+                           "atk":  114,
+                           "iat":  86,
+                           "def":  49,
+                           "idr":  42,
+                           "spd":  113,
+                           "rng":  1,
+                           "wis":  90
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_assassin_212.png",
+        "portrait_path":  "assets/sprites/portraits/blue_assassin_212.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "blue_assassin_213",
+        "name":  "刺客蓝12",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1013,
+                           "mp":  103,
+                           "atk":  127,
+                           "iat":  84,
+                           "def":  49,
+                           "idr":  47,
+                           "spd":  112,
+                           "rng":  1,
+                           "wis":  90
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_assassin_213.png",
+        "portrait_path":  "assets/sprites/portraits/blue_assassin_213.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "blue_assassin_214",
+        "name":  "红线女",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1129,
+                           "mp":  99,
+                           "atk":  127,
+                           "iat":  86,
+                           "def":  41,
+                           "idr":  34,
+                           "spd":  109,
+                           "rng":  2,
+                           "wis":  89
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_assassin_214.png",
+        "portrait_path":  "assets/sprites/portraits/blue_assassin_214.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "blue_assassin_215",
+        "name":  "专诸",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1086,
+                           "mp":  102,
+                           "atk":  121,
+                           "iat":  82,
+                           "def":  44,
+                           "idr":  46,
+                           "spd":  114,
+                           "rng":  1,
+                           "wis":  79
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_assassin_215.png",
+        "portrait_path":  "assets/sprites/portraits/blue_assassin_215.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "blue_assassin_216",
+        "name":  "刺客蓝11",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1009,
+                           "mp":  89,
+                           "atk":  120,
+                           "iat":  93,
+                           "def":  54,
+                           "idr":  44,
+                           "spd":  110,
+                           "rng":  1,
+                           "wis":  88
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_assassin_216.png",
+        "portrait_path":  "assets/sprites/portraits/blue_assassin_216.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "blue_mage_217",
+        "name":  "诸葛亮",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1121,
+                           "mp":  120,
+                           "atk":  86,
+                           "iat":  118,
+                           "def":  38,
+                           "idr":  48,
+                           "spd":  108,
+                           "rng":  4,
+                           "wis":  90
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_mage_217.png",
+        "portrait_path":  "assets/sprites/portraits/blue_mage_217.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "blue_mage_218",
+        "name":  "庞统",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1152,
+                           "mp":  135,
+                           "atk":  83,
+                           "iat":  128,
+                           "def":  42,
+                           "idr":  36,
+                           "spd":  108,
+                           "rng":  4,
+                           "wis":  95
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_mage_218.png",
+        "portrait_path":  "assets/sprites/portraits/blue_mage_218.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "blue_mage_219",
+        "name":  "法师蓝11",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1134,
+                           "mp":  140,
+                           "atk":  94,
+                           "iat":  120,
+                           "def":  39,
+                           "idr":  42,
+                           "spd":  91,
+                           "rng":  3,
+                           "wis":  96
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_mage_219.png",
+        "portrait_path":  "assets/sprites/portraits/blue_mage_219.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "blue_mage_220",
+        "name":  "郭嘉",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1004,
+                           "mp":  134,
+                           "atk":  85,
+                           "iat":  121,
+                           "def":  39,
+                           "idr":  48,
+                           "spd":  96,
+                           "rng":  4,
+                           "wis":  105
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_mage_220.png",
+        "portrait_path":  "assets/sprites/portraits/blue_mage_220.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "blue_mage_221",
+        "name":  "法正",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1015,
+                           "mp":  142,
+                           "atk":  79,
+                           "iat":  124,
+                           "def":  41,
+                           "idr":  52,
+                           "spd":  100,
+                           "rng":  4,
+                           "wis":  102
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_mage_221.png",
+        "portrait_path":  "assets/sprites/portraits/blue_mage_221.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "blue_mage_222",
+        "name":  "法师蓝12",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1080,
+                           "mp":  125,
+                           "atk":  89,
+                           "iat":  125,
+                           "def":  45,
+                           "idr":  52,
+                           "spd":  101,
+                           "rng":  4,
+                           "wis":  105
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_mage_222.png",
+        "portrait_path":  "assets/sprites/portraits/blue_mage_222.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "blue_mage_223",
+        "name":  "贾诩",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1049,
+                           "mp":  127,
+                           "atk":  83,
+                           "iat":  125,
+                           "def":  44,
+                           "idr":  42,
+                           "spd":  99,
+                           "rng":  4,
+                           "wis":  96
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_mage_223.png",
+        "portrait_path":  "assets/sprites/portraits/blue_mage_223.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "blue_mage_224",
+        "name":  "周瑜",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1125,
+                           "mp":  130,
+                           "atk":  90,
+                           "iat":  119,
+                           "def":  43,
+                           "idr":  44,
+                           "spd":  93,
+                           "rng":  4,
+                           "wis":  102
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_mage_224.png",
+        "portrait_path":  "assets/sprites/portraits/blue_mage_224.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "blue_mage_225",
+        "name":  "荀彧",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1088,
+                           "mp":  144,
+                           "atk":  79,
+                           "iat":  117,
+                           "def":  36,
+                           "idr":  44,
+                           "spd":  92,
+                           "rng":  4,
+                           "wis":  104
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_mage_225.png",
+        "portrait_path":  "assets/sprites/portraits/blue_mage_225.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "blue_mage_226",
+        "name":  "司马懿",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1065,
+                           "mp":  143,
+                           "atk":  90,
+                           "iat":  114,
+                           "def":  41,
+                           "idr":  52,
+                           "spd":  98,
+                           "rng":  4,
+                           "wis":  94
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_mage_226.png",
+        "portrait_path":  "assets/sprites/portraits/blue_mage_226.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "blue_mage_227",
+        "name":  "陆逊",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1027,
+                           "mp":  139,
+                           "atk":  93,
+                           "iat":  115,
+                           "def":  42,
+                           "idr":  36,
+                           "spd":  106,
+                           "rng":  3,
+                           "wis":  97
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_mage_227.png",
+        "portrait_path":  "assets/sprites/portraits/blue_mage_227.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "blue_mage_228",
+        "name":  "徐庶",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1013,
+                           "mp":  123,
+                           "atk":  88,
+                           "iat":  118,
+                           "def":  50,
+                           "idr":  38,
+                           "spd":  94,
+                           "rng":  3,
+                           "wis":  95
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_mage_228.png",
+        "portrait_path":  "assets/sprites/portraits/blue_mage_228.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "blue_priest_229",
+        "name":  "扁鹊",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1062,
+                           "mp":  145,
+                           "atk":  82,
+                           "iat":  117,
+                           "def":  41,
+                           "idr":  50,
+                           "spd":  101,
+                           "rng":  2,
+                           "wis":  86
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_priest_229.png",
+        "portrait_path":  "assets/sprites/portraits/blue_priest_229.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "blue_priest_230",
+        "name":  "华佗",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1141,
+                           "mp":  140,
+                           "atk":  80,
+                           "iat":  109,
+                           "def":  41,
+                           "idr":  45,
+                           "spd":  97,
+                           "rng":  4,
+                           "wis":  104
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_priest_230.png",
+        "portrait_path":  "assets/sprites/portraits/blue_priest_230.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "blue_priest_231",
+        "name":  "叶天士",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1067,
+                           "mp":  135,
+                           "atk":  84,
+                           "iat":  114,
+                           "def":  57,
+                           "idr":  61,
+                           "spd":  103,
+                           "rng":  2,
+                           "wis":  101
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_priest_231.png",
+        "portrait_path":  "assets/sprites/portraits/blue_priest_231.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "blue_priest_232",
+        "name":  "李时珍",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1159,
+                           "mp":  133,
+                           "atk":  81,
+                           "iat":  103,
+                           "def":  50,
+                           "idr":  50,
+                           "spd":  102,
+                           "rng":  4,
+                           "wis":  93
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_priest_232.png",
+        "portrait_path":  "assets/sprites/portraits/blue_priest_232.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "blue_priest_233",
+        "name":  "葛洪",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1087,
+                           "mp":  125,
+                           "atk":  85,
+                           "iat":  109,
+                           "def":  58,
+                           "idr":  66,
+                           "spd":  94,
+                           "rng":  2,
+                           "wis":  104
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_priest_233.png",
+        "portrait_path":  "assets/sprites/portraits/blue_priest_233.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "blue_priest_234",
+        "name":  "张仲景",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1143,
+                           "mp":  138,
+                           "atk":  91,
+                           "iat":  110,
+                           "def":  42,
+                           "idr":  57,
+                           "spd":  91,
+                           "rng":  2,
+                           "wis":  89
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_priest_234.png",
+        "portrait_path":  "assets/sprites/portraits/blue_priest_234.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "blue_priest_235",
+        "name":  "牧师蓝12",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1162,
+                           "mp":  135,
+                           "atk":  82,
+                           "iat":  100,
+                           "def":  48,
+                           "idr":  57,
+                           "spd":  95,
+                           "rng":  3,
+                           "wis":  93
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_priest_235.png",
+        "portrait_path":  "assets/sprites/portraits/blue_priest_235.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "blue_priest_236",
+        "name":  "孙思邈",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1124,
+                           "mp":  134,
+                           "atk":  75,
+                           "iat":  108,
+                           "def":  51,
+                           "idr":  67,
+                           "spd":  95,
+                           "rng":  2,
+                           "wis":  88
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_priest_236.png",
+        "portrait_path":  "assets/sprites/portraits/blue_priest_236.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "blue_priest_237",
+        "name":  "傅青主",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1159,
+                           "mp":  134,
+                           "atk":  80,
+                           "iat":  112,
+                           "def":  56,
+                           "idr":  67,
+                           "spd":  97,
+                           "rng":  4,
+                           "wis":  88
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_priest_237.png",
+        "portrait_path":  "assets/sprites/portraits/blue_priest_237.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "blue_priest_238",
+        "name":  "朱丹溪",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1115,
+                           "mp":  136,
+                           "atk":  82,
+                           "iat":  107,
+                           "def":  44,
+                           "idr":  60,
+                           "spd":  92,
+                           "rng":  3,
+                           "wis":  104
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_priest_238.png",
+        "portrait_path":  "assets/sprites/portraits/blue_priest_238.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "blue_priest_239",
+        "name":  "牧师蓝11",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1135,
+                           "mp":  138,
+                           "atk":  92,
+                           "iat":  115,
+                           "def":  57,
+                           "idr":  66,
+                           "spd":  94,
+                           "rng":  2,
+                           "wis":  104
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_priest_239.png",
+        "portrait_path":  "assets/sprites/portraits/blue_priest_239.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "blue_priest_240",
+        "name":  "钱乙",
+        "quality":  "blue",
+        "cost":  3,
+        "base_stats":  {
+                           "hp":  1060,
+                           "mp":  141,
+                           "atk":  89,
+                           "iat":  116,
+                           "def":  51,
+                           "idr":  47,
+                           "spd":  106,
+                           "rng":  2,
+                           "wis":  86
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/blue_priest_240.png",
+        "portrait_path":  "assets/sprites/portraits/blue_priest_240.png",
+        "tags":  [
+                     "unit.quality.blue",
+                     "unit.cost.3",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    }
 ]

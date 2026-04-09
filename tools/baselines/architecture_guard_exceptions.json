@@ -1,4 +1,23 @@
 {
   "version": 1,
-  "exceptions": []
+  "exceptions": [
+    {
+      "rule": "file_length",
+      "path": "scripts/app/battlefield/battlefield_coordinator.gd",
+      "reason": "当前分支已引入战场协同扩展，水墨风 UI 收尾不在此轮拆分该模块。",
+      "expires_phase": "battlefield-coordinator-refactor"
+    },
+    {
+      "rule": "file_length",
+      "path": "scripts/app/battlefield/battlefield_world_controller.gd",
+      "reason": "战场世界控制器已超过软阈值，但本轮目标是 UI 主题对齐与回归验证。",
+      "expires_phase": "battlefield-world-controller-refactor"
+    },
+    {
+      "rule": "file_length",
+      "path": "scripts/combat/combat_manager.gd",
+      "reason": "战斗管理器存在既有超长问题，本轮仅处理 UI 与测试兼容，不同步拆分战斗核心。",
+      "expires_phase": "combat-manager-refactor"
+    }
+  ]
 }

@@ -12,14 +12,14 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.918, 0.9, 0.85, 1)
+color = Color(0.96, 0.93, 0.88, 1.0)
 
 [node name="HexGrid" type="Node2D" parent="." unique_id=126211736]
 script = ExtResource("2_4vy10")
 origin_offset = Vector2(270, 136)
 draw_coordinates = false
-fill_color = Color(0.2, 0.22, 0.24, 0.14)
-line_color = Color(0.16, 0.17, 0.18, 0.58)
+fill_color = Color(0.36, 0.32, 0.27, 0.08)
+line_color = Color(0.36, 0.32, 0.27, 0.25)
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=2003383806]
 
@@ -28,7 +28,7 @@ offset_left = 28.0
 offset_top = 24.0
 offset_right = 730.0
 offset_bottom = 360.0
-theme_override_colors/font_color = Color(0.1, 0.1, 0.11, 1)
+theme_override_colors/font_color = Color(0.17, 0.14, 0.09, 1.0)
 theme_override_font_sizes/font_size = 20
 text = "加载中..."
 autowrap_mode = 2
@@ -38,7 +38,7 @@ offset_left = 28.0
 offset_top = 554.0
 offset_right = 960.0
 offset_bottom = 618.0
-theme_override_colors/font_color = Color(0.18, 0.18, 0.2, 0.92)
+theme_override_colors/font_color = Color(0.36, 0.32, 0.27, 0.92)
 theme_override_font_sizes/font_size = 16
 text = "按 F6/Enter 进入战斗，按 F5 重载数据"
 
@@ -61,7 +61,7 @@ theme_override_constants/separation = 10
 
 [node name="StageListTitle" type="Label" parent="CanvasLayer/StageListPanel/StageListRoot" unique_id=1327520485]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.11, 0.11, 0.13, 1)
+theme_override_colors/font_color = Color(0.17, 0.14, 0.09, 1.0)
 theme_override_font_sizes/font_size = 20
 text = "选择章节序列（点击直接进入）"
 

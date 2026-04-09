@@ -80,7 +80,12 @@ func get_unit_record(unit_id: String) -> Dictionary:
 
 
 # 借出单位实例
-func acquire_unit(unit_id: String, parent_override: Node = null) -> Node:
+# 兼容旧调用口径：第二个参数可能是旧版预留值，第三个参数才是真正的父节点。
+func acquire_unit(
+	unit_id: String,
+	parent_or_legacy_arg: Variant = null,
+	parent_override: Node = null
+) -> Node:
 	var object_pool: Variant = _get_object_pool()
 	if object_pool == null:
 		push_error("UnitFactory: ObjectPool 未就绪，无法获取角色实例。")
@@ -94,8 +99,14 @@ func acquire_unit(unit_id: String, parent_override: Node = null) -> Node:
 	if not _registered_pool_keys.has(pool_key):
 		_register_pool_for_unit(unit_id)
 
+	var resolved_parent: Node = null
+	if parent_override != null:
+		resolved_parent = parent_override
+	elif parent_or_legacy_arg is Node:
+		resolved_parent = parent_or_legacy_arg as Node
+
 	var acquire_begin_us: int = _probe_begin_timing()
-	var unit_node: Variant = object_pool.acquire(pool_key, parent_override)
+	var unit_node: Variant = object_pool.acquire(pool_key, resolved_parent)
 	if unit_node == null:
 		_probe_commit_timing(PROBE_SCOPE_UNIT_FACTORY_ACQUIRE, acquire_begin_us)
 		return null
@@ -120,6 +131,7 @@ func release_unit(unit_node: Node) -> bool:
 	return bool(object_pool.release(pool_key, unit_node))
 
 
+# 预热单位贴图，避免首帧首次显示时同步加载资源。
 func prewarm_unit_assets(unit_ids: Array[String]) -> int:
 	var warmed_count: int = 0
 	for unit_id in _collect_unique_unit_ids(unit_ids):
@@ -130,6 +142,7 @@ func prewarm_unit_assets(unit_ids: Array[String]) -> int:
 	return warmed_count
 
 
+# 按统一数量预热多个单位实例，兼容战前批量建池入口。
 func prewarm_unit_instances(
 	unit_ids: Array[String],
 	count_per_id: int = 1,
@@ -143,6 +156,7 @@ func prewarm_unit_instances(
 	return prewarm_unit_instances_by_count(count_by_unit_id, parent_override)
 
 
+# 按单位到数量映射预热对象池，必要时补足可用实例库存。
 func prewarm_unit_instances_by_count(
 	count_by_unit_id: Dictionary,
 	parent_override: Node = null,
@@ -252,6 +266,7 @@ func _configure_unit_node(unit_node: Variant, unit_id: String, pool_key: String)
 	_probe_commit_timing(PROBE_SCOPE_UNIT_FACTORY_CONFIGURE, configure_begin_us)
 
 
+# 单独预热单位贴图，给对象池补实例前先触发资源缓存。
 func _prewarm_unit_texture(unit_id: String) -> void:
 	var record: Dictionary = _unit_records.get(unit_id, {})
 	if record.is_empty():
@@ -335,6 +350,7 @@ func _pool_key_of(unit_id: String) -> String:
 	return pool_key
 
 
+# 去重并清理输入单位列表，保证预热顺序和计数稳定。
 func _collect_unique_unit_ids(unit_ids: Array[String]) -> Array[String]:
 	var output: Array[String] = []
 	var seen: Dictionary = {}
@@ -349,6 +365,7 @@ func _collect_unique_unit_ids(unit_ids: Array[String]) -> Array[String]:
 	return output
 
 
+# 读取对象池当前可用数量，避免重复补出多余实例。
 func _get_available_pool_count(unit_id: String) -> int:
 	var object_pool: Variant = _get_object_pool()
 	if object_pool == null or not object_pool.has_method("get_pool_stats"):
@@ -402,6 +419,7 @@ func _get_object_pool() -> Node:
 	return _services.object_pool
 
 
+# 读取运行时埋点起始时间，探针缺失时回退为 0。
 func _probe_begin_timing() -> int:
 	var runtime_probe = _services.runtime_probe if _services != null else null
 	if runtime_probe == null or not runtime_probe.has_method("begin_timing"):
@@ -409,6 +427,7 @@ func _probe_begin_timing() -> int:
 	return int(runtime_probe.begin_timing())
 
 
+# 提交埋点耗时，避免工厂性能回归缺少采样。
 func _probe_commit_timing(scope_name: String, begin_us: int) -> void:
 	var runtime_probe = _services.runtime_probe if _services != null else null
 	if runtime_probe == null or not runtime_probe.has_method("commit_timing"):

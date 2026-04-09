@@ -1,2 +1,2242 @@
-[
+﻿[
+    {
+        "id":  "purple_tank_241",
+        "name":  "坦克紫11",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1667,
+                           "mp":  123,
+                           "atk":  104,
+                           "iat":  94,
+                           "def":  96,
+                           "idr":  85,
+                           "spd":  109,
+                           "rng":  1,
+                           "wis":  97
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_tank_241.png",
+        "portrait_path":  "assets/sprites/portraits/purple_tank_241.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "purple_tank_242",
+        "name":  "庞德",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1578,
+                           "mp":  139,
+                           "atk":  113,
+                           "iat":  90,
+                           "def":  92,
+                           "idr":  80,
+                           "spd":  95,
+                           "rng":  1,
+                           "wis":  98
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_tank_242.png",
+        "portrait_path":  "assets/sprites/portraits/purple_tank_242.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "purple_tank_243",
+        "name":  "赵云",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1478,
+                           "mp":  122,
+                           "atk":  103,
+                           "iat":  101,
+                           "def":  102,
+                           "idr":  74,
+                           "spd":  112,
+                           "rng":  1,
+                           "wis":  109
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_tank_243.png",
+        "portrait_path":  "assets/sprites/portraits/purple_tank_243.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "purple_tank_244",
+        "name":  "张辽",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1477,
+                           "mp":  150,
+                           "atk":  91,
+                           "iat":  99,
+                           "def":  93,
+                           "idr":  77,
+                           "spd":  99,
+                           "rng":  2,
+                           "wis":  91
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_tank_244.png",
+        "portrait_path":  "assets/sprites/portraits/purple_tank_244.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "purple_tank_245",
+        "name":  "岳飞",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1557,
+                           "mp":  148,
+                           "atk":  102,
+                           "iat":  102,
+                           "def":  82,
+                           "idr":  89,
+                           "spd":  99,
+                           "rng":  2,
+                           "wis":  83
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_tank_245.png",
+        "portrait_path":  "assets/sprites/portraits/purple_tank_245.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "purple_tank_246",
+        "name":  "坦克紫14",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1505,
+                           "mp":  154,
+                           "atk":  102,
+                           "iat":  106,
+                           "def":  84,
+                           "idr":  79,
+                           "spd":  95,
+                           "rng":  1,
+                           "wis":  89
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_tank_246.png",
+        "portrait_path":  "assets/sprites/portraits/purple_tank_246.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "purple_tank_247",
+        "name":  "关羽",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1578,
+                           "mp":  154,
+                           "atk":  103,
+                           "iat":  107,
+                           "def":  92,
+                           "idr":  79,
+                           "spd":  102,
+                           "rng":  2,
+                           "wis":  91
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_tank_247.png",
+        "portrait_path":  "assets/sprites/portraits/purple_tank_247.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "purple_tank_248",
+        "name":  "黄忠",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1499,
+                           "mp":  137,
+                           "atk":  96,
+                           "iat":  93,
+                           "def":  81,
+                           "idr":  85,
+                           "spd":  95,
+                           "rng":  1,
+                           "wis":  86
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_tank_248.png",
+        "portrait_path":  "assets/sprites/portraits/purple_tank_248.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "purple_tank_249",
+        "name":  "坦克紫13",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1477,
+                           "mp":  126,
+                           "atk":  109,
+                           "iat":  91,
+                           "def":  94,
+                           "idr":  73,
+                           "spd":  102,
+                           "rng":  1,
+                           "wis":  92
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_tank_249.png",
+        "portrait_path":  "assets/sprites/portraits/purple_tank_249.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "purple_tank_250",
+        "name":  "马超",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1572,
+                           "mp":  134,
+                           "atk":  107,
+                           "iat":  96,
+                           "def":  104,
+                           "idr":  73,
+                           "spd":  99,
+                           "rng":  2,
+                           "wis":  87
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_tank_250.png",
+        "portrait_path":  "assets/sprites/portraits/purple_tank_250.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "purple_tank_251",
+        "name":  "坦克紫12",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1668,
+                           "mp":  156,
+                           "atk":  100,
+                           "iat":  108,
+                           "def":  99,
+                           "idr":  82,
+                           "spd":  102,
+                           "rng":  2,
+                           "wis":  108
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_tank_251.png",
+        "portrait_path":  "assets/sprites/portraits/purple_tank_251.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "purple_tank_252",
+        "name":  "项羽",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1496,
+                           "mp":  153,
+                           "atk":  97,
+                           "iat":  103,
+                           "def":  89,
+                           "idr":  80,
+                           "spd":  96,
+                           "rng":  1,
+                           "wis":  100
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_tank_252.png",
+        "portrait_path":  "assets/sprites/portraits/purple_tank_252.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "purple_tank_253",
+        "name":  "魏延",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1633,
+                           "mp":  147,
+                           "atk":  107,
+                           "iat":  105,
+                           "def":  81,
+                           "idr":  83,
+                           "spd":  107,
+                           "rng":  2,
+                           "wis":  102
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_tank_253.png",
+        "portrait_path":  "assets/sprites/portraits/purple_tank_253.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "purple_tank_254",
+        "name":  "张郃",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1566,
+                           "mp":  146,
+                           "atk":  94,
+                           "iat":  99,
+                           "def":  92,
+                           "idr":  77,
+                           "spd":  112,
+                           "rng":  2,
+                           "wis":  87
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_tank_254.png",
+        "portrait_path":  "assets/sprites/portraits/purple_tank_254.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "purple_warrior_255",
+        "name":  "战士紫11",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1385,
+                           "mp":  123,
+                           "atk":  146,
+                           "iat":  115,
+                           "def":  64,
+                           "idr":  64,
+                           "spd":  115,
+                           "rng":  1,
+                           "wis":  100
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_warrior_255.png",
+        "portrait_path":  "assets/sprites/portraits/purple_warrior_255.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "purple_warrior_256",
+        "name":  "金轮法王",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1333,
+                           "mp":  127,
+                           "atk":  149,
+                           "iat":  116,
+                           "def":  81,
+                           "idr":  69,
+                           "spd":  105,
+                           "rng":  1,
+                           "wis":  100
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_warrior_256.png",
+        "portrait_path":  "assets/sprites/portraits/purple_warrior_256.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "purple_warrior_257",
+        "name":  "鸠摩智",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1525,
+                           "mp":  147,
+                           "atk":  167,
+                           "iat":  112,
+                           "def":  68,
+                           "idr":  65,
+                           "spd":  110,
+                           "rng":  2,
+                           "wis":  107
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_warrior_257.png",
+        "portrait_path":  "assets/sprites/portraits/purple_warrior_257.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "purple_warrior_258",
+        "name":  "东方不败",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1552,
+                           "mp":  110,
+                           "atk":  138,
+                           "iat":  124,
+                           "def":  68,
+                           "idr":  53,
+                           "spd":  119,
+                           "rng":  1,
+                           "wis":  101
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_warrior_258.png",
+        "portrait_path":  "assets/sprites/portraits/purple_warrior_258.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "purple_warrior_259",
+        "name":  "洪七公",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1421,
+                           "mp":  125,
+                           "atk":  160,
+                           "iat":  105,
+                           "def":  86,
+                           "idr":  59,
+                           "spd":  116,
+                           "rng":  2,
+                           "wis":  110
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_warrior_259.png",
+        "portrait_path":  "assets/sprites/portraits/purple_warrior_259.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "purple_warrior_260",
+        "name":  "战士紫12",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1398,
+                           "mp":  126,
+                           "atk":  148,
+                           "iat":  111,
+                           "def":  90,
+                           "idr":  65,
+                           "spd":  118,
+                           "rng":  1,
+                           "wis":  118
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_warrior_260.png",
+        "portrait_path":  "assets/sprites/portraits/purple_warrior_260.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "purple_warrior_261",
+        "name":  "战士紫13",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1514,
+                           "mp":  130,
+                           "atk":  138,
+                           "iat":  106,
+                           "def":  72,
+                           "idr":  63,
+                           "spd":  105,
+                           "rng":  1,
+                           "wis":  97
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_warrior_261.png",
+        "portrait_path":  "assets/sprites/portraits/purple_warrior_261.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "purple_warrior_262",
+        "name":  "一灯大师",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1324,
+                           "mp":  126,
+                           "atk":  160,
+                           "iat":  124,
+                           "def":  80,
+                           "idr":  68,
+                           "spd":  117,
+                           "rng":  2,
+                           "wis":  97
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_warrior_262.png",
+        "portrait_path":  "assets/sprites/portraits/purple_warrior_262.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "purple_warrior_263",
+        "name":  "独孤求败",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1370,
+                           "mp":  131,
+                           "atk":  139,
+                           "iat":  107,
+                           "def":  80,
+                           "idr":  57,
+                           "spd":  119,
+                           "rng":  2,
+                           "wis":  104
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_warrior_263.png",
+        "portrait_path":  "assets/sprites/portraits/purple_warrior_263.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "purple_warrior_264",
+        "name":  "周伯通",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1515,
+                           "mp":  141,
+                           "atk":  166,
+                           "iat":  118,
+                           "def":  77,
+                           "idr":  64,
+                           "spd":  109,
+                           "rng":  2,
+                           "wis":  98
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_warrior_264.png",
+        "portrait_path":  "assets/sprites/portraits/purple_warrior_264.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "purple_warrior_265",
+        "name":  "风清扬",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1355,
+                           "mp":  144,
+                           "atk":  156,
+                           "iat":  100,
+                           "def":  90,
+                           "idr":  67,
+                           "spd":  124,
+                           "rng":  1,
+                           "wis":  90
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_warrior_265.png",
+        "portrait_path":  "assets/sprites/portraits/purple_warrior_265.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "purple_warrior_266",
+        "name":  "欧阳锋",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1534,
+                           "mp":  114,
+                           "atk":  167,
+                           "iat":  96,
+                           "def":  86,
+                           "idr":  50,
+                           "spd":  117,
+                           "rng":  1,
+                           "wis":  102
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_warrior_266.png",
+        "portrait_path":  "assets/sprites/portraits/purple_warrior_266.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "purple_warrior_267",
+        "name":  "黄药师",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1337,
+                           "mp":  119,
+                           "atk":  125,
+                           "iat":  101,
+                           "def":  78,
+                           "idr":  64,
+                           "spd":  115,
+                           "rng":  1,
+                           "wis":  118
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_warrior_267.png",
+        "portrait_path":  "assets/sprites/portraits/purple_warrior_267.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "purple_warrior_268",
+        "name":  "战士紫14",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1488,
+                           "mp":  141,
+                           "atk":  126,
+                           "iat":  95,
+                           "def":  79,
+                           "idr":  67,
+                           "spd":  117,
+                           "rng":  1,
+                           "wis":  89
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_warrior_268.png",
+        "portrait_path":  "assets/sprites/portraits/purple_warrior_268.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "purple_archer_269",
+        "name":  "王佐",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1241,
+                           "mp":  112,
+                           "atk":  154,
+                           "iat":  101,
+                           "def":  56,
+                           "idr":  52,
+                           "spd":  119,
+                           "rng":  4,
+                           "wis":  113
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_archer_269.png",
+        "portrait_path":  "assets/sprites/portraits/purple_archer_269.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "purple_archer_270",
+        "name":  "养由基圣",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1297,
+                           "mp":  115,
+                           "atk":  152,
+                           "iat":  99,
+                           "def":  50,
+                           "idr":  41,
+                           "spd":  119,
+                           "rng":  4,
+                           "wis":  112
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_archer_270.png",
+        "portrait_path":  "assets/sprites/portraits/purple_archer_270.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "purple_archer_271",
+        "name":  "李广飞",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1276,
+                           "mp":  135,
+                           "atk":  168,
+                           "iat":  91,
+                           "def":  48,
+                           "idr":  45,
+                           "spd":  119,
+                           "rng":  4,
+                           "wis":  115
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_archer_271.png",
+        "portrait_path":  "assets/sprites/portraits/purple_archer_271.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "purple_archer_272",
+        "name":  "大乔",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1345,
+                           "mp":  121,
+                           "atk":  144,
+                           "iat":  106,
+                           "def":  49,
+                           "idr":  47,
+                           "spd":  121,
+                           "rng":  4,
+                           "wis":  105
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_archer_272.png",
+        "portrait_path":  "assets/sprites/portraits/purple_archer_272.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "purple_archer_273",
+        "name":  "射手紫11",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1191,
+                           "mp":  104,
+                           "atk":  155,
+                           "iat":  107,
+                           "def":  49,
+                           "idr":  45,
+                           "spd":  123,
+                           "rng":  3,
+                           "wis":  101
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_archer_273.png",
+        "portrait_path":  "assets/sprites/portraits/purple_archer_273.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "purple_archer_274",
+        "name":  "吕布射",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1330,
+                           "mp":  109,
+                           "atk":  163,
+                           "iat":  92,
+                           "def":  57,
+                           "idr":  45,
+                           "spd":  127,
+                           "rng":  3,
+                           "wis":  124
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_archer_274.png",
+        "portrait_path":  "assets/sprites/portraits/purple_archer_274.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "purple_archer_275",
+        "name":  "孙尚香",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1279,
+                           "mp":  134,
+                           "atk":  159,
+                           "iat":  102,
+                           "def":  52,
+                           "idr":  42,
+                           "spd":  126,
+                           "rng":  4,
+                           "wis":  91
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_archer_275.png",
+        "portrait_path":  "assets/sprites/portraits/purple_archer_275.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "purple_archer_276",
+        "name":  "祝融夫人",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1205,
+                           "mp":  127,
+                           "atk":  152,
+                           "iat":  92,
+                           "def":  58,
+                           "idr":  52,
+                           "spd":  130,
+                           "rng":  4,
+                           "wis":  89
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_archer_276.png",
+        "portrait_path":  "assets/sprites/portraits/purple_archer_276.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "purple_archer_277",
+        "name":  "黄忠神",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1342,
+                           "mp":  117,
+                           "atk":  166,
+                           "iat":  105,
+                           "def":  55,
+                           "idr":  51,
+                           "spd":  126,
+                           "rng":  4,
+                           "wis":  115
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_archer_277.png",
+        "portrait_path":  "assets/sprites/portraits/purple_archer_277.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "purple_archer_278",
+        "name":  "射手紫13",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1227,
+                           "mp":  124,
+                           "atk":  143,
+                           "iat":  114,
+                           "def":  57,
+                           "idr":  47,
+                           "spd":  129,
+                           "rng":  3,
+                           "wis":  93
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_archer_278.png",
+        "portrait_path":  "assets/sprites/portraits/purple_archer_278.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "purple_archer_279",
+        "name":  "射手紫14",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1248,
+                           "mp":  109,
+                           "atk":  162,
+                           "iat":  112,
+                           "def":  52,
+                           "idr":  52,
+                           "spd":  123,
+                           "rng":  4,
+                           "wis":  94
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_archer_279.png",
+        "portrait_path":  "assets/sprites/portraits/purple_archer_279.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "purple_archer_280",
+        "name":  "薛仁贵勇",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1203,
+                           "mp":  100,
+                           "atk":  157,
+                           "iat":  104,
+                           "def":  59,
+                           "idr":  48,
+                           "spd":  119,
+                           "rng":  3,
+                           "wis":  93
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_archer_280.png",
+        "portrait_path":  "assets/sprites/portraits/purple_archer_280.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "purple_archer_281",
+        "name":  "射手紫12",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1227,
+                           "mp":  127,
+                           "atk":  166,
+                           "iat":  107,
+                           "def":  65,
+                           "idr":  53,
+                           "spd":  119,
+                           "rng":  3,
+                           "wis":  93
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_archer_281.png",
+        "portrait_path":  "assets/sprites/portraits/purple_archer_281.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "purple_archer_282",
+        "name":  "貂蝉",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1270,
+                           "mp":  135,
+                           "atk":  143,
+                           "iat":  109,
+                           "def":  58,
+                           "idr":  52,
+                           "spd":  118,
+                           "rng":  4,
+                           "wis":  114
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_archer_282.png",
+        "portrait_path":  "assets/sprites/portraits/purple_archer_282.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "purple_assassin_283",
+        "name":  "西门吹雪",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1288,
+                           "mp":  131,
+                           "atk":  146,
+                           "iat":  94,
+                           "def":  55,
+                           "idr":  53,
+                           "spd":  126,
+                           "rng":  2,
+                           "wis":  129
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_assassin_283.png",
+        "portrait_path":  "assets/sprites/portraits/purple_assassin_283.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "purple_assassin_284",
+        "name":  "丁鹏",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1343,
+                           "mp":  104,
+                           "atk":  153,
+                           "iat":  100,
+                           "def":  57,
+                           "idr":  55,
+                           "spd":  125,
+                           "rng":  2,
+                           "wis":  116
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_assassin_284.png",
+        "portrait_path":  "assets/sprites/portraits/purple_assassin_284.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "purple_assassin_285",
+        "name":  "刺客紫14",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1254,
+                           "mp":  119,
+                           "atk":  142,
+                           "iat":  104,
+                           "def":  60,
+                           "idr":  52,
+                           "spd":  127,
+                           "rng":  2,
+                           "wis":  131
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_assassin_285.png",
+        "portrait_path":  "assets/sprites/portraits/purple_assassin_285.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "purple_assassin_286",
+        "name":  "李寻欢",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1330,
+                           "mp":  138,
+                           "atk":  146,
+                           "iat":  101,
+                           "def":  60,
+                           "idr":  46,
+                           "spd":  129,
+                           "rng":  2,
+                           "wis":  121
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_assassin_286.png",
+        "portrait_path":  "assets/sprites/portraits/purple_assassin_286.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "purple_assassin_287",
+        "name":  "刺客紫12",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1321,
+                           "mp":  120,
+                           "atk":  151,
+                           "iat":  115,
+                           "def":  70,
+                           "idr":  55,
+                           "spd":  125,
+                           "rng":  2,
+                           "wis":  134
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_assassin_287.png",
+        "portrait_path":  "assets/sprites/portraits/purple_assassin_287.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "purple_assassin_288",
+        "name":  "荆无命",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1291,
+                           "mp":  125,
+                           "atk":  153,
+                           "iat":  95,
+                           "def":  68,
+                           "idr":  46,
+                           "spd":  130,
+                           "rng":  1,
+                           "wis":  145
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_assassin_288.png",
+        "portrait_path":  "assets/sprites/portraits/purple_assassin_288.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "purple_assassin_289",
+        "name":  "傅红雪",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1226,
+                           "mp":  129,
+                           "atk":  164,
+                           "iat":  98,
+                           "def":  64,
+                           "idr":  49,
+                           "spd":  123,
+                           "rng":  2,
+                           "wis":  141
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_assassin_289.png",
+        "portrait_path":  "assets/sprites/portraits/purple_assassin_289.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "purple_assassin_290",
+        "name":  "陆小凤",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1255,
+                           "mp":  119,
+                           "atk":  149,
+                           "iat":  100,
+                           "def":  54,
+                           "idr":  53,
+                           "spd":  128,
+                           "rng":  1,
+                           "wis":  138
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_assassin_290.png",
+        "portrait_path":  "assets/sprites/portraits/purple_assassin_290.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "purple_assassin_291",
+        "name":  "刺客紫11",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1373,
+                           "mp":  130,
+                           "atk":  160,
+                           "iat":  104,
+                           "def":  67,
+                           "idr":  56,
+                           "spd":  128,
+                           "rng":  1,
+                           "wis":  133
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_assassin_291.png",
+        "portrait_path":  "assets/sprites/portraits/purple_assassin_291.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "purple_assassin_292",
+        "name":  "楚留香",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1399,
+                           "mp":  134,
+                           "atk":  161,
+                           "iat":  112,
+                           "def":  52,
+                           "idr":  43,
+                           "spd":  125,
+                           "rng":  2,
+                           "wis":  120
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_assassin_292.png",
+        "portrait_path":  "assets/sprites/portraits/purple_assassin_292.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "purple_assassin_293",
+        "name":  "阿飞",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1385,
+                           "mp":  102,
+                           "atk":  160,
+                           "iat":  112,
+                           "def":  70,
+                           "idr":  52,
+                           "spd":  127,
+                           "rng":  2,
+                           "wis":  116
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_assassin_293.png",
+        "portrait_path":  "assets/sprites/portraits/purple_assassin_293.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "purple_assassin_294",
+        "name":  "叶孤城",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1222,
+                           "mp":  106,
+                           "atk":  150,
+                           "iat":  99,
+                           "def":  66,
+                           "idr":  56,
+                           "spd":  130,
+                           "rng":  1,
+                           "wis":  138
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_assassin_294.png",
+        "portrait_path":  "assets/sprites/portraits/purple_assassin_294.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "purple_assassin_295",
+        "name":  "刺客紫13",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1315,
+                           "mp":  125,
+                           "atk":  156,
+                           "iat":  116,
+                           "def":  68,
+                           "idr":  56,
+                           "spd":  124,
+                           "rng":  2,
+                           "wis":  111
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_assassin_295.png",
+        "portrait_path":  "assets/sprites/portraits/purple_assassin_295.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "purple_assassin_296",
+        "name":  "谢晓峰",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1343,
+                           "mp":  106,
+                           "atk":  151,
+                           "iat":  105,
+                           "def":  52,
+                           "idr":  43,
+                           "spd":  124,
+                           "rng":  2,
+                           "wis":  129
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_assassin_296.png",
+        "portrait_path":  "assets/sprites/portraits/purple_assassin_296.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "purple_mage_297",
+        "name":  "王语嫣",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1301,
+                           "mp":  159,
+                           "atk":  99,
+                           "iat":  139,
+                           "def":  51,
+                           "idr":  48,
+                           "spd":  112,
+                           "rng":  3,
+                           "wis":  146
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_mage_297.png",
+        "portrait_path":  "assets/sprites/portraits/purple_mage_297.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "purple_mage_298",
+        "name":  "小龙女",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1262,
+                           "mp":  170,
+                           "atk":  106,
+                           "iat":  143,
+                           "def":  65,
+                           "idr":  53,
+                           "spd":  112,
+                           "rng":  4,
+                           "wis":  139
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_mage_298.png",
+        "portrait_path":  "assets/sprites/portraits/purple_mage_298.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "purple_mage_299",
+        "name":  "阿紫",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1279,
+                           "mp":  180,
+                           "atk":  110,
+                           "iat":  143,
+                           "def":  53,
+                           "idr":  68,
+                           "spd":  115,
+                           "rng":  4,
+                           "wis":  125
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_mage_299.png",
+        "portrait_path":  "assets/sprites/portraits/purple_mage_299.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "purple_mage_300",
+        "name":  "法师紫12",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1408,
+                           "mp":  167,
+                           "atk":  104,
+                           "iat":  156,
+                           "def":  61,
+                           "idr":  60,
+                           "spd":  102,
+                           "rng":  3,
+                           "wis":  131
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_mage_300.png",
+        "portrait_path":  "assets/sprites/portraits/purple_mage_300.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "purple_mage_301",
+        "name":  "黄蓉",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1291,
+                           "mp":  159,
+                           "atk":  108,
+                           "iat":  141,
+                           "def":  65,
+                           "idr":  53,
+                           "spd":  113,
+                           "rng":  4,
+                           "wis":  131
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_mage_301.png",
+        "portrait_path":  "assets/sprites/portraits/purple_mage_301.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "purple_mage_302",
+        "name":  "仪琳",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1337,
+                           "mp":  162,
+                           "atk":  98,
+                           "iat":  159,
+                           "def":  63,
+                           "idr":  64,
+                           "spd":  122,
+                           "rng":  4,
+                           "wis":  144
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_mage_302.png",
+        "portrait_path":  "assets/sprites/portraits/purple_mage_302.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "purple_mage_303",
+        "name":  "赵敏",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1319,
+                           "mp":  180,
+                           "atk":  108,
+                           "iat":  141,
+                           "def":  59,
+                           "idr":  59,
+                           "spd":  116,
+                           "rng":  3,
+                           "wis":  146
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_mage_303.png",
+        "portrait_path":  "assets/sprites/portraits/purple_mage_303.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "purple_mage_304",
+        "name":  "法师紫11",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1400,
+                           "mp":  174,
+                           "atk":  109,
+                           "iat":  156,
+                           "def":  50,
+                           "idr":  52,
+                           "spd":  112,
+                           "rng":  3,
+                           "wis":  132
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_mage_304.png",
+        "portrait_path":  "assets/sprites/portraits/purple_mage_304.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "purple_mage_305",
+        "name":  "岳灵珊",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1298,
+                           "mp":  162,
+                           "atk":  95,
+                           "iat":  149,
+                           "def":  52,
+                           "idr":  64,
+                           "spd":  114,
+                           "rng":  4,
+                           "wis":  144
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_mage_305.png",
+        "portrait_path":  "assets/sprites/portraits/purple_mage_305.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "purple_mage_306",
+        "name":  "周芷若",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1255,
+                           "mp":  179,
+                           "atk":  103,
+                           "iat":  143,
+                           "def":  63,
+                           "idr":  68,
+                           "spd":  119,
+                           "rng":  3,
+                           "wis":  142
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_mage_306.png",
+        "portrait_path":  "assets/sprites/portraits/purple_mage_306.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "purple_mage_307",
+        "name":  "任盈盈",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1262,
+                           "mp":  186,
+                           "atk":  99,
+                           "iat":  142,
+                           "def":  53,
+                           "idr":  58,
+                           "spd":  116,
+                           "rng":  3,
+                           "wis":  136
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_mage_307.png",
+        "portrait_path":  "assets/sprites/portraits/purple_mage_307.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "purple_mage_308",
+        "name":  "阿朱",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1222,
+                           "mp":  186,
+                           "atk":  94,
+                           "iat":  144,
+                           "def":  60,
+                           "idr":  65,
+                           "spd":  118,
+                           "rng":  4,
+                           "wis":  138
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_mage_308.png",
+        "portrait_path":  "assets/sprites/portraits/purple_mage_308.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "purple_priest_309",
+        "name":  "薛慕华",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1288,
+                           "mp":  168,
+                           "atk":  97,
+                           "iat":  145,
+                           "def":  61,
+                           "idr":  65,
+                           "spd":  114,
+                           "rng":  4,
+                           "wis":  149
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_priest_309.png",
+        "portrait_path":  "assets/sprites/portraits/purple_priest_309.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "purple_priest_310",
+        "name":  "玄难",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1420,
+                           "mp":  176,
+                           "atk":  93,
+                           "iat":  146,
+                           "def":  55,
+                           "idr":  68,
+                           "spd":  117,
+                           "rng":  3,
+                           "wis":  120
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_priest_310.png",
+        "portrait_path":  "assets/sprites/portraits/purple_priest_310.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "purple_priest_311",
+        "name":  "程灵素",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1474,
+                           "mp":  183,
+                           "atk":  104,
+                           "iat":  145,
+                           "def":  58,
+                           "idr":  73,
+                           "spd":  103,
+                           "rng":  4,
+                           "wis":  133
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_priest_311.png",
+        "portrait_path":  "assets/sprites/portraits/purple_priest_311.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "purple_priest_312",
+        "name":  "天竺僧",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1356,
+                           "mp":  187,
+                           "atk":  91,
+                           "iat":  142,
+                           "def":  60,
+                           "idr":  71,
+                           "spd":  102,
+                           "rng":  3,
+                           "wis":  125
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_priest_312.png",
+        "portrait_path":  "assets/sprites/portraits/purple_priest_312.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "purple_priest_313",
+        "name":  "蓝凤凰",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1478,
+                           "mp":  185,
+                           "atk":  97,
+                           "iat":  134,
+                           "def":  70,
+                           "idr":  82,
+                           "spd":  111,
+                           "rng":  4,
+                           "wis":  145
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_priest_313.png",
+        "portrait_path":  "assets/sprites/portraits/purple_priest_313.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "purple_priest_314",
+        "name":  "平一指",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1322,
+                           "mp":  179,
+                           "atk":  94,
+                           "iat":  134,
+                           "def":  58,
+                           "idr":  61,
+                           "spd":  118,
+                           "rng":  3,
+                           "wis":  135
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_priest_314.png",
+        "portrait_path":  "assets/sprites/portraits/purple_priest_314.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "purple_priest_315",
+        "name":  "胡青牛",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1432,
+                           "mp":  177,
+                           "atk":  95,
+                           "iat":  138,
+                           "def":  61,
+                           "idr":  69,
+                           "spd":  118,
+                           "rng":  3,
+                           "wis":  150
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_priest_315.png",
+        "portrait_path":  "assets/sprites/portraits/purple_priest_315.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "purple_priest_316",
+        "name":  "玄寂",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1453,
+                           "mp":  186,
+                           "atk":  93,
+                           "iat":  132,
+                           "def":  65,
+                           "idr":  61,
+                           "spd":  108,
+                           "rng":  4,
+                           "wis":  126
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_priest_316.png",
+        "portrait_path":  "assets/sprites/portraits/purple_priest_316.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "purple_priest_317",
+        "name":  "牧师紫12",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1459,
+                           "mp":  187,
+                           "atk":  94,
+                           "iat":  135,
+                           "def":  56,
+                           "idr":  82,
+                           "spd":  110,
+                           "rng":  2,
+                           "wis":  143
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_priest_317.png",
+        "portrait_path":  "assets/sprites/portraits/purple_priest_317.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "purple_priest_318",
+        "name":  "枯荣大师",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1405,
+                           "mp":  164,
+                           "atk":  108,
+                           "iat":  148,
+                           "def":  60,
+                           "idr":  80,
+                           "spd":  113,
+                           "rng":  3,
+                           "wis":  146
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_priest_318.png",
+        "portrait_path":  "assets/sprites/portraits/purple_priest_318.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "purple_priest_319",
+        "name":  "玄慈",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1299,
+                           "mp":  180,
+                           "atk":  92,
+                           "iat":  140,
+                           "def":  68,
+                           "idr":  83,
+                           "spd":  108,
+                           "rng":  4,
+                           "wis":  141
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_priest_319.png",
+        "portrait_path":  "assets/sprites/portraits/purple_priest_319.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "purple_priest_320",
+        "name":  "牧师紫11",
+        "quality":  "purple",
+        "cost":  4,
+        "base_stats":  {
+                           "hp":  1396,
+                           "mp":  190,
+                           "atk":  105,
+                           "iat":  138,
+                           "def":  70,
+                           "idr":  60,
+                           "spd":  102,
+                           "rng":  4,
+                           "wis":  147
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/purple_priest_320.png",
+        "portrait_path":  "assets/sprites/portraits/purple_priest_320.png",
+        "tags":  [
+                     "unit.quality.purple",
+                     "unit.cost.4",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    }
 ]

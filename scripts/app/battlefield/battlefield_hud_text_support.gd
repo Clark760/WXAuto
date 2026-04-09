@@ -49,6 +49,8 @@ func reload_external_item_data() -> void:
 			continue
 		_merge_display_text_config(_display_text_config, config_record)
 
+
+# 触发器历史别名统一在这里折叠，避免展示层对旧 key 分支扩散。
 func _normalize_trigger_name(trigger_name: String) -> String:
 	var normalized: String = trigger_name.strip_edges().to_lower()
 	if normalized == "periodic":
@@ -58,22 +60,26 @@ func _normalize_trigger_name(trigger_name: String) -> String:
 	return normalized
 
 
+# 统一数值格式化口径：整数不带小数，非整数保留两位有效精度。
 func _format_number(value: float) -> String:
 	if is_equal_approx(value, round(value)):
 		return str(int(round(value)))
 	return str(snappedf(value, 0.01))
 
 
+# 有符号数值专门给增减益文案使用，正值显式带加号。
 func _format_signed_number(value: float) -> String:
 	if value > 0.0:
 		return "+%s" % _format_number(value)
 	return _format_number(value)
 
 
+# 百分比统一基于 0~1 浮点输入换算，避免调用方自行乘 100。
 func _format_percent(value: float) -> String:
 	return "%s%%" % _format_number(value * 100.0)
 
 
+# 带符号百分比只服务增益描述，保持与普通百分比同一舍入规则。
 func _format_signed_percent(value: float) -> String:
 	return "%s%%" % _format_signed_number(value * 100.0)
 
@@ -84,6 +90,7 @@ func slot_or_equip_cn(tab_id: String, slot_type: String) -> String:
 	return slot_to_cn(slot_type) if tab_id == "gongfa" else equip_type_to_cn(slot_type)
 
 
+# 显示配置按层递归合并，确保 data 覆盖只替换命中的叶子字段。
 func _merge_display_text_config(target: Dictionary, incoming: Dictionary) -> void:
 	for key_value in incoming.keys():
 		var key: String = str(key_value)
@@ -270,17 +277,17 @@ func _fallback_quality_label(quality: String) -> String:
 func _fallback_quality_color(quality: String) -> Color:
 	match quality:
 		"white":
-			return Color(0.78, 0.80, 0.82, 0.95)
+			return Color(0.77, 0.73, 0.66, 0.95)
 		"green":
-			return Color(0.42, 0.68, 0.42, 0.95)
+			return Color(0.35, 0.48, 0.29, 0.95)
 		"blue":
-			return Color(0.32, 0.52, 0.80, 0.95)
+			return Color(0.23, 0.35, 0.42, 0.95)
 		"purple":
-			return Color(0.54, 0.38, 0.72, 0.95)
+			return Color(0.42, 0.29, 0.42, 0.95)
 		"orange":
-			return Color(0.76, 0.48, 0.20, 0.95)
+			return Color(0.69, 0.29, 0.23, 0.95)
 		_:
-			return Color(0.50, 0.50, 0.50, 0.95)
+			return Color(0.54, 0.49, 0.43, 0.95)
 
 
 # 伤害类型默认文案只解决 HUD 展示，不改变战斗分类语义。
@@ -324,10 +331,12 @@ func _fallback_status_label(status_key: String) -> String:
 			return status_key
 
 
+# 触发器名默认原样返回，至少保证坏配置时还能看到原始 key。
 func _fallback_trigger_label(trigger_name: String) -> String:
 	return trigger_name
 
 
+# 队伍范围坏配置时退回最基础的我方/敌方/双方文案。
 func _fallback_trigger_team_scope_label(scope_key: String) -> String:
 	match scope_key:
 		"ally", "self_team":
@@ -340,26 +349,32 @@ func _fallback_trigger_team_scope_label(scope_key: String) -> String:
 			return scope_key
 
 
+# 联动执行模式暂时不做二次推断，默认直接显示规范化后的 key。
 func _fallback_linkage_execution_mode_label(mode_key: String) -> String:
 	return mode_key
 
 
+# 联动队伍范围默认只做透传，避免展示层引入玩法假设。
 func _fallback_linkage_team_scope_label(scope_key: String) -> String:
 	return scope_key
 
 
+# 联动计数模式缺配置时仍展示原始 key，便于定位数据问题。
 func _fallback_linkage_count_mode_label(mode_key: String) -> String:
 	return mode_key
 
 
+# 联动来源类型当前没有更细兜底字典，先直接透传。
 func _fallback_linkage_source_type_label(source_type: String) -> String:
 	return source_type
 
 
+# 联动来源范围维持原始 key，避免把未知值翻译错语义。
 func _fallback_linkage_origin_scope_label(scope_key: String) -> String:
 	return scope_key
 
 
+# 联动 tag 匹配模式同样只做最低限度兜底展示。
 func _fallback_linkage_tag_match_label(match_key: String) -> String:
 	return match_key
 
@@ -445,15 +460,18 @@ func terrain_class_to_cn(terrain_type: String) -> String:
 	)
 
 
+# 效果操作名直接走配置组，配置缺失时退回原始 op key。
 func effect_op_to_cn(op: String) -> String:
 	return _read_display_text("effect_op_labels", op, op)
 
 
+# 触发器名先做历史别名归一，再统一走配置映射。
 func trigger_to_cn(trigger_name: String) -> String:
 	var normalized: String = _normalize_trigger_name(trigger_name)
 	return _read_display_text("trigger_labels", normalized, _fallback_trigger_label(normalized))
 
 
+# 触发器队伍范围统一转小写后查表，避免大小写配置影响展示。
 func trigger_team_scope_to_cn(scope_key: String) -> String:
 	var normalized: String = scope_key.strip_edges().to_lower()
 	return _read_display_text(
@@ -463,6 +481,7 @@ func trigger_team_scope_to_cn(scope_key: String) -> String:
 	)
 
 
+# 联动执行模式翻译只做展示映射，不参与执行逻辑判断。
 func linkage_execution_mode_to_cn(mode_key: String) -> String:
 	var normalized: String = mode_key.strip_edges().to_lower()
 	return _read_display_text(
@@ -472,6 +491,7 @@ func linkage_execution_mode_to_cn(mode_key: String) -> String:
 	)
 
 
+# 联动队伍范围展示统一通过这一层，避免各 UI 自写文案。
 func linkage_team_scope_to_cn(scope_key: String) -> String:
 	var normalized: String = scope_key.strip_edges().to_lower()
 	return _read_display_text(
@@ -481,6 +501,7 @@ func linkage_team_scope_to_cn(scope_key: String) -> String:
 	)
 
 
+# 联动计数模式只负责文案投影，不解释具体统计语义。
 func linkage_count_mode_to_cn(mode_key: String) -> String:
 	var normalized: String = mode_key.strip_edges().to_lower()
 	return _read_display_text(
@@ -490,6 +511,7 @@ func linkage_count_mode_to_cn(mode_key: String) -> String:
 	)
 
 
+# 联动来源类型统一收口，避免详情页和 tooltip 口径不一致。
 func linkage_source_type_to_cn(source_type: String) -> String:
 	var normalized: String = source_type.strip_edges().to_lower()
 	return _read_display_text(
@@ -499,6 +521,7 @@ func linkage_source_type_to_cn(source_type: String) -> String:
 	)
 
 
+# 联动来源范围展示走独立映射，方便后续数据包覆盖。
 func linkage_origin_scope_to_cn(scope_key: String) -> String:
 	var normalized: String = scope_key.strip_edges().to_lower()
 	return _read_display_text(
@@ -508,6 +531,7 @@ func linkage_origin_scope_to_cn(scope_key: String) -> String:
 	)
 
 
+# 联动 tag 匹配方式文案统一从这里取，调用方不关心底层 key。
 func linkage_tag_match_to_cn(tag_match: String) -> String:
 	var normalized: String = tag_match.strip_edges().to_lower()
 	return _read_display_text(
@@ -557,17 +581,17 @@ func format_stat_pair(
 func battle_log_color_hex(event_type: String) -> String:
 	match event_type:
 		"damage":
-			return "#FFC38A"
+			return "#B04A3A"
 		"skill":
-			return "#87D7FF"
+			return "#4A7A6A"
 		"buff":
-			return "#7DE3C0"
+			return "#5A7A4A"
 		"death":
-			return "#FF8A8A"
+			return "#8A3030"
 		"system":
-			return "#B0F0B0"
+			return "#5C5244"
 		_:
-			return "#D6D6D6"
+			return "#8A7E6E"
 
 
 # 安全读取单位属性，避免悬空节点或 null 属性把 HUD 渲染打断。

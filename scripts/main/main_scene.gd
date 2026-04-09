@@ -2,6 +2,7 @@ extends Node2D
 
 const STAGE_DATA_SCRIPT: Script = preload("res://scripts/domain/stage/stage_data.gd")
 const BATTLEFIELD_SCENE_PATH: String = "res://scenes/battle/battlefield_scene.tscn"
+const INK_THEME_BUILDER = preload("res://scripts/ui/ink_theme_builder.gd")
 const STAGE_SEQUENCE_BUTTON_SCENE: PackedScene = preload(
 	"res://scenes/ui/stage_sequence_button.tscn"
 )
@@ -23,6 +24,7 @@ func bind_app_services(services: ServiceRegistry) -> void:
 
 # 处理 ready
 func _ready() -> void:
+	_apply_ink_theme()
 	_connect_event_bus()
 	_refresh_ui()
 
@@ -209,6 +211,17 @@ func _enter_battle_scene(sequence_id: String = "") -> void:
 	var scene_navigator: SceneNavigator = _get_scene_navigator()
 	if scene_navigator != null:
 		scene_navigator.change_scene_to_file(BATTLEFIELD_SCENE_PATH)
+
+
+# 主菜单沿用战场的水墨主题，保证入口页与局内视觉口径一致。
+func _apply_ink_theme() -> void:
+	var ink_theme: Theme = INK_THEME_BUILDER.build() as Theme
+	if ink_theme == null:
+		return
+	var canvas_layer: CanvasLayer = $CanvasLayer
+	for child in canvas_layer.get_children():
+		if child is Control:
+			(child as Control).theme = ink_theme
 
 # 获取 get event bus
 func _get_event_bus() -> Node:

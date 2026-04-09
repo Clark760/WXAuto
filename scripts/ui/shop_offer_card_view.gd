@@ -7,6 +7,7 @@ class_name ShopOfferCardView
 # 2. 不做商店库存结算，业务仍由 coordinator 处理。
 
 signal buy_requested(tab_id: String, index: int)
+const INK_THEME_BUILDER = preload("res://scripts/ui/ink_theme_builder.gd")
 
 var _view_model: Dictionary = {}
 var _actions: Dictionary = {}
@@ -25,6 +26,7 @@ const CLICK_DRIFT_THRESHOLD: float = 6.0
 # 节点就绪后完成节点绑定、信号连接与首帧渲染。
 func _ready() -> void:
 	_bind_nodes()
+	_apply_card_panel_style()
 	_set_children_mouse_filter_ignore()
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_apply_view_model()
@@ -120,12 +122,14 @@ func _gui_input(event: InputEvent) -> void:
 	_emit_buy_requested()
 
 
+# 只有非空且未禁购的卡片才允许响应点击购买。
 func _is_buy_available() -> bool:
 	if bool(_view_model.get("is_empty", true)):
 		return false
 	return not bool(_view_model.get("buy_disabled", true))
 
 
+# 判定通过后统一从 view_model 里取出页签和索引并发事件。
 func _emit_buy_requested() -> void:
 	buy_requested.emit(
 		str(_view_model.get("tab_id", "")),
@@ -133,6 +137,7 @@ func _emit_buy_requested() -> void:
 	)
 
 
+# 子节点全部透传输入给卡片根节点，避免局部控件截断点击。
 func _set_children_mouse_filter_ignore() -> void:
 	var root: Node = get_node_or_null("Root")
 	if root == null:
@@ -140,9 +145,17 @@ func _set_children_mouse_filter_ignore() -> void:
 	_set_tree_mouse_filter_ignore(root)
 
 
+# 对子树递归设置 ignore，保证整张卡片只有一个点击命中面。
 func _set_tree_mouse_filter_ignore(node: Node) -> void:
 	for child in node.get_children():
 		if child is Control:
 			var control_child: Control = child as Control
 			control_child.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_set_tree_mouse_filter_ignore(child)
+
+
+# 卡片边框优先使用 SVG 水墨样式，缺失时回退 Theme 默认面板样式。
+func _apply_card_panel_style() -> void:
+	var card_style: StyleBox = INK_THEME_BUILDER.make_card_panel_style() as StyleBox
+	if card_style != null:
+		add_theme_stylebox_override("panel", card_style)

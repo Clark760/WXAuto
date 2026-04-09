@@ -189,6 +189,10 @@ func spawn_enemy_wave(count: int) -> void:
 # 先把敌军波次规划成“格子 + unit_id”的稳定快照，供批量或分帧生成共用。
 func build_enemy_wave_plan(count: int) -> Array[Dictionary]:
 	clear_enemy_wave()
+	var stage_spawn_plan: Array[Dictionary] = _build_stage_enemy_wave_plan()
+	if not stage_spawn_plan.is_empty():
+		return stage_spawn_plan
+
 	var unit_factory = _get_ref("unit_factory")
 	if unit_factory == null:
 		return []
@@ -200,7 +204,7 @@ func build_enemy_wave_plan(count: int) -> Array[Dictionary]:
 
 	var rng := RandomNumberGenerator.new()
 	rng.randomize()
-	_delegate._shuffle_cells(cells, rng)
+	_shuffle_cells(cells, rng)
 	var spawn_total: int = mini(count, cells.size())
 	var spawn_plan: Array[Dictionary] = []
 	for index in range(spawn_total):
@@ -243,6 +247,181 @@ func spawn_enemy_wave_from_plan(
 		deploy_enemy_unit_to_cell(unit_node, cell_value as Vector2i)
 		spawned += 1
 	return spawned
+
+
+# 关卡配置存在 enemies 时，敌军生成必须严格以关卡定义为准，不能再回退到随机波次。
+func _build_stage_enemy_wave_plan() -> Array[Dictionary]:
+	var config_value: Variant = _read_state("current_stage_config", {})
+	if not (config_value is Dictionary):
+		return []
+	var config: Dictionary = config_value as Dictionary
+	var enemies_value: Variant = config.get("enemies", [])
+	if not (enemies_value is Array):
+		return []
+	var enemy_rows: Array = enemies_value as Array
+	if enemy_rows.is_empty():
+		return []
+
+	var hex_grid = _get_ref("hex_grid")
+	if hex_grid == null:
+		return []
+
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+	var available_cells: Array[Vector2i] = collect_enemy_spawn_cells()
+	var plan: Array[Dictionary] = []
+	var reserved: Dictionary = {}
+
+	for enemy_value in enemy_rows:
+		if not (enemy_value is Dictionary):
+			continue
+		var enemy_row: Dictionary = enemy_value as Dictionary
+		var unit_id: String = str(enemy_row.get("unit_id", "")).strip_edges()
+		if unit_id.is_empty():
+			continue
+		var count: int = maxi(int(enemy_row.get("count", 1)), 0)
+		if count <= 0:
+			continue
+
+		var deploy_zone: String = str(enemy_row.get("deploy_zone", "random")).strip_edges().to_lower()
+		var fixed_cells: Array[Vector2i] = _normalize_enemy_fixed_cells(enemy_row.get("fixed_cells", []))
+		var selected_cells: Array[Vector2i] = []
+
+		if deploy_zone == "fixed" and not fixed_cells.is_empty():
+			selected_cells.append_array(
+				_take_fixed_enemy_cells(fixed_cells, count, reserved, available_cells)
+			)
+		if selected_cells.size() < count:
+			var needed: int = count - selected_cells.size()
+			selected_cells.append_array(
+				_take_enemy_spawn_cells_by_zone(available_cells, deploy_zone, needed, rng)
+			)
+			for cell in selected_cells:
+				reserved[_delegate._cell_key(cell)] = true
+
+		for cell in selected_cells:
+			plan.append({
+				"unit_id": unit_id,
+				"cell": cell,
+				"stat_scale": maxf(float(enemy_row.get("stat_scale", 1.0)), 0.01)
+			})
+	return plan
+
+
+func _take_fixed_enemy_cells(
+	fixed_cells: Array[Vector2i],
+	required_count: int,
+	reserved: Dictionary,
+	available_cells: Array[Vector2i]
+) -> Array[Vector2i]:
+	var selected: Array[Vector2i] = []
+	if required_count <= 0:
+		return selected
+	var hex_grid = _get_ref("hex_grid")
+	if hex_grid == null:
+		return selected
+
+	for cell in fixed_cells:
+		if selected.size() >= required_count:
+			break
+		if not hex_grid.is_inside_grid(cell):
+			continue
+		var key: String = _delegate._cell_key(cell)
+		if reserved.has(key):
+			continue
+		reserved[key] = true
+		selected.append(cell)
+		var available_index: int = available_cells.find(cell)
+		if available_index >= 0:
+			available_cells.remove_at(available_index)
+	return selected
+
+
+func _take_enemy_spawn_cells_by_zone(
+	available_cells: Array[Vector2i],
+	deploy_zone: String,
+	required_count: int,
+	rng: RandomNumberGenerator
+) -> Array[Vector2i]:
+	var selected: Array[Vector2i] = []
+	if available_cells.is_empty() or required_count <= 0:
+		return selected
+
+	var ordered_cells: Array[Vector2i] = available_cells.duplicate()
+	match deploy_zone:
+		"front":
+			ordered_cells.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
+				if a.x == b.x:
+					return a.y < b.y
+				return a.x < b.x
+			)
+		"back":
+			ordered_cells.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
+				if a.x == b.x:
+					return a.y < b.y
+				return a.x > b.x
+			)
+		"center":
+			var center_x: float = _compute_enemy_spawn_center_x(ordered_cells)
+			ordered_cells.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
+				var dist_a: float = absf(float(a.x) - center_x)
+				var dist_b: float = absf(float(b.x) - center_x)
+				if is_equal_approx(dist_a, dist_b):
+					if a.y == b.y:
+						return a.x < b.x
+					return a.y < b.y
+				return dist_a < dist_b
+			)
+		"random", "fixed":
+			_shuffle_cells(ordered_cells, rng)
+		_:
+			_shuffle_cells(ordered_cells, rng)
+
+	for cell in ordered_cells:
+		if selected.size() >= required_count:
+			break
+		selected.append(cell)
+		var available_index: int = available_cells.find(cell)
+		if available_index >= 0:
+			available_cells.remove_at(available_index)
+	return selected
+
+
+func _compute_enemy_spawn_center_x(cells: Array[Vector2i]) -> float:
+	if cells.is_empty():
+		return 0.0
+	var min_x: int = cells[0].x
+	var max_x: int = cells[0].x
+	for cell in cells:
+		min_x = mini(min_x, cell.x)
+		max_x = maxi(max_x, cell.x)
+	return float(min_x + max_x) * 0.5
+
+
+func _normalize_enemy_fixed_cells(value: Variant) -> Array[Vector2i]:
+	var cells: Array[Vector2i] = []
+	if value is Array:
+		for item in value:
+			if item is Vector2i:
+				cells.append(item)
+			elif item is Array and (item as Array).size() >= 2:
+				var row: Array = item as Array
+				cells.append(Vector2i(int(row[0]), int(row[1])))
+			elif item is Dictionary:
+				var row_dict: Dictionary = item as Dictionary
+				cells.append(Vector2i(int(row_dict.get("x", 0)), int(row_dict.get("y", 0))))
+	return cells
+
+
+func _shuffle_cells(cells: Array[Vector2i], rng: RandomNumberGenerator) -> void:
+	if _delegate != null and _delegate.has_method("_shuffle_cells"):
+		_delegate._shuffle_cells(cells, rng)
+		return
+	for index in range(cells.size() - 1, 0, -1):
+		var swap_index: int = rng.randi_range(0, index)
+		var tmp: Vector2i = cells[index]
+		cells[index] = cells[swap_index]
+		cells[swap_index] = tmp
 
 
 # 清空当前敌军波次，并把单位归还给 UnitFactory。

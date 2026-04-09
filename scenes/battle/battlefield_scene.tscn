@@ -29,7 +29,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.9, 0.87, 0.79, 1)
+color = Color(0.96, 0.93, 0.88, 1.0)
 
 [node name="WorldContainer" type="Node2D" parent="." unique_id=983481222]
 
@@ -40,8 +40,8 @@ grid_height = 32
 hex_size = 16.0
 origin_offset = Vector2(140, 90)
 draw_coordinates = false
-fill_color = Color(0.2, 0.19, 0.15, 0.16)
-line_color = Color(0.16, 0.15, 0.13, 0.65)
+fill_color = Color(0.36, 0.32, 0.27, 0.08)
+line_color = Color(0.36, 0.32, 0.27, 0.25)
 
 [node name="DeployZoneOverlay" type="Node2D" parent="WorldContainer/HexGrid" unique_id=321797183]
 script = ExtResource("3_overlay")
@@ -77,7 +77,6 @@ anchors_preset = 10
 anchor_right = 1.0
 offset_bottom = 40.0
 grow_horizontal = 2
-self_modulate = Color(1, 0.98, 0.94, 0.95)
 
 [node name="TopBarContent" type="HBoxContainer" parent="HUDLayer/TopBar" unique_id=356178361]
 layout_mode = 2
@@ -87,13 +86,13 @@ alignment = 1
 
 [node name="PhaseLabel" type="Label" parent="HUDLayer/TopBar/TopBarContent" unique_id=1972485093]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.16, 0.14, 0.12, 1)
+theme_override_colors/font_color = Color(0.17, 0.14, 0.09, 1.0)
 theme_override_font_sizes/font_size = 22
 text = "布阵期"
 
 [node name="RoundLabel" type="Label" parent="HUDLayer/TopBar/TopBarContent" unique_id=1650307297]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.18, 0.15, 1)
+theme_override_colors/font_color = Color(0.24, 0.20, 0.16, 1.0)
 theme_override_font_sizes/font_size = 18
 text = "第 1 回合"
 
@@ -105,7 +104,7 @@ show_percentage = false
 
 [node name="TimerLabel" type="Label" parent="HUDLayer/TopBar/TopBarContent" unique_id=169518891]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.24, 0.22, 0.2, 1)
+theme_override_colors/font_color = Color(0.36, 0.32, 0.27, 1.0)
 theme_override_font_sizes/font_size = 18
 text = "--"
 
@@ -129,7 +128,6 @@ offset_top = 64.0
 offset_right = 192.0
 offset_bottom = 466.0
 mouse_filter = 1
-self_modulate = Color(1, 0.97, 0.93, 0.94)
 
 [node name="LogRoot" type="VBoxContainer" parent="HUDLayer/BattleLogPanel" unique_id=1008765768]
 layout_mode = 2
@@ -138,7 +136,7 @@ size_flags_vertical = 3
 
 [node name="LogTitle" type="Label" parent="HUDLayer/BattleLogPanel/LogRoot" unique_id=2033183048]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.16, 0.14, 0.12, 1)
+theme_override_colors/font_color = Color(0.17, 0.14, 0.09, 1.0)
 theme_override_font_sizes/font_size = 18
 text = "战斗日志"
 
@@ -160,7 +158,6 @@ offset_left = 420.0
 offset_top = 220.0
 offset_right = 650.0
 offset_bottom = 350.0
-self_modulate = Color(1, 0.98, 0.95, 0.96)
 
 [node name="TooltipVBox" type="VBoxContainer" parent="HUDLayer/UnitTooltip" unique_id=1790566952]
 layout_mode = 2
@@ -180,7 +177,7 @@ text = "角色名"
 [node name="QualityBadge" type="ColorRect" parent="HUDLayer/UnitTooltip/TooltipVBox/HeaderRow" unique_id=2080079582]
 custom_minimum_size = Vector2(12, 16)
 layout_mode = 2
-color = Color(0.8, 0.8, 0.8, 1)
+color = Color(0.77, 0.73, 0.66, 0.8)
 
 [node name="HPRow" type="HBoxContainer" parent="HUDLayer/UnitTooltip/TooltipVBox" unique_id=1858739046]
 layout_mode = 2
@@ -272,7 +269,6 @@ offset_top = 108.0
 offset_right = 1024.0
 offset_bottom = 256.0
 mouse_filter = 2
-self_modulate = Color(1, 0.98, 0.95, 0.96)
 
 [node name="TerrainTooltipMargin" type="MarginContainer" parent="HUDLayer/TerrainTooltip" unique_id=2084711299]
 layout_mode = 2
@@ -321,7 +317,7 @@ grow_vertical = 2
 
 [node name="PhaseText" type="Label" parent="HUDLayer/PhaseTransition" unique_id=1473339087]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.16, 0.12, 0.1, 1)
+theme_override_colors/font_color = Color(0.17, 0.14, 0.09, 1.0)
 theme_override_font_sizes/font_size = 42
 text = "交锋开始"
 
@@ -341,7 +337,6 @@ offset_bottom = -264.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_filter = 1
-self_modulate = Color(1, 0.98, 0.94, 0.96)
 
 [node name="ShopRoot" type="VBoxContainer" parent="ShopPanelLayer/ShopPanel" unique_id=1366259310]
 layout_mode = 2
@@ -355,14 +350,14 @@ size_flags_horizontal = 3
 
 [node name="ShopTitle" type="Label" parent="ShopPanelLayer/ShopPanel/ShopRoot/HeaderRow" unique_id=2048331496]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.16, 0.14, 0.12, 1)
+theme_override_colors/font_color = Color(0.17, 0.14, 0.09, 1.0)
 theme_override_font_sizes/font_size = 20
 text = "综合商店"
 
 [node name="ShopStatus" type="Label" parent="ShopPanelLayer/ShopPanel/ShopRoot/HeaderRow" unique_id=914700009]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.27, 0.24, 0.2, 1)
+theme_override_colors/font_color = Color(0.36, 0.32, 0.27, 1.0)
 text = "布阵期可购买"
 horizontal_alignment = 2
 
@@ -461,7 +456,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
-color = Color(0, 0, 0, 0.45)
+color = Color(0.17, 0.14, 0.09, 0.40)
 
 [node name="UnitDetailPanel" type="PanelContainer" parent="DetailLayer" unique_id=1918172180]
 visible = false
@@ -470,7 +465,6 @@ offset_top = 84.0
 offset_right = 980.0
 offset_bottom = 588.0
 mouse_filter = 1
-self_modulate = Color(1, 0.98, 0.95, 0.97)
 
 [node name="DetailMargin" type="MarginContainer" parent="DetailLayer/UnitDetailPanel" unique_id=1307397013]
 layout_mode = 2
@@ -490,6 +484,7 @@ layout_mode = 2
 
 [node name="DetailTitle" type="Label" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/HeaderRow" unique_id=530057501]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.17, 0.14, 0.09, 1.0)
 theme_override_font_sizes/font_size = 20
 text = "角色详情"
 
@@ -534,7 +529,7 @@ size_flags_stretch_ratio = 0.9
 [node name="PortraitColor" type="ColorRect" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/PortraitSection" unique_id=16021409]
 custom_minimum_size = Vector2(180, 220)
 layout_mode = 2
-color = Color(0.24, 0.26, 0.3, 0.95)
+color = Color(0.84, 0.81, 0.76, 0.70)
 
 [node name="DetailNameLabel" type="Label" parent="DetailLayer/UnitDetailPanel/DetailMargin/DetailRoot/ContentRow/PortraitSection" unique_id=921267183]
 layout_mode = 2
@@ -627,7 +622,6 @@ offset_left = 796.0
 offset_top = 180.0
 offset_right = 1156.0
 offset_bottom = 460.0
-self_modulate = Color(1, 0.98, 0.95, 0.97)
 
 [node name="TooltipMargin" type="MarginContainer" parent="DetailLayer/ItemTooltip" unique_id=1661529513]
 layout_mode = 2
@@ -697,7 +691,6 @@ offset_bottom = 165.0
 grow_horizontal = 0
 grow_vertical = 2
 mouse_filter = 1
-self_modulate = Color(1, 0.98, 0.95, 0.96)
 
 [node name="InventoryMargin" type="MarginContainer" parent="InventoryLayer/InventoryPanel" unique_id=1028306106]
 layout_mode = 2
@@ -778,7 +771,6 @@ anchor_bottom = 1.0
 offset_top = -170.0
 grow_horizontal = 2
 grow_vertical = 0
-self_modulate = Color(1, 0.98, 0.94, 0.95)
 
 [node name="RootVBox" type="VBoxContainer" parent="BottomLayer/BottomPanel" unique_id=1809599233]
 layout_mode = 2

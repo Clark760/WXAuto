@@ -1,2 +1,2242 @@
-[
+﻿[
+    {
+        "id":  "orange_tank_321",
+        "name":  "坦克橙12",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  2589,
+                           "mp":  232,
+                           "atk":  136,
+                           "iat":  173,
+                           "def":  133,
+                           "idr":  116,
+                           "spd":  108,
+                           "rng":  2,
+                           "wis":  111
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_tank_321.png",
+        "portrait_path":  "assets/sprites/portraits/orange_tank_321.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "orange_tank_322",
+        "name":  "吕布",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  2363,
+                           "mp":  190,
+                           "atk":  143,
+                           "iat":  159,
+                           "def":  130,
+                           "idr":  145,
+                           "spd":  118,
+                           "rng":  1,
+                           "wis":  154
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_tank_322.png",
+        "portrait_path":  "assets/sprites/portraits/orange_tank_322.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "orange_tank_323",
+        "name":  "坦克橙13",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  2367,
+                           "mp":  208,
+                           "atk":  125,
+                           "iat":  172,
+                           "def":  147,
+                           "idr":  117,
+                           "spd":  125,
+                           "rng":  2,
+                           "wis":  126
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_tank_323.png",
+        "portrait_path":  "assets/sprites/portraits/orange_tank_323.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "orange_tank_324",
+        "name":  "典韦豪",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  2342,
+                           "mp":  217,
+                           "atk":  125,
+                           "iat":  146,
+                           "def":  155,
+                           "idr":  135,
+                           "spd":  114,
+                           "rng":  1,
+                           "wis":  137
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_tank_324.png",
+        "portrait_path":  "assets/sprites/portraits/orange_tank_324.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "orange_tank_325",
+        "name":  "许褚猛",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  2635,
+                           "mp":  181,
+                           "atk":  121,
+                           "iat":  145,
+                           "def":  143,
+                           "idr":  130,
+                           "spd":  107,
+                           "rng":  1,
+                           "wis":  147
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_tank_325.png",
+        "portrait_path":  "assets/sprites/portraits/orange_tank_325.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "orange_tank_326",
+        "name":  "武圣关公",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  2415,
+                           "mp":  236,
+                           "atk":  143,
+                           "iat":  145,
+                           "def":  130,
+                           "idr":  137,
+                           "spd":  115,
+                           "rng":  1,
+                           "wis":  137
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_tank_326.png",
+        "portrait_path":  "assets/sprites/portraits/orange_tank_326.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "orange_tank_327",
+        "name":  "铁木真",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  2655,
+                           "mp":  186,
+                           "atk":  145,
+                           "iat":  147,
+                           "def":  144,
+                           "idr":  127,
+                           "spd":  107,
+                           "rng":  1,
+                           "wis":  116
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_tank_327.png",
+        "portrait_path":  "assets/sprites/portraits/orange_tank_327.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "orange_tank_328",
+        "name":  "努尔哈赤",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  2460,
+                           "mp":  217,
+                           "atk":  134,
+                           "iat":  149,
+                           "def":  154,
+                           "idr":  139,
+                           "spd":  109,
+                           "rng":  1,
+                           "wis":  114
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_tank_328.png",
+        "portrait_path":  "assets/sprites/portraits/orange_tank_328.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "orange_tank_329",
+        "name":  "坦克橙11",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  2571,
+                           "mp":  171,
+                           "atk":  125,
+                           "iat":  159,
+                           "def":  152,
+                           "idr":  138,
+                           "spd":  111,
+                           "rng":  1,
+                           "wis":  136
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_tank_329.png",
+        "portrait_path":  "assets/sprites/portraits/orange_tank_329.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "orange_tank_330",
+        "name":  "岳武穆",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  2615,
+                           "mp":  226,
+                           "atk":  128,
+                           "iat":  147,
+                           "def":  136,
+                           "idr":  119,
+                           "spd":  108,
+                           "rng":  2,
+                           "wis":  132
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_tank_330.png",
+        "portrait_path":  "assets/sprites/portraits/orange_tank_330.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "orange_tank_331",
+        "name":  "张飞燕",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  2519,
+                           "mp":  210,
+                           "atk":  123,
+                           "iat":  152,
+                           "def":  147,
+                           "idr":  135,
+                           "spd":  107,
+                           "rng":  1,
+                           "wis":  145
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_tank_331.png",
+        "portrait_path":  "assets/sprites/portraits/orange_tank_331.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "orange_tank_332",
+        "name":  "完颜阿骨打",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  2607,
+                           "mp":  206,
+                           "atk":  116,
+                           "iat":  172,
+                           "def":  149,
+                           "idr":  121,
+                           "spd":  121,
+                           "rng":  1,
+                           "wis":  157
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_tank_332.png",
+        "portrait_path":  "assets/sprites/portraits/orange_tank_332.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "orange_tank_333",
+        "name":  "霸王项籍",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  2500,
+                           "mp":  207,
+                           "atk":  118,
+                           "iat":  170,
+                           "def":  145,
+                           "idr":  130,
+                           "spd":  117,
+                           "rng":  1,
+                           "wis":  125
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_tank_333.png",
+        "portrait_path":  "assets/sprites/portraits/orange_tank_333.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "orange_tank_334",
+        "name":  "坦克橙14",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  2555,
+                           "mp":  179,
+                           "atk":  148,
+                           "iat":  173,
+                           "def":  130,
+                           "idr":  126,
+                           "spd":  115,
+                           "rng":  1,
+                           "wis":  134
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_tank_334.png",
+        "portrait_path":  "assets/sprites/portraits/orange_tank_334.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "orange_warrior_335",
+        "name":  "战士橙13",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  2060,
+                           "mp":  160,
+                           "atk":  188,
+                           "iat":  200,
+                           "def":  125,
+                           "idr":  114,
+                           "spd":  127,
+                           "rng":  2,
+                           "wis":  147
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_warrior_335.png",
+        "portrait_path":  "assets/sprites/portraits/orange_warrior_335.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "orange_warrior_336",
+        "name":  "达摩祖师",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  2309,
+                           "mp":  206,
+                           "atk":  190,
+                           "iat":  190,
+                           "def":  134,
+                           "idr":  91,
+                           "spd":  126,
+                           "rng":  1,
+                           "wis":  139
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_warrior_336.png",
+        "portrait_path":  "assets/sprites/portraits/orange_warrior_336.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "orange_warrior_337",
+        "name":  "逍遥子",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1990,
+                           "mp":  220,
+                           "atk":  198,
+                           "iat":  159,
+                           "def":  134,
+                           "idr":  102,
+                           "spd":  130,
+                           "rng":  1,
+                           "wis":  139
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_warrior_337.png",
+        "portrait_path":  "assets/sprites/portraits/orange_warrior_337.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "orange_warrior_338",
+        "name":  "无崖子",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  2307,
+                           "mp":  210,
+                           "atk":  231,
+                           "iat":  165,
+                           "def":  103,
+                           "idr":  97,
+                           "spd":  120,
+                           "rng":  2,
+                           "wis":  127
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_warrior_338.png",
+        "portrait_path":  "assets/sprites/portraits/orange_warrior_338.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "orange_warrior_339",
+        "name":  "战士橙11",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  2182,
+                           "mp":  162,
+                           "atk":  204,
+                           "iat":  192,
+                           "def":  111,
+                           "idr":  89,
+                           "spd":  118,
+                           "rng":  1,
+                           "wis":  164
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_warrior_339.png",
+        "portrait_path":  "assets/sprites/portraits/orange_warrior_339.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "orange_warrior_340",
+        "name":  "扫地僧",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1955,
+                           "mp":  175,
+                           "atk":  216,
+                           "iat":  172,
+                           "def":  133,
+                           "idr":  115,
+                           "spd":  141,
+                           "rng":  2,
+                           "wis":  130
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_warrior_340.png",
+        "portrait_path":  "assets/sprites/portraits/orange_warrior_340.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "orange_warrior_341",
+        "name":  "战士橙12",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  2140,
+                           "mp":  171,
+                           "atk":  232,
+                           "iat":  199,
+                           "def":  117,
+                           "idr":  89,
+                           "spd":  142,
+                           "rng":  1,
+                           "wis":  141
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_warrior_341.png",
+        "portrait_path":  "assets/sprites/portraits/orange_warrior_341.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "orange_warrior_342",
+        "name":  "慕容博",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  2363,
+                           "mp":  209,
+                           "atk":  202,
+                           "iat":  183,
+                           "def":  104,
+                           "idr":  98,
+                           "spd":  140,
+                           "rng":  1,
+                           "wis":  151
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_warrior_342.png",
+        "portrait_path":  "assets/sprites/portraits/orange_warrior_342.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "orange_warrior_343",
+        "name":  "张三丰",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  2183,
+                           "mp":  220,
+                           "atk":  208,
+                           "iat":  153,
+                           "def":  131,
+                           "idr":  92,
+                           "spd":  129,
+                           "rng":  1,
+                           "wis":  136
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_warrior_343.png",
+        "portrait_path":  "assets/sprites/portraits/orange_warrior_343.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "orange_warrior_344",
+        "name":  "萧远山",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  2345,
+                           "mp":  168,
+                           "atk":  221,
+                           "iat":  193,
+                           "def":  107,
+                           "idr":  96,
+                           "spd":  141,
+                           "rng":  1,
+                           "wis":  122
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_warrior_344.png",
+        "portrait_path":  "assets/sprites/portraits/orange_warrior_344.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "orange_warrior_345",
+        "name":  "天山童姥",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  2389,
+                           "mp":  156,
+                           "atk":  200,
+                           "iat":  152,
+                           "def":  130,
+                           "idr":  105,
+                           "spd":  130,
+                           "rng":  1,
+                           "wis":  131
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_warrior_345.png",
+        "portrait_path":  "assets/sprites/portraits/orange_warrior_345.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "orange_warrior_346",
+        "name":  "李秋水",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  2389,
+                           "mp":  159,
+                           "atk":  220,
+                           "iat":  195,
+                           "def":  126,
+                           "idr":  96,
+                           "spd":  128,
+                           "rng":  1,
+                           "wis":  146
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_warrior_346.png",
+        "portrait_path":  "assets/sprites/portraits/orange_warrior_346.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "orange_warrior_347",
+        "name":  "王重阳",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  2318,
+                           "mp":  195,
+                           "atk":  202,
+                           "iat":  154,
+                           "def":  136,
+                           "idr":  105,
+                           "spd":  121,
+                           "rng":  1,
+                           "wis":  131
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_warrior_347.png",
+        "portrait_path":  "assets/sprites/portraits/orange_warrior_347.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "orange_warrior_348",
+        "name":  "战士橙14",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  2064,
+                           "mp":  160,
+                           "atk":  210,
+                           "iat":  154,
+                           "def":  129,
+                           "idr":  100,
+                           "spd":  142,
+                           "rng":  2,
+                           "wis":  140
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_warrior_348.png",
+        "portrait_path":  "assets/sprites/portraits/orange_warrior_348.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "orange_archer_349",
+        "name":  "射手橙11",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1852,
+                           "mp":  176,
+                           "atk":  254,
+                           "iat":  142,
+                           "def":  93,
+                           "idr":  77,
+                           "spd":  139,
+                           "rng":  3,
+                           "wis":  125
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_archer_349.png",
+        "portrait_path":  "assets/sprites/portraits/orange_archer_349.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "orange_archer_350",
+        "name":  "穿云",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1759,
+                           "mp":  146,
+                           "atk":  219,
+                           "iat":  164,
+                           "def":  81,
+                           "idr":  80,
+                           "spd":  132,
+                           "rng":  4,
+                           "wis":  125
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_archer_350.png",
+        "portrait_path":  "assets/sprites/portraits/orange_archer_350.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "orange_archer_351",
+        "name":  "射手橙13",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1886,
+                           "mp":  169,
+                           "atk":  259,
+                           "iat":  149,
+                           "def":  73,
+                           "idr":  66,
+                           "spd":  148,
+                           "rng":  3,
+                           "wis":  151
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_archer_351.png",
+        "portrait_path":  "assets/sprites/portraits/orange_archer_351.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "orange_archer_352",
+        "name":  "射手橙14",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1801,
+                           "mp":  148,
+                           "atk":  214,
+                           "iat":  175,
+                           "def":  78,
+                           "idr":  62,
+                           "spd":  133,
+                           "rng":  3,
+                           "wis":  182
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_archer_352.png",
+        "portrait_path":  "assets/sprites/portraits/orange_archer_352.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "orange_archer_353",
+        "name":  "天箭",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1816,
+                           "mp":  171,
+                           "atk":  249,
+                           "iat":  153,
+                           "def":  84,
+                           "idr":  83,
+                           "spd":  134,
+                           "rng":  3,
+                           "wis":  157
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_archer_353.png",
+        "portrait_path":  "assets/sprites/portraits/orange_archer_353.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "orange_archer_354",
+        "name":  "神射花荣",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1618,
+                           "mp":  185,
+                           "atk":  257,
+                           "iat":  155,
+                           "def":  72,
+                           "idr":  78,
+                           "spd":  150,
+                           "rng":  3,
+                           "wis":  152
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_archer_354.png",
+        "portrait_path":  "assets/sprites/portraits/orange_archer_354.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "orange_archer_355",
+        "name":  "射手橙12",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1889,
+                           "mp":  153,
+                           "atk":  220,
+                           "iat":  148,
+                           "def":  78,
+                           "idr":  70,
+                           "spd":  144,
+                           "rng":  4,
+                           "wis":  145
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_archer_355.png",
+        "portrait_path":  "assets/sprites/portraits/orange_archer_355.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "orange_archer_356",
+        "name":  "百步穿杨",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1781,
+                           "mp":  162,
+                           "atk":  219,
+                           "iat":  134,
+                           "def":  76,
+                           "idr":  64,
+                           "spd":  150,
+                           "rng":  3,
+                           "wis":  134
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_archer_356.png",
+        "portrait_path":  "assets/sprites/portraits/orange_archer_356.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "orange_archer_357",
+        "name":  "箭圣李广",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1604,
+                           "mp":  155,
+                           "atk":  233,
+                           "iat":  159,
+                           "def":  80,
+                           "idr":  73,
+                           "spd":  135,
+                           "rng":  4,
+                           "wis":  174
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_archer_357.png",
+        "portrait_path":  "assets/sprites/portraits/orange_archer_357.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "orange_archer_358",
+        "name":  "飞将军",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1656,
+                           "mp":  173,
+                           "atk":  224,
+                           "iat":  159,
+                           "def":  78,
+                           "idr":  63,
+                           "spd":  134,
+                           "rng":  3,
+                           "wis":  176
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_archer_358.png",
+        "portrait_path":  "assets/sprites/portraits/orange_archer_358.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "orange_archer_359",
+        "name":  "后羿化身",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1705,
+                           "mp":  197,
+                           "atk":  250,
+                           "iat":  174,
+                           "def":  89,
+                           "idr":  61,
+                           "spd":  138,
+                           "rng":  4,
+                           "wis":  134
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_archer_359.png",
+        "portrait_path":  "assets/sprites/portraits/orange_archer_359.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "orange_archer_360",
+        "name":  "日射",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1596,
+                           "mp":  190,
+                           "atk":  220,
+                           "iat":  152,
+                           "def":  82,
+                           "idr":  76,
+                           "spd":  133,
+                           "rng":  4,
+                           "wis":  141
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_archer_360.png",
+        "portrait_path":  "assets/sprites/portraits/orange_archer_360.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "orange_archer_361",
+        "name":  "逐日",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1639,
+                           "mp":  146,
+                           "atk":  230,
+                           "iat":  158,
+                           "def":  87,
+                           "idr":  83,
+                           "spd":  149,
+                           "rng":  3,
+                           "wis":  131
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_archer_361.png",
+        "portrait_path":  "assets/sprites/portraits/orange_archer_361.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "orange_archer_362",
+        "name":  "养由基圣",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1786,
+                           "mp":  151,
+                           "atk":  256,
+                           "iat":  138,
+                           "def":  73,
+                           "idr":  60,
+                           "spd":  133,
+                           "rng":  3,
+                           "wis":  133
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_archer_362.png",
+        "portrait_path":  "assets/sprites/portraits/orange_archer_362.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "orange_assassin_363",
+        "name":  "杀破狼",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1819,
+                           "mp":  160,
+                           "atk":  212,
+                           "iat":  164,
+                           "def":  76,
+                           "idr":  65,
+                           "spd":  147,
+                           "rng":  2,
+                           "wis":  200
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_assassin_363.png",
+        "portrait_path":  "assets/sprites/portraits/orange_assassin_363.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "orange_assassin_364",
+        "name":  "东厂提督",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1904,
+                           "mp":  148,
+                           "atk":  234,
+                           "iat":  178,
+                           "def":  88,
+                           "idr":  65,
+                           "spd":  143,
+                           "rng":  1,
+                           "wis":  173
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_assassin_364.png",
+        "portrait_path":  "assets/sprites/portraits/orange_assassin_364.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "orange_assassin_365",
+        "name":  "刺客橙12",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1790,
+                           "mp":  180,
+                           "atk":  238,
+                           "iat":  144,
+                           "def":  76,
+                           "idr":  79,
+                           "spd":  147,
+                           "rng":  1,
+                           "wis":  187
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_assassin_365.png",
+        "portrait_path":  "assets/sprites/portraits/orange_assassin_365.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "orange_assassin_366",
+        "name":  "刺客橙14",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1905,
+                           "mp":  197,
+                           "atk":  245,
+                           "iat":  165,
+                           "def":  76,
+                           "idr":  62,
+                           "spd":  142,
+                           "rng":  2,
+                           "wis":  167
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_assassin_366.png",
+        "portrait_path":  "assets/sprites/portraits/orange_assassin_366.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "orange_assassin_367",
+        "name":  "幽冥使",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1864,
+                           "mp":  170,
+                           "atk":  251,
+                           "iat":  168,
+                           "def":  82,
+                           "idr":  80,
+                           "spd":  150,
+                           "rng":  1,
+                           "wis":  198
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_assassin_367.png",
+        "portrait_path":  "assets/sprites/portraits/orange_assassin_367.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "orange_assassin_368",
+        "name":  "刺客橙13",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  2050,
+                           "mp":  190,
+                           "atk":  240,
+                           "iat":  169,
+                           "def":  100,
+                           "idr":  75,
+                           "spd":  143,
+                           "rng":  2,
+                           "wis":  199
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_assassin_368.png",
+        "portrait_path":  "assets/sprites/portraits/orange_assassin_368.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "orange_assassin_369",
+        "name":  "血滴子",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1788,
+                           "mp":  168,
+                           "atk":  211,
+                           "iat":  155,
+                           "def":  94,
+                           "idr":  67,
+                           "spd":  138,
+                           "rng":  2,
+                           "wis":  157
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_assassin_369.png",
+        "portrait_path":  "assets/sprites/portraits/orange_assassin_369.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "orange_assassin_370",
+        "name":  "天煞",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1891,
+                           "mp":  190,
+                           "atk":  259,
+                           "iat":  172,
+                           "def":  82,
+                           "idr":  65,
+                           "spd":  139,
+                           "rng":  1,
+                           "wis":  180
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_assassin_370.png",
+        "portrait_path":  "assets/sprites/portraits/orange_assassin_370.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "orange_assassin_371",
+        "name":  "暗杀之王",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1786,
+                           "mp":  152,
+                           "atk":  258,
+                           "iat":  149,
+                           "def":  93,
+                           "idr":  87,
+                           "spd":  150,
+                           "rng":  2,
+                           "wis":  195
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_assassin_371.png",
+        "portrait_path":  "assets/sprites/portraits/orange_assassin_371.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "orange_assassin_372",
+        "name":  "锦衣卫督",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1738,
+                           "mp":  167,
+                           "atk":  225,
+                           "iat":  172,
+                           "def":  85,
+                           "idr":  85,
+                           "spd":  149,
+                           "rng":  2,
+                           "wis":  225
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_assassin_372.png",
+        "portrait_path":  "assets/sprites/portraits/orange_assassin_372.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "orange_assassin_373",
+        "name":  "刺客橙11",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1664,
+                           "mp":  190,
+                           "atk":  246,
+                           "iat":  171,
+                           "def":  79,
+                           "idr":  78,
+                           "spd":  141,
+                           "rng":  2,
+                           "wis":  219
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_assassin_373.png",
+        "portrait_path":  "assets/sprites/portraits/orange_assassin_373.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "orange_assassin_374",
+        "name":  "凌绝顶",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1808,
+                           "mp":  167,
+                           "atk":  241,
+                           "iat":  137,
+                           "def":  77,
+                           "idr":  61,
+                           "spd":  141,
+                           "rng":  1,
+                           "wis":  152
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_assassin_374.png",
+        "portrait_path":  "assets/sprites/portraits/orange_assassin_374.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "orange_assassin_375",
+        "name":  "夜帝",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1919,
+                           "mp":  206,
+                           "atk":  210,
+                           "iat":  156,
+                           "def":  104,
+                           "idr":  79,
+                           "spd":  141,
+                           "rng":  1,
+                           "wis":  193
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_assassin_375.png",
+        "portrait_path":  "assets/sprites/portraits/orange_assassin_375.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "orange_assassin_376",
+        "name":  "影子刺圣",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  2017,
+                           "mp":  167,
+                           "atk":  230,
+                           "iat":  138,
+                           "def":  75,
+                           "idr":  64,
+                           "spd":  147,
+                           "rng":  1,
+                           "wis":  164
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_assassin_376.png",
+        "portrait_path":  "assets/sprites/portraits/orange_assassin_376.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "orange_mage_377",
+        "name":  "姜子牙",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1730,
+                           "mp":  286,
+                           "atk":  157,
+                           "iat":  240,
+                           "def":  85,
+                           "idr":  90,
+                           "spd":  122,
+                           "rng":  3,
+                           "wis":  225
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_mage_377.png",
+        "portrait_path":  "assets/sprites/portraits/orange_mage_377.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "orange_mage_378",
+        "name":  "法师橙12",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1937,
+                           "mp":  284,
+                           "atk":  169,
+                           "iat":  222,
+                           "def":  77,
+                           "idr":  91,
+                           "spd":  130,
+                           "rng":  3,
+                           "wis":  204
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_mage_378.png",
+        "portrait_path":  "assets/sprites/portraits/orange_mage_378.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "orange_mage_379",
+        "name":  "李淳风",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1807,
+                           "mp":  286,
+                           "atk":  174,
+                           "iat":  218,
+                           "def":  74,
+                           "idr":  75,
+                           "spd":  135,
+                           "rng":  3,
+                           "wis":  224
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_mage_379.png",
+        "portrait_path":  "assets/sprites/portraits/orange_mage_379.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "orange_mage_380",
+        "name":  "徐福",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1943,
+                           "mp":  265,
+                           "atk":  166,
+                           "iat":  202,
+                           "def":  75,
+                           "idr":  89,
+                           "spd":  122,
+                           "rng":  3,
+                           "wis":  220
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_mage_380.png",
+        "portrait_path":  "assets/sprites/portraits/orange_mage_380.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "orange_mage_381",
+        "name":  "鬼谷子",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1939,
+                           "mp":  246,
+                           "atk":  161,
+                           "iat":  209,
+                           "def":  80,
+                           "idr":  93,
+                           "spd":  114,
+                           "rng":  3,
+                           "wis":  202
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_mage_381.png",
+        "portrait_path":  "assets/sprites/portraits/orange_mage_381.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "orange_mage_382",
+        "name":  "老子化身",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1813,
+                           "mp":  250,
+                           "atk":  170,
+                           "iat":  205,
+                           "def":  92,
+                           "idr":  91,
+                           "spd":  132,
+                           "rng":  4,
+                           "wis":  208
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_mage_382.png",
+        "portrait_path":  "assets/sprites/portraits/orange_mage_382.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "orange_mage_383",
+        "name":  "张良",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1655,
+                           "mp":  256,
+                           "atk":  143,
+                           "iat":  215,
+                           "def":  92,
+                           "idr":  72,
+                           "spd":  123,
+                           "rng":  4,
+                           "wis":  230
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_mage_383.png",
+        "portrait_path":  "assets/sprites/portraits/orange_mage_383.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "orange_mage_384",
+        "name":  "范蠡",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1705,
+                           "mp":  286,
+                           "atk":  130,
+                           "iat":  203,
+                           "def":  82,
+                           "idr":  84,
+                           "spd":  135,
+                           "rng":  4,
+                           "wis":  190
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_mage_384.png",
+        "portrait_path":  "assets/sprites/portraits/orange_mage_384.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "orange_mage_385",
+        "name":  "法师橙11",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1861,
+                           "mp":  271,
+                           "atk":  154,
+                           "iat":  222,
+                           "def":  87,
+                           "idr":  82,
+                           "spd":  115,
+                           "rng":  4,
+                           "wis":  230
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_mage_385.png",
+        "portrait_path":  "assets/sprites/portraits/orange_mage_385.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "orange_mage_386",
+        "name":  "庄子化身",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1945,
+                           "mp":  281,
+                           "atk":  173,
+                           "iat":  214,
+                           "def":  75,
+                           "idr":  84,
+                           "spd":  114,
+                           "rng":  3,
+                           "wis":  198
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_mage_386.png",
+        "portrait_path":  "assets/sprites/portraits/orange_mage_386.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "orange_mage_387",
+        "name":  "管仲",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1660,
+                           "mp":  260,
+                           "atk":  146,
+                           "iat":  206,
+                           "def":  72,
+                           "idr":  80,
+                           "spd":  117,
+                           "rng":  4,
+                           "wis":  190
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_mage_387.png",
+        "portrait_path":  "assets/sprites/portraits/orange_mage_387.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "orange_mage_388",
+        "name":  "袁天罡",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  2024,
+                           "mp":  244,
+                           "atk":  165,
+                           "iat":  205,
+                           "def":  80,
+                           "idr":  89,
+                           "spd":  131,
+                           "rng":  4,
+                           "wis":  225
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_mage_388.png",
+        "portrait_path":  "assets/sprites/portraits/orange_mage_388.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "orange_priest_389",
+        "name":  "扁鹊圣",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  2106,
+                           "mp":  280,
+                           "atk":  159,
+                           "iat":  201,
+                           "def":  101,
+                           "idr":  108,
+                           "spd":  119,
+                           "rng":  2,
+                           "wis":  176
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_priest_389.png",
+        "portrait_path":  "assets/sprites/portraits/orange_priest_389.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "orange_priest_390",
+        "name":  "华佗神",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1775,
+                           "mp":  270,
+                           "atk":  160,
+                           "iat":  216,
+                           "def":  84,
+                           "idr":  93,
+                           "spd":  121,
+                           "rng":  2,
+                           "wis":  197
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_priest_390.png",
+        "portrait_path":  "assets/sprites/portraits/orange_priest_390.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "orange_priest_391",
+        "name":  "药王菩萨",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1794,
+                           "mp":  263,
+                           "atk":  155,
+                           "iat":  197,
+                           "def":  83,
+                           "idr":  91,
+                           "spd":  116,
+                           "rng":  2,
+                           "wis":  210
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_priest_391.png",
+        "portrait_path":  "assets/sprites/portraits/orange_priest_391.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "orange_priest_392",
+        "name":  "济公活佛",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1899,
+                           "mp":  250,
+                           "atk":  155,
+                           "iat":  192,
+                           "def":  89,
+                           "idr":  115,
+                           "spd":  125,
+                           "rng":  3,
+                           "wis":  227
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_priest_392.png",
+        "portrait_path":  "assets/sprites/portraits/orange_priest_392.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "orange_priest_393",
+        "name":  "救苦天尊",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  2088,
+                           "mp":  261,
+                           "atk":  130,
+                           "iat":  226,
+                           "def":  97,
+                           "idr":  114,
+                           "spd":  115,
+                           "rng":  3,
+                           "wis":  226
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_priest_393.png",
+        "portrait_path":  "assets/sprites/portraits/orange_priest_393.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "orange_priest_394",
+        "name":  "普济",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1945,
+                           "mp":  268,
+                           "atk":  136,
+                           "iat":  213,
+                           "def":  81,
+                           "idr":  106,
+                           "spd":  124,
+                           "rng":  3,
+                           "wis":  186
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_priest_394.png",
+        "portrait_path":  "assets/sprites/portraits/orange_priest_394.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "orange_priest_395",
+        "name":  "牧师橙12",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1865,
+                           "mp":  298,
+                           "atk":  142,
+                           "iat":  221,
+                           "def":  81,
+                           "idr":  99,
+                           "spd":  134,
+                           "rng":  4,
+                           "wis":  212
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_priest_395.png",
+        "portrait_path":  "assets/sprites/portraits/orange_priest_395.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "orange_priest_396",
+        "name":  "慈航",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1799,
+                           "mp":  250,
+                           "atk":  147,
+                           "iat":  219,
+                           "def":  93,
+                           "idr":  127,
+                           "spd":  117,
+                           "rng":  4,
+                           "wis":  173
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_priest_396.png",
+        "portrait_path":  "assets/sprites/portraits/orange_priest_396.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "orange_priest_397",
+        "name":  "牧师橙11",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  2180,
+                           "mp":  269,
+                           "atk":  158,
+                           "iat":  211,
+                           "def":  110,
+                           "idr":  124,
+                           "spd":  131,
+                           "rng":  3,
+                           "wis":  206
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_priest_397.png",
+        "portrait_path":  "assets/sprites/portraits/orange_priest_397.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "orange_priest_398",
+        "name":  "孙思邈圣",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  1870,
+                           "mp":  275,
+                           "atk":  144,
+                           "iat":  190,
+                           "def":  92,
+                           "idr":  92,
+                           "spd":  126,
+                           "rng":  4,
+                           "wis":  227
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_priest_398.png",
+        "portrait_path":  "assets/sprites/portraits/orange_priest_398.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "orange_priest_399",
+        "name":  "妙手回春",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  2014,
+                           "mp":  296,
+                           "atk":  134,
+                           "iat":  192,
+                           "def":  110,
+                           "idr":  118,
+                           "spd":  115,
+                           "rng":  2,
+                           "wis":  183
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_priest_399.png",
+        "portrait_path":  "assets/sprites/portraits/orange_priest_399.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "orange_priest_400",
+        "name":  "药师佛",
+        "quality":  "orange",
+        "cost":  5,
+        "base_stats":  {
+                           "hp":  2163,
+                           "mp":  257,
+                           "atk":  133,
+                           "iat":  187,
+                           "def":  93,
+                           "idr":  95,
+                           "spd":  131,
+                           "rng":  3,
+                           "wis":  182
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/orange_priest_400.png",
+        "portrait_path":  "assets/sprites/portraits/orange_priest_400.png",
+        "tags":  [
+                     "unit.quality.orange",
+                     "unit.cost.5",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    }
 ]

@@ -1,5 +1,6 @@
 extends PanelContainer
 class_name BattleBenchSlotView
+const INK_THEME_BUILDER = preload("res://scripts/ui/ink_theme_builder.gd")
 
 # 备战席槽位子场景视图
 # 说明：
@@ -14,6 +15,7 @@ var _content_box: VBoxContainer = null
 # 节点进入树后缓存固定子节点，后续刷新只改文本和颜色。
 func _ready() -> void:
 	_bind_nodes()
+	_apply_card_panel_style()
 
 
 # 统一写入槽位尺寸、提示文案和可交互态，避免外层散写节点属性。
@@ -40,7 +42,7 @@ func set_interactable(value: bool) -> void:
 func apply_empty_state() -> void:
 	_bind_nodes()
 	if _icon_rect != null:
-		_icon_rect.color = Color(0.16, 0.19, 0.23, 0.65)
+		_icon_rect.color = Color(0.84, 0.81, 0.76, 0.70)
 	if _name_label != null:
 		_name_label.text = "空"
 
@@ -62,3 +64,10 @@ func _bind_nodes() -> void:
 		_icon_rect = get_node_or_null("Content/IconRect") as ColorRect
 	if _name_label == null:
 		_name_label = get_node_or_null("Content/NameLabel") as Label
+
+
+# 备战席槽位沿用卡片边框，保持与商店/仓库卡片是同一视觉族。
+func _apply_card_panel_style() -> void:
+	var card_style: StyleBox = INK_THEME_BUILDER.make_card_panel_style() as StyleBox
+	if card_style != null:
+		add_theme_stylebox_override("panel", card_style)

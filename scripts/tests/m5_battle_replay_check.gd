@@ -454,7 +454,9 @@ func _evaluate_pass() -> bool:
 	var has_terrain: bool = int(_result.get("environment_damage_events", 0)) > 0 \
 		or int(_result.get("terrain_max_instances", 0)) > 0 \
 		or int(_result.get("terrain_max_cells", 0)) > 0
-	var has_runtime_effects: bool = int(_result.get("buff_events", 0)) > 0
+	var has_runtime_effects: bool = int(_result.get("buff_events", 0)) > 0 \
+		or int(_result.get("skill_effect_damage_events", 0)) > 0 \
+		or int(_result.get("skill_effect_heal_events", 0)) > 0
 	var has_m5_trigger: bool = false
 	var trigger_counts: Dictionary = _result.get("trigger_counts", {})
 	for gid in REQUIRED_GONGFA_IDS:

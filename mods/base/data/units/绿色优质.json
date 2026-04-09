@@ -1,2 +1,2242 @@
-[
+﻿[
+    {
+        "id":  "green_tank_081",
+        "name":  "坦克绿12",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  1122,
+                           "mp":  104,
+                           "atk":  73,
+                           "iat":  67,
+                           "def":  66,
+                           "idr":  57,
+                           "spd":  89,
+                           "rng":  2,
+                           "wis":  59
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_tank_081.png",
+        "portrait_path":  "assets/sprites/portraits/green_tank_081.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "green_tank_082",
+        "name":  "乌利可",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  1130,
+                           "mp":  93,
+                           "atk":  69,
+                           "iat":  61,
+                           "def":  69,
+                           "idr":  48,
+                           "spd":  81,
+                           "rng":  1,
+                           "wis":  58
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_tank_082.png",
+        "portrait_path":  "assets/sprites/portraits/green_tank_082.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "green_tank_083",
+        "name":  "铜甲卫",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  1149,
+                           "mp":  82,
+                           "atk":  65,
+                           "iat":  67,
+                           "def":  55,
+                           "idr":  62,
+                           "spd":  77,
+                           "rng":  1,
+                           "wis":  50
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_tank_083.png",
+        "portrait_path":  "assets/sprites/portraits/green_tank_083.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "green_tank_084",
+        "name":  "盾卫",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  1084,
+                           "mp":  94,
+                           "atk":  75,
+                           "iat":  69,
+                           "def":  51,
+                           "idr":  52,
+                           "spd":  84,
+                           "rng":  2,
+                           "wis":  64
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_tank_084.png",
+        "portrait_path":  "assets/sprites/portraits/green_tank_084.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "green_tank_085",
+        "name":  "坦克绿11",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  998,
+                           "mp":  101,
+                           "atk":  67,
+                           "iat":  68,
+                           "def":  70,
+                           "idr":  63,
+                           "spd":  81,
+                           "rng":  2,
+                           "wis":  53
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_tank_085.png",
+        "portrait_path":  "assets/sprites/portraits/green_tank_085.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "green_tank_086",
+        "name":  "石宝",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  1119,
+                           "mp":  87,
+                           "atk":  64,
+                           "iat":  68,
+                           "def":  54,
+                           "idr":  47,
+                           "spd":  76,
+                           "rng":  1,
+                           "wis":  59
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_tank_086.png",
+        "portrait_path":  "assets/sprites/portraits/green_tank_086.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "green_tank_087",
+        "name":  "守门将",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  1132,
+                           "mp":  103,
+                           "atk":  78,
+                           "iat":  69,
+                           "def":  64,
+                           "idr":  48,
+                           "spd":  89,
+                           "rng":  2,
+                           "wis":  62
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_tank_087.png",
+        "portrait_path":  "assets/sprites/portraits/green_tank_087.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "green_tank_088",
+        "name":  "金刚力士",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  1049,
+                           "mp":  96,
+                           "atk":  77,
+                           "iat":  75,
+                           "def":  64,
+                           "idr":  47,
+                           "spd":  76,
+                           "rng":  2,
+                           "wis":  60
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_tank_088.png",
+        "portrait_path":  "assets/sprites/portraits/green_tank_088.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "green_tank_089",
+        "name":  "镇关西",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  1134,
+                           "mp":  88,
+                           "atk":  60,
+                           "iat":  62,
+                           "def":  57,
+                           "idr":  63,
+                           "spd":  75,
+                           "rng":  2,
+                           "wis":  68
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_tank_089.png",
+        "portrait_path":  "assets/sprites/portraits/green_tank_089.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "green_tank_090",
+        "name":  "坦克绿13",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  990,
+                           "mp":  104,
+                           "atk":  65,
+                           "iat":  75,
+                           "def":  66,
+                           "idr":  65,
+                           "spd":  89,
+                           "rng":  2,
+                           "wis":  55
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_tank_090.png",
+        "portrait_path":  "assets/sprites/portraits/green_tank_090.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "green_tank_091",
+        "name":  "锤王",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  1129,
+                           "mp":  93,
+                           "atk":  75,
+                           "iat":  62,
+                           "def":  65,
+                           "idr":  56,
+                           "spd":  88,
+                           "rng":  2,
+                           "wis":  60
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_tank_091.png",
+        "portrait_path":  "assets/sprites/portraits/green_tank_091.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "green_tank_092",
+        "name":  "铁臂膀",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  1006,
+                           "mp":  107,
+                           "atk":  65,
+                           "iat":  70,
+                           "def":  63,
+                           "idr":  60,
+                           "spd":  84,
+                           "rng":  2,
+                           "wis":  67
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_tank_092.png",
+        "portrait_path":  "assets/sprites/portraits/green_tank_092.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "green_tank_093",
+        "name":  "铁面判官",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  989,
+                           "mp":  94,
+                           "atk":  62,
+                           "iat":  70,
+                           "def":  58,
+                           "idr":  55,
+                           "spd":  78,
+                           "rng":  2,
+                           "wis":  66
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_tank_093.png",
+        "portrait_path":  "assets/sprites/portraits/green_tank_093.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "green_tank_094",
+        "name":  "坦克绿14",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  980,
+                           "mp":  101,
+                           "atk":  77,
+                           "iat":  74,
+                           "def":  63,
+                           "idr":  46,
+                           "spd":  81,
+                           "rng":  2,
+                           "wis":  69
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_tank_094.png",
+        "portrait_path":  "assets/sprites/portraits/green_tank_094.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "green_warrior_095",
+        "name":  "猎手",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  941,
+                           "mp":  75,
+                           "atk":  100,
+                           "iat":  84,
+                           "def":  47,
+                           "idr":  37,
+                           "spd":  94,
+                           "rng":  1,
+                           "wis":  72
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_warrior_095.png",
+        "portrait_path":  "assets/sprites/portraits/green_warrior_095.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "green_warrior_096",
+        "name":  "风行者",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  1014,
+                           "mp":  77,
+                           "atk":  87,
+                           "iat":  68,
+                           "def":  54,
+                           "idr":  35,
+                           "spd":  89,
+                           "rng":  2,
+                           "wis":  64
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_warrior_096.png",
+        "portrait_path":  "assets/sprites/portraits/green_warrior_096.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "green_warrior_097",
+        "name":  "劈山",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  1040,
+                           "mp":  97,
+                           "atk":  88,
+                           "iat":  78,
+                           "def":  55,
+                           "idr":  47,
+                           "spd":  92,
+                           "rng":  2,
+                           "wis":  72
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_warrior_097.png",
+        "portrait_path":  "assets/sprites/portraits/green_warrior_097.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "green_warrior_098",
+        "name":  "狂刀",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  947,
+                           "mp":  87,
+                           "atk":  86,
+                           "iat":  84,
+                           "def":  56,
+                           "idr":  36,
+                           "spd":  87,
+                           "rng":  2,
+                           "wis":  68
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_warrior_098.png",
+        "portrait_path":  "assets/sprites/portraits/green_warrior_098.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "green_warrior_099",
+        "name":  "青锋",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  997,
+                           "mp":  104,
+                           "atk":  105,
+                           "iat":  81,
+                           "def":  48,
+                           "idr":  32,
+                           "spd":  94,
+                           "rng":  2,
+                           "wis":  73
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_warrior_099.png",
+        "portrait_path":  "assets/sprites/portraits/green_warrior_099.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "green_warrior_100",
+        "name":  "断刀客",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  1058,
+                           "mp":  96,
+                           "atk":  95,
+                           "iat":  69,
+                           "def":  54,
+                           "idr":  49,
+                           "spd":  100,
+                           "rng":  2,
+                           "wis":  65
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_warrior_100.png",
+        "portrait_path":  "assets/sprites/portraits/green_warrior_100.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "green_warrior_101",
+        "name":  "战士绿12",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  1051,
+                           "mp":  99,
+                           "atk":  97,
+                           "iat":  77,
+                           "def":  54,
+                           "idr":  42,
+                           "spd":  91,
+                           "rng":  1,
+                           "wis":  73
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_warrior_101.png",
+        "portrait_path":  "assets/sprites/portraits/green_warrior_101.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "green_warrior_102",
+        "name":  "独臂刀",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  1008,
+                           "mp":  82,
+                           "atk":  107,
+                           "iat":  78,
+                           "def":  41,
+                           "idr":  42,
+                           "spd":  100,
+                           "rng":  2,
+                           "wis":  67
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_warrior_102.png",
+        "portrait_path":  "assets/sprites/portraits/green_warrior_102.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "green_warrior_103",
+        "name":  "铁鹰",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  1079,
+                           "mp":  100,
+                           "atk":  106,
+                           "iat":  85,
+                           "def":  44,
+                           "idr":  47,
+                           "spd":  86,
+                           "rng":  1,
+                           "wis":  71
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_warrior_103.png",
+        "portrait_path":  "assets/sprites/portraits/green_warrior_103.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "green_warrior_104",
+        "name":  "雪豹",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  1061,
+                           "mp":  85,
+                           "atk":  107,
+                           "iat":  68,
+                           "def":  54,
+                           "idr":  35,
+                           "spd":  101,
+                           "rng":  2,
+                           "wis":  55
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_warrior_104.png",
+        "portrait_path":  "assets/sprites/portraits/green_warrior_104.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "green_warrior_105",
+        "name":  "战士绿14",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  946,
+                           "mp":  88,
+                           "atk":  107,
+                           "iat":  85,
+                           "def":  44,
+                           "idr":  34,
+                           "spd":  100,
+                           "rng":  2,
+                           "wis":  65
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_warrior_105.png",
+        "portrait_path":  "assets/sprites/portraits/green_warrior_105.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "green_warrior_106",
+        "name":  "战士绿11",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  1069,
+                           "mp":  97,
+                           "atk":  92,
+                           "iat":  85,
+                           "def":  42,
+                           "idr":  42,
+                           "spd":  102,
+                           "rng":  2,
+                           "wis":  65
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_warrior_106.png",
+        "portrait_path":  "assets/sprites/portraits/green_warrior_106.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "green_warrior_107",
+        "name":  "赤焰",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  1070,
+                           "mp":  97,
+                           "atk":  108,
+                           "iat":  80,
+                           "def":  57,
+                           "idr":  33,
+                           "spd":  87,
+                           "rng":  1,
+                           "wis":  75
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_warrior_107.png",
+        "portrait_path":  "assets/sprites/portraits/green_warrior_107.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "green_warrior_108",
+        "name":  "战士绿13",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  983,
+                           "mp":  82,
+                           "atk":  103,
+                           "iat":  67,
+                           "def":  53,
+                           "idr":  35,
+                           "spd":  88,
+                           "rng":  2,
+                           "wis":  60
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_warrior_108.png",
+        "portrait_path":  "assets/sprites/portraits/green_warrior_108.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "green_archer_109",
+        "name":  "朱然",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  886,
+                           "mp":  75,
+                           "atk":  95,
+                           "iat":  62,
+                           "def":  37,
+                           "idr":  38,
+                           "spd":  101,
+                           "rng":  2,
+                           "wis":  70
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_archer_109.png",
+        "portrait_path":  "assets/sprites/portraits/green_archer_109.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "green_archer_110",
+        "name":  "徐盛",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  876,
+                           "mp":  77,
+                           "atk":  104,
+                           "iat":  80,
+                           "def":  32,
+                           "idr":  32,
+                           "spd":  99,
+                           "rng":  2,
+                           "wis":  69
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_archer_110.png",
+        "portrait_path":  "assets/sprites/portraits/green_archer_110.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "green_archer_111",
+        "name":  "丁奉",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  913,
+                           "mp":  91,
+                           "atk":  107,
+                           "iat":  65,
+                           "def":  29,
+                           "idr":  32,
+                           "spd":  100,
+                           "rng":  3,
+                           "wis":  75
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_archer_111.png",
+        "portrait_path":  "assets/sprites/portraits/green_archer_111.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "green_archer_112",
+        "name":  "太史慈",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  948,
+                           "mp":  92,
+                           "atk":  98,
+                           "iat":  74,
+                           "def":  41,
+                           "idr":  29,
+                           "spd":  98,
+                           "rng":  3,
+                           "wis":  70
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_archer_112.png",
+        "portrait_path":  "assets/sprites/portraits/green_archer_112.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "green_archer_113",
+        "name":  "吕蒙",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  867,
+                           "mp":  77,
+                           "atk":  102,
+                           "iat":  78,
+                           "def":  33,
+                           "idr":  34,
+                           "spd":  99,
+                           "rng":  3,
+                           "wis":  55
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_archer_113.png",
+        "portrait_path":  "assets/sprites/portraits/green_archer_113.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "green_archer_114",
+        "name":  "凌统",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  941,
+                           "mp":  78,
+                           "atk":  90,
+                           "iat":  78,
+                           "def":  41,
+                           "idr":  35,
+                           "spd":  95,
+                           "rng":  3,
+                           "wis":  64
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_archer_114.png",
+        "portrait_path":  "assets/sprites/portraits/green_archer_114.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "green_archer_115",
+        "name":  "黄忠弟",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  898,
+                           "mp":  89,
+                           "atk":  101,
+                           "iat":  67,
+                           "def":  38,
+                           "idr":  28,
+                           "spd":  104,
+                           "rng":  3,
+                           "wis":  76
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_archer_115.png",
+        "portrait_path":  "assets/sprites/portraits/green_archer_115.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "green_archer_116",
+        "name":  "射手绿13",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  875,
+                           "mp":  90,
+                           "atk":  93,
+                           "iat":  80,
+                           "def":  38,
+                           "idr":  25,
+                           "spd":  99,
+                           "rng":  3,
+                           "wis":  56
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_archer_116.png",
+        "portrait_path":  "assets/sprites/portraits/green_archer_116.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "green_archer_117",
+        "name":  "射手绿11",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  933,
+                           "mp":  93,
+                           "atk":  94,
+                           "iat":  62,
+                           "def":  42,
+                           "idr":  29,
+                           "spd":  100,
+                           "rng":  3,
+                           "wis":  60
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_archer_117.png",
+        "portrait_path":  "assets/sprites/portraits/green_archer_117.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "green_archer_118",
+        "name":  "周泰",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  891,
+                           "mp":  74,
+                           "atk":  107,
+                           "iat":  71,
+                           "def":  36,
+                           "idr":  33,
+                           "spd":  99,
+                           "rng":  2,
+                           "wis":  63
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_archer_118.png",
+        "portrait_path":  "assets/sprites/portraits/green_archer_118.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "green_archer_119",
+        "name":  "射手绿14",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  963,
+                           "mp":  95,
+                           "atk":  99,
+                           "iat":  70,
+                           "def":  40,
+                           "idr":  26,
+                           "spd":  102,
+                           "rng":  2,
+                           "wis":  59
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_archer_119.png",
+        "portrait_path":  "assets/sprites/portraits/green_archer_119.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "green_archer_120",
+        "name":  "陈宫",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  897,
+                           "mp":  91,
+                           "atk":  102,
+                           "iat":  77,
+                           "def":  33,
+                           "idr":  26,
+                           "spd":  101,
+                           "rng":  2,
+                           "wis":  63
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_archer_120.png",
+        "portrait_path":  "assets/sprites/portraits/green_archer_120.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "green_archer_121",
+        "name":  "甘宁",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  977,
+                           "mp":  73,
+                           "atk":  104,
+                           "iat":  71,
+                           "def":  38,
+                           "idr":  36,
+                           "spd":  105,
+                           "rng":  3,
+                           "wis":  73
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_archer_121.png",
+        "portrait_path":  "assets/sprites/portraits/green_archer_121.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "green_archer_122",
+        "name":  "射手绿12",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  937,
+                           "mp":  90,
+                           "atk":  101,
+                           "iat":  63,
+                           "def":  38,
+                           "idr":  28,
+                           "spd":  102,
+                           "rng":  2,
+                           "wis":  74
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_archer_122.png",
+        "portrait_path":  "assets/sprites/portraits/green_archer_122.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "green_assassin_123",
+        "name":  "豫让弟",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  937,
+                           "mp":  85,
+                           "atk":  95,
+                           "iat":  65,
+                           "def":  37,
+                           "idr":  29,
+                           "spd":  104,
+                           "rng":  2,
+                           "wis":  76
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_assassin_123.png",
+        "portrait_path":  "assets/sprites/portraits/green_assassin_123.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "green_assassin_124",
+        "name":  "侯嬴",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  998,
+                           "mp":  83,
+                           "atk":  110,
+                           "iat":  66,
+                           "def":  43,
+                           "idr":  28,
+                           "spd":  105,
+                           "rng":  2,
+                           "wis":  73
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_assassin_124.png",
+        "portrait_path":  "assets/sprites/portraits/green_assassin_124.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "green_assassin_125",
+        "name":  "刺客绿14",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  868,
+                           "mp":  92,
+                           "atk":  103,
+                           "iat":  68,
+                           "def":  44,
+                           "idr":  39,
+                           "spd":  101,
+                           "rng":  2,
+                           "wis":  68
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_assassin_125.png",
+        "portrait_path":  "assets/sprites/portraits/green_assassin_125.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "green_assassin_126",
+        "name":  "刺客绿12",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  954,
+                           "mp":  87,
+                           "atk":  103,
+                           "iat":  63,
+                           "def":  42,
+                           "idr":  33,
+                           "spd":  101,
+                           "rng":  1,
+                           "wis":  79
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_assassin_126.png",
+        "portrait_path":  "assets/sprites/portraits/green_assassin_126.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "green_assassin_127",
+        "name":  "荆轲弟",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  883,
+                           "mp":  91,
+                           "atk":  98,
+                           "iat":  82,
+                           "def":  30,
+                           "idr":  26,
+                           "spd":  103,
+                           "rng":  1,
+                           "wis":  69
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_assassin_127.png",
+        "portrait_path":  "assets/sprites/portraits/green_assassin_127.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "green_assassin_128",
+        "name":  "刺客绿11",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  1004,
+                           "mp":  76,
+                           "atk":  94,
+                           "iat":  79,
+                           "def":  36,
+                           "idr":  31,
+                           "spd":  101,
+                           "rng":  2,
+                           "wis":  89
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_assassin_128.png",
+        "portrait_path":  "assets/sprites/portraits/green_assassin_128.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "green_assassin_129",
+        "name":  "刺客绿13",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  897,
+                           "mp":  95,
+                           "atk":  92,
+                           "iat":  70,
+                           "def":  34,
+                           "idr":  29,
+                           "spd":  102,
+                           "rng":  1,
+                           "wis":  68
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_assassin_129.png",
+        "portrait_path":  "assets/sprites/portraits/green_assassin_129.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "green_assassin_130",
+        "name":  "朱亥",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  866,
+                           "mp":  74,
+                           "atk":  92,
+                           "iat":  73,
+                           "def":  37,
+                           "idr":  35,
+                           "spd":  98,
+                           "rng":  1,
+                           "wis":  73
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_assassin_130.png",
+        "portrait_path":  "assets/sprites/portraits/green_assassin_130.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "green_assassin_131",
+        "name":  "要离弟",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  873,
+                           "mp":  74,
+                           "atk":  105,
+                           "iat":  78,
+                           "def":  33,
+                           "idr":  27,
+                           "spd":  105,
+                           "rng":  2,
+                           "wis":  89
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_assassin_131.png",
+        "portrait_path":  "assets/sprites/portraits/green_assassin_131.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "green_assassin_132",
+        "name":  "曹刿",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  952,
+                           "mp":  86,
+                           "atk":  110,
+                           "iat":  65,
+                           "def":  44,
+                           "idr":  32,
+                           "spd":  98,
+                           "rng":  2,
+                           "wis":  79
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_assassin_132.png",
+        "portrait_path":  "assets/sprites/portraits/green_assassin_132.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "green_assassin_133",
+        "name":  "聂政弟",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  867,
+                           "mp":  71,
+                           "atk":  107,
+                           "iat":  74,
+                           "def":  43,
+                           "idr":  28,
+                           "spd":  105,
+                           "rng":  2,
+                           "wis":  67
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_assassin_133.png",
+        "portrait_path":  "assets/sprites/portraits/green_assassin_133.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "green_assassin_134",
+        "name":  "刺客甲",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  880,
+                           "mp":  80,
+                           "atk":  96,
+                           "iat":  64,
+                           "def":  34,
+                           "idr":  33,
+                           "spd":  103,
+                           "rng":  2,
+                           "wis":  84
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_assassin_134.png",
+        "portrait_path":  "assets/sprites/portraits/green_assassin_134.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "green_assassin_135",
+        "name":  "唐雎",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  995,
+                           "mp":  79,
+                           "atk":  106,
+                           "iat":  78,
+                           "def":  43,
+                           "idr":  28,
+                           "spd":  99,
+                           "rng":  1,
+                           "wis":  78
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_assassin_135.png",
+        "portrait_path":  "assets/sprites/portraits/green_assassin_135.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "green_assassin_136",
+        "name":  "专诸弟",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  975,
+                           "mp":  77,
+                           "atk":  105,
+                           "iat":  72,
+                           "def":  44,
+                           "idr":  37,
+                           "spd":  104,
+                           "rng":  1,
+                           "wis":  75
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_assassin_136.png",
+        "portrait_path":  "assets/sprites/portraits/green_assassin_136.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "green_mage_137",
+        "name":  "庞统弟",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  970,
+                           "mp":  108,
+                           "atk":  71,
+                           "iat":  94,
+                           "def":  36,
+                           "idr":  29,
+                           "spd":  90,
+                           "rng":  2,
+                           "wis":  84
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_mage_137.png",
+        "portrait_path":  "assets/sprites/portraits/green_mage_137.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "green_mage_138",
+        "name":  "法正弟",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  950,
+                           "mp":  126,
+                           "atk":  73,
+                           "iat":  91,
+                           "def":  32,
+                           "idr":  37,
+                           "spd":  91,
+                           "rng":  2,
+                           "wis":  87
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_mage_138.png",
+        "portrait_path":  "assets/sprites/portraits/green_mage_138.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "green_mage_139",
+        "name":  "法师绿12",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  989,
+                           "mp":  111,
+                           "atk":  64,
+                           "iat":  105,
+                           "def":  31,
+                           "idr":  31,
+                           "spd":  91,
+                           "rng":  3,
+                           "wis":  79
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_mage_139.png",
+        "portrait_path":  "assets/sprites/portraits/green_mage_139.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "green_mage_140",
+        "name":  "田丰弟",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  931,
+                           "mp":  123,
+                           "atk":  67,
+                           "iat":  103,
+                           "def":  41,
+                           "idr":  45,
+                           "spd":  80,
+                           "rng":  3,
+                           "wis":  78
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_mage_140.png",
+        "portrait_path":  "assets/sprites/portraits/green_mage_140.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "green_mage_141",
+        "name":  "诸葛亮弟",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  906,
+                           "mp":  113,
+                           "atk":  69,
+                           "iat":  100,
+                           "def":  33,
+                           "idr":  28,
+                           "spd":  85,
+                           "rng":  2,
+                           "wis":  87
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_mage_141.png",
+        "portrait_path":  "assets/sprites/portraits/green_mage_141.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "green_mage_142",
+        "name":  "郭嘉弟",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  962,
+                           "mp":  107,
+                           "atk":  64,
+                           "iat":  110,
+                           "def":  28,
+                           "idr":  30,
+                           "spd":  96,
+                           "rng":  2,
+                           "wis":  84
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_mage_142.png",
+        "portrait_path":  "assets/sprites/portraits/green_mage_142.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "green_mage_143",
+        "name":  "徐庶弟",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  967,
+                           "mp":  119,
+                           "atk":  70,
+                           "iat":  95,
+                           "def":  33,
+                           "idr":  37,
+                           "spd":  90,
+                           "rng":  2,
+                           "wis":  78
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_mage_143.png",
+        "portrait_path":  "assets/sprites/portraits/green_mage_143.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "green_mage_144",
+        "name":  "司马懿弟",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  899,
+                           "mp":  110,
+                           "atk":  79,
+                           "iat":  91,
+                           "def":  38,
+                           "idr":  30,
+                           "spd":  88,
+                           "rng":  3,
+                           "wis":  88
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_mage_144.png",
+        "portrait_path":  "assets/sprites/portraits/green_mage_144.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "green_mage_145",
+        "name":  "法师绿11",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  968,
+                           "mp":  120,
+                           "atk":  79,
+                           "iat":  104,
+                           "def":  34,
+                           "idr":  36,
+                           "spd":  86,
+                           "rng":  2,
+                           "wis":  83
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_mage_145.png",
+        "portrait_path":  "assets/sprites/portraits/green_mage_145.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "green_mage_146",
+        "name":  "荀彧弟",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  970,
+                           "mp":  108,
+                           "atk":  69,
+                           "iat":  108,
+                           "def":  35,
+                           "idr":  44,
+                           "spd":  89,
+                           "rng":  2,
+                           "wis":  81
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_mage_146.png",
+        "portrait_path":  "assets/sprites/portraits/green_mage_146.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "green_mage_147",
+        "name":  "贾诩弟",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  961,
+                           "mp":  124,
+                           "atk":  61,
+                           "iat":  90,
+                           "def":  31,
+                           "idr":  37,
+                           "spd":  86,
+                           "rng":  2,
+                           "wis":  90
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_mage_147.png",
+        "portrait_path":  "assets/sprites/portraits/green_mage_147.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "green_mage_148",
+        "name":  "陈宫弟",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  925,
+                           "mp":  114,
+                           "atk":  70,
+                           "iat":  93,
+                           "def":  28,
+                           "idr":  43,
+                           "spd":  93,
+                           "rng":  2,
+                           "wis":  80
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_mage_148.png",
+        "portrait_path":  "assets/sprites/portraits/green_mage_148.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "green_priest_149",
+        "name":  "张仲景弟",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  919,
+                           "mp":  120,
+                           "atk":  73,
+                           "iat":  100,
+                           "def":  44,
+                           "idr":  55,
+                           "spd":  91,
+                           "rng":  3,
+                           "wis":  75
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_priest_149.png",
+        "portrait_path":  "assets/sprites/portraits/green_priest_149.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "green_priest_150",
+        "name":  "扁鹊弟",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  1003,
+                           "mp":  110,
+                           "atk":  70,
+                           "iat":  87,
+                           "def":  46,
+                           "idr":  46,
+                           "spd":  80,
+                           "rng":  3,
+                           "wis":  75
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_priest_150.png",
+        "portrait_path":  "assets/sprites/portraits/green_priest_150.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "green_priest_151",
+        "name":  "李时珍弟",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  962,
+                           "mp":  123,
+                           "atk":  72,
+                           "iat":  98,
+                           "def":  34,
+                           "idr":  47,
+                           "spd":  87,
+                           "rng":  3,
+                           "wis":  79
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_priest_151.png",
+        "portrait_path":  "assets/sprites/portraits/green_priest_151.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "green_priest_152",
+        "name":  "药王弟",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  985,
+                           "mp":  115,
+                           "atk":  62,
+                           "iat":  98,
+                           "def":  35,
+                           "idr":  51,
+                           "spd":  94,
+                           "rng":  2,
+                           "wis":  83
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_priest_152.png",
+        "portrait_path":  "assets/sprites/portraits/green_priest_152.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "green_priest_153",
+        "name":  "牧师绿12",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  989,
+                           "mp":  130,
+                           "atk":  64,
+                           "iat":  89,
+                           "def":  35,
+                           "idr":  39,
+                           "spd":  86,
+                           "rng":  2,
+                           "wis":  77
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_priest_153.png",
+        "portrait_path":  "assets/sprites/portraits/green_priest_153.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "green_priest_154",
+        "name":  "妙手弟",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  1054,
+                           "mp":  114,
+                           "atk":  62,
+                           "iat":  87,
+                           "def":  47,
+                           "idr":  49,
+                           "spd":  92,
+                           "rng":  3,
+                           "wis":  82
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_priest_154.png",
+        "portrait_path":  "assets/sprites/portraits/green_priest_154.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "green_priest_155",
+        "name":  "华佗弟",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  938,
+                           "mp":  124,
+                           "atk":  62,
+                           "iat":  97,
+                           "def":  46,
+                           "idr":  55,
+                           "spd":  87,
+                           "rng":  3,
+                           "wis":  90
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_priest_155.png",
+        "portrait_path":  "assets/sprites/portraits/green_priest_155.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "green_priest_156",
+        "name":  "葛洪弟",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  914,
+                           "mp":  121,
+                           "atk":  62,
+                           "iat":  91,
+                           "def":  46,
+                           "idr":  49,
+                           "spd":  79,
+                           "rng":  2,
+                           "wis":  83
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_priest_156.png",
+        "portrait_path":  "assets/sprites/portraits/green_priest_156.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "green_priest_157",
+        "name":  "牧师绿11",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  973,
+                           "mp":  112,
+                           "atk":  62,
+                           "iat":  101,
+                           "def":  48,
+                           "idr":  47,
+                           "spd":  92,
+                           "rng":  2,
+                           "wis":  86
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_priest_157.png",
+        "portrait_path":  "assets/sprites/portraits/green_priest_157.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "green_priest_158",
+        "name":  "孙思邈弟",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  1046,
+                           "mp":  130,
+                           "atk":  66,
+                           "iat":  92,
+                           "def":  47,
+                           "idr":  51,
+                           "spd":  82,
+                           "rng":  2,
+                           "wis":  86
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_priest_158.png",
+        "portrait_path":  "assets/sprites/portraits/green_priest_158.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "green_priest_159",
+        "name":  "神医弟",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  926,
+                           "mp":  120,
+                           "atk":  62,
+                           "iat":  98,
+                           "def":  37,
+                           "idr":  36,
+                           "spd":  85,
+                           "rng":  3,
+                           "wis":  86
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_priest_159.png",
+        "portrait_path":  "assets/sprites/portraits/green_priest_159.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "green_priest_160",
+        "name":  "陶弘景弟",
+        "quality":  "green",
+        "cost":  2,
+        "base_stats":  {
+                           "hp":  1034,
+                           "mp":  126,
+                           "atk":  65,
+                           "iat":  93,
+                           "def":  43,
+                           "idr":  44,
+                           "spd":  90,
+                           "rng":  3,
+                           "wis":  82
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/green_priest_160.png",
+        "portrait_path":  "assets/sprites/portraits/green_priest_160.png",
+        "tags":  [
+                     "unit.quality.green",
+                     "unit.cost.2",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    }
 ]

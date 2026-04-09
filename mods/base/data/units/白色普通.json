@@ -1,1 +1,2242 @@
-[]
+﻿[
+    {
+        "id":  "white_tank_001",
+        "name":  "张盾",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  828,
+                           "mp":  70,
+                           "atk":  47,
+                           "iat":  51,
+                           "def":  52,
+                           "idr":  54,
+                           "spd":  65,
+                           "rng":  1,
+                           "wis":  53
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_tank_001.png",
+        "portrait_path":  "assets/sprites/portraits/white_tank_001.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "white_tank_002",
+        "name":  "黄大锤",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  876,
+                           "mp":  84,
+                           "atk":  53,
+                           "iat":  45,
+                           "def":  50,
+                           "idr":  51,
+                           "spd":  75,
+                           "rng":  2,
+                           "wis":  44
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_tank_002.png",
+        "portrait_path":  "assets/sprites/portraits/white_tank_002.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "white_tank_003",
+        "name":  "周铁壁",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  875,
+                           "mp":  94,
+                           "atk":  55,
+                           "iat":  48,
+                           "def":  47,
+                           "idr":  50,
+                           "spd":  68,
+                           "rng":  2,
+                           "wis":  51
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_tank_003.png",
+        "portrait_path":  "assets/sprites/portraits/white_tank_003.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "white_tank_004",
+        "name":  "坦克白14",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  887,
+                           "mp":  95,
+                           "atk":  46,
+                           "iat":  59,
+                           "def":  62,
+                           "idr":  41,
+                           "spd":  77,
+                           "rng":  1,
+                           "wis":  49
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_tank_004.png",
+        "portrait_path":  "assets/sprites/portraits/white_tank_004.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "white_tank_005",
+        "name":  "坦克白13",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  912,
+                           "mp":  88,
+                           "atk":  51,
+                           "iat":  47,
+                           "def":  46,
+                           "idr":  45,
+                           "spd":  74,
+                           "rng":  1,
+                           "wis":  47
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_tank_005.png",
+        "portrait_path":  "assets/sprites/portraits/white_tank_005.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "white_tank_006",
+        "name":  "李铁头",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  845,
+                           "mp":  82,
+                           "atk":  53,
+                           "iat":  59,
+                           "def":  65,
+                           "idr":  49,
+                           "spd":  70,
+                           "rng":  2,
+                           "wis":  51
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_tank_006.png",
+        "portrait_path":  "assets/sprites/portraits/white_tank_006.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "white_tank_007",
+        "name":  "牛二",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  873,
+                           "mp":  91,
+                           "atk":  53,
+                           "iat":  47,
+                           "def":  64,
+                           "idr":  43,
+                           "spd":  72,
+                           "rng":  1,
+                           "wis":  54
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_tank_007.png",
+        "portrait_path":  "assets/sprites/portraits/white_tank_007.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "white_tank_008",
+        "name":  "石大壮",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  917,
+                           "mp":  78,
+                           "atk":  62,
+                           "iat":  52,
+                           "def":  55,
+                           "idr":  39,
+                           "spd":  72,
+                           "rng":  1,
+                           "wis":  50
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_tank_008.png",
+        "portrait_path":  "assets/sprites/portraits/white_tank_008.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "white_tank_009",
+        "name":  "赵铁柱",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  922,
+                           "mp":  78,
+                           "atk":  47,
+                           "iat":  51,
+                           "def":  63,
+                           "idr":  48,
+                           "spd":  71,
+                           "rng":  2,
+                           "wis":  52
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_tank_009.png",
+        "portrait_path":  "assets/sprites/portraits/white_tank_009.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "white_tank_010",
+        "name":  "坦克白11",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  937,
+                           "mp":  74,
+                           "atk":  53,
+                           "iat":  49,
+                           "def":  52,
+                           "idr":  55,
+                           "spd":  73,
+                           "rng":  2,
+                           "wis":  52
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_tank_010.png",
+        "portrait_path":  "assets/sprites/portraits/white_tank_010.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "white_tank_011",
+        "name":  "马壮",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  912,
+                           "mp":  77,
+                           "atk":  49,
+                           "iat":  60,
+                           "def":  47,
+                           "idr":  39,
+                           "spd":  68,
+                           "rng":  1,
+                           "wis":  45
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_tank_011.png",
+        "portrait_path":  "assets/sprites/portraits/white_tank_011.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "white_tank_012",
+        "name":  "蛮力",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  928,
+                           "mp":  89,
+                           "atk":  47,
+                           "iat":  57,
+                           "def":  57,
+                           "idr":  52,
+                           "spd":  73,
+                           "rng":  1,
+                           "wis":  43
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_tank_012.png",
+        "portrait_path":  "assets/sprites/portraits/white_tank_012.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "white_tank_013",
+        "name":  "坦克白12",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  888,
+                           "mp":  94,
+                           "atk":  55,
+                           "iat":  48,
+                           "def":  54,
+                           "idr":  51,
+                           "spd":  70,
+                           "rng":  2,
+                           "wis":  40
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_tank_013.png",
+        "portrait_path":  "assets/sprites/portraits/white_tank_013.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "white_tank_014",
+        "name":  "铁牛",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  887,
+                           "mp":  86,
+                           "atk":  50,
+                           "iat":  48,
+                           "def":  65,
+                           "idr":  47,
+                           "spd":  71,
+                           "rng":  1,
+                           "wis":  51
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_tank_014.png",
+        "portrait_path":  "assets/sprites/portraits/white_tank_014.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.坦克",
+                     "job.tag_job_iron_bone"
+                 ]
+    },
+    {
+        "id":  "white_warrior_015",
+        "name":  "杨志",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  821,
+                           "mp":  83,
+                           "atk":  67,
+                           "iat":  54,
+                           "def":  50,
+                           "idr":  30,
+                           "spd":  79,
+                           "rng":  1,
+                           "wis":  60
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_warrior_015.png",
+        "portrait_path":  "assets/sprites/portraits/white_warrior_015.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "white_warrior_016",
+        "name":  "秦明",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  900,
+                           "mp":  70,
+                           "atk":  73,
+                           "iat":  68,
+                           "def":  54,
+                           "idr":  41,
+                           "spd":  81,
+                           "rng":  1,
+                           "wis":  54
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_warrior_016.png",
+        "portrait_path":  "assets/sprites/portraits/white_warrior_016.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "white_warrior_017",
+        "name":  "战士白11",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  862,
+                           "mp":  86,
+                           "atk":  85,
+                           "iat":  63,
+                           "def":  49,
+                           "idr":  44,
+                           "spd":  89,
+                           "rng":  1,
+                           "wis":  52
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_warrior_017.png",
+        "portrait_path":  "assets/sprites/portraits/white_warrior_017.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "white_warrior_018",
+        "name":  "花荣",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  817,
+                           "mp":  67,
+                           "atk":  75,
+                           "iat":  52,
+                           "def":  53,
+                           "idr":  45,
+                           "spd":  82,
+                           "rng":  1,
+                           "wis":  45
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_warrior_018.png",
+        "portrait_path":  "assets/sprites/portraits/white_warrior_018.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "white_warrior_019",
+        "name":  "战士白14",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  778,
+                           "mp":  87,
+                           "atk":  85,
+                           "iat":  53,
+                           "def":  42,
+                           "idr":  30,
+                           "spd":  76,
+                           "rng":  2,
+                           "wis":  47
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_warrior_019.png",
+        "portrait_path":  "assets/sprites/portraits/white_warrior_019.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "white_warrior_020",
+        "name":  "杨雄",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  891,
+                           "mp":  72,
+                           "atk":  73,
+                           "iat":  67,
+                           "def":  41,
+                           "idr":  45,
+                           "spd":  79,
+                           "rng":  2,
+                           "wis":  52
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_warrior_020.png",
+        "portrait_path":  "assets/sprites/portraits/white_warrior_020.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "white_warrior_021",
+        "name":  "雷横",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  881,
+                           "mp":  90,
+                           "atk":  78,
+                           "iat":  58,
+                           "def":  38,
+                           "idr":  31,
+                           "spd":  88,
+                           "rng":  2,
+                           "wis":  58
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_warrior_021.png",
+        "portrait_path":  "assets/sprites/portraits/white_warrior_021.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "white_warrior_022",
+        "name":  "石秀",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  865,
+                           "mp":  79,
+                           "atk":  88,
+                           "iat":  53,
+                           "def":  55,
+                           "idr":  31,
+                           "spd":  76,
+                           "rng":  2,
+                           "wis":  55
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_warrior_022.png",
+        "portrait_path":  "assets/sprites/portraits/white_warrior_022.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "white_warrior_023",
+        "name":  "索超",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  787,
+                           "mp":  72,
+                           "atk":  71,
+                           "iat":  58,
+                           "def":  52,
+                           "idr":  42,
+                           "spd":  79,
+                           "rng":  2,
+                           "wis":  50
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_warrior_023.png",
+        "portrait_path":  "assets/sprites/portraits/white_warrior_023.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "white_warrior_024",
+        "name":  "林冲",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  831,
+                           "mp":  79,
+                           "atk":  72,
+                           "iat":  54,
+                           "def":  49,
+                           "idr":  45,
+                           "spd":  78,
+                           "rng":  1,
+                           "wis":  65
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_warrior_024.png",
+        "portrait_path":  "assets/sprites/portraits/white_warrior_024.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "white_warrior_025",
+        "name":  "战士白12",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  898,
+                           "mp":  65,
+                           "atk":  67,
+                           "iat":  59,
+                           "def":  40,
+                           "idr":  41,
+                           "spd":  90,
+                           "rng":  2,
+                           "wis":  51
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_warrior_025.png",
+        "portrait_path":  "assets/sprites/portraits/white_warrior_025.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "white_warrior_026",
+        "name":  "朱仝",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  862,
+                           "mp":  66,
+                           "atk":  70,
+                           "iat":  64,
+                           "def":  35,
+                           "idr":  40,
+                           "spd":  83,
+                           "rng":  2,
+                           "wis":  54
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_warrior_026.png",
+        "portrait_path":  "assets/sprites/portraits/white_warrior_026.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "white_warrior_027",
+        "name":  "武松",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  868,
+                           "mp":  87,
+                           "atk":  88,
+                           "iat":  69,
+                           "def":  50,
+                           "idr":  32,
+                           "spd":  81,
+                           "rng":  2,
+                           "wis":  51
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_warrior_027.png",
+        "portrait_path":  "assets/sprites/portraits/white_warrior_027.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "white_warrior_028",
+        "name":  "战士白13",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  774,
+                           "mp":  83,
+                           "atk":  88,
+                           "iat":  69,
+                           "def":  36,
+                           "idr":  38,
+                           "spd":  76,
+                           "rng":  1,
+                           "wis":  63
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_warrior_028.png",
+        "portrait_path":  "assets/sprites/portraits/white_warrior_028.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.战士",
+                     "job.tag_job_gallant"
+                 ]
+    },
+    {
+        "id":  "white_archer_029",
+        "name":  "穿杨手",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  731,
+                           "mp":  63,
+                           "atk":  90,
+                           "iat":  52,
+                           "def":  21,
+                           "idr":  29,
+                           "spd":  86,
+                           "rng":  3,
+                           "wis":  63
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_archer_029.png",
+        "portrait_path":  "assets/sprites/portraits/white_archer_029.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "white_archer_030",
+        "name":  "猎户丙",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  752,
+                           "mp":  76,
+                           "atk":  82,
+                           "iat":  53,
+                           "def":  26,
+                           "idr":  30,
+                           "spd":  90,
+                           "rng":  2,
+                           "wis":  53
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_archer_030.png",
+        "portrait_path":  "assets/sprites/portraits/white_archer_030.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "white_archer_031",
+        "name":  "射手白11",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  730,
+                           "mp":  64,
+                           "atk":  81,
+                           "iat":  59,
+                           "def":  30,
+                           "idr":  32,
+                           "spd":  86,
+                           "rng":  2,
+                           "wis":  59
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_archer_031.png",
+        "portrait_path":  "assets/sprites/portraits/white_archer_031.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "white_archer_032",
+        "name":  "小李飞",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  759,
+                           "mp":  78,
+                           "atk":  75,
+                           "iat":  47,
+                           "def":  26,
+                           "idr":  28,
+                           "spd":  89,
+                           "rng":  2,
+                           "wis":  56
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_archer_032.png",
+        "portrait_path":  "assets/sprites/portraits/white_archer_032.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "white_archer_033",
+        "name":  "铁弓",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  792,
+                           "mp":  62,
+                           "atk":  79,
+                           "iat":  56,
+                           "def":  29,
+                           "idr":  22,
+                           "spd":  92,
+                           "rng":  3,
+                           "wis":  64
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_archer_033.png",
+        "portrait_path":  "assets/sprites/portraits/white_archer_033.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "white_archer_034",
+        "name":  "射手白14",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  783,
+                           "mp":  80,
+                           "atk":  88,
+                           "iat":  45,
+                           "def":  29,
+                           "idr":  30,
+                           "spd":  86,
+                           "rng":  2,
+                           "wis":  53
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_archer_034.png",
+        "portrait_path":  "assets/sprites/portraits/white_archer_034.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "white_archer_035",
+        "name":  "射日",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  694,
+                           "mp":  63,
+                           "atk":  89,
+                           "iat":  49,
+                           "def":  28,
+                           "idr":  24,
+                           "spd":  94,
+                           "rng":  2,
+                           "wis":  55
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_archer_035.png",
+        "portrait_path":  "assets/sprites/portraits/white_archer_035.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "white_archer_036",
+        "name":  "柳叶飞",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  706,
+                           "mp":  81,
+                           "atk":  80,
+                           "iat":  61,
+                           "def":  35,
+                           "idr":  24,
+                           "spd":  85,
+                           "rng":  2,
+                           "wis":  65
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_archer_036.png",
+        "portrait_path":  "assets/sprites/portraits/white_archer_036.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "white_archer_037",
+        "name":  "射手白12",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  734,
+                           "mp":  68,
+                           "atk":  73,
+                           "iat":  45,
+                           "def":  30,
+                           "idr":  32,
+                           "spd":  87,
+                           "rng":  3,
+                           "wis":  50
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_archer_037.png",
+        "portrait_path":  "assets/sprites/portraits/white_archer_037.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "white_archer_038",
+        "name":  "花荣弟",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  774,
+                           "mp":  74,
+                           "atk":  89,
+                           "iat":  58,
+                           "def":  20,
+                           "idr":  21,
+                           "spd":  86,
+                           "rng":  2,
+                           "wis":  62
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_archer_038.png",
+        "portrait_path":  "assets/sprites/portraits/white_archer_038.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "white_archer_039",
+        "name":  "弹弓手",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  684,
+                           "mp":  71,
+                           "atk":  90,
+                           "iat":  62,
+                           "def":  24,
+                           "idr":  26,
+                           "spd":  87,
+                           "rng":  2,
+                           "wis":  54
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_archer_039.png",
+        "portrait_path":  "assets/sprites/portraits/white_archer_039.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "white_archer_040",
+        "name":  "射手白13",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  726,
+                           "mp":  85,
+                           "atk":  73,
+                           "iat":  56,
+                           "def":  26,
+                           "idr":  30,
+                           "spd":  88,
+                           "rng":  2,
+                           "wis":  56
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_archer_040.png",
+        "portrait_path":  "assets/sprites/portraits/white_archer_040.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "white_archer_041",
+        "name":  "箭手",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  779,
+                           "mp":  77,
+                           "atk":  85,
+                           "iat":  49,
+                           "def":  27,
+                           "idr":  22,
+                           "spd":  87,
+                           "rng":  3,
+                           "wis":  45
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_archer_041.png",
+        "portrait_path":  "assets/sprites/portraits/white_archer_041.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "white_archer_042",
+        "name":  "弓九",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  702,
+                           "mp":  83,
+                           "atk":  82,
+                           "iat":  58,
+                           "def":  27,
+                           "idr":  24,
+                           "spd":  87,
+                           "rng":  2,
+                           "wis":  57
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_archer_042.png",
+        "portrait_path":  "assets/sprites/portraits/white_archer_042.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.射手",
+                     "job.tag_job_flying_feather"
+                 ]
+    },
+    {
+        "id":  "white_assassin_043",
+        "name":  "暗哨",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  802,
+                           "mp":  70,
+                           "atk":  83,
+                           "iat":  47,
+                           "def":  30,
+                           "idr":  25,
+                           "spd":  94,
+                           "rng":  2,
+                           "wis":  55
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_assassin_043.png",
+        "portrait_path":  "assets/sprites/portraits/white_assassin_043.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "white_assassin_044",
+        "name":  "流萤",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  729,
+                           "mp":  68,
+                           "atk":  80,
+                           "iat":  63,
+                           "def":  30,
+                           "idr":  20,
+                           "spd":  89,
+                           "rng":  2,
+                           "wis":  66
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_assassin_044.png",
+        "portrait_path":  "assets/sprites/portraits/white_assassin_044.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "white_assassin_045",
+        "name":  "夜行者",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  780,
+                           "mp":  73,
+                           "atk":  78,
+                           "iat":  57,
+                           "def":  28,
+                           "idr":  24,
+                           "spd":  88,
+                           "rng":  2,
+                           "wis":  55
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_assassin_045.png",
+        "portrait_path":  "assets/sprites/portraits/white_assassin_045.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "white_assassin_046",
+        "name":  "刺客白13",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  750,
+                           "mp":  71,
+                           "atk":  88,
+                           "iat":  47,
+                           "def":  32,
+                           "idr":  29,
+                           "spd":  93,
+                           "rng":  1,
+                           "wis":  78
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_assassin_046.png",
+        "portrait_path":  "assets/sprites/portraits/white_assassin_046.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "white_assassin_047",
+        "name":  "轻烟",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  776,
+                           "mp":  76,
+                           "atk":  84,
+                           "iat":  58,
+                           "def":  32,
+                           "idr":  26,
+                           "spd":  92,
+                           "rng":  1,
+                           "wis":  61
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_assassin_047.png",
+        "portrait_path":  "assets/sprites/portraits/white_assassin_047.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "white_assassin_048",
+        "name":  "蛇灵",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  807,
+                           "mp":  81,
+                           "atk":  87,
+                           "iat":  50,
+                           "def":  31,
+                           "idr":  26,
+                           "spd":  88,
+                           "rng":  2,
+                           "wis":  64
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_assassin_048.png",
+        "portrait_path":  "assets/sprites/portraits/white_assassin_048.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "white_assassin_049",
+        "name":  "毒蝎",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  753,
+                           "mp":  73,
+                           "atk":  85,
+                           "iat":  59,
+                           "def":  36,
+                           "idr":  27,
+                           "spd":  91,
+                           "rng":  2,
+                           "wis":  80
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_assassin_049.png",
+        "portrait_path":  "assets/sprites/portraits/white_assassin_049.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "white_assassin_050",
+        "name":  "游侠",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  743,
+                           "mp":  81,
+                           "atk":  77,
+                           "iat":  54,
+                           "def":  38,
+                           "idr":  30,
+                           "spd":  93,
+                           "rng":  1,
+                           "wis":  79
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_assassin_050.png",
+        "portrait_path":  "assets/sprites/portraits/white_assassin_050.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "white_assassin_051",
+        "name":  "刺客白12",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  760,
+                           "mp":  81,
+                           "atk":  84,
+                           "iat":  52,
+                           "def":  28,
+                           "idr":  22,
+                           "spd":  88,
+                           "rng":  1,
+                           "wis":  62
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_assassin_051.png",
+        "portrait_path":  "assets/sprites/portraits/white_assassin_051.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "white_assassin_052",
+        "name":  "刺客白11",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  821,
+                           "mp":  79,
+                           "atk":  77,
+                           "iat":  59,
+                           "def":  35,
+                           "idr":  34,
+                           "spd":  91,
+                           "rng":  2,
+                           "wis":  70
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_assassin_052.png",
+        "portrait_path":  "assets/sprites/portraits/white_assassin_052.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "white_assassin_053",
+        "name":  "影刺",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  802,
+                           "mp":  67,
+                           "atk":  79,
+                           "iat":  65,
+                           "def":  22,
+                           "idr":  34,
+                           "spd":  89,
+                           "rng":  2,
+                           "wis":  62
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_assassin_053.png",
+        "portrait_path":  "assets/sprites/portraits/white_assassin_053.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "white_assassin_054",
+        "name":  "鬼手",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  745,
+                           "mp":  85,
+                           "atk":  89,
+                           "iat":  46,
+                           "def":  29,
+                           "idr":  34,
+                           "spd":  89,
+                           "rng":  2,
+                           "wis":  59
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_assassin_054.png",
+        "portrait_path":  "assets/sprites/portraits/white_assassin_054.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "white_assassin_055",
+        "name":  "飞天蜈蚣",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  818,
+                           "mp":  81,
+                           "atk":  85,
+                           "iat":  59,
+                           "def":  38,
+                           "idr":  26,
+                           "spd":  95,
+                           "rng":  1,
+                           "wis":  78
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_assassin_055.png",
+        "portrait_path":  "assets/sprites/portraits/white_assassin_055.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "white_assassin_056",
+        "name":  "刺客白14",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  821,
+                           "mp":  74,
+                           "atk":  83,
+                           "iat":  52,
+                           "def":  30,
+                           "idr":  32,
+                           "spd":  95,
+                           "rng":  1,
+                           "wis":  63
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_assassin_056.png",
+        "portrait_path":  "assets/sprites/portraits/white_assassin_056.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.刺客",
+                     "job.tag_job_flying_ranger"
+                 ]
+    },
+    {
+        "id":  "white_mage_057",
+        "name":  "法师白11",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  749,
+                           "mp":  97,
+                           "atk":  49,
+                           "iat":  94,
+                           "def":  23,
+                           "idr":  22,
+                           "spd":  83,
+                           "rng":  3,
+                           "wis":  75
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_mage_057.png",
+        "portrait_path":  "assets/sprites/portraits/white_mage_057.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "white_mage_058",
+        "name":  "巫祝",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  809,
+                           "mp":  98,
+                           "atk":  46,
+                           "iat":  78,
+                           "def":  33,
+                           "idr":  33,
+                           "spd":  82,
+                           "rng":  2,
+                           "wis":  77
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_mage_058.png",
+        "portrait_path":  "assets/sprites/portraits/white_mage_058.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "white_mage_059",
+        "name":  "画符人",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  812,
+                           "mp":  85,
+                           "atk":  56,
+                           "iat":  81,
+                           "def":  32,
+                           "idr":  32,
+                           "spd":  83,
+                           "rng":  2,
+                           "wis":  80
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_mage_059.png",
+        "portrait_path":  "assets/sprites/portraits/white_mage_059.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "white_mage_060",
+        "name":  "道童甲",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  746,
+                           "mp":  93,
+                           "atk":  58,
+                           "iat":  87,
+                           "def":  20,
+                           "idr":  32,
+                           "spd":  80,
+                           "rng":  3,
+                           "wis":  70
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_mage_060.png",
+        "portrait_path":  "assets/sprites/portraits/white_mage_060.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "white_mage_061",
+        "name":  "法师白12",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  809,
+                           "mp":  89,
+                           "atk":  62,
+                           "iat":  72,
+                           "def":  34,
+                           "idr":  32,
+                           "spd":  70,
+                           "rng":  2,
+                           "wis":  78
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_mage_061.png",
+        "portrait_path":  "assets/sprites/portraits/white_mage_061.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "white_mage_062",
+        "name":  "方士",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  724,
+                           "mp":  99,
+                           "atk":  50,
+                           "iat":  73,
+                           "def":  24,
+                           "idr":  32,
+                           "spd":  80,
+                           "rng":  2,
+                           "wis":  79
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_mage_062.png",
+        "portrait_path":  "assets/sprites/portraits/white_mage_062.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "white_mage_063",
+        "name":  "风水先生",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  773,
+                           "mp":  95,
+                           "atk":  57,
+                           "iat":  80,
+                           "def":  32,
+                           "idr":  33,
+                           "spd":  78,
+                           "rng":  2,
+                           "wis":  80
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_mage_063.png",
+        "portrait_path":  "assets/sprites/portraits/white_mage_063.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "white_mage_064",
+        "name":  "阴阳生",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  694,
+                           "mp":  108,
+                           "atk":  62,
+                           "iat":  73,
+                           "def":  25,
+                           "idr":  27,
+                           "spd":  72,
+                           "rng":  2,
+                           "wis":  65
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_mage_064.png",
+        "portrait_path":  "assets/sprites/portraits/white_mage_064.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "white_mage_065",
+        "name":  "卜算子",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  753,
+                           "mp":  91,
+                           "atk":  45,
+                           "iat":  91,
+                           "def":  22,
+                           "idr":  27,
+                           "spd":  74,
+                           "rng":  3,
+                           "wis":  68
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_mage_065.png",
+        "portrait_path":  "assets/sprites/portraits/white_mage_065.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "white_mage_066",
+        "name":  "祝由生",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  745,
+                           "mp":  99,
+                           "atk":  53,
+                           "iat":  83,
+                           "def":  22,
+                           "idr":  23,
+                           "spd":  75,
+                           "rng":  3,
+                           "wis":  68
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_mage_066.png",
+        "portrait_path":  "assets/sprites/portraits/white_mage_066.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "white_mage_067",
+        "name":  "符师",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  696,
+                           "mp":  94,
+                           "atk":  57,
+                           "iat":  84,
+                           "def":  31,
+                           "idr":  26,
+                           "spd":  72,
+                           "rng":  2,
+                           "wis":  68
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_mage_067.png",
+        "portrait_path":  "assets/sprites/portraits/white_mage_067.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "white_mage_068",
+        "name":  "炼丹童",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  767,
+                           "mp":  106,
+                           "atk":  48,
+                           "iat":  90,
+                           "def":  32,
+                           "idr":  21,
+                           "spd":  81,
+                           "rng":  3,
+                           "wis":  76
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_mage_068.png",
+        "portrait_path":  "assets/sprites/portraits/white_mage_068.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.法师",
+                     "job.tag_job_qi_master"
+                 ]
+    },
+    {
+        "id":  "white_priest_069",
+        "name":  "接骨师",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  759,
+                           "mp":  103,
+                           "atk":  50,
+                           "iat":  88,
+                           "def":  40,
+                           "idr":  36,
+                           "spd":  82,
+                           "rng":  3,
+                           "wis":  74
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_priest_069.png",
+        "portrait_path":  "assets/sprites/portraits/white_priest_069.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "white_priest_070",
+        "name":  "医馆弟子",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  831,
+                           "mp":  108,
+                           "atk":  53,
+                           "iat":  75,
+                           "def":  31,
+                           "idr":  30,
+                           "spd":  73,
+                           "rng":  3,
+                           "wis":  67
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_priest_070.png",
+        "portrait_path":  "assets/sprites/portraits/white_priest_070.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "white_priest_071",
+        "name":  "牧师白12",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  838,
+                           "mp":  108,
+                           "atk":  57,
+                           "iat":  75,
+                           "def":  24,
+                           "idr":  43,
+                           "spd":  75,
+                           "rng":  2,
+                           "wis":  75
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_priest_071.png",
+        "portrait_path":  "assets/sprites/portraits/white_priest_071.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "white_priest_072",
+        "name":  "丹童",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  774,
+                           "mp":  101,
+                           "atk":  53,
+                           "iat":  75,
+                           "def":  32,
+                           "idr":  36,
+                           "spd":  82,
+                           "rng":  2,
+                           "wis":  76
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_priest_072.png",
+        "portrait_path":  "assets/sprites/portraits/white_priest_072.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "white_priest_073",
+        "name":  "牧师白11",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  768,
+                           "mp":  92,
+                           "atk":  52,
+                           "iat":  88,
+                           "def":  37,
+                           "idr":  43,
+                           "spd":  82,
+                           "rng":  2,
+                           "wis":  75
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_priest_073.png",
+        "portrait_path":  "assets/sprites/portraits/white_priest_073.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "white_priest_074",
+        "name":  "游方郎中",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  845,
+                           "mp":  104,
+                           "atk":  45,
+                           "iat":  67,
+                           "def":  33,
+                           "idr":  35,
+                           "spd":  77,
+                           "rng":  2,
+                           "wis":  69
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_priest_074.png",
+        "portrait_path":  "assets/sprites/portraits/white_priest_074.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "white_priest_075",
+        "name":  "凉茶翁",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  814,
+                           "mp":  105,
+                           "atk":  56,
+                           "iat":  78,
+                           "def":  34,
+                           "idr":  39,
+                           "spd":  79,
+                           "rng":  3,
+                           "wis":  69
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_priest_075.png",
+        "portrait_path":  "assets/sprites/portraits/white_priest_075.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "white_priest_076",
+        "name":  "药婆",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  784,
+                           "mp":  97,
+                           "atk":  48,
+                           "iat":  88,
+                           "def":  30,
+                           "idr":  38,
+                           "spd":  68,
+                           "rng":  2,
+                           "wis":  66
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_priest_076.png",
+        "portrait_path":  "assets/sprites/portraits/white_priest_076.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "white_priest_077",
+        "name":  "药童",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  775,
+                           "mp":  105,
+                           "atk":  53,
+                           "iat":  88,
+                           "def":  40,
+                           "idr":  37,
+                           "spd":  68,
+                           "rng":  2,
+                           "wis":  69
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_priest_077.png",
+        "portrait_path":  "assets/sprites/portraits/white_priest_077.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "white_priest_078",
+        "name":  "灸师",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  778,
+                           "mp":  101,
+                           "atk":  50,
+                           "iat":  74,
+                           "def":  24,
+                           "idr":  45,
+                           "spd":  69,
+                           "rng":  3,
+                           "wis":  61
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_priest_078.png",
+        "portrait_path":  "assets/sprites/portraits/white_priest_078.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "white_priest_079",
+        "name":  "正骨匠",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  733,
+                           "mp":  107,
+                           "atk":  54,
+                           "iat":  87,
+                           "def":  28,
+                           "idr":  43,
+                           "spd":  68,
+                           "rng":  2,
+                           "wis":  78
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_priest_079.png",
+        "portrait_path":  "assets/sprites/portraits/white_priest_079.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    },
+    {
+        "id":  "white_priest_080",
+        "name":  "采药人",
+        "quality":  "white",
+        "cost":  1,
+        "base_stats":  {
+                           "hp":  792,
+                           "mp":  105,
+                           "atk":  60,
+                           "iat":  79,
+                           "def":  34,
+                           "idr":  33,
+                           "spd":  66,
+                           "rng":  3,
+                           "wis":  75
+                       },
+        "initial_gongfa":  [
+
+                           ],
+        "sprite_path":  "assets/sprites/units/white_priest_080.png",
+        "portrait_path":  "assets/sprites/portraits/white_priest_080.png",
+        "tags":  [
+                     "unit.quality.white",
+                     "unit.cost.1",
+                     "role.牧师",
+                     "job.tag_job_healer"
+                 ]
+    }
+]

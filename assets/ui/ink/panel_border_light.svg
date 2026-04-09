@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <rect x="3" y="3" width="194" height="194"
+        rx="2" ry="2"
+        fill="#EDE4D3" fill-opacity="0.95"/>
+  <!-- 只画上边和左边，模拟未画完的速写 -->
+  <path d="M 5,5 L 195,4.5"
+        stroke="#3D3428" stroke-opacity="0.45"
+        stroke-width="1.8" fill="none"
+        stroke-linecap="round"/>
+  <path d="M 4,6 L 3.5,195"
+        stroke="#3D3428" stroke-opacity="0.40"
+        stroke-width="1.5" fill="none"
+        stroke-linecap="round"/>
+  <!-- 右下角提一笔飞白 -->
+  <path d="M 196,170 C 196.5,185 196,195 195,197"
+        stroke="#5C5244" stroke-opacity="0.20"
+        stroke-width="1.0" fill="none"
+        stroke-linecap="round"/>
+</svg>

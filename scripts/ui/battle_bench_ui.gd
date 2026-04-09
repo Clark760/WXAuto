@@ -4,6 +4,7 @@ class_name BattleBenchUI
 const BATTLE_BENCH_SLOT_SCENE: PackedScene = preload(
 	"res://scenes/ui/battle_bench_slot.tscn"
 )
+const INK_THEME_BUILDER = preload("res://scripts/ui/ink_theme_builder.gd")
 
 # ===========================
 # 备战席 UI
@@ -356,16 +357,7 @@ func _compact_slots() -> void:
 
 # 品质色统一收口，避免槽位视图自己维护颜色表。
 func _quality_to_color(quality: String) -> Color:
-	match quality:
-		"white":
-			return Color(0.78, 0.8, 0.82, 0.95)
-		"green":
-			return Color(0.42, 0.68, 0.42, 0.95)
-		"blue":
-			return Color(0.32, 0.52, 0.8, 0.95)
-		"purple":
-			return Color(0.54, 0.38, 0.72, 0.95)
-		"orange":
-			return Color(0.76, 0.48, 0.2, 0.95)
-		_:
-			return Color(0.5, 0.5, 0.5, 0.95)
+	var color_value: Variant = INK_THEME_BUILDER.quality_color(quality)
+	if color_value is Color:
+		return color_value as Color
+	return Color(0.54, 0.49, 0.43, 0.95)

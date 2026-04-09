@@ -1,5 +1,6 @@
 extends "res://scripts/ui/battle_inventory_item_card.gd"
 class_name InventoryItemCardView
+const INK_THEME_BUILDER = preload("res://scripts/ui/ink_theme_builder.gd")
 
 # 仓库卡片子场景视图
 # 说明：
@@ -19,6 +20,7 @@ var _status_label: Label = null
 # 节点就绪后抓取子节点并刷新初始展示态。
 func _ready() -> void:
 	_bind_nodes()
+	_apply_card_panel_style()
 	_apply_view_model()
 
 
@@ -67,3 +69,10 @@ func _apply_view_model() -> void:
 		_type_label.text = str(_view_model.get("type_text", ""))
 	if _status_label != null:
 		_status_label.text = str(_view_model.get("status_text", ""))
+
+
+# 仓库卡片与商店卡片共享同一张 SVG 边框，避免列表视觉漂移。
+func _apply_card_panel_style() -> void:
+	var card_style: StyleBox = INK_THEME_BUILDER.make_card_panel_style() as StyleBox
+	if card_style != null:
+		add_theme_stylebox_override("panel", card_style)
